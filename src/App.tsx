@@ -311,7 +311,15 @@ function App() {
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession)
+      if (nextSession) {
+        setSession(nextSession)
+        return
+      }
+
+      void supabase.auth.getSession().then(({ data }) => {
+        if (!mounted) return
+        setSession(data.session)
+      })
     })
 
     return () => {
@@ -388,14 +396,15 @@ function App() {
 
     setLoginLoading(true)
     setLoginError('')
+    setMasterError('')
 
     try {
-      await loginMaker('akuntan', nextPassword)
+      const nextSession = await loginMaker('akuntan', nextPassword)
+      setSession(nextSession)
       setPassword('')
-      await loadMasterData()
-    } catch {
+    } catch (err) {
       setPassword('')
-      setLoginError('PIN salah')
+      setLoginError(err instanceof Error ? err.message : 'PIN salah')
       window.setTimeout(() => pinInputRef.current?.focus(), 0)
     } finally {
       setLoginLoading(false)
@@ -404,9 +413,11 @@ function App() {
 
   async function handleLogout() {
     await logoutMaker()
+    setSession(null)
     setMasterData(null)
     setCopyMessage('')
     setHistoryMessage('')
+    setMasterError('')
     window.setTimeout(() => pinInputRef.current?.focus(), 0)
   }
 
