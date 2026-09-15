@@ -301,26 +301,29 @@ function App() {
   })
 
   useEffect(() => {
+    let mounted = true
+
     void supabase.auth.getSession().then(({ data }) => {
-      const nextSession = data.session
-      setSession(nextSession)
-      if (nextSession?.user.email === 'maker-akuntan@internal.local') {
-        void loadMasterData()
-      }
+      if (!mounted) return
+      setSession(data.session)
     })
 
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
-      if (nextSession?.user.email === 'maker-akuntan@internal.local') {
-        void loadMasterData()
-      }
     })
 
-    return () => subscription.unsubscribe()
-    // loadMasterData is declared later but is stable across renders for this mount.
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
+
+  useEffect(() => {
+    if (session?.user.email !== 'maker-akuntan@internal.local') return
+    void loadMasterData()
+  }, [session])
 
   useEffect(() => {
     workspaceRef.current = {
