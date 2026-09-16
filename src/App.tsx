@@ -389,6 +389,7 @@ function App() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       document.removeEventListener('freeze', handleFreeze)
+      window.removeEventListener('pagehide', handleFreeze)
       window.removeEventListener('pagehide', handlePageHide)
     }
   }, [])
@@ -695,7 +696,7 @@ function App() {
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
     setCopyMessage('')
-    setHistoryMessage('Draft browser direset.')
+    setHistoryMessage('Draft browser direset. Snapshot pemulihan disimpan.')
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
 
@@ -721,7 +722,7 @@ function App() {
 
       outputs.push({
         bank: getOutputBank(bank),
-        line: `Lain-lain: (${bank}) ${accountNumber} · ${need} · ${formatNumber(entry.amount)}`,
+        line: `Lain-lain : ${need} - ${bank} / ${accountNumber} · ${formatNumber(entry.amount)}`,
         kind: 'lain_lain'
       })
     }
@@ -747,9 +748,8 @@ function App() {
         gasRules[0]
       if (!rule?.accounts) continue
 
-      const accountName =
-        displaySupplierName(rule.supplier) || rule.accounts.name
-      const outputLine = `${accountName} - (${rule.accounts.bank}) ${rule.accounts.account_number ?? '-'} · ${formatNumber(entry.amount)}`
+      const accountName = rule.supplier?.business_name || rule.accounts.name
+      const outputLine = `${accountName} - ${rule.accounts.bank} / ${rule.accounts.account_number ?? '-'} · ${formatNumber(entry.amount)}`
 
       items.push({
         kind: 'gas',
@@ -1275,7 +1275,7 @@ function App() {
                   </section>
 
                   {gasRules.length > 0 && (
-                    <div className="w-full rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3">
+                    <div className="mt-2 w-full rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3">
                       <div className="mb-2 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[10px] font-bold tracking-wide text-emerald-200">
@@ -1339,12 +1339,12 @@ function App() {
                   )}
 
                   {gasRules.length === 0 && (
-                    <div className="w-full rounded-lg border border-dashed border-stone-700 p-3 text-sm text-stone-500">
+                    <div className="mt-2 w-full rounded-lg border border-dashed border-stone-700 p-3 text-sm text-stone-500">
                       Dapur ini tidak memiliki mapping GAS.
                     </div>
                   )}
 
-                  <section className="w-full rounded-xl border border-rose-600/60 bg-rose-950/10 p-3">
+                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-rose-950/10 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <h2 className="text-base font-semibold">
@@ -1455,7 +1455,7 @@ function App() {
                                   )
                                 }
                                 placeholder="Nominal"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                               />
                             </div>
                           </div>
