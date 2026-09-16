@@ -41,6 +41,7 @@ type SavedWorkspace = {
 }
 
 const STORAGE_KEY = 'maker-pencairan-workspace-v4'
+const RECOVERY_STORAGE_KEY = 'maker-pencairan-workspace-recovery-v1'
 const LEGACY_STORAGE_KEY = 'maker-pencairan-workspace-v3'
 
 const OPERATIONAL_BANKS = [
@@ -182,13 +183,11 @@ function isValidSavedWorkspace(value: unknown): value is SavedWorkspace {
   )
 }
 
-function readSavedWorkspace(): SavedWorkspace | null {
+function readWorkspaceFromStorageKey(key: string): SavedWorkspace | null {
   if (typeof window === 'undefined') return null
 
   try {
-    const raw =
-      window.localStorage.getItem(STORAGE_KEY) ??
-      window.localStorage.getItem(LEGACY_STORAGE_KEY)
+    const raw = window.localStorage.getItem(key)
     if (!raw) return null
 
     const parsed = JSON.parse(raw) as unknown
@@ -212,7 +211,17 @@ function readSavedWorkspace(): SavedWorkspace | null {
   }
 }
 
-function persistWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
+function readSavedWorkspace(): SavedWorkspace | null {
+  return (
+    readWorkspaceFromStorageKey(STORAGE_KEY) ??
+    readWorkspaceFromStorageKey(LEGACY_STORAGE_KEY)
+  )
+}
+
+function persistWorkspaceToKey(
+  workspace: Omit<SavedWorkspace, 'version'>,
+  key: string
+) {
   if (typeof window === 'undefined') return
 
   try {
@@ -222,11 +231,19 @@ function persistWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
       savedAt: Date.now()
     }
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+    window.localStorage.setItem(key, JSON.stringify(payload))
   } catch {
     // localStorage can fail in private/restricted browser contexts.
     // The app continues to work in memory in that case.
   }
+}
+
+function persistWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
+  persistWorkspaceToKey(workspace, STORAGE_KEY)
+}
+
+function persistRecoveryWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
+  persistWorkspaceToKey(workspace, RECOVERY_STORAGE_KEY)
 }
 
 function emptySimpleEntry(id = 1): SimpleEntry {
@@ -330,8 +347,9 @@ function App() {
 
   useEffect(() => {
     if (session?.user.email !== 'maker-akuntan@internal.local') return
+    if (masterData) return
     void loadMasterData()
-  }, [session])
+  }, [session, masterData])
 
   useEffect(() => {
     workspaceRef.current = {
@@ -658,6 +676,12 @@ function App() {
   }
 
   function resetWorkspace() {
+    persistRecoveryWorkspace({
+      kitchenId,
+      activeTransactionId,
+      transactions
+    })
+
     const initialDate = toIsoDate(new Date())
     const nextTransaction = makeTransaction(
       1,
@@ -747,10 +771,8 @@ function App() {
 
       if (!hasAmount && !hasProduct) continue
 
-      const supplierName = rule.supplier
-        ? `${rule.supplier.business_name}${rule.supplier.owner_name ? ` (${rule.supplier.owner_name})` : ''}`
-        : rule.accounts.name
-      const accountText = `${supplierName} - ${rule.accounts.bank}`
+      const supplierName = rule.supplier?.business_name ?? rule.accounts.name
+      const accountText = `${supplierName} - ${rule.accounts.bank} / ${rule.accounts.account_number ?? '-'}`
       const amountText = formatNumber(entry.amount) || '0'
       const outputLine = hasProduct
         ? `${accountText} · ${productText} · ${amountText}`
@@ -840,17 +862,33 @@ function App() {
   }
 
   function restoreLastDraft() {
-    const stored = readSavedWorkspace()
+    const recovery = readWorkspaceFromStorageKey(RECOVERY_STORAGE_KEY)
+    const stored = recovery ?? readSavedWorkspace()
+
     if (!stored) {
       setHistoryMessage('Belum ada draft tersimpan di browser.')
       window.setTimeout(() => setHistoryMessage(''), 1800)
       return
     }
 
-    setKitchenId(stored.kitchenId)
-    setTransactions(stored.transactions)
-    setActiveTransactionId(stored.activeTransactionId)
-    setHistoryMessage('Draft terakhir dipulihkan.')
+    const workspace = {
+      kitchenId: stored.kitchenId,
+      activeTransactionId: stored.activeTransactionId,
+      transactions: stored.transactions
+    }
+
+    setKitchenId(workspace.kitchenId)
+    setTransactions(workspace.transactions)
+    setActiveTransactionId(workspace.activeTransactionId)
+    persistWorkspace(workspace)
+
+    if (recovery) {
+      window.localStorage.removeItem(RECOVERY_STORAGE_KEY)
+    }
+
+    setHistoryMessage(
+      recovery ? 'Draft sebelum Reset dipulihkan.' : 'Draft terakhir dipulihkan.'
+    )
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
 
@@ -1040,7 +1078,7 @@ function App() {
                       <div>
                         <h2 className="text-sm font-semibold">Siap Copy</h2>
                         <p className="mt-1 text-xs leading-5 text-stone-300">
-                          Draft otomatis tersimpan di browser.
+                          Draft otomatis tersimpan di browser. Reset menyimpan snapshot pemulihan.
                         </p>
                       </div>
                       <button
