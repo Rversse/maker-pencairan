@@ -887,7 +887,9 @@ function App() {
     }
 
     setHistoryMessage(
-      recovery ? 'Draft sebelum Reset dipulihkan.' : 'Draft terakhir dipulihkan.'
+      recovery
+        ? 'Draft sebelum Reset dipulihkan.'
+        : 'Draft terakhir dipulihkan.'
     )
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
@@ -1004,7 +1006,7 @@ function App() {
                         htmlFor="date"
                         className="mb-1 block text-sm font-medium leading-5 text-stone-300"
                       >
-                        Tanggal transaksi aktif
+                        Tanggal Transaksi
                       </label>
                       <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-stone-700 bg-stone-950 px-3 transition hover:border-stone-600 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/40">
                         <span className="text-xs font-semibold text-stone-500">
@@ -1076,9 +1078,11 @@ function App() {
                   <section className="mt-2 rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-sm font-semibold">Siap Copy</h2>
+                        <h2 className="text-sm font-semibold">Output</h2>
                         <p className="mt-1 text-xs leading-5 text-stone-300">
-                          Draft otomatis tersimpan di browser. Reset menyimpan snapshot pemulihan.
+                          Draft otomatis tersimpan di browser. Reset menyimpan
+                          snapshot pemulihan. Copy untuk menyalin dan dikirim ke
+                          Whatsapp.
                         </p>
                       </div>
                       <button
@@ -1430,7 +1434,7 @@ function App() {
                                     { need: event.target.value }
                                   )
                                 }
-                                placeholder="Keperluan / Kosong untuk Ops Harian"
+                                placeholder="Isi dengan keperluan / kosongkan untuk otomatis diisi Ops Harian"
                                 className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
                               />
                             </div>
