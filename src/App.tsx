@@ -363,6 +363,26 @@ function emptyDailyPaymentEntry(
   }
 }
 
+function ensureDailyPaymentCategories(
+  entries: DailyPaymentEntry[]
+): DailyPaymentEntry[] {
+  const next = [...entries]
+  let nextId =
+    next.length === 0
+      ? 1
+      : Math.max(...next.map((entry) => entry.id)) + 1
+
+  if (!next.some((entry) => entry.category === 'sewa')) {
+    next.push(emptyDailyPaymentEntry(nextId++, 'sewa'))
+  }
+
+  if (!next.some((entry) => entry.category === 'gaji')) {
+    next.push(emptyDailyPaymentEntry(nextId, 'gaji'))
+  }
+
+  return next
+}
+
 function normalizeTransaction(
   transaction: TransactionGroup,
   fallbackDate: string
@@ -377,34 +397,36 @@ function normalizeTransaction(
           ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }))
       : [],
-    pencairan_harian: Array.isArray(transaction.pencairan_harian)
-      ? transaction.pencairan_harian.map((entry) => {
-          const legacyEntry = entry as DailyPaymentEntry & {
-            kind?: DailyPaymentKind
-          }
-          const legacyKinds = Array.isArray(entry.kinds)
-            ? entry.kinds
-            : legacyEntry.kind
-              ? [legacyEntry.kind]
-              : []
-          const category: DailyPaymentCategory =
-            entry.category ??
-            (legacyKinds.some((kind) =>
-              DAILY_PAYMENT_GAJI_OPTIONS.includes(kind)
-            )
-              ? 'gaji'
-              : 'sewa')
+    pencairan_harian: ensureDailyPaymentCategories(
+      Array.isArray(transaction.pencairan_harian)
+        ? transaction.pencairan_harian.map((entry) => {
+            const legacyEntry = entry as DailyPaymentEntry & {
+              kind?: DailyPaymentKind
+            }
+            const legacyKinds = Array.isArray(entry.kinds)
+              ? entry.kinds
+              : legacyEntry.kind
+                ? [legacyEntry.kind]
+                : []
+            const category: DailyPaymentCategory =
+              entry.category ??
+              (legacyKinds.some((kind) =>
+                DAILY_PAYMENT_GAJI_OPTIONS.includes(kind)
+              )
+                ? 'gaji'
+                : 'sewa')
 
-          return {
-            ...entry,
-            category,
-            kinds: sortDailyPaymentKinds(legacyKinds),
-            bank: entry.bank ?? '',
-            accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
-            ownerName: sanitizeOwnerName(entry.ownerName ?? '')
-          }
-        })
-      : [emptyDailyPaymentEntry(1, 'sewa')],
+            return {
+              ...entry,
+              category,
+              kinds: sortDailyPaymentKinds(legacyKinds),
+              bank: entry.bank ?? '',
+              accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+              ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+            }
+          })
+        : [emptyDailyPaymentEntry(1, 'sewa')]
+    ),
     lain_lain: Array.isArray(transaction.lain_lain)
       ? transaction.lain_lain.map((entry) => ({
           ...entry,
@@ -444,7 +466,10 @@ function makeTransaction(
         need: ''
       }
     ],
-    pencairan_harian: [emptyDailyPaymentEntry(1, 'sewa')],
+    pencairan_harian: [
+      emptyDailyPaymentEntry(1, 'sewa'),
+      emptyDailyPaymentEntry(2, 'gaji')
+    ],
     lain_lain: [emptySimpleEntry(1)]
   }
 }
