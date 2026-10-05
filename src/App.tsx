@@ -22,13 +22,14 @@ type SimpleEntry = {
 
 type DailyPaymentKind =
   | 'Sewa SPPG'
+  | 'Sewa Kendaraan'
   | 'Gaji Relawan'
   | 'Insentif PIC Sekolah'
-  | 'Insentif Kader'
+  | 'Insentif Kader Posyandu'
 
 type DailyPaymentEntry = {
   id: number
-  kind: DailyPaymentKind
+  kinds: DailyPaymentKind[]
   bank: string
   accountNumber: string
   ownerName: string
@@ -46,17 +47,20 @@ type TransactionGroup = {
 }
 
 type SavedWorkspace = {
-  version: 3 | 4 | 5
+  version: 3 | 4 | 5 | 6
   kitchenId: string
   activeTransactionId: number
   transactions: TransactionGroup[]
   savedAt?: number
 }
 
-const STORAGE_KEY = 'maker-pencairan-workspace-v5'
+const STORAGE_KEY = 'maker-pencairan-workspace-v6'
 const RECOVERY_STORAGE_KEY = 'maker-pencairan-workspace-recovery-v1'
-const PREVIOUS_STORAGE_KEY = 'maker-pencairan-workspace-v4'
-const LEGACY_STORAGE_KEY = 'maker-pencairan-workspace-v3'
+const PREVIOUS_STORAGE_KEYS = [
+  'maker-pencairan-workspace-v5',
+  'maker-pencairan-workspace-v4',
+  'maker-pencairan-workspace-v3'
+]
 
 const OPERATIONAL_BANKS = [
   'BCA',
@@ -70,10 +74,58 @@ const OPERATIONAL_BANKS = [
 
 const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
   'Sewa SPPG',
+  'Sewa Kendaraan',
   'Gaji Relawan',
   'Insentif PIC Sekolah',
-  'Insentif Kader'
+  'Insentif Kader Posyandu'
 ]
+
+const STAFF_DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
+  'Gaji Relawan',
+  'Insentif PIC Sekolah',
+  'Insentif Kader Posyandu'
+]
+
+const SPPG_RENTAL_BY_KITCHEN: Record<
+  string,
+  { bank: string; ownerName: string; accountNumber: string }
+> = {
+  Campakamulya: {
+    bank: 'BNI',
+    ownerName: 'Enceng Kodir',
+    accountNumber: '2028813591'
+  },
+  Cihaur: {
+    bank: 'BRI',
+    ownerName: 'Taufik Hidayat',
+    accountNumber: '407701030044506'
+  },
+  Cisepat: {
+    bank: 'BNI',
+    ownerName: 'Robi Sulaeman',
+    accountNumber: '2025279933'
+  },
+  Cipetir: {
+    bank: 'BNI',
+    ownerName: 'Yusgar Anggara',
+    accountNumber: '885788718'
+  },
+  Kertajadi: {
+    bank: 'BNI',
+    ownerName: 'Rizki Ginanjar',
+    accountNumber: '2033626616'
+  },
+  Cikondang: {
+    bank: 'BNI',
+    ownerName: 'Aryana',
+    accountNumber: '1976811401'
+  },
+  Sukaraja: {
+    bank: 'BRI',
+    ownerName: 'Ade Rohmat Hidayat',
+    accountNumber: '010501002303563'
+  }
+}
 
 function toIsoDate(date: Date) {
   const year = date.getFullYear()
@@ -137,6 +189,24 @@ function getOutputBank(value: string) {
   return value.trim().toUpperCase()
 }
 
+function sanitizeOwnerName(value: string) {
+  return value.replace(/[^\p{L}\s]/gu, '')
+}
+
+function sortDailyPaymentKinds(values: DailyPaymentKind[]) {
+  const order = new Map(
+    DAILY_PAYMENT_OPTIONS.map((kind, index) => [kind, index])
+  )
+
+  return [...new Set(values)].sort(
+    (a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99)
+  )
+}
+
+function getSppgRental(kitchenName: string) {
+  return SPPG_RENTAL_BY_KITCHEN[kitchenName] ?? null
+}
+
 function getPreferredBank(kitchenName: string) {
   const normalized = kitchenName.trim().toLowerCase()
 
@@ -179,7 +249,10 @@ function isValidSavedWorkspace(value: unknown): value is SavedWorkspace {
 
   const candidate = value as Partial<SavedWorkspace> & { version?: unknown }
   return (
-    (candidate.version === 3 || candidate.version === 4) &&
+    (candidate.version === 3 ||
+      candidate.version === 4 ||
+      candidate.version === 5 ||
+      candidate.version === 6) &&
     typeof candidate.kitchenId === 'string' &&
     typeof candidate.activeTransactionId === 'number' &&
     Array.isArray(candidate.transactions) &&
@@ -202,7 +275,7 @@ function readWorkspaceFromStorageKey(key: string): SavedWorkspace | null {
     )
 
     return {
-      version: 5,
+      version: 6,
       kitchenId: parsed.kitchenId,
       activeTransactionId: hasActiveTransaction
         ? parsed.activeTransactionId
@@ -218,8 +291,10 @@ function readWorkspaceFromStorageKey(key: string): SavedWorkspace | null {
 function readSavedWorkspace(): SavedWorkspace | null {
   return (
     readWorkspaceFromStorageKey(STORAGE_KEY) ??
-    readWorkspaceFromStorageKey(PREVIOUS_STORAGE_KEY) ??
-    readWorkspaceFromStorageKey(LEGACY_STORAGE_KEY)
+    PREVIOUS_STORAGE_KEYS.reduce<SavedWorkspace | null>(
+      (found, key) => found ?? readWorkspaceFromStorageKey(key),
+      null
+    )
   )
 }
 
@@ -231,7 +306,7 @@ function persistWorkspaceToKey(
 
   try {
     const payload: SavedWorkspace = {
-      version: 5,
+      version: 6,
       ...workspace,
       savedAt: Date.now()
     }
@@ -265,7 +340,7 @@ function emptySimpleEntry(id = 1): SimpleEntry {
 function emptyDailyPaymentEntry(id = 1): DailyPaymentEntry {
   return {
     id,
-    kind: 'Sewa SPPG',
+    kinds: [],
     bank: '',
     accountNumber: '',
     ownerName: '',
@@ -273,13 +348,13 @@ function emptyDailyPaymentEntry(id = 1): DailyPaymentEntry {
   }
 }
 
-function normalizeTransactionForToday(
+function normalizeTransaction(
   transaction: TransactionGroup,
-  today: string
+  fallbackDate: string
 ): TransactionGroup {
   return {
     ...transaction,
-    date: today,
+    date: transaction.date || fallbackDate,
     rab: Array.isArray(transaction.rab) ? transaction.rab : [],
     gas: Array.isArray(transaction.gas)
       ? transaction.gas.map((entry) => ({
@@ -288,12 +363,23 @@ function normalizeTransactionForToday(
         }))
       : [],
     pencairan_harian: Array.isArray(transaction.pencairan_harian)
-      ? transaction.pencairan_harian.map((entry) => ({
-          ...entry,
-          bank: entry.bank ?? '',
-          accountNumber: entry.accountNumber ?? '',
-          ownerName: entry.ownerName ?? ''
-        }))
+      ? transaction.pencairan_harian.map((entry) => {
+          const legacyEntry = entry as DailyPaymentEntry & {
+            kind?: DailyPaymentKind
+          }
+
+          return {
+            ...entry,
+            kinds: Array.isArray(entry.kinds)
+              ? entry.kinds
+              : legacyEntry.kind
+                ? [legacyEntry.kind]
+                : [],
+            bank: entry.bank ?? '',
+            accountNumber: entry.accountNumber ?? '',
+            ownerName: entry.ownerName ?? ''
+          }
+        })
       : [emptyDailyPaymentEntry(1)],
     lain_lain: Array.isArray(transaction.lain_lain)
       ? transaction.lain_lain.map((entry) => ({
@@ -352,7 +438,7 @@ function App() {
   const initialTransaction = useMemo(
     () =>
       savedTransaction
-        ? normalizeTransactionForToday(savedTransaction, today)
+        ? normalizeTransaction(savedTransaction, today)
         : null,
     [savedTransaction, today]
   )
@@ -863,7 +949,7 @@ function App() {
       return
     }
 
-    const transaction = normalizeTransactionForToday(storedTransaction, today)
+    const transaction = normalizeTransaction(storedTransaction, today)
 
     setKitchenId(stored.kitchenId)
     setTransactions([transaction])
