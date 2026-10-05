@@ -80,12 +80,6 @@ const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
   'Insentif Kader Posyandu'
 ]
 
-const STAFF_DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
-  'Gaji Relawan',
-  'Insentif PIC Sekolah',
-  'Insentif Kader Posyandu'
-]
-
 const SPPG_RENTAL_BY_KITCHEN: Record<
   string,
   { bank: string; ownerName: string; accountNumber: string }
@@ -1592,7 +1586,7 @@ function App() {
                                 }
                                 className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-medium text-stone-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
                               >
-                                <option value="">Pilih bank</option>
+                                <option value="">Pilih Bank</option>
                                 {OPERATIONAL_BANKS.map((bank) => (
                                   <option key={bank} value={bank}>
                                     {bank}
