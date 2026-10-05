@@ -146,14 +146,19 @@ function getPreferredBank(kitchenName: string) {
   return 'BNI'
 }
 
-function getOutputCategoryRank(kind: 'rab' | 'gas' | 'lain_lain') {
+function getOutputCategoryRank(
+  kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
+) {
   return kind === 'rab' ? 1 : 0
 }
 
-function getOutputModeRank(kind: 'rab' | 'gas' | 'lain_lain') {
-  if (kind === 'gas') return 1
-  if (kind === 'lain_lain') return 2
-  return 3
+function getOutputModeRank(
+  kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
+) {
+  if (kind === 'pencairan_harian') return 1
+  if (kind === 'gas') return 2
+  if (kind === 'lain_lain') return 3
+  return 4
 }
 
 function displaySupplierName(
@@ -528,6 +533,39 @@ function App() {
     )
   }
 
+  function updateDailyPaymentEntry(
+    transactionId: number,
+    id: number,
+    update: Partial<DailyPaymentEntry>
+  ) {
+    setTransactions((current) =>
+      current.map((transaction) =>
+        transaction.id === transactionId
+          ? {
+              ...transaction,
+              pencairan_harian: transaction.pencairan_harian.map((entry) =>
+                entry.id === id ? { ...entry, ...update } : entry
+              )
+            }
+          : transaction
+      )
+    )
+  }
+
+  function addDailyPaymentEntry() {
+    if (!activeTransaction) return
+
+    const currentEntries = activeTransaction.pencairan_harian
+    const nextId =
+      currentEntries.length === 0
+        ? 1
+        : Math.max(...currentEntries.map((entry) => entry.id)) + 1
+
+    updateTransaction(activeTransaction.id, {
+      pencairan_harian: [...currentEntries, emptyDailyPaymentEntry(nextId)]
+    })
+  }
+
   function addSimpleEntry(section: 'lain_lain') {
     if (!activeTransaction) return
 
@@ -589,10 +627,9 @@ function App() {
       rules.filter((rule) => rule.flow_type === 'income')
     )
     const nextGasRules = rules.filter((rule) => rule.flow_type === 'neutral')
-    const initialDate = toIsoDate(new Date())
     const nextTransaction = makeTransaction(
       1,
-      initialDate,
+      today,
       nextRabRules.map((rule) => ({ account_id: rule.account_id })),
       nextGasRules.map((rule) => ({
         account_id: rule.account_id,
@@ -613,10 +650,9 @@ function App() {
       transactions
     })
 
-    const initialDate = toIsoDate(new Date())
     const nextTransaction = makeTransaction(
       1,
-      initialDate,
+      today,
       sortedRabRules.map((rule) => ({ account_id: rule.account_id })),
       gasRules.map((rule) => ({
         account_id: rule.account_id,
@@ -646,13 +682,24 @@ function App() {
 
       const bank = entry.accountId.trim()
       const accountNumber = entry.accountNumber.trim()
-      if (!bank || !accountNumber) continue
+      const ownerName = entry.ownerName.trim()
+      if (!bank || !accountNumber || !ownerName) continue
 
       const need = entry.need.trim() || 'Biaya Ops Harian'
 
       outputs.push({
         bank: getOutputBank(bank),
-        line: `Lain-lain : ${need} - ${bank} / ${accountNumber} · ${formatNumber(entry.amount)}`,
+        line:
+          'Lain-lain : ' +
+          need +
+          ' - ' +
+          ownerName +
+          ' - ' +
+          bank +
+          ' / ' +
+          accountNumber +
+          ' · ' +
+          formatNumber(entry.amount),
         kind: 'lain_lain'
       })
     }
@@ -662,7 +709,7 @@ function App() {
 
   function getTransactionOutput(transaction: TransactionGroup) {
     type OutputItem = {
-      kind: 'rab' | 'gas' | 'lain_lain'
+      kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
       bank: string
       line: string
       index: number
@@ -685,6 +732,31 @@ function App() {
         kind: 'gas',
         bank: getOutputBank(rule.accounts.bank),
         line: `GAS : ${outputLine}`,
+        index: items.length
+      })
+    }
+
+    for (const entry of transaction.pencairan_harian) {
+      if (!isCompleteAmount(entry.amount)) continue
+
+      const bank = entry.bank.trim()
+      const accountNumber = entry.accountNumber.trim()
+      const ownerName = entry.ownerName.trim()
+      if (!bank || !accountNumber || !ownerName) continue
+
+      items.push({
+        kind: 'pencairan_harian',
+        bank: getOutputBank(bank),
+        line:
+          entry.kind +
+          ' : ' +
+          ownerName +
+          ' - ' +
+          bank +
+          ' / ' +
+          accountNumber +
+          ' · ' +
+          formatNumber(entry.amount),
         index: items.length
       })
     }
@@ -750,38 +822,15 @@ function App() {
     if (items.length === 0) return []
 
     return [
-      `${selectedKitchen?.name ?? 'Dapur'}, ${formatDate(transaction.date)}`,
+      `${selectedKitchen?.name ?? 'Dapur'}, ${formatDate(today)}`,
       ...items.map((item) => item.line)
     ]
   }
 
-  const sortedTransactions = transactions
-    .slice()
-    .sort((a, b) => {
-      if (a.date !== b.date) return a.date.localeCompare(b.date)
-      return a.id - b.id
-    })
-    .map((transaction) => ({
-      date: transaction.date,
-      block: getTransactionOutput(transaction)
-    }))
-    .filter((entry) => entry.block.length > 0)
-
-  let output = ''
-  let previousOutputDate = ''
-
-  for (const entry of sortedTransactions) {
-    const blockText = entry.block.join('\n')
-
-    if (!output) {
-      output = blockText
-    } else {
-      const separator = previousOutputDate === entry.date ? '\n' : '\n\n'
-      output += `${separator}${blockText}`
-    }
-
-    previousOutputDate = entry.date
-  }
+  const output =
+    activeTransaction
+      ? getTransactionOutput(activeTransaction).join('\n')
+      : ''
 
   async function copyOutput() {
     if (!output) return
@@ -801,16 +850,27 @@ function App() {
       return
     }
 
-    const workspace = {
-      kitchenId: stored.kitchenId,
-      activeTransactionId: stored.activeTransactionId,
-      transactions: stored.transactions
+    const storedTransaction =
+      stored.transactions.find(
+        (transaction) => transaction.id === stored.activeTransactionId
+      ) ?? stored.transactions[0]
+
+    if (!storedTransaction) {
+      setHistoryMessage('Belum ada transaksi tersimpan di browser.')
+      window.setTimeout(() => setHistoryMessage(''), 1800)
+      return
     }
 
-    setKitchenId(workspace.kitchenId)
-    setTransactions(workspace.transactions)
-    setActiveTransactionId(workspace.activeTransactionId)
-    persistWorkspace(workspace)
+    const transaction = normalizeTransactionForToday(storedTransaction, today)
+
+    setKitchenId(stored.kitchenId)
+    setTransactions([transaction])
+    setActiveTransactionId(1)
+    persistWorkspace({
+      kitchenId: stored.kitchenId,
+      activeTransactionId: 1,
+      transactions: [transaction]
+    })
 
     if (recovery) {
       window.localStorage.removeItem(RECOVERY_STORAGE_KEY)
@@ -818,8 +878,8 @@ function App() {
 
     setHistoryMessage(
       recovery
-        ? 'Draft sebelum Reset dipulihkan.'
-        : 'Draft terakhir dipulihkan.'
+        ? 'Draft sebelum Reset dipulihkan untuk hari ini.'
+        : 'Draft terakhir dipulihkan untuk hari ini.'
     )
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
