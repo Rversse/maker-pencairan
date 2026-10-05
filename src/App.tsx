@@ -898,7 +898,7 @@ function App() {
             <div>
               <h1 className="text-2xl font-bold">Maker Pencairan</h1>
               <p className="mt-1 text-sm leading-5 text-stone-300">
-                Pencairan multi-tanggal dalam satu draft.
+                Pencairan harian untuk hari ini.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -918,6 +918,19 @@ function App() {
               </button>
             </div>
           </header>
+
+          <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-100">
+            Kalau rekening yang dibutuhkan belum tersedia atau tidak muncul di daftar,
+            jangan gunakan rekening lain. Hubungi Rversse lewat{' '}
+            <a
+              href="https://wa.me/6285794323042"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold underline underline-offset-2 hover:text-white"
+            >
+              WhatsApp
+            </a>.
+          </div>
 
           {masterLoading && (
             <div className="mt-4 rounded-xl border border-stone-800 bg-stone-900 p-4 text-sm text-stone-400">
@@ -942,36 +955,15 @@ function App() {
             <>
               <div className="sticky top-0 z-30 -mx-3 mt-4 bg-stone-950/90 px-3 pb-3 pt-1 backdrop-blur md:-mx-4 md:px-4">
                 <section className="rounded-xl border border-stone-600 bg-stone-900 p-4 shadow-lg">
-                  <div className="grid gap-3 lg:grid-cols-[minmax(220px,1.15fr)_minmax(220px,1.15fr)_minmax(180px,220px)] lg:items-end">
+                  <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
-                      <label
-                        htmlFor="date"
-                        className="mb-1 block text-sm font-medium leading-5 text-stone-300"
-                      >
-                        Tanggal Transaksi
+                      <label className="mb-1 block text-sm font-medium leading-5 text-stone-300">
+                        Tanggal
                       </label>
-                      <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-stone-700 bg-stone-950 px-3 transition hover:border-stone-600 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/40">
-                        <span className="text-xs font-semibold text-stone-500">
-                          TANGGAL
+                      <div className="flex h-10 items-center rounded-lg border border-stone-700 bg-stone-950 px-3">
+                        <span className="text-sm font-semibold text-white">
+                          {formatDate(today)}
                         </span>
-                        <span className="ml-3 text-sm font-semibold text-white">
-                          {formatDate(activeDate)}
-                        </span>
-                        <input
-                          ref={dateInputRef}
-                          id="date"
-                          type="date"
-                          value={activeDate}
-                          onChange={(event) =>
-                            changeActiveDate(event.target.value)
-                          }
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            openDatePicker()
-                          }}
-                          aria-label="Pilih tanggal transaksi"
-                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        />
                       </div>
                     </div>
 
@@ -993,20 +985,11 @@ function App() {
                         <option value="">Pilih dapur</option>
                         {masterData.kitchens.map((kitchen) => (
                           <option key={kitchen.id} value={kitchen.id}>
-                            {kitchen.name}
+                            {kitchen.name}{kitchen.is_active ? '' : ' (Nonaktif)'}
                           </option>
                         ))}
                       </select>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={addTransaction}
-                      disabled={!activeTransaction}
-                      className="h-10 w-full max-w-55 justify-self-center whitespace-nowrap rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 text-sm font-semibold text-emerald-100 transition hover:border-emerald-400/70 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-40"
-                    >
-                      + Transaksi Baru
-                    </button>
                   </div>
 
                   {historyMessage && (
@@ -1046,40 +1029,6 @@ function App() {
 
               {kitchenId && activeTransaction && (
                 <>
-                  <div className="mb-3 flex flex-wrap items-center gap-2 pt-1">
-                    {transactions
-                      .slice()
-                      .sort((a, b) =>
-                        a.date !== b.date
-                          ? a.date.localeCompare(b.date)
-                          : a.id - b.id
-                      )
-                      .map((transaction, index) => (
-                        <button
-                          key={transaction.id}
-                          type="button"
-                          onClick={() => setActiveTransactionId(transaction.id)}
-                          className={[
-                            'rounded-lg border px-3 py-2 text-xs font-medium transition',
-                            activeTransactionId === transaction.id
-                              ? 'border-emerald-500 bg-emerald-600 text-white'
-                              : 'border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800'
-                          ].join(' ')}
-                        >
-                          T{index + 1} · {formatDate(transaction.date)}
-                        </button>
-                      ))}
-                    {transactions.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeTransaction(activeTransactionId)}
-                        className="rounded-lg border border-red-900/60 bg-red-950/20 px-3 py-2 text-xs font-medium text-red-300 hover:bg-red-950/40"
-                      >
-                        Hapus Transaksi Aktif
-                      </button>
-                    )}
-                  </div>
-
                   <section className="rounded-xl border border-stone-500 bg-stone-900 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-2.5">
@@ -1220,6 +1169,141 @@ function App() {
                     })()}
                   </section>
 
+                  <section className="mt-2 w-full rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h2 className="text-base font-semibold">Pencairan Harian</h2>
+                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                          Pilih jenis pencairan, lalu isi bank, nomor rekening,
+                          nama pemilik rekening, dan nominal.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addDailyPaymentEntry}
+                        className="h-10 rounded-lg border border-stone-700 bg-stone-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
+                      >
+                        + Transaksi
+                      </button>
+                    </div>
+
+                    <div className="mt-3 space-y-2.5">
+                      {activeTransaction.pencairan_harian.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="rounded-lg border border-sky-800/50 bg-stone-950 p-3"
+                        >
+                          <div className="grid gap-2 lg:grid-cols-[minmax(0,1.9fr)_120px_150px_190px_160px] lg:items-end">
+                            <div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {DAILY_PAYMENT_OPTIONS.map((option) => {
+                                  const selected = entry.kind === option
+                                  return (
+                                    <button
+                                      key={option}
+                                      type="button"
+                                      onClick={() =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          { kind: option }
+                                        )
+                                      }
+                                      className={[
+                                        'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
+                                        selected
+                                          ? 'border-sky-500 bg-sky-600 text-white'
+                                          : 'border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800'
+                                      ].join(' ')}
+                                    >
+                                      {selected ? '✓ ' : ''}
+                                      {option}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+
+                            <div>
+                              <select
+                                value={entry.bank}
+                                onChange={(event) =>
+                                  updateDailyPaymentEntry(
+                                    activeTransaction.id,
+                                    entry.id,
+                                    { bank: event.target.value }
+                                  )
+                                }
+                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-medium text-stone-100 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                              >
+                                <option value="">Bank</option>
+                                {OPERATIONAL_BANKS.map((bank) => (
+                                  <option key={bank} value={bank}>
+                                    {bank}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                value={entry.accountNumber}
+                                onChange={(event) =>
+                                  updateDailyPaymentEntry(
+                                    activeTransaction.id,
+                                    entry.id,
+                                    {
+                                      accountNumber: event.target.value.replace(/\D/g, '')
+                                    }
+                                  )
+                                }
+                                placeholder="No. rekening"
+                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                              />
+                            </div>
+
+                            <div>
+                              <input
+                                type="text"
+                                value={entry.ownerName}
+                                onChange={(event) =>
+                                  updateDailyPaymentEntry(
+                                    activeTransaction.id,
+                                    entry.id,
+                                    { ownerName: event.target.value }
+                                  )
+                                }
+                                placeholder="Nama pemilik rekening"
+                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                              />
+                            </div>
+
+                            <div>
+                              <input
+                                type="text"
+                                inputMode="numeric"
+                                value={formatNumber(entry.amount)}
+                                onChange={(event) =>
+                                  updateDailyPaymentEntry(
+                                    activeTransaction.id,
+                                    entry.id,
+                                    {
+                                      amount: event.target.value.replace(/\D/g, '')
+                                    }
+                                  )
+                                }
+                                placeholder="Nominal"
+                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
                   {gasRules.length > 0 && (
                     <div className="mt-2 w-full rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3">
                       <div className="mb-2 flex items-center justify-between gap-2">
@@ -1293,12 +1377,10 @@ function App() {
                   <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-rose-950/10 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-base font-semibold">
-                          Form Lain-Lain
-                        </h2>
+                        <h2 className="text-base font-semibold">Form Lain-Lain</h2>
                         <p className="mt-1 text-xs leading-5 text-stone-300">
-                          Pilih bank, isi nomor rekening, keperluan, dan
-                          nominal.
+                          Pilih bank, isi nomor rekening, nama pemilik rekening,
+                          keperluan, dan nominal.
                         </p>
                       </div>
                       <button
@@ -1316,7 +1398,7 @@ function App() {
                           key={entry.id}
                           className="rounded-lg border border-rose-800/50 bg-stone-950 p-3"
                         >
-                          <div className="grid gap-2 lg:grid-cols-[180px_220px_minmax(0,1fr)_160px] lg:items-end">
+                          <div className="grid gap-2 lg:grid-cols-[120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
                             <div>
                               <select
                                 value={entry.accountId}
@@ -1341,7 +1423,7 @@ function App() {
 
                             <div>
                               <input
-                                id={`acc-${activeTransaction.id}-lain-${entry.id}`}
+                                id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
                                 type="text"
                                 inputMode="numeric"
                                 value={entry.accountNumber}
@@ -1351,10 +1433,7 @@ function App() {
                                     'lain_lain',
                                     entry.id,
                                     {
-                                      accountNumber: event.target.value.replace(
-                                        /\D/g,
-                                        ''
-                                      )
+                                      accountNumber: event.target.value.replace(/\D/g, '')
                                     }
                                   )
                                 }
@@ -1365,7 +1444,25 @@ function App() {
 
                             <div>
                               <input
-                                id={`need-${activeTransaction.id}-lain-${entry.id}`}
+                                id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
+                                type="text"
+                                value={entry.ownerName}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    { ownerName: event.target.value }
+                                  )
+                                }
+                                placeholder="Nama pemilik rekening"
+                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                              />
+                            </div>
+
+                            <div>
+                              <input
+                                id={'need-' + activeTransaction.id + '-lain-' + entry.id}
                                 type="text"
                                 value={entry.need}
                                 onChange={(event) =>
@@ -1383,7 +1480,7 @@ function App() {
 
                             <div>
                               <input
-                                id={`amount-${activeTransaction.id}-lain-${entry.id}`}
+                                id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
                                 type="text"
                                 inputMode="numeric"
                                 value={formatNumber(entry.amount)}
@@ -1393,10 +1490,7 @@ function App() {
                                     'lain_lain',
                                     entry.id,
                                     {
-                                      amount: event.target.value.replace(
-                                        /\D/g,
-                                        ''
-                                      )
+                                      amount: event.target.value.replace(/\D/g, '')
                                     }
                                   )
                                 }
@@ -1409,6 +1503,7 @@ function App() {
                       ))}
                     </div>
                   </section>
+
                 </>
               )}
             </>
