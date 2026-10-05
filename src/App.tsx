@@ -572,16 +572,19 @@ function App() {
   const gasRules = useMemo(() => {
     if (!masterData || !kitchenId) return []
 
+    const rabAccountIds = new Set(rabRules.map((rule) => rule.account_id))
     const seen = new Set<string>()
+
     return masterData.account_rules.filter((rule) => {
       if (rule.kitchen_id !== kitchenId) return false
       if (rule.flow_type !== 'neutral') return false
       if (!rule.accounts) return false
+      if (rabAccountIds.has(rule.account_id)) return false
       if (seen.has(rule.account_id)) return false
       seen.add(rule.account_id)
       return true
     })
-  }, [masterData, kitchenId])
+  }, [masterData, kitchenId, rabRules])
 
   const activeTransaction =
     transactions.find(
@@ -826,7 +829,11 @@ function App() {
     const nextRabRules = sortRabRules(
       rules.filter((rule) => rule.flow_type === 'income')
     )
-    const nextGasRules = rules.filter((rule) => rule.flow_type === 'neutral')
+    const rabAccountIds = new Set(nextRabRules.map((rule) => rule.account_id))
+    const nextGasRules = rules.filter(
+      (rule) =>
+        rule.flow_type === 'neutral' && !rabAccountIds.has(rule.account_id)
+    )
     const nextTransaction = makeTransaction(
       1,
       activeDate,
@@ -1278,7 +1285,8 @@ function App() {
                         <h2 className="text-base font-semibold text-white">RAB</h2>
                         <p className="mt-1 text-xs leading-5 text-slate-300">
                           Rekening RAB hanya keluar ke output jika nominal diisi.
-                          Pilih produk dan isi nominal pada rekening yang dibutuhkan.
+                          Produk yang ditampilkan bisa diklik untuk memilih atau membatalkan pilihan.
+                          Produk yang tidak tersedia untuk rekening tersebut tidak ditampilkan.
                         </p>
                       </div>
                     </div>
@@ -1347,8 +1355,8 @@ function App() {
                                   })}
                                 </div>
                               ) : (
-                                <div className="mt-1 text-[11px] text-slate-600">
-                                  Tidak ada data produk.
+                                <div className="mt-1 text-[11px] text-slate-500">
+                                  Tidak ada produk yang bisa dipilih untuk rekening ini.
                                 </div>
                               )}
                             </div>
@@ -1391,7 +1399,204 @@ function App() {
                     })()}
                   </section>
 
-                  <div className="mt-2 grid gap-2.5 xl:grid-cols-2">
+
+                  {gasRules.length > 0 && (
+                    <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
+                      <div>
+                        <h2 className="text-base font-semibold text-white">GAS</h2>
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
+                          Isi nominal GAS. Rekening tujuan mengikuti mapping GAS dapur.
+                        </p>
+                      </div>
+
+                      <div className="mt-2 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
+                        {activeTransaction.gas.map((entry) => {
+                          const rule =
+                            gasRules.find(
+                              (item) => item.account_id === entry.accountId
+                            ) ?? gasRules[0]
+
+                          return (
+                            <div key={entry.id} className="contents">
+                              <div className="min-w-0">
+                                <div className="truncate text-sm font-semibold text-white">
+                                  {displaySupplierName(rule?.supplier) ||
+                                    rule?.accounts?.name ||
+                                    'Tanpa nama'}{' '}
+                                  - {rule?.accounts?.bank ?? '-'} (
+                                  {rule?.accounts?.account_number ?? '-'})
+                                </div>
+                              </div>
+
+                              <input
+                                id={'gas-' + activeTransaction.id + '-' + entry.id}
+                                type="text"
+                                inputMode="numeric"
+                                value={formatNumber(entry.amount)}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'gas',
+                                    entry.id,
+                                    {
+                                      amount: event.target.value.replace(/\D/g, '')
+                                    }
+                                  )
+                                }
+                                placeholder="Nominal"
+                                aria-label="Nominal GAS"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </section>
+                  )}
+
+                  {gasRules.length === 0 && (
+                    <div className="mt-2 w-full rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-500">
+                      Dapur ini tidak memiliki mapping GAS.
+                    </div>
+                  )}
+
+
+                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-rose-950/10 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h2 className="text-base font-semibold">Form Lain-Lain</h2>
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
+                          Pilih bank, isi nomor rekening, nama pemilik rekening,
+                          keperluan, dan nominal.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addSimpleEntry('lain_lain')}
+                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
+                      >
+                        + Transaksi
+                      </button>
+                    </div>
+
+                    <div className="mt-3 space-y-2.5">
+                      {activeTransaction.lain_lain.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
+                        >
+                          <div className="grid gap-2 lg:grid-cols-[120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
+                            <div>
+                              <select
+                                value={entry.accountId}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    { accountId: event.target.value }
+                                  )
+                                }
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                              >
+                                <option value="">Pilih Bank</option>
+                                {OPERATIONAL_BANKS.map((bank) => (
+                                  <option key={bank} value={bank}>
+                                    {bank}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            <div>
+                              <input
+                                id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
+                                type="text"
+                                inputMode="numeric"
+                                value={entry.accountNumber}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    {
+                                      accountNumber: event.target.value.replace(/\D/g, '')
+                                    }
+                                  )
+                                }
+                                placeholder="Nomor rekening"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                              />
+                            </div>
+
+                            <div>
+                              <input
+                                id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
+                                type="text"
+                                value={entry.ownerName}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    {
+                                      ownerName: sanitizeOwnerName(
+                                        event.target.value
+                                      )
+                                    }
+                                  )
+                                }
+                                placeholder="Nama pemilik rekening"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                              />
+                            </div>
+
+                            <div>
+                              <input
+                                id={'need-' + activeTransaction.id + '-lain-' + entry.id}
+                                type="text"
+                                value={entry.need}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    { need: event.target.value }
+                                  )
+                                }
+                                placeholder="Isi dengan keperluan / kosongkan untuk otomatis diisi Ops Harian"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                              />
+                            </div>
+
+                            <div>
+                              <input
+                                id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
+                                type="text"
+                                inputMode="numeric"
+                                value={formatNumber(entry.amount)}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    {
+                                      amount: event.target.value.replace(/\D/g, '')
+                                    }
+                                  )
+                                }
+                                placeholder="Nominal"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+
+                  <div className="mt-2 space-y-2.5">
                     <section className="w-full rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <div className="flex items-center justify-between gap-3">
                         <div>
@@ -1400,7 +1605,8 @@ function App() {
                           </h2>
                           <p className="mt-1 text-xs leading-5 text-slate-300">
                             Pilih Sewa SPPG atau Sewa Kendaraan. Rekening sewa akan
-                            terisi otomatis sesuai jenis dan mapping.
+                            terisi otomatis sesuai jenis dan mapping. Klik jenis untuk
+                            memilih atau membatalkan pilihan.
                           </p>
                         </div>
                         <button
@@ -1680,199 +1886,6 @@ function App() {
                     </section>
                   </div>
 
-                  {gasRules.length > 0 && (
-                    <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
-                      <div>
-                        <h2 className="text-base font-semibold text-white">GAS</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Isi nominal GAS. Rekening tujuan mengikuti mapping GAS dapur.
-                        </p>
-                      </div>
-
-                      <div className="mt-2 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
-                        {activeTransaction.gas.map((entry) => {
-                          const rule =
-                            gasRules.find(
-                              (item) => item.account_id === entry.accountId
-                            ) ?? gasRules[0]
-
-                          return (
-                            <div key={entry.id} className="contents">
-                              <div className="min-w-0">
-                                <div className="truncate text-sm font-semibold text-white">
-                                  {displaySupplierName(rule?.supplier) ||
-                                    rule?.accounts?.name ||
-                                    'Tanpa nama'}{' '}
-                                  - {rule?.accounts?.bank ?? '-'} (
-                                  {rule?.accounts?.account_number ?? '-'})
-                                </div>
-                              </div>
-
-                              <input
-                                id={'gas-' + activeTransaction.id + '-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={formatNumber(entry.amount)}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'gas',
-                                    entry.id,
-                                    {
-                                      amount: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nominal"
-                                aria-label="Nominal GAS"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                              />
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </section>
-                  )}
-
-                  {gasRules.length === 0 && (
-                    <div className="mt-2 w-full rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-500">
-                      Dapur ini tidak memiliki mapping GAS.
-                    </div>
-                  )}
-
-                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-rose-950/10 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <h2 className="text-base font-semibold">Form Lain-Lain</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Pilih bank, isi nomor rekening, nama pemilik rekening,
-                          keperluan, dan nominal.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
-                      >
-                        + Transaksi
-                      </button>
-                    </div>
-
-                    <div className="mt-3 space-y-2.5">
-                      {activeTransaction.lain_lain.map((entry) => (
-                        <div
-                          key={entry.id}
-                          className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
-                        >
-                          <div className="grid gap-2 lg:grid-cols-[120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
-                            <div>
-                              <select
-                                value={entry.accountId}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    { accountId: event.target.value }
-                                  )
-                                }
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              >
-                                <option value="">Pilih Bank</option>
-                                {OPERATIONAL_BANKS.map((bank) => (
-                                  <option key={bank} value={bank}>
-                                    {bank}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-
-                            <div>
-                              <input
-                                id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={entry.accountNumber}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      accountNumber: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nomor rekening"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
-
-                            <div>
-                              <input
-                                id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                value={entry.ownerName}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      ownerName: sanitizeOwnerName(
-                                        event.target.value
-                                      )
-                                    }
-                                  )
-                                }
-                                placeholder="Nama pemilik rekening"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
-
-                            <div>
-                              <input
-                                id={'need-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                value={entry.need}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    { need: event.target.value }
-                                  )
-                                }
-                                placeholder="Isi dengan keperluan / kosongkan untuk otomatis diisi Ops Harian"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
-
-                            <div>
-                              <input
-                                id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={formatNumber(entry.amount)}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      amount: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nominal"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
 
                 </>
               )}
