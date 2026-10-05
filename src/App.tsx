@@ -597,19 +597,17 @@ function App() {
   const gasRules = useMemo(() => {
     if (!masterData || !kitchenId) return []
 
-    const rabAccountIds = new Set(rabRules.map((rule) => rule.account_id))
     const seen = new Set<string>()
 
     return masterData.account_rules.filter((rule) => {
       if (rule.kitchen_id !== kitchenId) return false
       if (rule.flow_type !== 'neutral') return false
       if (!rule.accounts) return false
-      if (rabAccountIds.has(rule.account_id)) return false
       if (seen.has(rule.account_id)) return false
       seen.add(rule.account_id)
       return true
     })
-  }, [masterData, kitchenId, rabRules])
+  }, [masterData, kitchenId])
 
   const activeTransaction =
     transactions.find(
@@ -854,10 +852,8 @@ function App() {
     const nextRabRules = sortRabRules(
       rules.filter((rule) => rule.flow_type === 'income')
     )
-    const rabAccountIds = new Set(nextRabRules.map((rule) => rule.account_id))
     const nextGasRules = rules.filter(
-      (rule) =>
-        rule.flow_type === 'neutral' && !rabAccountIds.has(rule.account_id)
+      (rule) => rule.flow_type === 'neutral'
     )
     const nextTransaction = makeTransaction(
       1,
