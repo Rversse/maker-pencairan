@@ -353,7 +353,7 @@ function normalizeTransaction(
     gas: Array.isArray(transaction.gas)
       ? transaction.gas.map((entry) => ({
           ...entry,
-          ownerName: entry.ownerName ?? ''
+          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }))
       : [],
     pencairan_harian: Array.isArray(transaction.pencairan_harian)
@@ -371,14 +371,14 @@ function normalizeTransaction(
                 : [],
             bank: entry.bank ?? '',
             accountNumber: entry.accountNumber ?? '',
-            ownerName: entry.ownerName ?? ''
+            ownerName: sanitizeOwnerName(entry.ownerName ?? '')
           }
         })
       : [emptyDailyPaymentEntry(1)],
     lain_lain: Array.isArray(transaction.lain_lain)
       ? transaction.lain_lain.map((entry) => ({
           ...entry,
-          ownerName: entry.ownerName ?? ''
+          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }))
       : [emptySimpleEntry(1)]
   }
@@ -557,6 +557,39 @@ function App() {
       (transaction) => transaction.id === activeTransactionId
     ) ?? transactions[0]
 
+  useEffect(() => {
+    if (!selectedKitchen || !activeTransaction) return
+
+    const entry = activeTransaction.pencairan_harian.find((item) =>
+      item.kinds.includes('Sewa SPPG')
+    )
+    if (!entry) return
+
+    const rental = getSppgRental(selectedKitchen.name)
+    if (!rental) return
+
+    if (
+      entry.bank === rental.bank &&
+      entry.accountNumber === rental.accountNumber &&
+      entry.ownerName === rental.ownerName
+    ) {
+      return
+    }
+
+    updateTransaction(activeTransaction.id, {
+      pencairan_harian: activeTransaction.pencairan_harian.map((item) =>
+        item.id === entry.id
+          ? {
+              ...item,
+              bank: rental.bank,
+              accountNumber: rental.accountNumber,
+              ownerName: rental.ownerName
+            }
+          : item
+      )
+    })
+  }, [activeTransaction, selectedKitchen])
+
   function updateTransaction(
     transactionId: number,
     update: Partial<TransactionGroup>
@@ -649,7 +682,12 @@ function App() {
 
     if (option === 'Sewa SPPG' || option === 'Sewa Kendaraan') {
       if (isSelected) {
-        updateDailyPaymentEntry(transactionId, id, { kinds: [] })
+        updateDailyPaymentEntry(transactionId, id, {
+          kinds: [],
+          bank: '',
+          accountNumber: '',
+          ownerName: ''
+        })
         return
       }
 
