@@ -55,6 +55,7 @@ type SavedWorkspace = {
 
 const STORAGE_KEY = 'maker-pencairan-workspace-v5'
 const RECOVERY_STORAGE_KEY = 'maker-pencairan-workspace-recovery-v1'
+const PREVIOUS_STORAGE_KEY = 'maker-pencairan-workspace-v4'
 const LEGACY_STORAGE_KEY = 'maker-pencairan-workspace-v3'
 
 const OPERATIONAL_BANKS = [
@@ -217,6 +218,7 @@ function readWorkspaceFromStorageKey(key: string): SavedWorkspace | null {
 function readSavedWorkspace(): SavedWorkspace | null {
   return (
     readWorkspaceFromStorageKey(STORAGE_KEY) ??
+    readWorkspaceFromStorageKey(PREVIOUS_STORAGE_KEY) ??
     readWorkspaceFromStorageKey(LEGACY_STORAGE_KEY)
   )
 }
