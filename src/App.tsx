@@ -453,6 +453,7 @@ function App() {
   )
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
+  const dateInputRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef({
     kitchenId: saved?.kitchenId ?? '',
     activeTransactionId: 1,
@@ -640,6 +641,55 @@ function App() {
     )
   }
 
+  function toggleDailyPaymentKind(
+    transactionId: number,
+    id: number,
+    option: DailyPaymentKind
+  ) {
+    const transaction = transactions.find((item) => item.id === transactionId)
+    const entry = transaction?.pencairan_harian.find((item) => item.id === id)
+    if (!entry) return
+
+    const currentKinds = entry.kinds ?? []
+    const isSelected = currentKinds.includes(option)
+
+    if (option === 'Sewa SPPG' || option === 'Sewa Kendaraan') {
+      if (isSelected) {
+        updateDailyPaymentEntry(transactionId, id, { kinds: [] })
+        return
+      }
+
+      const rental =
+        option === 'Sewa SPPG'
+          ? getSppgRental(selectedKitchen?.name ?? '')
+          : null
+
+      updateDailyPaymentEntry(transactionId, id, {
+        kinds: [option],
+        bank: rental?.bank ?? '',
+        accountNumber: rental?.accountNumber ?? '',
+        ownerName: rental?.ownerName ?? ''
+      })
+      return
+    }
+
+    const withoutRentals = currentKinds.filter(
+      (kind) => kind !== 'Sewa SPPG' && kind !== 'Sewa Kendaraan'
+    )
+    const nextKinds = isSelected
+      ? withoutRentals.filter((kind) => kind !== option)
+      : [...withoutRentals, option]
+
+    updateDailyPaymentEntry(transactionId, id, {
+      kinds: sortDailyPaymentKinds(nextKinds),
+      ...(currentKinds.some(
+        (kind) => kind === 'Sewa SPPG' || kind === 'Sewa Kendaraan'
+      )
+        ? { bank: '', accountNumber: '', ownerName: '' }
+        : {})
+    })
+  }
+
   function addDailyPaymentEntry() {
     if (!activeTransaction) return
 
@@ -717,7 +767,7 @@ function App() {
     const nextGasRules = rules.filter((rule) => rule.flow_type === 'neutral')
     const nextTransaction = makeTransaction(
       1,
-      today,
+      activeDate,
       nextRabRules.map((rule) => ({ account_id: rule.account_id })),
       nextGasRules.map((rule) => ({
         account_id: rule.account_id,
@@ -731,6 +781,30 @@ function App() {
 
 
 
+  const activeDate = activeTransaction?.date ?? today
+
+  function openDatePicker() {
+    const input = dateInputRef.current
+    if (!input) return
+
+    const pickerInput = input as HTMLInputElement & {
+      showPicker?: () => void
+    }
+
+    if (typeof pickerInput.showPicker === 'function') {
+      pickerInput.showPicker()
+      return
+    }
+
+    input.focus()
+  }
+
+  function changeActiveDate(nextDate: string) {
+    if (!activeTransaction || !nextDate) return
+    updateTransaction(activeTransaction.id, { date: nextDate })
+    setCopyMessage('')
+  }
+
   function resetWorkspace() {
     persistRecoveryWorkspace({
       kitchenId,
@@ -740,7 +814,7 @@ function App() {
 
     const nextTransaction = makeTransaction(
       1,
-      today,
+      activeDate,
       sortedRabRules.map((rule) => ({ account_id: rule.account_id })),
       gasRules.map((rule) => ({
         account_id: rule.account_id,
@@ -830,13 +904,14 @@ function App() {
       const bank = entry.bank.trim()
       const accountNumber = entry.accountNumber.trim()
       const ownerName = entry.ownerName.trim()
-      if (!bank || !accountNumber || !ownerName) continue
+      const kinds = entry.kinds ?? []
+      if (!bank || !accountNumber || !ownerName || kinds.length === 0) continue
 
       items.push({
         kind: 'pencairan_harian',
         bank: getOutputBank(bank),
         line:
-          entry.kind +
+          kinds.join(', ') +
           ' : ' +
           ownerName +
           ' - ' +
@@ -910,7 +985,7 @@ function App() {
     if (items.length === 0) return []
 
     return [
-      `${selectedKitchen?.name ?? 'Dapur'}, ${formatDate(today)}`,
+      `${selectedKitchen?.name ?? 'Dapur'}, ${formatDate(transaction.date)}`,
       ...items.map((item) => item.line)
     ]
   }
@@ -986,7 +1061,7 @@ function App() {
             <div>
               <h1 className="text-2xl font-bold">Maker Pencairan</h1>
               <p className="mt-1 text-sm leading-5 text-stone-300">
-                Pencairan harian untuk hari ini.
+                Pencairan harian dengan tanggal fleksibel.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -1008,8 +1083,7 @@ function App() {
           </header>
 
           <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-100">
-            Kalau rekening yang dibutuhkan belum tersedia atau tidak muncul di daftar,
-            jangan gunakan rekening lain. Hubungi Rversse lewat{' '}
+            Jika rekening tujuan yang dibutuhkan tidak tersedia, silakan hubungi lewat{' '}
             <a
               href="https://wa.me/6285794323042"
               target="_blank"
@@ -1045,13 +1119,32 @@ function App() {
                 <section className="rounded-xl border border-stone-600 bg-stone-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
-                      <label className="mb-1 block text-sm font-medium leading-5 text-stone-300">
+                      <label
+                        htmlFor="date"
+                        className="mb-1 block text-sm font-medium leading-5 text-stone-300"
+                      >
                         Tanggal
                       </label>
-                      <div className="flex h-10 items-center rounded-lg border border-stone-700 bg-stone-950 px-3">
-                        <span className="text-sm font-semibold text-white">
-                          {formatDate(today)}
+                      <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-stone-700 bg-stone-950 px-3 transition hover:border-stone-600 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/40">
+                        <span className="text-xs font-semibold text-stone-500">
+                          TANGGAL
                         </span>
+                        <span className="ml-3 text-sm font-semibold text-white">
+                          {formatDate(activeDate)}
+                        </span>
+                        <input
+                          ref={dateInputRef}
+                          id="date"
+                          type="date"
+                          value={activeDate}
+                          onChange={(event) => changeActiveDate(event.target.value)}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            openDatePicker()
+                          }}
+                          aria-label="Pilih tanggal transaksi"
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        />
                       </div>
                     </div>
 
@@ -1285,16 +1378,16 @@ function App() {
                             <div>
                               <div className="flex flex-wrap gap-1.5">
                                 {DAILY_PAYMENT_OPTIONS.map((option) => {
-                                  const selected = entry.kind === option
+                                  const selected = entry.kinds.includes(option)
                                   return (
                                     <button
                                       key={option}
                                       type="button"
                                       onClick={() =>
-                                        updateDailyPaymentEntry(
+                                        toggleDailyPaymentKind(
                                           activeTransaction.id,
                                           entry.id,
-                                          { kind: option }
+                                          option
                                         )
                                       }
                                       className={[
@@ -1308,8 +1401,7 @@ function App() {
                                       {option}
                                     </button>
                                   )
-                                })}
-                              </div>
+                                })}                              </div>
                             </div>
 
                             <div>
@@ -1324,7 +1416,7 @@ function App() {
                                 }
                                 className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-medium text-stone-100 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
                               >
-                                <option value="">Bank</option>
+                                <option value="">Pilih Bank</option>
                                 {OPERATIONAL_BANKS.map((bank) => (
                                   <option key={bank} value={bank}>
                                     {bank}
@@ -1360,7 +1452,7 @@ function App() {
                                   updateDailyPaymentEntry(
                                     activeTransaction.id,
                                     entry.id,
-                                    { ownerName: event.target.value }
+                                    { ownerName: sanitizeOwnerName(event.target.value) }
                                   )
                                 }
                                 placeholder="Nama pemilik rekening"
