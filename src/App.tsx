@@ -27,8 +27,11 @@ type DailyPaymentKind =
   | 'Insentif PIC Sekolah'
   | 'Insentif Kader Posyandu'
 
+type DailyPaymentCategory = 'sewa' | 'gaji'
+
 type DailyPaymentEntry = {
   id: number
+  category: DailyPaymentCategory
   kinds: DailyPaymentKind[]
   bank: string
   accountNumber: string
@@ -72,13 +75,27 @@ const OPERATIONAL_BANKS = [
   'SEABANK'
 ]
 
-const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
+const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = [
   'Sewa SPPG',
-  'Sewa Kendaraan',
+  'Sewa Kendaraan'
+]
+
+const DAILY_PAYMENT_GAJI_OPTIONS: DailyPaymentKind[] = [
   'Gaji Relawan',
   'Insentif PIC Sekolah',
   'Insentif Kader Posyandu'
 ]
+
+const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
+  ...DAILY_PAYMENT_SEWA_OPTIONS,
+  ...DAILY_PAYMENT_GAJI_OPTIONS
+]
+
+const SEWA_KENDARAAN_ACCOUNT = {
+  bank: 'MANDIRI',
+  ownerName: 'Berkah Mandiri Putra',
+  accountNumber: '1820015963523'
+}
 
 const SPPG_RENTAL_BY_KITCHEN: Record<
   string,
@@ -331,9 +348,13 @@ function emptySimpleEntry(id = 1): SimpleEntry {
   }
 }
 
-function emptyDailyPaymentEntry(id = 1): DailyPaymentEntry {
+function emptyDailyPaymentEntry(
+  id = 1,
+  category: DailyPaymentCategory = 'sewa'
+): DailyPaymentEntry {
   return {
     id,
+    category,
     kinds: [],
     bank: '',
     accountNumber: '',
@@ -361,23 +382,33 @@ function normalizeTransaction(
           const legacyEntry = entry as DailyPaymentEntry & {
             kind?: DailyPaymentKind
           }
+          const legacyKinds = Array.isArray(entry.kinds)
+            ? entry.kinds
+            : legacyEntry.kind
+              ? [legacyEntry.kind]
+              : []
+          const category: DailyPaymentCategory =
+            entry.category ??
+            (legacyKinds.some((kind) =>
+              DAILY_PAYMENT_GAJI_OPTIONS.includes(kind)
+            )
+              ? 'gaji'
+              : 'sewa')
 
           return {
             ...entry,
-            kinds: Array.isArray(entry.kinds)
-              ? entry.kinds
-              : legacyEntry.kind
-                ? [legacyEntry.kind]
-                : [],
+            category,
+            kinds: sortDailyPaymentKinds(legacyKinds),
             bank: entry.bank ?? '',
-            accountNumber: entry.accountNumber ?? '',
+            accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
             ownerName: sanitizeOwnerName(entry.ownerName ?? '')
           }
         })
-      : [emptyDailyPaymentEntry(1)],
+      : [emptyDailyPaymentEntry(1, 'sewa')],
     lain_lain: Array.isArray(transaction.lain_lain)
       ? transaction.lain_lain.map((entry) => ({
           ...entry,
+          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
           ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }))
       : [emptySimpleEntry(1)]
@@ -413,7 +444,7 @@ function makeTransaction(
         need: ''
       }
     ],
-    pencairan_harian: [emptyDailyPaymentEntry(1)],
+    pencairan_harian: [emptyDailyPaymentEntry(1, 'sewa')],
     lain_lain: [emptySimpleEntry(1)]
   }
 }
@@ -679,8 +710,12 @@ function App() {
 
     const currentKinds = entry.kinds ?? []
     const isSelected = currentKinds.includes(option)
+    const isRental = option === 'Sewa SPPG' || option === 'Sewa Kendaraan'
+    const optionCategory: DailyPaymentCategory = isRental ? 'sewa' : 'gaji'
 
-    if (option === 'Sewa SPPG' || option === 'Sewa Kendaraan') {
+    if (entry.category !== optionCategory) return
+
+    if (isRental) {
       if (isSelected) {
         updateDailyPaymentEntry(transactionId, id, {
           kinds: [],
@@ -694,7 +729,7 @@ function App() {
       const rental =
         option === 'Sewa SPPG'
           ? getSppgRental(selectedKitchen?.name ?? '')
-          : null
+          : SEWA_KENDARAAN_ACCOUNT
 
       updateDailyPaymentEntry(transactionId, id, {
         kinds: [option],
@@ -705,24 +740,16 @@ function App() {
       return
     }
 
-    const withoutRentals = currentKinds.filter(
-      (kind) => kind !== 'Sewa SPPG' && kind !== 'Sewa Kendaraan'
-    )
     const nextKinds = isSelected
-      ? withoutRentals.filter((kind) => kind !== option)
-      : [...withoutRentals, option]
+      ? currentKinds.filter((kind) => kind !== option)
+      : [...currentKinds, option]
 
     updateDailyPaymentEntry(transactionId, id, {
-      kinds: sortDailyPaymentKinds(nextKinds),
-      ...(currentKinds.some(
-        (kind) => kind === 'Sewa SPPG' || kind === 'Sewa Kendaraan'
-      )
-        ? { bank: '', accountNumber: '', ownerName: '' }
-        : {})
+      kinds: sortDailyPaymentKinds(nextKinds)
     })
   }
 
-  function addDailyPaymentEntry() {
+  function addDailyPaymentEntry(category: DailyPaymentCategory) {
     if (!activeTransaction) return
 
     const currentEntries = activeTransaction.pencairan_harian
@@ -732,7 +759,10 @@ function App() {
         : Math.max(...currentEntries.map((entry) => entry.id)) + 1
 
     updateTransaction(activeTransaction.id, {
-      pencairan_harian: [...currentEntries, emptyDailyPaymentEntry(nextId)]
+      pencairan_harian: [
+        ...currentEntries,
+        emptyDailyPaymentEntry(nextId, category)
+      ]
     })
   }
 
@@ -1361,75 +1391,205 @@ function App() {
                     })()}
                   </section>
 
-                  <section className="mt-2 w-full rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <h2 className="text-base font-semibold text-white">
-                          Pencairan Harian
-                        </h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Pilih jenis pencairan, lalu isi bank, nomor rekening,
-                          nama pemilik rekening, dan nominal.
-                        </p>
+                  <div className="mt-2 grid gap-2.5 xl:grid-cols-2">
+                    <section className="w-full rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <h2 className="text-base font-semibold text-white">
+                            Pencairan Sewa
+                          </h2>
+                          <p className="mt-1 text-xs leading-5 text-slate-300">
+                            Pilih Sewa SPPG atau Sewa Kendaraan. Rekening sewa akan
+                            terisi otomatis sesuai jenis dan mapping.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => addDailyPaymentEntry('sewa')}
+                          className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-slate-700"
+                        >
+                          + Transaksi
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={addDailyPaymentEntry}
-                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
-                      >
-                        + Transaksi
-                      </button>
-                    </div>
 
-                    <div className="mt-3 space-y-2.5">
-                      {activeTransaction.pencairan_harian.map((entry) => {
-                        const isSppgRental = entry.kinds.includes('Sewa SPPG')
+                      <div className="mt-3 space-y-2.5">
+                        {activeTransaction.pencairan_harian
+                          .filter((entry) => entry.category === 'sewa')
+                          .map((entry) => {
+                            const isFixedRental = entry.kinds.some(
+                              (kind) =>
+                                kind === 'Sewa SPPG' || kind === 'Sewa Kendaraan'
+                            )
 
-                        return (
-                          <div
-                            key={entry.id}
-                            className="rounded-lg border border-sky-800/50 bg-slate-950 p-3"
-                          >
-                            <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_120px_150px_190px_160px] xl:grid-cols-[minmax(0,1fr)_140px_170px_210px_170px]">
-                              <div className="min-w-0">
-                                <div className="flex h-full flex-wrap content-center gap-1.5">
-                                  {DAILY_PAYMENT_OPTIONS.map((option) => {
-                                    const selected = entry.kinds.includes(option)
+                            return (
+                              <div
+                                key={entry.id}
+                                className="rounded-lg border border-sky-800/50 bg-slate-950 p-3"
+                              >
+                                <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_130px_155px_190px_160px]">
+                                  <div className="min-w-0">
+                                    <div className="flex h-full flex-wrap content-center gap-1.5">
+                                      {DAILY_PAYMENT_SEWA_OPTIONS.map((option) => {
+                                        const selected = entry.kinds.includes(option)
 
-                                    return (
-                                      <button
-                                        key={option}
-                                        type="button"
-                                        onClick={() =>
-                                          toggleDailyPaymentKind(
-                                            activeTransaction.id,
-                                            entry.id,
-                                            option
-                                          )
-                                        }
-                                        className={[
-                                          'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
-                                          selected
-                                            ? 'border-sky-500 bg-sky-600 text-white'
-                                            : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
-                                        ].join(' ')}
+                                        return (
+                                          <button
+                                            key={option}
+                                            type="button"
+                                            onClick={() =>
+                                              toggleDailyPaymentKind(
+                                                activeTransaction.id,
+                                                entry.id,
+                                                option
+                                              )
+                                            }
+                                            className={[
+                                              'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
+                                              selected
+                                                ? 'border-sky-400 bg-sky-600 text-white'
+                                                : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-sky-500/60 hover:bg-slate-800'
+                                            ].join(' ')}
+                                          >
+                                            {option}
+                                          </button>
+                                        )
+                                      })}
+                                    </div>
+                                  </div>
+
+                                  <div className="flex h-full items-center">
+                                    {isFixedRental ? (
+                                      <div
+                                        aria-readonly="true"
+                                        className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                       >
-                                        {option}
-                                      </button>
-                                    )
-                                  })}
+                                        {entry.bank || 'Pilih Bank'}
+                                      </div>
+                                    ) : (
+                                      <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                        Pilih jenis
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <div className="flex h-full items-center">
+                                    {isFixedRental ? (
+                                      <div
+                                        aria-readonly="true"
+                                        className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                      >
+                                        {entry.accountNumber || 'No. rekening'}
+                                      </div>
+                                    ) : (
+                                      <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                        Pilih jenis
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <div className="flex h-full items-center">
+                                    {isFixedRental ? (
+                                      <div
+                                        aria-readonly="true"
+                                        className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                      >
+                                        {entry.ownerName || 'Nama pemilik rekening'}
+                                      </div>
+                                    ) : (
+                                      <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                        Pilih jenis
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  <div className="flex h-full items-center">
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      value={formatNumber(entry.amount)}
+                                      onChange={(event) =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          {
+                                            amount: event.target.value.replace(
+                                              /\D/g,
+                                              ''
+                                            )
+                                          }
+                                        )
+                                      }
+                                      placeholder="Nominal"
+                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                    />
+                                  </div>
                                 </div>
                               </div>
+                            )
+                          })}
+                      </div>
+                    </section>
 
-                              <div className="flex h-full items-center">
-                                {isSppgRental ? (
-                                  <div
-                                    aria-readonly="true"
-                                    className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
-                                  >
-                                    {entry.bank || 'Pilih Bank'}
+                    <section className="w-full rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <h2 className="text-base font-semibold text-white">
+                            Pencairan Gaji
+                          </h2>
+                          <p className="mt-1 text-xs leading-5 text-slate-300">
+                            Gaji Relawan, Insentif PIC Sekolah, dan Insentif Kader
+                            Posyandu dapat dipilih satu, dua, atau sekaligus tiga.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => addDailyPaymentEntry('gaji')}
+                          className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-slate-700"
+                        >
+                          + Transaksi
+                        </button>
+                      </div>
+
+                      <div className="mt-3 space-y-2.5">
+                        {activeTransaction.pencairan_harian
+                          .filter((entry) => entry.category === 'gaji')
+                          .map((entry) => (
+                            <div
+                              key={entry.id}
+                              className="rounded-lg border border-violet-800/50 bg-slate-950 p-3"
+                            >
+                              <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_130px_155px_190px_160px]">
+                                <div className="min-w-0">
+                                  <div className="flex h-full flex-wrap content-center gap-1.5">
+                                    {DAILY_PAYMENT_GAJI_OPTIONS.map((option) => {
+                                      const selected = entry.kinds.includes(option)
+
+                                      return (
+                                        <button
+                                          key={option}
+                                          type="button"
+                                          onClick={() =>
+                                            toggleDailyPaymentKind(
+                                              activeTransaction.id,
+                                              entry.id,
+                                              option
+                                            )
+                                          }
+                                          className={[
+                                            'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
+                                            selected
+                                              ? 'border-violet-400 bg-violet-600 text-white'
+                                              : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-violet-500/60 hover:bg-slate-800'
+                                          ].join(' ')}
+                                        >
+                                          {option}
+                                        </button>
+                                      )
+                                    })}
                                   </div>
-                                ) : (
+                                </div>
+
+                                <div className="flex h-full items-center">
                                   <select
                                     value={entry.bank}
                                     onChange={(event) =>
@@ -1439,7 +1599,7 @@ function App() {
                                         { bank: event.target.value }
                                       )
                                     }
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
                                   >
                                     <option value="">Pilih Bank</option>
                                     {OPERATIONAL_BANKS.map((bank) => (
@@ -1448,18 +1608,9 @@ function App() {
                                       </option>
                                     ))}
                                   </select>
-                                )}
-                              </div>
+                                </div>
 
-                              <div className="flex h-full items-center">
-                                {isSppgRental ? (
-                                  <div
-                                    aria-readonly="true"
-                                    className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
-                                  >
-                                    {entry.accountNumber || 'No. rekening'}
-                                  </div>
-                                ) : (
+                                <div className="flex h-full items-center">
                                   <input
                                     type="text"
                                     inputMode="numeric"
@@ -1477,20 +1628,11 @@ function App() {
                                       )
                                     }
                                     placeholder="No. rekening"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
                                   />
-                                )}
-                              </div>
+                                </div>
 
-                              <div className="flex h-full items-center">
-                                {isSppgRental ? (
-                                  <div
-                                    aria-readonly="true"
-                                    className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-600"
-                                  >
-                                    {entry.ownerName || 'Nama pemilik rekening'}
-                                  </div>
-                                ) : (
+                                <div className="flex h-full items-center">
                                   <input
                                     type="text"
                                     value={entry.ownerName}
@@ -1506,38 +1648,37 @@ function App() {
                                       )
                                     }
                                     placeholder="Nama pemilik rekening"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
                                   />
-                                )}
-                              </div>
+                                </div>
 
-                              <div className="flex h-full items-center">
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={formatNumber(entry.amount)}
-                                  onChange={(event) =>
-                                    updateDailyPaymentEntry(
-                                      activeTransaction.id,
-                                      entry.id,
-                                      {
-                                        amount: event.target.value.replace(
-                                          /\D/g,
-                                          ''
-                                        )
-                                      }
-                                    )
-                                  }
-                                  placeholder="Nominal"
-                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
-                                />
+                                <div className="flex h-full items-center">
+                                  <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={formatNumber(entry.amount)}
+                                    onChange={(event) =>
+                                      updateDailyPaymentEntry(
+                                        activeTransaction.id,
+                                        entry.id,
+                                        {
+                                          amount: event.target.value.replace(
+                                            /\D/g,
+                                            ''
+                                          )
+                                        }
+                                      )
+                                    }
+                                    placeholder="Nominal"
+                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                  />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </section>
+                          ))}
+                      </div>
+                    </section>
+                  </div>
 
                   {gasRules.length > 0 && (
                     <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
