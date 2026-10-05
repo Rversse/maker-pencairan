@@ -1086,13 +1086,13 @@ function App() {
   )
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-stone-950 p-2 text-white sm:p-3 md:p-4">
+    <main className="min-h-screen overflow-x-hidden bg-slate-950 p-2 text-white sm:p-3 md:p-4">
       <div className="mx-auto w-full max-w-[1280px]">
         <>
           <header className="flex items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold">Maker Pencairan</h1>
-              <p className="mt-1 text-sm leading-5 text-stone-300">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
+              <p className="mt-1 text-sm leading-5 text-slate-300">
                 Pencairan harian dengan tanggal fleksibel.
               </p>
             </div>
@@ -1100,14 +1100,14 @@ function App() {
               <button
                 type="button"
                 onClick={restoreLastDraft}
-                className="rounded-lg border border-stone-700 bg-stone-900 px-3 py-2 text-xs font-medium text-stone-200 hover:bg-stone-800"
+                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
               >
                 Pulihkan
               </button>
               <button
                 type="button"
                 onClick={resetWorkspace}
-                className="rounded-lg border border-stone-700 bg-stone-900 px-3 py-2 text-xs font-medium text-stone-200 hover:bg-stone-800"
+                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
               >
                 Reset
               </button>
@@ -1127,7 +1127,7 @@ function App() {
           </div>
 
           {masterLoading && (
-            <div className="mt-4 rounded-xl border border-stone-800 bg-stone-900 p-4 text-sm text-stone-400">
+            <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-400">
               Memuat master data...
             </div>
           )}
@@ -1138,7 +1138,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => void loadMasterData()}
-                className="mt-3 rounded-lg bg-stone-800 px-3 py-2 text-sm text-white hover:bg-stone-700"
+                className="mt-3 rounded-lg bg-slate-800 px-3 py-2 text-sm text-white hover:bg-stone-700"
               >
                 Coba Lagi
               </button>
@@ -1147,18 +1147,18 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="sticky top-0 z-30 -mx-3 mt-4 bg-stone-950/90 px-3 pb-3 pt-1 backdrop-blur md:-mx-4 md:px-4">
-                <section className="rounded-xl border border-stone-600 bg-stone-900 p-4 shadow-lg">
+              <div className="sticky top-0 z-30 -mx-3 mt-4 bg-slate-950/90 px-3 pb-3 pt-1 backdrop-blur md:-mx-4 md:px-4">
+                <section className="rounded-xl border border-stone-600 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
                       <label
                         htmlFor="date"
-                        className="mb-1 block text-sm font-medium leading-5 text-stone-300"
+                        className="mb-1 block text-sm font-medium leading-5 text-slate-300"
                       >
                         Tanggal
                       </label>
-                      <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-stone-700 bg-stone-950 px-3 transition hover:border-stone-600 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/40">
-                        <span className="text-xs font-semibold text-stone-500">
+                      <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-3 transition hover:border-stone-600 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/40">
+                        <span className="text-xs font-semibold text-slate-500">
                           TANGGAL
                         </span>
                         <span className="ml-3 text-sm font-semibold text-white">
@@ -1183,7 +1183,7 @@ function App() {
                     <div>
                       <label
                         htmlFor="kitchen"
-                        className="mb-1 block text-sm font-medium leading-5 text-stone-300"
+                        className="mb-1 block text-sm font-medium leading-5 text-slate-300"
                       >
                         Dapur
                       </label>
@@ -1193,7 +1193,7 @@ function App() {
                         onChange={(event) =>
                           handleKitchenChange(event.target.value)
                         }
-                        className="h-10 w-full rounded-lg border border-stone-700 bg-stone-950 px-3 text-sm font-semibold text-white outline-none transition hover:border-stone-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40"
+                        className="h-10 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm font-semibold text-white outline-none transition hover:border-stone-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40"
                       >
                         <option value="">Pilih dapur</option>
                         {masterData.kitchens.map((kitchen) => (
@@ -1217,7 +1217,7 @@ function App() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <h2 className="text-sm font-semibold">Output</h2>
-                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
                           Draft otomatis tersimpan di browser. Reset menyimpan
                           snapshot pemulihan. Copy untuk menyalin dan dikirim ke
                           Whatsapp.
@@ -1233,7 +1233,7 @@ function App() {
                       </button>
                     </div>
 
-                    <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg border border-stone-800 bg-stone-950 p-3 text-xs leading-5 text-stone-200">
+                    <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200">
                       {output || 'Belum ada transaksi yang nominalnya terisi.'}
                     </pre>
                   </section>
@@ -1242,11 +1242,11 @@ function App() {
 
               {kitchenId && activeTransaction && (
                 <>
-                  <section className="rounded-xl border border-stone-500 bg-stone-900 p-3">
+                  <section className="rounded-xl border border-stone-500 bg-slate-900 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
-                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
                           Rekening RAB hanya keluar ke output jika nominal diisi.
                           Pilih produk dan isi nominal pada rekening yang dibutuhkan.
                         </p>
@@ -1274,7 +1274,7 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className="grid min-w-0 gap-2 border-b border-stone-800 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_150px] sm:items-center"
+                            className="grid min-w-0 gap-2 border-b border-slate-800 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_150px] sm:items-center"
                           >
                             <div className="min-w-0">
                               <div className="truncate text-sm font-semibold text-white">
@@ -1307,7 +1307,7 @@ function App() {
                                           'inline-flex h-9 items-center rounded-md border px-2.5 text-xs font-medium transition',
                                           selected
                                             ? 'border-emerald-500 bg-emerald-600 text-white'
-                                            : 'border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800'
+                                            : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
                                         ].join(' ')}
                                       >
                                         {selected ? '✓ ' : ''}
@@ -1317,7 +1317,7 @@ function App() {
                                   })}
                                 </div>
                               ) : (
-                                <div className="mt-1 text-[11px] text-stone-600">
+                                <div className="mt-1 text-[11px] text-slate-600">
                                   Tidak ada data produk.
                                 </div>
                               )}
@@ -1338,7 +1338,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                             />
                           </div>
                         )
@@ -1367,7 +1367,7 @@ function App() {
                         <h2 className="text-base font-semibold text-white">
                           Pencairan Harian
                         </h2>
-                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
                           Pilih jenis pencairan, lalu isi bank, nomor rekening,
                           nama pemilik rekening, dan nominal.
                         </p>
@@ -1375,7 +1375,7 @@ function App() {
                       <button
                         type="button"
                         onClick={addDailyPaymentEntry}
-                        className="h-10 rounded-lg border border-stone-700 bg-stone-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
+                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
                       >
                         + Transaksi
                       </button>
@@ -1388,7 +1388,7 @@ function App() {
                         return (
                           <div
                             key={entry.id}
-                            className="rounded-lg border border-sky-800/50 bg-stone-950 p-3"
+                            className="rounded-lg border border-sky-800/50 bg-slate-950 p-3"
                           >
                             <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_120px_150px_190px_160px] xl:grid-cols-[minmax(0,1fr)_140px_170px_210px_170px]">
                               <div className="min-w-0">
@@ -1411,10 +1411,9 @@ function App() {
                                           'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
                                           selected
                                             ? 'border-sky-500 bg-sky-600 text-white'
-                                            : 'border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800'
+                                            : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
                                         ].join(' ')}
                                       >
-                                        {selected ? '✓ ' : ''}
                                         {option}
                                       </button>
                                     )
@@ -1426,7 +1425,7 @@ function App() {
                                 {isSppgRental ? (
                                   <div
                                     aria-readonly="true"
-                                    className="flex h-10 w-full items-center rounded-md border border-stone-800 bg-stone-950 px-3 text-sm font-medium text-stone-600"
+                                    className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                   >
                                     {entry.bank || 'Pilih Bank'}
                                   </div>
@@ -1440,7 +1439,7 @@ function App() {
                                         { bank: event.target.value }
                                       )
                                     }
-                                    className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-medium text-stone-100 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
                                   >
                                     <option value="">Pilih Bank</option>
                                     {OPERATIONAL_BANKS.map((bank) => (
@@ -1456,7 +1455,7 @@ function App() {
                                 {isSppgRental ? (
                                   <div
                                     aria-readonly="true"
-                                    className="flex h-10 w-full items-center rounded-md border border-stone-800 bg-stone-950 px-3 text-sm text-stone-600"
+                                    className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                   >
                                     {entry.accountNumber || 'No. rekening'}
                                   </div>
@@ -1478,7 +1477,7 @@ function App() {
                                       )
                                     }
                                     placeholder="No. rekening"
-                                    className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
                                   />
                                 )}
                               </div>
@@ -1487,7 +1486,7 @@ function App() {
                                 {isSppgRental ? (
                                   <div
                                     aria-readonly="true"
-                                    className="flex h-10 w-full items-center rounded-md border border-stone-800 bg-stone-950 px-3 text-sm text-stone-600"
+                                    className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-600"
                                   >
                                     {entry.ownerName || 'Nama pemilik rekening'}
                                   </div>
@@ -1507,7 +1506,7 @@ function App() {
                                       )
                                     }
                                     placeholder="Nama pemilik rekening"
-                                    className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
                                   />
                                 )}
                               </div>
@@ -1530,7 +1529,7 @@ function App() {
                                     )
                                   }
                                   placeholder="Nominal"
-                                  className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
                                 />
                               </div>
                             </div>
@@ -1544,7 +1543,7 @@ function App() {
                     <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
                       <div>
                         <h2 className="text-base font-semibold text-white">GAS</h2>
-                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
                           Isi nominal GAS. Rekening tujuan mengikuti mapping GAS dapur.
                         </p>
                       </div>
@@ -1585,7 +1584,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                               />
                             </div>
                           )
@@ -1595,7 +1594,7 @@ function App() {
                   )}
 
                   {gasRules.length === 0 && (
-                    <div className="mt-2 w-full rounded-lg border border-dashed border-stone-700 p-3 text-sm text-stone-500">
+                    <div className="mt-2 w-full rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-500">
                       Dapur ini tidak memiliki mapping GAS.
                     </div>
                   )}
@@ -1604,7 +1603,7 @@ function App() {
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <h2 className="text-base font-semibold">Form Lain-Lain</h2>
-                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                        <p className="mt-1 text-xs leading-5 text-slate-300">
                           Pilih bank, isi nomor rekening, nama pemilik rekening,
                           keperluan, dan nominal.
                         </p>
@@ -1612,7 +1611,7 @@ function App() {
                       <button
                         type="button"
                         onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 rounded-lg border border-stone-700 bg-stone-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
+                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
                       >
                         + Transaksi
                       </button>
@@ -1622,7 +1621,7 @@ function App() {
                       {activeTransaction.lain_lain.map((entry) => (
                         <div
                           key={entry.id}
-                          className="rounded-lg border border-rose-800/50 bg-stone-950 p-3"
+                          className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
                         >
                           <div className="grid gap-2 lg:grid-cols-[120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
                             <div>
@@ -1636,7 +1635,7 @@ function App() {
                                     { accountId: event.target.value }
                                   )
                                 }
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-medium text-stone-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
                               >
                                 <option value="">Pilih Bank</option>
                                 {OPERATIONAL_BANKS.map((bank) => (
@@ -1664,7 +1663,7 @@ function App() {
                                   )
                                 }
                                 placeholder="Nomor rekening"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
                               />
                             </div>
 
@@ -1678,11 +1677,15 @@ function App() {
                                     activeTransaction.id,
                                     'lain_lain',
                                     entry.id,
-                                    { ownerName: event.target.value }
+                                    {
+                                      ownerName: sanitizeOwnerName(
+                                        event.target.value
+                                      )
+                                    }
                                   )
                                 }
                                 placeholder="Nama pemilik rekening"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
                               />
                             </div>
 
@@ -1700,7 +1703,7 @@ function App() {
                                   )
                                 }
                                 placeholder="Isi dengan keperluan / kosongkan untuk otomatis diisi Ops Harian"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
                               />
                             </div>
 
@@ -1721,7 +1724,7 @@ function App() {
                                   )
                                 }
                                 placeholder="Nominal"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                               />
                             </div>
                           </div>
