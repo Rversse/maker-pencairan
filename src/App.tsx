@@ -1086,8 +1086,8 @@ function App() {
   )
 
   return (
-    <main className="min-h-screen bg-stone-950 p-3 text-white md:p-4">
-      <div className="mx-auto max-w-7xl">
+    <main className="min-h-screen overflow-x-hidden bg-stone-950 p-2 text-white sm:p-3 md:p-4">
+      <div className="mx-auto w-full max-w-[1280px]">
         <>
           <header className="flex items-center justify-between gap-3">
             <div>
@@ -1198,7 +1198,7 @@ function App() {
                         <option value="">Pilih dapur</option>
                         {masterData.kitchens.map((kitchen) => (
                           <option key={kitchen.id} value={kitchen.id}>
-                            {kitchen.name}{kitchen.is_active ? '' : ' (Nonaktif)'}
+                            {kitchen.name}
                           </option>
                         ))}
                       </select>
@@ -1243,18 +1243,13 @@ function App() {
               {kitchenId && activeTransaction && (
                 <>
                   <section className="rounded-xl border border-stone-500 bg-stone-900 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex min-w-0 items-center gap-2.5">
-                        <span className="shrink-0 rounded-md border border-stone-400/40 bg-stone-400/10 px-2 py-1 text-[10px] font-bold tracking-wide text-stone-200">
-                          RAB
-                        </span>
-                        <span className="text-xs leading-5 text-stone-300">
-                          Rekening RAB hanya keluar ke output jika nominal
-                          diisi. GAS berada di card terpisah di bawah.
-                        </span>
-                      </div>
-                      <div className="shrink-0 text-right text-xs text-stone-300">
-                        {formatDate(activeTransaction.date)}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h2 className="text-base font-semibold text-white">RAB</h2>
+                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                          Rekening RAB hanya keluar ke output jika nominal diisi.
+                          Pilih produk dan isi nominal pada rekening yang dibutuhkan.
+                        </p>
                       </div>
                     </div>
 
@@ -1263,7 +1258,7 @@ function App() {
                       const rabLeftRules = sortedRabRules.slice(0, splitIndex)
                       const rabRightRules = sortedRabRules.slice(splitIndex)
 
-                      const renderRabCard = (
+                      const renderRabRow = (
                         rule: MakerAccountRule,
                         index: number
                       ) => {
@@ -1279,102 +1274,86 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className="rounded-lg border border-stone-500/70 bg-stone-950 p-3"
+                            className="grid min-w-0 gap-2 border-b border-stone-800 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_150px] sm:items-center"
                           >
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="truncate text-sm font-semibold text-stone-100">
-                                  {index + 1}.{' '}
-                                  {rule.supplier?.business_name ??
-                                    rule.accounts?.name ??
-                                    'Tanpa nama'}{' '}
-                                  - {rule.accounts?.bank ?? '-'} (
-                                  {rule.accounts?.account_number ?? '-'})
-                                </div>
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-semibold text-white">
+                                {index + 1}.{' '}
+                                {rule.supplier?.business_name ??
+                                  rule.accounts?.name ??
+                                  'Tanpa nama'}{' '}
+                                - {rule.accounts?.bank ?? '-'} (
+                                {rule.accounts?.account_number ?? '-'})
                               </div>
-                              {isCompleteAmount(entry.amount) && (
-                                <span className="shrink-0 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold text-emerald-300">
-                                  AKTIF
-                                </span>
+
+                              {products.length > 0 ? (
+                                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                  {products.map((product) => {
+                                    const selected =
+                                      entry.productTypes.includes(product)
+
+                                    return (
+                                      <button
+                                        key={product}
+                                        type="button"
+                                        onClick={() =>
+                                          toggleRabProduct(
+                                            activeTransaction.id,
+                                            rule.account_id,
+                                            product
+                                          )
+                                        }
+                                        className={[
+                                          'inline-flex h-9 items-center rounded-md border px-2.5 text-xs font-medium transition',
+                                          selected
+                                            ? 'border-emerald-500 bg-emerald-600 text-white'
+                                            : 'border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800'
+                                        ].join(' ')}
+                                      >
+                                        {selected ? '✓ ' : ''}
+                                        {product}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              ) : (
+                                <div className="mt-1 text-[11px] text-stone-600">
+                                  Tidak ada data produk.
+                                </div>
                               )}
                             </div>
 
-                            <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_160px]">
-                              <div>
-                                {products.length > 0 ? (
-                                  <div className="flex flex-wrap items-center gap-1.5">
-                                    {products.map((product) => {
-                                      const selected =
-                                        entry.productTypes.includes(product)
-                                      return (
-                                        <button
-                                          key={product}
-                                          type="button"
-                                          onClick={() =>
-                                            toggleRabProduct(
-                                              activeTransaction.id,
-                                              rule.account_id,
-                                              product
-                                            )
-                                          }
-                                          className={[
-                                            'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
-                                            selected
-                                              ? 'border-emerald-500 bg-emerald-600 text-white'
-                                              : 'border-stone-700 bg-stone-900 text-stone-300 hover:bg-stone-800'
-                                          ].join(' ')}
-                                        >
-                                          {selected ? '✓ ' : ''}
-                                          {product}
-                                        </button>
-                                      )
-                                    })}
-                                  </div>
-                                ) : (
-                                  <div className="text-[11px] text-stone-600">
-                                    Tidak ada data produk.
-                                  </div>
-                                )}
-                              </div>
-
-                              <div>
-                                <input
-                                  id={`rab-${activeTransaction.id}-${rule.account_id}`}
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={formatNumber(entry.amount)}
-                                  onChange={(event) =>
-                                    updateRabEntry(
-                                      activeTransaction.id,
-                                      rule.account_id,
-                                      {
-                                        amount: event.target.value.replace(
-                                          /\D/g,
-                                          ''
-                                        )
-                                      }
-                                    )
+                            <input
+                              id={'rab-' + activeTransaction.id + '-' + rule.account_id}
+                              type="text"
+                              inputMode="numeric"
+                              value={formatNumber(entry.amount)}
+                              onChange={(event) =>
+                                updateRabEntry(
+                                  activeTransaction.id,
+                                  rule.account_id,
+                                  {
+                                    amount: event.target.value.replace(/\D/g, '')
                                   }
-                                  placeholder="Nominal"
-                                  className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                                />
-                              </div>
-                            </div>
+                                )
+                              }
+                              placeholder="Nominal"
+                              className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
                           </div>
                         )
                       }
 
                       return (
-                        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2 lg:items-start">
-                          <div className="grid min-w-0 gap-2.5">
+                        <div className="mt-2 grid grid-cols-1 gap-x-8 lg:grid-cols-2">
+                          <div className="min-w-0">
                             {rabLeftRules.map((rule, index) =>
-                              renderRabCard(rule, index)
+                              renderRabRow(rule, index)
                             )}
                           </div>
-
-                          <div className="grid min-w-0 gap-2.5">
+                          <div className="min-w-0">
                             {rabRightRules.map((rule, offset) =>
-                              renderRabCard(rule, splitIndex + offset)
+                              renderRabRow(rule, splitIndex + offset)
                             )}
                           </div>
                         </div>
@@ -1401,12 +1380,19 @@ function App() {
                     </div>
 
                     <div className="mt-3 space-y-2.5">
-                      {activeTransaction.pencairan_harian.map((entry) => (
+                      {activeTransaction.pencairan_harian.map((entry) => {
+                        const isSppgRental = entry.kinds.includes('Sewa SPPG')
+
+                        return (
                         <div
                           key={entry.id}
                           className="rounded-lg border border-sky-800/50 bg-stone-950 p-3"
                         >
-                          <div className="grid gap-2 lg:grid-cols-[minmax(0,1.9fr)_120px_150px_190px_160px] lg:items-end">
+                          {(() => {
+                            const isSppgRental = entry.kinds.includes('Sewa SPPG')
+                            return null
+                          })()}
+                          <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_120px_150px_190px_160px] xl:grid-cols-[minmax(0,1fr)_140px_170px_210px_170px]">
                             <div>
                               <div className="flex flex-wrap gap-1.5">
                                 {DAILY_PAYMENT_OPTIONS.map((option) => {
@@ -1436,7 +1422,7 @@ function App() {
                                 })}                              </div>
                             </div>
 
-                            <div>
+                            <div className="flex h-full items-center">
                               <select
                                 value={entry.bank}
                                 onChange={(event) =>
@@ -1446,7 +1432,13 @@ function App() {
                                     { bank: event.target.value }
                                   )
                                 }
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-medium text-stone-100 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                disabled={isSppgRental}
+                                className={[
+                                  'h-10 w-full rounded-md border px-3 text-sm font-medium outline-none transition',
+                                  isSppgRental
+                                    ? 'cursor-not-allowed border-stone-800 bg-stone-950 text-stone-600'
+                                    : 'border-stone-700 bg-stone-900 text-stone-100 hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30'
+                                ].join(' ')}
                               >
                                 <option value="">Pilih Bank</option>
                                 {OPERATIONAL_BANKS.map((bank) => (
@@ -1457,7 +1449,7 @@ function App() {
                               </select>
                             </div>
 
-                            <div>
+                            <div className="flex h-full items-center">
                               <input
                                 type="text"
                                 inputMode="numeric"
@@ -1472,11 +1464,17 @@ function App() {
                                   )
                                 }
                                 placeholder="No. rekening"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                disabled={isSppgRental}
+                                className={[
+                                  'h-10 w-full rounded-md border px-3 text-sm outline-none transition',
+                                  isSppgRental
+                                    ? 'cursor-not-allowed border-stone-800 bg-stone-950 text-stone-600 placeholder:text-stone-700'
+                                    : 'border-stone-700 bg-stone-900 text-stone-100 placeholder:text-stone-500 hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30'
+                                ].join(' ')}
                               />
                             </div>
 
-                            <div>
+                            <div className="flex h-full items-center">
                               <input
                                 type="text"
                                 value={entry.ownerName}
@@ -1488,11 +1486,17 @@ function App() {
                                   )
                                 }
                                 placeholder="Nama pemilik rekening"
-                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                disabled={isSppgRental}
+                                className={[
+                                  'h-10 w-full rounded-md border px-3 text-sm outline-none transition',
+                                  isSppgRental
+                                    ? 'cursor-not-allowed border-stone-800 bg-stone-950 text-stone-600 placeholder:text-stone-700'
+                                    : 'border-stone-700 bg-stone-900 text-stone-100 placeholder:text-stone-500 hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30'
+                                ].join(' ')}
                               />
                             </div>
 
-                            <div>
+                            <div className="flex h-full items-center">
                               <input
                                 type="text"
                                 inputMode="numeric"
@@ -1517,19 +1521,15 @@ function App() {
                   </section>
 
                   {gasRules.length > 0 && (
-                    <div className="mt-2 w-full rounded-lg border border-emerald-500/30 bg-emerald-950/20 p-3">
-                      <div className="mb-2 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="rounded-md border border-emerald-400/30 bg-emerald-400/10 px-2 py-1 text-[10px] font-bold tracking-wide text-emerald-200">
-                            GAS
-                          </span>
-                          <span className="text-xs leading-5 text-emerald-100/90">
-                            Input nominal saja.
-                          </span>
-                        </div>
+                    <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
+                      <div>
+                        <h2 className="text-base font-semibold text-white">GAS</h2>
+                        <p className="mt-1 text-xs leading-5 text-stone-300">
+                          Isi nominal GAS. Rekening tujuan mengikuti mapping GAS dapur.
+                        </p>
                       </div>
 
-                      <div className="grid gap-2.5 lg:grid-cols-[minmax(0,1.6fr)_minmax(180px,1fr)_160px] lg:items-center">
+                      <div className="mt-2 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
                         {activeTransaction.gas.map((entry) => {
                           const rule =
                             gasRules.find(
@@ -1538,46 +1538,40 @@ function App() {
 
                           return (
                             <div key={entry.id} className="contents">
-                              <div className="flex h-10 min-w-0 items-center rounded-md border border-emerald-500/30 bg-stone-900 px-3 text-sm font-semibold text-stone-100">
-                                <span className="block min-w-0 truncate">
+                              <div className="min-w-0">
+                                <div className="truncate text-sm font-semibold text-white">
                                   {displaySupplierName(rule?.supplier) ||
-                                    rule?.accounts?.name}
-                                </span>
+                                    rule?.accounts?.name ||
+                                    'Tanpa nama'}{' '}
+                                  - {rule?.accounts?.bank ?? '-'} (
+                                  {rule?.accounts?.account_number ?? '-'})
+                                </div>
                               </div>
 
-                              <div className="flex h-10 items-center rounded-md border border-emerald-500/30 bg-stone-900 px-3 text-sm font-semibold text-emerald-100">
-                                GAS
-                              </div>
-
-                              <div>
-                                <input
-                                  id={`gas-${activeTransaction.id}-${entry.id}`}
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={formatNumber(entry.amount)}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'gas',
-                                      entry.id,
-                                      {
-                                        amount: event.target.value.replace(
-                                          /\D/g,
-                                          ''
-                                        )
-                                      }
-                                    )
-                                  }
-                                  placeholder="Nominal"
-                                  aria-label="Nominal GAS"
-                                  className="h-10 w-full rounded-md border border-emerald-500/30 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-emerald-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/30"
-                                />
-                              </div>
+                              <input
+                                id={'gas-' + activeTransaction.id + '-' + entry.id}
+                                type="text"
+                                inputMode="numeric"
+                                value={formatNumber(entry.amount)}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'gas',
+                                    entry.id,
+                                    {
+                                      amount: event.target.value.replace(/\D/g, '')
+                                    }
+                                  )
+                                }
+                                placeholder="Nominal"
+                                aria-label="Nominal GAS"
+                                className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-semibold text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              />
                             </div>
                           )
                         })}
                       </div>
-                    </div>
+                    </section>
                   )}
 
                   {gasRules.length === 0 && (
