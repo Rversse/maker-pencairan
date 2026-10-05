@@ -16,7 +16,23 @@ type SimpleEntry = {
   accountId: string
   amount: string
   accountNumber: string
+  ownerName: string
   need: string
+}
+
+type DailyPaymentKind =
+  | 'Sewa SPPG'
+  | 'Gaji Relawan'
+  | 'Insentif PIC Sekolah'
+  | 'Insentif Kader'
+
+type DailyPaymentEntry = {
+  id: number
+  kind: DailyPaymentKind
+  bank: string
+  accountNumber: string
+  ownerName: string
+  amount: string
 }
 
 type TransactionGroup = {
@@ -25,18 +41,19 @@ type TransactionGroup = {
   rab: RabEntry[]
   gas: SimpleEntry[]
   operasional?: SimpleEntry[]
+  pencairan_harian: DailyPaymentEntry[]
   lain_lain: SimpleEntry[]
 }
 
 type SavedWorkspace = {
-  version: 3 | 4
+  version: 3 | 4 | 5
   kitchenId: string
   activeTransactionId: number
   transactions: TransactionGroup[]
   savedAt?: number
 }
 
-const STORAGE_KEY = 'maker-pencairan-workspace-v4'
+const STORAGE_KEY = 'maker-pencairan-workspace-v5'
 const RECOVERY_STORAGE_KEY = 'maker-pencairan-workspace-recovery-v1'
 const LEGACY_STORAGE_KEY = 'maker-pencairan-workspace-v3'
 
@@ -48,6 +65,13 @@ const OPERATIONAL_BANKS = [
   'BSI',
   'MANDIRI',
   'SEABANK'
+]
+
+const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
+  'Sewa SPPG',
+  'Gaji Relawan',
+  'Insentif PIC Sekolah',
+  'Insentif Kader'
 ]
 
 function toIsoDate(date: Date) {
@@ -144,28 +168,6 @@ function displaySupplierName(
     : supplier.business_name
 }
 
-function createBlankTransactionFromExisting(
-  transaction: TransactionGroup
-): TransactionGroup {
-  return {
-    id: transaction.id,
-    date: transaction.date,
-    rab: transaction.rab.map((entry) => ({
-      accountId: entry.accountId,
-      productTypes: [],
-      amount: ''
-    })),
-    gas: transaction.gas.map((entry) => ({
-      id: entry.id,
-      accountId: entry.accountId,
-      amount: '',
-      accountNumber: entry.accountNumber,
-      need: ''
-    })),
-    lain_lain: [emptySimpleEntry(1)]
-  }
-}
-
 function isValidSavedWorkspace(value: unknown): value is SavedWorkspace {
   if (!value || typeof value !== 'object') return false
 
@@ -194,7 +196,7 @@ function readWorkspaceFromStorageKey(key: string): SavedWorkspace | null {
     )
 
     return {
-      version: 4,
+      version: 5,
       kitchenId: parsed.kitchenId,
       activeTransactionId: hasActiveTransaction
         ? parsed.activeTransactionId
@@ -222,7 +224,7 @@ function persistWorkspaceToKey(
 
   try {
     const payload: SavedWorkspace = {
-      version: 4,
+      version: 5,
       ...workspace,
       savedAt: Date.now()
     }
@@ -248,7 +250,50 @@ function emptySimpleEntry(id = 1): SimpleEntry {
     accountId: '',
     amount: '',
     accountNumber: '',
+    ownerName: '',
     need: ''
+  }
+}
+
+function emptyDailyPaymentEntry(id = 1): DailyPaymentEntry {
+  return {
+    id,
+    kind: 'Sewa SPPG',
+    bank: '',
+    accountNumber: '',
+    ownerName: '',
+    amount: ''
+  }
+}
+
+function normalizeTransactionForToday(
+  transaction: TransactionGroup,
+  today: string
+): TransactionGroup {
+  return {
+    ...transaction,
+    date: today,
+    rab: Array.isArray(transaction.rab) ? transaction.rab : [],
+    gas: Array.isArray(transaction.gas)
+      ? transaction.gas.map((entry) => ({
+          ...entry,
+          ownerName: entry.ownerName ?? ''
+        }))
+      : [],
+    pencairan_harian: Array.isArray(transaction.pencairan_harian)
+      ? transaction.pencairan_harian.map((entry) => ({
+          ...entry,
+          bank: entry.bank ?? '',
+          accountNumber: entry.accountNumber ?? '',
+          ownerName: entry.ownerName ?? ''
+        }))
+      : [emptyDailyPaymentEntry(1)],
+    lain_lain: Array.isArray(transaction.lain_lain)
+      ? transaction.lain_lain.map((entry) => ({
+          ...entry,
+          ownerName: entry.ownerName ?? ''
+        }))
+      : [emptySimpleEntry(1)]
   }
 }
 
@@ -277,34 +322,48 @@ function makeTransaction(
         accountId: gasRule?.account_id ?? '',
         amount: '',
         accountNumber: gasRule?.accounts?.account_number ?? '',
+        ownerName: '',
         need: ''
       }
     ],
+    pencairan_harian: [emptyDailyPaymentEntry(1)],
     lain_lain: [emptySimpleEntry(1)]
   }
 }
 
 function App() {
   const saved = useMemo(() => readSavedWorkspace(), [])
+  const today = useMemo(() => toIsoDate(new Date()), [])
+  const savedTransaction = useMemo(() => {
+    if (!saved?.transactions?.length) return null
+    return (
+      saved.transactions.find(
+        (transaction) => transaction.id === saved.activeTransactionId
+      ) ?? saved.transactions[0]
+    )
+  }, [saved])
+  const initialTransaction = useMemo(
+    () =>
+      savedTransaction
+        ? normalizeTransactionForToday(savedTransaction, today)
+        : null,
+    [savedTransaction, today]
+  )
   const [masterData, setMasterData] = useState<MakerMasterData | null>(null)
   const [masterLoading, setMasterLoading] = useState(false)
   const [masterError, setMasterError] = useState('')
 
   const [kitchenId, setKitchenId] = useState(saved?.kitchenId ?? '')
-  const [activeTransactionId, setActiveTransactionId] = useState(
-    saved?.activeTransactionId ?? saved?.transactions[0]?.id ?? 1
-  )
+  const [activeTransactionId, setActiveTransactionId] = useState(1)
   const [transactions, setTransactions] = useState<TransactionGroup[]>(
-    saved?.transactions ?? []
+    initialTransaction ? [initialTransaction] : []
   )
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
-  const dateInputRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef({
     kitchenId: saved?.kitchenId ?? '',
-    activeTransactionId:
-      saved?.activeTransactionId ?? saved?.transactions[0]?.id ?? 1,
-    transactions: saved?.transactions ?? []
+    activeTransactionId: 1,
+    transactions: initialTransaction ? [initialTransaction] : []
   })
 
   useEffect(() => {
@@ -409,8 +468,6 @@ function App() {
     transactions.find(
       (transaction) => transaction.id === activeTransactionId
     ) ?? transactions[0]
-
-  const activeDate = activeTransaction?.date ?? toIsoDate(new Date())
 
   function updateTransaction(
     transactionId: number,
@@ -547,55 +604,7 @@ function App() {
     setActiveTransactionId(1)
   }
 
-  function openDatePicker() {
-    const input = dateInputRef.current
-    if (!input) return
 
-    const pickerInput = input as HTMLInputElement & { showPicker?: () => void }
-    if (typeof pickerInput.showPicker === 'function') {
-      pickerInput.showPicker()
-      return
-    }
-
-    input.focus()
-  }
-
-  function changeActiveDate(nextDate: string) {
-    if (!activeTransaction) return
-    updateTransaction(activeTransaction.id, { date: nextDate })
-    setCopyMessage('')
-  }
-
-  function addTransaction() {
-    if (!activeTransaction) return
-
-    const nextId =
-      transactions.length === 0
-        ? 1
-        : Math.max(...transactions.map((transaction) => transaction.id)) + 1
-
-    const nextTransaction = {
-      ...createBlankTransactionFromExisting(activeTransaction),
-      id: nextId
-    }
-
-    setTransactions((current) => [...current, nextTransaction])
-    setActiveTransactionId(nextId)
-    setCopyMessage('')
-  }
-
-  function removeTransaction(transactionId: number) {
-    if (transactions.length <= 1) return
-
-    const remaining = transactions.filter(
-      (transaction) => transaction.id !== transactionId
-    )
-    setTransactions(remaining)
-
-    if (activeTransactionId === transactionId) {
-      setActiveTransactionId(remaining[0].id)
-    }
-  }
 
   function resetWorkspace() {
     persistRecoveryWorkspace({
