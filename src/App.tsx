@@ -1423,77 +1423,86 @@ function App() {
                             </div>
 
                             <div className="flex h-full items-center">
-                              <select
-                                value={entry.bank}
-                                onChange={(event) =>
-                                  updateDailyPaymentEntry(
-                                    activeTransaction.id,
-                                    entry.id,
-                                    { bank: event.target.value }
-                                  )
-                                }
-                                disabled={isSppgRental}
-                                className={[
-                                  'h-10 w-full rounded-md border px-3 text-sm font-medium outline-none transition',
-                                  isSppgRental
-                                    ? 'cursor-not-allowed border-stone-800 bg-stone-950 text-stone-600'
-                                    : 'border-stone-700 bg-stone-900 text-stone-100 hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30'
-                                ].join(' ')}
-                              >
-                                <option value="">Pilih Bank</option>
-                                {OPERATIONAL_BANKS.map((bank) => (
-                                  <option key={bank} value={bank}>
-                                    {bank}
-                                  </option>
-                                ))}
-                              </select>
+                              {isSppgRental ? (
+                                <div
+                                  aria-readonly="true"
+                                  className="flex h-10 w-full items-center rounded-md border border-stone-800 bg-stone-950 px-3 text-sm font-medium text-stone-600"
+                                >
+                                  {entry.bank || 'Pilih Bank'}
+                                </div>
+                              ) : (
+                                <select
+                                  value={entry.bank}
+                                  onChange={(event) =>
+                                    updateDailyPaymentEntry(
+                                      activeTransaction.id,
+                                      entry.id,
+                                      { bank: event.target.value }
+                                    )
+                                  }
+                                  className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm font-medium text-stone-100 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                >
+                                  <option value="">Pilih Bank</option>
+                                  {OPERATIONAL_BANKS.map((bank) => (
+                                    <option key={bank} value={bank}>
+                                      {bank}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
                             </div>
 
                             <div className="flex h-full items-center">
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={entry.accountNumber}
-                                onChange={(event) =>
-                                  updateDailyPaymentEntry(
-                                    activeTransaction.id,
-                                    entry.id,
-                                    {
-                                      accountNumber: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="No. rekening"
-                                disabled={isSppgRental}
-                                className={[
-                                  'h-10 w-full rounded-md border px-3 text-sm outline-none transition',
-                                  isSppgRental
-                                    ? 'cursor-not-allowed border-stone-800 bg-stone-950 text-stone-600 placeholder:text-stone-700'
-                                    : 'border-stone-700 bg-stone-900 text-stone-100 placeholder:text-stone-500 hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30'
-                                ].join(' ')}
-                              />
+                              {isSppgRental ? (
+                                <div
+                                  aria-readonly="true"
+                                  className="flex h-10 w-full items-center rounded-md border border-stone-800 bg-stone-950 px-3 text-sm text-stone-600"
+                                >
+                                  {entry.accountNumber || 'No. rekening'}
+                                </div>
+                              ) : (
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={entry.accountNumber}
+                                  onChange={(event) =>
+                                    updateDailyPaymentEntry(
+                                      activeTransaction.id,
+                                      entry.id,
+                                      {
+                                        accountNumber: event.target.value.replace(/\D/g, '')
+                                      }
+                                    )
+                                  }
+                                  placeholder="No. rekening"
+                                  className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                />
+                              )}
                             </div>
 
                             <div className="flex h-full items-center">
-                              <input
-                                type="text"
-                                value={entry.ownerName}
-                                onChange={(event) =>
-                                  updateDailyPaymentEntry(
-                                    activeTransaction.id,
-                                    entry.id,
-                                    { ownerName: sanitizeOwnerName(event.target.value) }
-                                  )
-                                }
-                                placeholder="Nama pemilik rekening"
-                                disabled={isSppgRental}
-                                className={[
-                                  'h-10 w-full rounded-md border px-3 text-sm outline-none transition',
-                                  isSppgRental
-                                    ? 'cursor-not-allowed border-stone-800 bg-stone-950 text-stone-600 placeholder:text-stone-700'
-                                    : 'border-stone-700 bg-stone-900 text-stone-100 placeholder:text-stone-500 hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30'
-                                ].join(' ')}
-                              />
+                              {isSppgRental ? (
+                                <div
+                                  aria-readonly="true"
+                                  className="flex h-10 w-full items-center rounded-md border border-stone-800 bg-stone-950 px-3 text-sm text-stone-600"
+                                >
+                                  {entry.ownerName || 'Nama pemilik rekening'}
+                                </div>
+                              ) : (
+                                <input
+                                  type="text"
+                                  value={entry.ownerName}
+                                  onChange={(event) =>
+                                    updateDailyPaymentEntry(
+                                      activeTransaction.id,
+                                      entry.id,
+                                      { ownerName: sanitizeOwnerName(event.target.value) }
+                                    )
+                                  }
+                                  placeholder="Nama pemilik rekening"
+                                  className="h-10 w-full rounded-md border border-stone-700 bg-stone-900 px-3 text-sm text-stone-100 placeholder:text-stone-500 outline-none transition hover:border-stone-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400/30"
+                                />
+                              )}
                             </div>
 
                             <div className="flex h-full items-center">
