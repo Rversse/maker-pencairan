@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { Session } from '@supabase/supabase-js'
-
 import { supabase } from './lib/supabase'
-import { loginMaker, logoutMaker } from './services/auth'
 import {
   getMakerMasterData,
   type MakerMasterData,
@@ -290,11 +287,6 @@ function makeTransaction(
 
 function App() {
   const saved = useMemo(() => readSavedWorkspace(), [])
-  const [session, setSession] = useState<Session | null>(null)
-  const [password, setPassword] = useState('')
-  const [loginError, setLoginError] = useState('')
-  const [loginLoading, setLoginLoading] = useState(false)
-
   const [masterData, setMasterData] = useState<MakerMasterData | null>(null)
   const [masterLoading, setMasterLoading] = useState(false)
   const [masterError, setMasterError] = useState('')
@@ -309,7 +301,6 @@ function App() {
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
   const dateInputRef = useRef<HTMLInputElement>(null)
-  const pinInputRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef({
     kitchenId: saved?.kitchenId ?? '',
     activeTransactionId:
@@ -318,38 +309,9 @@ function App() {
   })
 
   useEffect(() => {
-    let mounted = true
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return
-      setSession(data.session)
-    })
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (nextSession) {
-        setSession(nextSession)
-        return
-      }
-
-      void supabase.auth.getSession().then(({ data }) => {
-        if (!mounted) return
-        setSession(data.session)
-      })
-    })
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [])
-
-  useEffect(() => {
-    if (session?.user.email !== 'maker-akuntan@internal.local') return
     if (masterData) return
     void loadMasterData()
-  }, [session, masterData])
+  }, [masterData])
 
   useEffect(() => {
     workspaceRef.current = {
@@ -407,46 +369,6 @@ function App() {
       )
     } finally {
       setMasterLoading(false)
-    }
-  }
-
-  async function attemptLogin(nextPassword: string) {
-    if (nextPassword.length !== 8 || loginLoading) return
-
-    setLoginLoading(true)
-    setLoginError('')
-    setMasterError('')
-
-    try {
-      const nextSession = await loginMaker('akuntan', nextPassword)
-      setSession(nextSession)
-      setPassword('')
-    } catch (err) {
-      setPassword('')
-      setLoginError(err instanceof Error ? err.message : 'PIN salah')
-      window.setTimeout(() => pinInputRef.current?.focus(), 0)
-    } finally {
-      setLoginLoading(false)
-    }
-  }
-
-  async function handleLogout() {
-    await logoutMaker()
-    setSession(null)
-    setMasterData(null)
-    setCopyMessage('')
-    setHistoryMessage('')
-    setMasterError('')
-    window.setTimeout(() => pinInputRef.current?.focus(), 0)
-  }
-
-  function handlePinChange(value: string) {
-    const nextPassword = value.replace(/\D/g, '').slice(0, 8)
-    setPassword(nextPassword)
-    setLoginError('')
-
-    if (nextPassword.length === 8) {
-      void attemptLogin(nextPassword)
     }
   }
 
@@ -894,47 +816,6 @@ function App() {
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
 
-  if (!session) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-stone-950 p-6 text-white">
-        <div className="w-full max-w-sm rounded-2xl border border-stone-800 bg-stone-900 p-6 shadow-xl">
-          <h1 className="text-2xl font-bold">Maker Pencairan</h1>
-          <p className="mt-2 text-sm text-stone-400">
-            Masukkan PIN untuk masuk.
-          </p>
-
-          <label htmlFor="pin" className="mt-6 block text-sm text-stone-300">
-            PIN
-          </label>
-          <input
-            ref={pinInputRef}
-            id="pin"
-            type="password"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            autoComplete="current-password"
-            autoFocus
-            maxLength={8}
-            value={password}
-            onChange={(event) => handlePinChange(event.target.value)}
-            placeholder="8 digit PIN"
-            disabled={loginLoading}
-            className="mt-2 h-11 w-full rounded-lg border border-stone-700 bg-stone-950 px-3 text-center tracking-[0.3em] text-white outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-          />
-
-          {loginLoading && (
-            <p className="mt-3 text-xs text-stone-400">Memeriksa PIN...</p>
-          )}
-          {loginError && (
-            <p className="mt-3 text-sm font-medium text-red-400">
-              {loginError}
-            </p>
-          )}
-        </div>
-      </main>
-    )
-  }
-
   const activeRabMap: Map<string, RabEntry> = new Map(
     (activeTransaction?.rab ?? []).map(
       (entry) => [entry.accountId, entry] as [string, RabEntry]
@@ -966,13 +847,6 @@ function App() {
                 className="rounded-lg border border-stone-700 bg-stone-900 px-3 py-2 text-xs font-medium text-stone-200 hover:bg-stone-800"
               >
                 Reset
-              </button>
-              <button
-                type="button"
-                onClick={() => void handleLogout()}
-                className="rounded-lg bg-stone-800 px-4 py-2 text-sm hover:bg-stone-700"
-              >
-                Keluar
               </button>
             </div>
           </header>
