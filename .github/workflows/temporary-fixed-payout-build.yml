@@ -3,6 +3,14 @@ on:
   push:
     branches:
       - feat/fixed-payout-cards-vehicle-types-2026-10-12
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/temporary-fixed-payout-build.yml'
 permissions:
   contents: read
 jobs:
