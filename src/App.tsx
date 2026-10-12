@@ -12,7 +12,7 @@ type RabEntry = {
   amount: string
 }
 
-type OtherTransactionType = '' | 'operasional_harian' | 'lain_lain'
+type OtherTransactionType = '' | 'lain_lain'
 
 type SimpleEntry = {
   id: number
@@ -43,11 +43,19 @@ type DailyPaymentEntry = {
   amount: string
 }
 
+type LegacyVehicleRentAmount = {
+  startDate: string
+  endDate: string
+  amount: string
+}
+
 type VehicleRentEntry = {
   id: number
   startDate: string
   endDate: string
-  amount: string
+  mobilAmount: string
+  motorAmount: string
+  legacyAmounts?: LegacyVehicleRentAmount[]
 }
 
 type TransactionGroup = {
@@ -55,7 +63,8 @@ type TransactionGroup = {
   date: string
   rab: RabEntry[]
   gas: SimpleEntry[]
-  operasional?: SimpleEntry[]
+  operasional: SimpleEntry[]
+  legacy_gaji?: DailyPaymentEntry[]
   pencairan_harian: DailyPaymentEntry[]
   sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
@@ -473,27 +482,112 @@ function emptyDailyPaymentEntry(
 }
 
 function emptyVehicleRentEntry(id = 1): VehicleRentEntry {
-  return { id, startDate: '', endDate: '', amount: '' }
+  return {
+    id,
+    startDate: '',
+    endDate: '',
+    mobilAmount: '',
+    motorAmount: '',
+    legacyAmounts: []
+  }
 }
 
-function ensureDailyPaymentCategories(
-  entries: DailyPaymentEntry[]
-): DailyPaymentEntry[] {
-  const next = [...entries]
-  let nextId =
-    next.length === 0
-      ? 1
-      : Math.max(...next.map((entry) => entry.id)) + 1
+function createPayrollEntry(
+  id: number,
+  kitchenName: string,
+  kinds: DailyPaymentKind[],
+  amount = ''
+): DailyPaymentEntry {
+  const mapping = getDailyPaymentMappingForKinds(kitchenName, kinds)
+  return {
+    id,
+    category: 'gaji',
+    kinds: sortDailyPaymentKinds(kinds),
+    bank: mapping?.bank ?? '',
+    accountNumber: mapping?.accountNumber ?? '',
+    ownerName: mapping?.ownerName ?? '',
+    amount
+  }
+}
 
-  if (!next.some((entry) => entry.category === 'sewa')) {
-    next.push(emptyDailyPaymentEntry(nextId++, 'sewa'))
+function createPayrollRowsForKitchen(kitchenName: string, startId = 2) {
+  if (kitchenName === 'Campakamulya') {
+    return [
+      createPayrollEntry(startId, kitchenName, [...DAILY_PAYMENT_GAJI_OPTIONS])
+    ]
   }
 
-  if (!next.some((entry) => entry.category === 'gaji')) {
-    next.push(emptyDailyPaymentEntry(nextId, 'gaji'))
+  return DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) =>
+    createPayrollEntry(startId + index, kitchenName, [kind])
+  )
+}
+
+function getPayrollStructure(
+  currentPayments: DailyPaymentEntry[],
+  kitchenName: string,
+  currentLegacy: DailyPaymentEntry[] = []
+): { payments: DailyPaymentEntry[]; legacy: DailyPaymentEntry[] } {
+  const sewaRows = currentPayments.filter((entry) => entry.category === 'sewa')
+  const gajiRows = currentPayments.filter((entry) => entry.category === 'gaji')
+  const nextId =
+    Math.max(1, ...currentPayments.map((entry) => entry.id), ...currentLegacy.map((entry) => entry.id)) + 1
+
+  if (kitchenName === 'Campakamulya') {
+    const combined = gajiRows.find((entry) =>
+      DAILY_PAYMENT_GAJI_OPTIONS.every((kind) => entry.kinds.includes(kind))
+    )
+    const amountsToCombine = combined
+      ? [combined.amount]
+      : gajiRows.map((entry) => entry.amount)
+    const combinedAmount = String(
+      amountsToCombine.reduce(
+        (total, value) => total + Number((value ?? '').replace(/\\D/g, '')),
+        0
+      ) || ''
+    )
+    const target = createPayrollEntry(
+      combined?.id ?? nextId,
+      kitchenName,
+      [...DAILY_PAYMENT_GAJI_OPTIONS],
+      combinedAmount
+    )
+    return {
+      payments: [...sewaRows, target],
+      legacy: []
+    }
   }
 
-  return next
+  const groupedLegacy = gajiRows.filter((entry) => (entry.kinds ?? []).length > 1)
+  const legacyMap = new Map<string, DailyPaymentEntry>()
+  for (const entry of [...currentLegacy, ...groupedLegacy]) {
+    const key = [entry.id, entry.kinds.join('|'), entry.amount].join(':')
+    legacyMap.set(key, entry)
+  }
+
+  const perKindRows = DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) => {
+    const existing = gajiRows.find(
+      (entry) => entry.kinds.length === 1 && entry.kinds[0] === kind
+    )
+    return createPayrollEntry(
+      existing?.id ?? nextId + index,
+      kitchenName,
+      [kind],
+      existing?.amount ?? ''
+    )
+  })
+
+  return {
+    payments: [...sewaRows, ...perKindRows],
+    legacy: [...legacyMap.values()]
+  }
+}
+
+function createOperationalEntry(id = 1): SimpleEntry {
+  return {
+    ...emptySimpleEntry(id),
+    transactionType: 'operasional_harian',
+    need: 'Ops Harian'
+  }
 }
 
 function normalizeTransaction(
@@ -519,85 +613,117 @@ function normalizeTransaction(
           category,
           kinds: sortDailyPaymentKinds(legacyKinds),
           bank: entry.bank ?? '',
-          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+          accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''),
           ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }
       })
     : [emptyDailyPaymentEntry(1, 'sewa')]
 
-  const dailyPayments = ensureDailyPaymentCategories(rawDailyPayments)
-  const existingVehicleRentals = Array.isArray(transaction.sewa_kendaraan)
-    ? transaction.sewa_kendaraan.map((entry) => ({
-        ...entry,
+  const sewaRows = rawDailyPayments.filter((entry) => entry.category === 'sewa')
+  const normalizedSewa = sewaRows.length > 0
+    ? sewaRows.map((entry) => ({ ...entry, kinds: ['Sewa SPPG'] as DailyPaymentKind[] }))
+    : [{ ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] as DailyPaymentKind[] }]
+
+  const rawVehicleEntries = Array.isArray(transaction.sewa_kendaraan)
+    ? (transaction.sewa_kendaraan as unknown as Array<VehicleRentEntry & { amount?: string }>)
+    : []
+  const firstVehicle = rawVehicleEntries[0]
+  const legacyVehicleAmounts: LegacyVehicleRentAmount[] = rawVehicleEntries.flatMap((entry) => {
+    const legacy = [...(entry.legacyAmounts ?? [])]
+    const oldAmount = entry.amount
+    if (
+      typeof oldAmount === 'string' &&
+      isCompleteAmount(oldAmount) &&
+      !entry.mobilAmount &&
+      !entry.motorAmount
+    ) {
+      legacy.push({
         startDate: entry.startDate ?? '',
         endDate: entry.endDate ?? '',
-        amount: entry.amount ?? ''
-      }))
-    : []
-  let nextVehicleRentId =
-    existingVehicleRentals.length === 0
-      ? 1
-      : Math.max(...existingVehicleRentals.map((entry) => entry.id)) + 1
-
-  // Keep amounts from older drafts that used the former Sewa Kendaraan toggle.
-  // The akuntan can add the date range to the newly separated vehicle-rent card.
-  const migratedVehicleRentals = dailyPayments
-    .filter(
-      (entry) =>
-        entry.category === 'sewa' &&
-        entry.kinds.includes('Sewa Kendaraan') &&
-        isCompleteAmount(entry.amount)
-    )
-    .map((entry) => ({
-      id: nextVehicleRentId++,
-      startDate: '',
-      endDate: '',
-      amount: entry.amount
-    }))
-
-  const normalizedDailyPayments = dailyPayments.map((entry) => {
-    if (entry.category !== 'sewa') return entry
-    const wasVehicleRent = entry.kinds.includes('Sewa Kendaraan')
-    return {
-      ...entry,
-      kinds: ['Sewa SPPG'] as DailyPaymentKind[],
-      amount: wasVehicleRent ? '' : entry.amount
+        amount: oldAmount
+      })
     }
+    return legacy
   })
+  const normalizedVehicle: VehicleRentEntry[] = [{
+    id: firstVehicle?.id ?? 1,
+    startDate: firstVehicle?.startDate ?? legacyVehicleAmounts[0]?.startDate ?? '',
+    endDate: firstVehicle?.endDate ?? legacyVehicleAmounts[0]?.endDate ?? '',
+    mobilAmount: firstVehicle?.mobilAmount ?? '',
+    motorAmount: firstVehicle?.motorAmount ?? '',
+    legacyAmounts: legacyVehicleAmounts
+  }]
+
+  const normalizedGas = Array.isArray(transaction.gas)
+    ? transaction.gas.map((entry) => ({
+        ...entry,
+        ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
+        transactionType: entry.transactionType ?? ''
+      }))
+    : [{
+        ...emptySimpleEntry(1),
+        accountId: '',
+        accountNumber: '',
+        ownerName: '',
+        amount: '',
+        need: '',
+        transactionType: ''
+      }]
+
+  const normalizedOthers = Array.isArray(transaction.lain_lain)
+    ? transaction.lain_lain.map((entry) => {
+        const hasLegacyData = Boolean(
+          entry.accountId || entry.accountNumber || entry.ownerName || entry.need || entry.amount
+        )
+        const transactionType: OtherTransactionType =
+          entry.transactionType === 'lain_lain'
+            ? entry.transactionType
+            : entry.transactionType === 'operasional_harian'
+              ? 'operasional_harian'
+              : hasLegacyData
+                ? 'lain_lain'
+                : ''
+
+        return {
+          ...entry,
+          transactionType,
+          accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''),
+          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+        }
+      })
+    : [emptySimpleEntry(1)]
+
+  const legacyOps = normalizedOthers.filter((entry) => entry.transactionType === 'operasional_harian')
+  const existingOps = Array.isArray(transaction.operasional) ? transaction.operasional : []
+  const operationalSource = existingOps.length > 0 ? existingOps : legacyOps
+  const operationalFirst = operationalSource[0] ?? createOperationalEntry()
+  const oldOpsTotal = operationalSource.reduce(
+    (total, entry) => total + Number((entry.amount ?? '').replace(/\\D/g, '')),
+    0
+  )
+  const operational = [{
+    ...createOperationalEntry(operationalFirst.id),
+    ...operationalFirst,
+    transactionType: 'operasional_harian' as const,
+    amount: String(oldOpsTotal || operationalFirst.amount || '')
+  }]
+  const lain_lain = normalizedOthers.filter((entry) => entry.transactionType !== 'operasional_harian')
+  const legacyGaji = Array.isArray(transaction.legacy_gaji)
+    ? transaction.legacy_gaji
+    : []
 
   return {
     ...transaction,
     date: transaction.date || fallbackDate,
     rab: Array.isArray(transaction.rab) ? transaction.rab : [],
-    gas: Array.isArray(transaction.gas)
-      ? transaction.gas.map((entry) => ({
-          ...entry,
-          ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
-          transactionType: entry.transactionType ?? ''
-        }))
-      : [],
-    pencairan_harian: normalizedDailyPayments,
-    sewa_kendaraan: [...existingVehicleRentals, ...migratedVehicleRentals],
-    lain_lain: Array.isArray(transaction.lain_lain)
-      ? transaction.lain_lain.map((entry) => {
-          const hasLegacyData = Boolean(
-            entry.accountId || entry.accountNumber || entry.ownerName || entry.need || entry.amount
-          )
-          const transactionType: OtherTransactionType =
-            entry.transactionType === 'operasional_harian' || entry.transactionType === 'lain_lain'
-              ? entry.transactionType
-              : hasLegacyData
-                ? 'lain_lain'
-                : ''
-
-          return {
-            ...entry,
-            transactionType,
-            accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
-            ownerName: sanitizeOwnerName(entry.ownerName ?? '')
-          }
-        })
-      : [emptySimpleEntry(1)]
+    gas: normalizedGas,
+    operasional: operational,
+    pencairan_harian: normalizedSewa.concat(
+      rawDailyPayments.filter((entry) => entry.category === 'gaji')
+    ),
+    sewa_kendaraan: normalizedVehicle,
+    lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
+    legacy_gaji: legacyGaji
   }
 }
 
@@ -608,7 +734,8 @@ function makeTransaction(
   gasRules: Array<{
     account_id: string
     accounts: { account_number: string | null } | null
-  }>
+  }>,
+  kitchenName = ''
 ): TransactionGroup {
   const gasRule = gasRules[0]
 
@@ -631,12 +758,14 @@ function makeTransaction(
         transactionType: ''
       }
     ],
+    operasional: [createOperationalEntry(1)],
     pencairan_harian: [
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
-      emptyDailyPaymentEntry(2, 'gaji')
+      ...createPayrollRowsForKitchen(kitchenName, 2)
     ],
     sewa_kendaraan: [emptyVehicleRentEntry(1)],
-    lain_lain: [emptySimpleEntry(1)]
+    lain_lain: [emptySimpleEntry(1)],
+    legacy_gaji: []
   }
 }
 
