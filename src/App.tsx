@@ -922,49 +922,6 @@ function App() {
     })
   }
 
-  function toggleDailyPaymentKind(
-    transactionId: number,
-    id: number,
-    option: DailyPaymentKind
-  ) {
-    const transaction = transactions.find((item) => item.id === transactionId)
-    const entry = transaction?.pencairan_harian.find((item) => item.id === id)
-    if (!entry) return
-
-    const currentKinds = entry.kinds ?? []
-    const isSelected = currentKinds.includes(option)
-    const isRental = option === 'Sewa SPPG' || option === 'Sewa Kendaraan'
-    const optionCategory: DailyPaymentCategory = isRental ? 'sewa' : 'gaji'
-    if (entry.category !== optionCategory) return
-
-    if (!isRental) {
-      toggleDailyPaymentKinds(transactionId, id, [option])
-      return
-    }
-
-    if (isSelected) {
-      updateDailyPaymentEntry(transactionId, id, {
-        kinds: [],
-        bank: '',
-        accountNumber: '',
-        ownerName: ''
-      })
-      return
-    }
-
-    const rental =
-      option === 'Sewa SPPG'
-        ? getSppgRental(selectedKitchen?.name ?? '')
-        : SEWA_KENDARAAN_ACCOUNT
-
-    updateDailyPaymentEntry(transactionId, id, {
-      kinds: [option],
-      bank: rental?.bank ?? '',
-      accountNumber: rental?.accountNumber ?? '',
-      ownerName: rental?.ownerName ?? ''
-    })
-  }
-
   function toggleDailyPaymentKinds(
     transactionId: number,
     id: number,
