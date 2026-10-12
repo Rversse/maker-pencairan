@@ -1876,9 +1876,12 @@ function App() {
                   )}
 
                   {gasRules.length === 0 && (
-                    <div className="mt-3 w-full rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-500">
-                      Dapur ini tidak memiliki mapping GAS.
-                    </div>
+                    <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                      <h2 className="text-base font-semibold text-white">GAS</h2>
+                      <p className="mt-3 text-sm text-slate-500">
+                        Dapur ini tidak memiliki mapping GAS.
+                      </p>
+                    </section>
                   )}
 
 
@@ -1932,9 +1935,8 @@ function App() {
                             return (
                               <div
                                 key={entry.id}
-                                className="rounded-lg border border-sky-800/50 bg-slate-950 p-3"
+                                className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]"
                               >
-                                <div className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]">
                                   <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                     <span className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
@@ -1960,7 +1962,6 @@ function App() {
                                     aria-label="Nominal Sewa SPPG"
                                     className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
-                                </div>
                               </div>
                             )
                           })}
@@ -2079,7 +2080,13 @@ function App() {
                             return (
                               <div
                                 key={entry.id}
-                                className="rounded-lg border border-violet-800/50 bg-slate-950 p-3"
+                                className={
+                                  activeTransaction.pencairan_harian.filter(
+                                    (item) => item.category === 'gaji'
+                                  ).length > 1
+                                    ? 'rounded-lg border border-violet-800/50 bg-slate-950 p-3'
+                                    : ''
+                                }
                               >
                                 <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(210px,1.2fr)_minmax(145px,1fr)_95px_minmax(145px,0.9fr)_145px]">
                                   <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
@@ -2134,7 +2141,11 @@ function App() {
                       {activeTransaction.lain_lain.map((entry) => (
                         <div
                           key={entry.id}
-                          className="rounded-lg border border-slate-800 bg-slate-950 p-3"
+                          className={
+                            activeTransaction.lain_lain.length > 1
+                              ? 'rounded-lg border border-slate-800 bg-slate-950 p-3'
+                              : ''
+                          }
                         >
                           <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(110px,0.65fr)_minmax(145px,0.9fr)_minmax(160px,1fr)_minmax(170px,1.2fr)_minmax(135px,0.8fr)] lg:items-end">
                             <div className="min-w-0">
