@@ -500,6 +500,71 @@ function normalizeTransaction(
   transaction: TransactionGroup,
   fallbackDate: string
 ): TransactionGroup {
+  const rawDailyPayments = Array.isArray(transaction.pencairan_harian)
+    ? transaction.pencairan_harian.map((entry) => {
+        const legacyEntry = entry as DailyPaymentEntry & { kind?: DailyPaymentKind }
+        const legacyKinds = Array.isArray(entry.kinds)
+          ? entry.kinds
+          : legacyEntry.kind
+            ? [legacyEntry.kind]
+            : []
+        const category: DailyPaymentCategory =
+          entry.category ??
+          (legacyKinds.some((kind) => DAILY_PAYMENT_GAJI_OPTIONS.includes(kind))
+            ? 'gaji'
+            : 'sewa')
+
+        return {
+          ...entry,
+          category,
+          kinds: sortDailyPaymentKinds(legacyKinds),
+          bank: entry.bank ?? '',
+          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+        }
+      })
+    : [emptyDailyPaymentEntry(1, 'sewa')]
+
+  const dailyPayments = ensureDailyPaymentCategories(rawDailyPayments)
+  const existingVehicleRentals = Array.isArray(transaction.sewa_kendaraan)
+    ? transaction.sewa_kendaraan.map((entry) => ({
+        ...entry,
+        startDate: entry.startDate ?? '',
+        endDate: entry.endDate ?? '',
+        amount: entry.amount ?? ''
+      }))
+    : []
+  let nextVehicleRentId =
+    existingVehicleRentals.length === 0
+      ? 1
+      : Math.max(...existingVehicleRentals.map((entry) => entry.id)) + 1
+
+  // Keep amounts from older drafts that used the former Sewa Kendaraan toggle.
+  // The akuntan can add the date range to the newly separated vehicle-rent card.
+  const migratedVehicleRentals = dailyPayments
+    .filter(
+      (entry) =>
+        entry.category === 'sewa' &&
+        entry.kinds.includes('Sewa Kendaraan') &&
+        isCompleteAmount(entry.amount)
+    )
+    .map((entry) => ({
+      id: nextVehicleRentId++,
+      startDate: '',
+      endDate: '',
+      amount: entry.amount
+    }))
+
+  const normalizedDailyPayments = dailyPayments.map((entry) => {
+    if (entry.category !== 'sewa') return entry
+    const wasVehicleRent = entry.kinds.includes('Sewa Kendaraan')
+    return {
+      ...entry,
+      kinds: ['Sewa SPPG'] as DailyPaymentKind[],
+      amount: wasVehicleRent ? '' : entry.amount
+    }
+  })
+
   return {
     ...transaction,
     date: transaction.date || fallbackDate,
@@ -511,36 +576,8 @@ function normalizeTransaction(
           transactionType: entry.transactionType ?? ''
         }))
       : [],
-    pencairan_harian: ensureDailyPaymentCategories(
-      Array.isArray(transaction.pencairan_harian)
-        ? transaction.pencairan_harian.map((entry) => {
-            const legacyEntry = entry as DailyPaymentEntry & {
-              kind?: DailyPaymentKind
-            }
-            const legacyKinds = Array.isArray(entry.kinds)
-              ? entry.kinds
-              : legacyEntry.kind
-                ? [legacyEntry.kind]
-                : []
-            const category: DailyPaymentCategory =
-              entry.category ??
-              (legacyKinds.some((kind) =>
-                DAILY_PAYMENT_GAJI_OPTIONS.includes(kind)
-              )
-                ? 'gaji'
-                : 'sewa')
-
-            return {
-              ...entry,
-              category,
-              kinds: sortDailyPaymentKinds(legacyKinds),
-              bank: entry.bank ?? '',
-              accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
-              ownerName: sanitizeOwnerName(entry.ownerName ?? '')
-            }
-          })
-        : [emptyDailyPaymentEntry(1, 'sewa')]
-    ),
+    pencairan_harian: normalizedDailyPayments,
+    sewa_kendaraan: [...existingVehicleRentals, ...migratedVehicleRentals],
     lain_lain: Array.isArray(transaction.lain_lain)
       ? transaction.lain_lain.map((entry) => {
           const hasLegacyData = Boolean(
@@ -595,9 +632,10 @@ function makeTransaction(
       }
     ],
     pencairan_harian: [
-      emptyDailyPaymentEntry(1, 'sewa'),
+      { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
       emptyDailyPaymentEntry(2, 'gaji')
     ],
+    sewa_kendaraan: [emptyVehicleRentEntry(1)],
     lain_lain: [emptySimpleEntry(1)]
   }
 }
