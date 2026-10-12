@@ -4,6 +4,7 @@ import {
   type MakerMasterData,
   type MakerAccountRule
 } from './services/master-data'
+import { DateRangePicker } from './DateRangePicker'
 
 type RabEntry = {
   accountId: string
@@ -42,6 +43,13 @@ type DailyPaymentEntry = {
   amount: string
 }
 
+type VehicleRentEntry = {
+  id: number
+  startDate: string
+  endDate: string
+  amount: string
+}
+
 type TransactionGroup = {
   id: number
   date: string
@@ -49,6 +57,7 @@ type TransactionGroup = {
   gas: SimpleEntry[]
   operasional?: SimpleEntry[]
   pencairan_harian: DailyPaymentEntry[]
+  sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
 }
 
@@ -78,10 +87,7 @@ const OPERATIONAL_BANKS = [
   'SEABANK'
 ]
 
-const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = [
-  'Sewa SPPG',
-  'Sewa Kendaraan'
-]
+const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = ['Sewa SPPG']
 
 const DAILY_PAYMENT_GAJI_OPTIONS: DailyPaymentKind[] = [
   'Gaji Relawan',
@@ -167,27 +173,33 @@ const GAJI_ACCOUNT_BY_KITCHEN: Record<
   },
   Cihaur: {
     'Gaji Relawan': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
-    'Insentif PIC Sekolah': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
+    'Insentif PIC Sekolah': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
+    'Insentif Kader Posyandu': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
   },
   Cikondang: {
     'Gaji Relawan': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-    'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
+    'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
+    'Insentif Kader Posyandu': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
   },
   Cipetir: {
     'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
-    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' }
+    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
+    'Insentif Kader Posyandu': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' }
   },
   Cisepat: {
     'Gaji Relawan': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
-    'Insentif PIC Sekolah': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
+    'Insentif PIC Sekolah': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
+    'Insentif Kader Posyandu': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
   },
   Kertajadi: {
     'Gaji Relawan': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
-    'Insentif PIC Sekolah': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+    'Insentif PIC Sekolah': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
+    'Insentif Kader Posyandu': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
   },
   Sukaraja: {
     'Gaji Relawan': { ownerName: 'Ade Rohmat Hidayat', bank: 'BRI', accountNumber: '010501002303563' },
-    'Insentif PIC Sekolah': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
+    'Insentif PIC Sekolah': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' },
+    'Insentif Kader Posyandu': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
   }
 }
 
@@ -231,12 +243,6 @@ function getDailyPaymentButtonOptions(kitchenName: string): Array<{ label: strin
     }]
   }
   return DAILY_PAYMENT_GAJI_OPTIONS.map((kind) => ({ label: kind, kinds: [kind] }))
-}
-
-function getSewaAccount(kitchenName: string, kinds: DailyPaymentKind[]): BankAccountMapping | null {
-  if (kinds.includes('Sewa SPPG')) return getSppgRental(kitchenName)
-  if (kinds.includes('Sewa Kendaraan')) return SEWA_KENDARAAN_ACCOUNT
-  return null
 }
 
 function toIsoDate(date: Date) {
@@ -330,11 +336,17 @@ function getPreferredBank(kitchenName: string) {
 }
 
 function getOutputCategoryRank(
-  kind: 'rab' | 'pencairan_harian' | 'gas' | 'operasional_harian' | 'lain_lain'
+  kind:
+    | 'rab'
+    | 'operasional_harian'
+    | 'pencairan_harian'
+    | 'sewa_kendaraan'
+    | 'gas'
+    | 'lain_lain'
 ) {
   if (kind === 'rab') return 0
   if (kind === 'operasional_harian') return 1
-  if (kind === 'pencairan_harian') return 2
+  if (kind === 'pencairan_harian' || kind === 'sewa_kendaraan') return 2
   if (kind === 'gas') return 3
   return 4
 }
@@ -452,12 +464,16 @@ function emptyDailyPaymentEntry(
   return {
     id,
     category,
-    kinds: [],
+    kinds: category === 'sewa' ? ['Sewa SPPG'] : [],
     bank: '',
     accountNumber: '',
     ownerName: '',
     amount: ''
   }
+}
+
+function emptyVehicleRentEntry(id = 1): VehicleRentEntry {
+  return { id, startDate: '', endDate: '', amount: '' }
 }
 
 function ensureDailyPaymentCategories(
