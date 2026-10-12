@@ -891,6 +891,37 @@ function App() {
     )
   }
 
+  function updateVehicleRentEntry(
+    transactionId: number,
+    id: number,
+    update: Partial<VehicleRentEntry>
+  ) {
+    setTransactions((current) =>
+      current.map((transaction) =>
+        transaction.id === transactionId
+          ? {
+              ...transaction,
+              sewa_kendaraan: (transaction.sewa_kendaraan ?? []).map((entry) =>
+                entry.id === id ? { ...entry, ...update } : entry
+              )
+            }
+          : transaction
+      )
+    )
+  }
+
+  function addVehicleRentEntry() {
+    if (!activeTransaction) return
+    const current = activeTransaction.sewa_kendaraan ?? []
+    const nextId =
+      current.length === 0
+        ? 1
+        : Math.max(...current.map((entry) => entry.id)) + 1
+    updateTransaction(activeTransaction.id, {
+      sewa_kendaraan: [...current, emptyVehicleRentEntry(nextId)]
+    })
+  }
+
   function toggleDailyPaymentKind(
     transactionId: number,
     id: number,
@@ -993,7 +1024,7 @@ function App() {
       ownerName: operationalMapping?.ownerName ?? '',
       need:
         transactionType === 'operasional_harian' && operationalMapping
-          ? 'Operasional Harian'
+          ? 'Ops Harian'
           : '',
       amount: ''
     })
@@ -1168,7 +1199,7 @@ function App() {
       const operationalDescription = entry.need.trim()
       const line =
         entry.transactionType === 'operasional_harian'
-          ? 'Operasional Harian : ' +
+          ? 'Ops Harian : ' +
             (operationalMapping || !operationalDescription
               ? ''
               : operationalDescription + ' - ') +
@@ -1442,7 +1473,7 @@ function App() {
           </header>
 
           <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-100">
-            Jika rekening tujuan yang dibutuhkan tidak tersedia, silakan hubungi lewat{' '}
+            Jika rekening tujuan yang dibutuhkan tidak tersedia atau ada pergantian rekening tujuan, silakan hubungi lewat{' '}
             <a
               href="https://wa.me/6285794323042"
               target="_blank"
@@ -1474,7 +1505,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="sticky top-0 z-30 -mx-3 mt-4 bg-slate-950/90 px-3 pb-3 pt-1 backdrop-blur md:-mx-4 md:px-4">
+              <div className="mt-4 px-3 pb-3 pt-1 md:px-4">
                 <section className="rounded-xl border border-stone-600 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
@@ -1574,9 +1605,8 @@ function App() {
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
                         <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Rekening RAB hanya keluar ke output jika nominal diisi.
-                          Produk yang ditampilkan bisa diklik untuk memilih atau membatalkan pilihan.
-                          Produk yang tidak tersedia untuk rekening tersebut tidak ditampilkan.
+                          Rekening RAB hanya keluar ke output jika nominal diisi, bisa langsung paste.
+                          Produk yang ada bisa dipilih sebagai opsional. Jika tidak ada produknya bisa dikosongkan saja.
                         </p>
                       </div>
                     </div>
@@ -1754,9 +1784,9 @@ function App() {
                   <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-base font-semibold">Operasional Harian / Lain-Lain</h2>
+                        <h2 className="text-base font-semibold">Ops Harian / Lain-Lain</h2>
                         <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Pilih jenis transaksi terlebih dahulu. Operasional Harian menggunakan rekening mapping; Lain-Lain diisi manual.
+                          Pilih jenis transaksi terlebih dahulu. Ops Harian menggunakan rekening mapping; Lain-Lain diisi manual.
                         </p>
                       </div>
                       <button
@@ -1797,7 +1827,7 @@ function App() {
                                   className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
                                 >
                                   <option value="">Pilih Transaksi</option>
-                                  <option value="operasional_harian">Operasional Harian</option>
+                                  <option value="operasional_harian">Ops Harian</option>
                                   <option value="lain_lain">Lain-lain</option>
                                 </select>
                               </div>
@@ -1874,7 +1904,7 @@ function App() {
                                   type="text"
                                   value={
                                     operationalMapping
-                                      ? 'Operasional Harian'
+                                      ? 'Ops Harian'
                                       : entry.need
                                   }
                                   disabled={accountFieldsDisabled}
