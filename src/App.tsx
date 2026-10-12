@@ -1602,7 +1602,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-4 px-3 pb-3 pt-1 md:px-4">
+              <div className="mt-4 w-full min-w-0 space-y-2">
                 <section className="rounded-xl border border-stone-600 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
@@ -1821,9 +1821,6 @@ function App() {
                     <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
                       <div>
                         <h2 className="text-base font-semibold text-white">GAS</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Isi nominal GAS. Rekening tujuan mengikuti mapping GAS dapur.
-                        </p>
                       </div>
 
                       <div className="mt-2 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
@@ -1878,163 +1875,42 @@ function App() {
                   )}
 
 
-                  <section className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-900/40 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <h2 className="text-base font-semibold">Ops Harian / Lain-Lain</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Pilih jenis transaksi terlebih dahulu. Ops Harian menggunakan rekening mapping; Lain-Lain diisi manual.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold text-slate-100 transition hover:border-stone-500 hover:bg-slate-700"
-                      >
-                        + Transaksi
-                      </button>
-                    </div>
-
-                    <div className="mt-3 space-y-2.5">
-                      {activeTransaction.lain_lain.map((entry) => {
-                        const operationalMapping =
-                          entry.transactionType === 'operasional_harian'
-                            ? getOperationalAccount(selectedKitchen?.name ?? '')
-                            : null
-                        const fieldsDisabled = !entry.transactionType
-                        const accountFieldsDisabled =
-                          fieldsDisabled || Boolean(operationalMapping)
-
-                        return (
-                          <div
-                            key={entry.id}
-                            className="rounded-lg border border-slate-800 bg-slate-950 p-3"
-                          >
-                            <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(180px,1.2fr)_minmax(100px,0.7fr)_minmax(130px,0.9fr)_minmax(155px,1fr)_minmax(115px,0.7fr)_minmax(130px,0.8fr)] lg:items-end">
-                              <div className="min-w-0">
-                                <select
-                                  value={entry.transactionType ?? ''}
-                                  onChange={(event) =>
-                                    selectOtherTransactionType(
-                                      activeTransaction.id,
-                                      entry.id,
-                                      event.target.value as OtherTransactionType
-                                    )
-                                  }
-                                  aria-label="Pilih transaksi"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                                >
-                                  <option value="">Pilih Transaksi</option>
-                                  <option value="operasional_harian">Ops Harian</option>
-                                  <option value="lain_lain">Lain-lain</option>
-                                </select>
-                              </div>
-
-                              <div className="min-w-0">
-                                <select
-                                  value={entry.accountId}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { accountId: event.target.value }
-                                    )
-                                  }
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                >
-                                  <option value="">Pilih Bank</option>
-                                  {OPERATIONAL_BANKS.map((bank) => (
-                                    <option key={bank} value={bank}>
-                                      {bank}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={entry.accountNumber}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { accountNumber: event.target.value.replace(/\D/g, '') }
-                                    )
-                                  }
-                                  placeholder="Nomor rekening"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  value={entry.ownerName}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { ownerName: sanitizeOwnerName(event.target.value) }
-                                    )
-                                  }
-                                  placeholder="Nama pemilik"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'need-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  value={operationalMapping ? 'Ops Harian' : entry.need}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { need: event.target.value }
-                                    )
-                                  }
-                                  placeholder="Keperluan"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={formatNumber(entry.amount)}
-                                  disabled={fieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { amount: event.target.value.replace(/\D/g, '') }
-                                    )
-                                  }
-                                  placeholder="Nominal"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-                            </div>
+                  <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                    <h2 className="text-base font-semibold text-white">Ops Harian</h2>
+                    {(() => {
+                      const mapping = getOperationalAccount(selectedKitchen?.name ?? '')
+                      const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
+                      return (
+                        <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]">
+                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                            <span className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                           </div>
-                        )
-                      })}
-                    </div>
+                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                            {mapping?.bank ?? '-'}
+                          </div>
+                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                            <span className="truncate">{mapping?.accountNumber ?? '-'}</span>
+                          </div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={formatNumber(entry.amount)}
+                            disabled={!mapping}
+                            onChange={(event) =>
+                              updateSimpleEntry(
+                                activeTransaction.id,
+                                'operasional',
+                                entry.id,
+                                { amount: event.target.value.replace(/\D/g, '') }
+                              )
+                            }
+                            placeholder="Nominal"
+                            aria-label="Nominal Ops Harian"
+                            className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                      )
+                    })()}
                   </section>
 
 
