@@ -1232,6 +1232,7 @@ function App() {
       kind:
         | 'rab'
         | 'pencairan_harian'
+        | 'sewa_kendaraan'
         | 'gas'
         | 'operasional_harian'
         | 'lain_lain'
@@ -1274,19 +1275,33 @@ function App() {
     for (const entry of transaction.pencairan_harian) {
       if (!isCompleteAmount(entry.amount)) continue
 
-      const kinds = entry.kinds ?? []
-      if (kinds.length === 0) continue
-      if (
-        entry.category === 'gaji' &&
-        !areDailyPaymentKindsCompatible(kitchenName, kinds)
-      ) {
+      if (entry.category === 'sewa') {
+        const rental = getSppgRental(kitchenName)
+        if (!rental) continue
+
+        items.push({
+          kind: 'pencairan_harian',
+          bank: getOutputBank(rental.bank),
+          line:
+            'Sewa SPPG : ' +
+            rental.ownerName +
+            ' - ' +
+            rental.bank +
+            ' / ' +
+            rental.accountNumber +
+            ' · ' +
+            formatNumber(entry.amount),
+          index: items.length,
+          modeRank: 0
+        })
         continue
       }
 
-      const mappedAccount =
-        entry.category === 'sewa'
-          ? getSewaAccount(kitchenName, kinds)
-          : getDailyPaymentMappingForKinds(kitchenName, kinds)
+      const kinds = entry.kinds ?? []
+      if (kinds.length === 0) continue
+      if (!areDailyPaymentKindsCompatible(kitchenName, kinds)) continue
+
+      const mappedAccount = getDailyPaymentMappingForKinds(kitchenName, kinds)
       const bank = getOutputBank(mappedAccount?.bank ?? entry.bank)
       const accountNumber = (mappedAccount?.accountNumber ?? entry.accountNumber).trim()
       const ownerName = (mappedAccount?.ownerName ?? entry.ownerName).trim()
@@ -1306,7 +1321,39 @@ function App() {
           ' · ' +
           formatNumber(entry.amount),
         index: items.length,
-        modeRank: kinds.some((kind) => DAILY_PAYMENT_SEWA_OPTIONS.includes(kind)) ? 0 : 1
+        modeRank: 1
+      })
+    }
+
+    for (const entry of transaction.sewa_kendaraan ?? []) {
+      if (
+        !isCompleteAmount(entry.amount) ||
+        !entry.startDate ||
+        !entry.endDate ||
+        entry.endDate < entry.startDate
+      ) {
+        continue
+      }
+
+      const account = SEWA_KENDARAAN_ACCOUNT
+      items.push({
+        kind: 'sewa_kendaraan',
+        bank: getOutputBank(account.bank),
+        line:
+          'Sewa Kendaraan (' +
+          formatDate(entry.startDate) +
+          ' – ' +
+          formatDate(entry.endDate) +
+          ') : ' +
+          account.ownerName +
+          ' - ' +
+          account.bank +
+          ' / ' +
+          account.accountNumber +
+          ' · ' +
+          formatNumber(entry.amount),
+        index: items.length,
+        modeRank: 0
       })
     }
 
@@ -1357,13 +1404,13 @@ function App() {
       const bPreferred = b.bank === preferredBank ? 0 : 1
       if (aPreferred !== bPreferred) return aPreferred - bPreferred
 
-      // First priority: group every transaction by bank.
+      // First group every transaction by bank; primary bank always leads.
       const bankCompare = a.bank.localeCompare(b.bank, 'id', {
         sensitivity: 'base'
       })
       if (bankCompare !== 0) return bankCompare
 
-      // Inside each bank: RAB, operational, rental/payroll, GAS, then other expenses.
+      // Inside a bank: RAB, Ops Harian, Sewa/Gaji, GAS, then Lain-Lain.
       const aCategory = getOutputCategoryRank(a.kind)
       const bCategory = getOutputCategoryRank(b.kind)
       if (aCategory !== bCategory) return aCategory - bCategory
