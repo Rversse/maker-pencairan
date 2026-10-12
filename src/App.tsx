@@ -1988,7 +1988,7 @@ function App() {
                               />
                             </div>
 
-                            {entry.legacyAmounts && entry.legacyAmounts.length > 0 && !entry.mobilAmount && !entry.motorAmount && (
+                            {entry.legacyAmounts && entry.legacyAmounts.length > 0 && (
                               <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
                                 Draft lama memiliki nominal Sewa Kendaraan yang belum ditentukan jenisnya:
                                 {entry.legacyAmounts.map((legacy, index) => (
