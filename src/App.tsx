@@ -11,6 +11,8 @@ type RabEntry = {
   amount: string
 }
 
+type OtherTransactionType = '' | 'operasional_harian' | 'lain_lain'
+
 type SimpleEntry = {
   id: number
   accountId: string
@@ -18,6 +20,7 @@ type SimpleEntry = {
   accountNumber: string
   ownerName: string
   need: string
+  transactionType: OtherTransactionType
 }
 
 type DailyPaymentKind =
@@ -138,6 +141,104 @@ const SPPG_RENTAL_BY_KITCHEN: Record<
   }
 }
 
+type BankAccountMapping = {
+  ownerName: string
+  bank: string
+  accountNumber: string
+}
+
+const OPERATIONAL_HARIAN_BY_KITCHEN: Record<string, BankAccountMapping> = {
+  Campakamulya: { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
+  Cihaur: { ownerName: 'Rizki Ginanjar', bank: 'BRI', accountNumber: '010501136046504' },
+  Cikondang: { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
+  Cipetir: { ownerName: 'Fairuz Hibatullah', bank: 'SEABANK', accountNumber: '901222967962' },
+  Cisepat: { ownerName: 'Lia Ariska', bank: 'BNI', accountNumber: '1688603689' },
+  Kertajadi: { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+}
+
+const GAJI_ACCOUNT_BY_KITCHEN: Record<
+  string,
+  Partial<Record<DailyPaymentKind, BankAccountMapping>>
+> = {
+  Campakamulya: {
+    'Gaji Relawan': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
+    'Insentif PIC Sekolah': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
+    'Insentif Kader Posyandu': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' }
+  },
+  Cihaur: {
+    'Gaji Relawan': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
+    'Insentif PIC Sekolah': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
+  },
+  Cikondang: {
+    'Gaji Relawan': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
+    'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
+  },
+  Cipetir: {
+    'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
+    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' }
+  },
+  Cisepat: {
+    'Gaji Relawan': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
+    'Insentif PIC Sekolah': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
+  },
+  Kertajadi: {
+    'Gaji Relawan': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
+    'Insentif PIC Sekolah': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+  },
+  Sukaraja: {
+    'Gaji Relawan': { ownerName: 'Ade Rohmat Hidayat', bank: 'BRI', accountNumber: '010501002303563' },
+    'Insentif PIC Sekolah': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
+  }
+}
+
+function getOperationalAccount(kitchenName: string): BankAccountMapping | null {
+  return OPERATIONAL_HARIAN_BY_KITCHEN[kitchenName] ?? null
+}
+
+function getDailyPaymentAccount(kitchenName: string, kind: DailyPaymentKind): BankAccountMapping | null {
+  return GAJI_ACCOUNT_BY_KITCHEN[kitchenName]?.[kind] ?? null
+}
+
+function sameAccount(left: BankAccountMapping, right: BankAccountMapping) {
+  return left.bank === right.bank &&
+    left.accountNumber === right.accountNumber &&
+    left.ownerName === right.ownerName
+}
+
+function getDailyPaymentMappingForKinds(kitchenName: string, kinds: DailyPaymentKind[]): BankAccountMapping | null {
+  if (kinds.length === 0) return null
+  const mappings = kinds.map((kind) => getDailyPaymentAccount(kitchenName, kind))
+  if (mappings.some((mapping) => !mapping)) return null
+  const first = mappings[0]
+  if (!first) return null
+  return mappings.every((mapping) => mapping && sameAccount(first, mapping)) ? first : null
+}
+
+function getDailyPaymentTargetKey(kitchenName: string, kind: DailyPaymentKind) {
+  const mapping = getDailyPaymentAccount(kitchenName, kind)
+  return mapping ? mapping.bank + '|' + mapping.accountNumber + '|' + mapping.ownerName : 'manual'
+}
+
+function areDailyPaymentKindsCompatible(kitchenName: string, kinds: DailyPaymentKind[]) {
+  return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind))).size <= 1
+}
+
+function getDailyPaymentButtonOptions(kitchenName: string): Array<{ label: string; kinds: DailyPaymentKind[] }> {
+  if (kitchenName === 'Campakamulya') {
+    return [{
+      label: 'Gaji Relawan + Insentif PIC Sekolah + Insentif Kader Posyandu',
+      kinds: [...DAILY_PAYMENT_GAJI_OPTIONS]
+    }]
+  }
+  return DAILY_PAYMENT_GAJI_OPTIONS.map((kind) => ({ label: kind, kinds: [kind] }))
+}
+
+function getSewaAccount(kitchenName: string, kinds: DailyPaymentKind[]): BankAccountMapping | null {
+  if (kinds.includes('Sewa SPPG')) return getSppgRental(kitchenName)
+  if (kinds.includes('Sewa Kendaraan')) return SEWA_KENDARAAN_ACCOUNT
+  return null
+}
+
 function toIsoDate(date: Date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -229,17 +330,12 @@ function getPreferredBank(kitchenName: string) {
 }
 
 function getOutputCategoryRank(
-  kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
+  kind: 'rab' | 'pencairan_harian' | 'gas' | 'operasional_harian' | 'lain_lain'
 ) {
-  return kind === 'rab' ? 1 : 0
-}
-
-function getOutputModeRank(
-  kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
-) {
-  if (kind === 'pencairan_harian') return 1
-  if (kind === 'gas') return 2
-  if (kind === 'lain_lain') return 3
+  if (kind === 'rab') return 0
+  if (kind === 'operasional_harian') return 1
+  if (kind === 'pencairan_harian') return 2
+  if (kind === 'gas') return 3
   return 4
 }
 
@@ -344,7 +440,8 @@ function emptySimpleEntry(id = 1): SimpleEntry {
     amount: '',
     accountNumber: '',
     ownerName: '',
-    need: ''
+    need: '',
+    transactionType: ''
   }
 }
 
@@ -394,7 +491,8 @@ function normalizeTransaction(
     gas: Array.isArray(transaction.gas)
       ? transaction.gas.map((entry) => ({
           ...entry,
-          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+          ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
+          transactionType: entry.transactionType ?? ''
         }))
       : [],
     pencairan_harian: ensureDailyPaymentCategories(
@@ -428,11 +526,24 @@ function normalizeTransaction(
         : [emptyDailyPaymentEntry(1, 'sewa')]
     ),
     lain_lain: Array.isArray(transaction.lain_lain)
-      ? transaction.lain_lain.map((entry) => ({
-          ...entry,
-          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
-          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
-        }))
+      ? transaction.lain_lain.map((entry) => {
+          const hasLegacyData = Boolean(
+            entry.accountId || entry.accountNumber || entry.ownerName || entry.need || entry.amount
+          )
+          const transactionType: OtherTransactionType =
+            entry.transactionType === 'operasional_harian' || entry.transactionType === 'lain_lain'
+              ? entry.transactionType
+              : hasLegacyData
+                ? 'lain_lain'
+                : ''
+
+          return {
+            ...entry,
+            transactionType,
+            accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+            ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+          }
+        })
       : [emptySimpleEntry(1)]
   }
 }
