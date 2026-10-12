@@ -2,10 +2,13 @@
 > maker-pencairan@0.0.0 build
 > tsc -b && vite build
 
-src/App.tsx(247,10): error TS6133: 'getDailyPaymentButtonOptions' is declared but its value is never read.
-src/App.tsx(711,5): error TS2322: Type '{ accountId: string; accountNumber: string; ownerName: string; amount: string; need: string; transactionType: string; id: number; }[]' is not assignable to type 'SimpleEntry[]'.
-  Type '{ accountId: string; accountNumber: string; ownerName: string; amount: string; need: string; transactionType: string; id: number; }' is not assignable to type 'SimpleEntry'.
-    Types of property 'transactionType' are incompatible.
-      Type 'string' is not assignable to type 'OtherTransactionType'.
-src/App.tsx(1055,12): error TS6133: 'selectOtherTransactionType' is declared but its value is never read.
-src/App.tsx(1134,7): error TS18047: 'masterData' is possibly 'null'.
+[36mvite v8.3.0 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 62 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.43 kB │ gzip:   0.28 kB
+dist/assets/index-DGNO5N1u.css   25.28 kB │ gzip:   5.60 kB
+dist/assets/index-Beg1Alf6.js   481.51 kB │ gzip: 134.24 kB
+
+[32m✓ built in 200ms[39m
