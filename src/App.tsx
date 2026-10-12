@@ -613,16 +613,42 @@ function normalizeTransaction(
       })
     : [emptyDailyPaymentEntry(1, 'sewa')]
 
-  const sewaRows = rawDailyPayments.filter((entry) => entry.category === 'sewa')
-  const normalizedSewa = sewaRows.length > 0
-    ? sewaRows.map((entry) => ({ ...entry, kinds: ['Sewa SPPG'] as DailyPaymentKind[] }))
-    : [{ ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] as DailyPaymentKind[] }]
+  const legacyVehicleFromDaily: LegacyVehicleRentAmount[] = rawDailyPayments
+    .filter(
+      (entry) =>
+        entry.category === 'sewa' &&
+        entry.kinds.includes('Sewa Kendaraan') &&
+        isCompleteAmount(entry.amount)
+    )
+    .map((entry) => ({
+      startDate: '',
+      endDate: '',
+      amount: entry.amount
+    }))
+  const sewaRows = rawDailyPayments.filter(
+    (entry) =>
+      entry.category === 'sewa' &&
+      !entry.kinds.includes('Sewa Kendaraan')
+  )
+  const sewaTemplate = sewaRows[0] ?? emptyDailyPaymentEntry(1, 'sewa')
+  const sewaTotal = sewaRows.reduce(
+    (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
+    0
+  )
+  const normalizedSewa = [{
+    ...sewaTemplate,
+    category: 'sewa' as const,
+    kinds: ['Sewa SPPG'] as DailyPaymentKind[],
+    amount: String(sewaTotal || '')
+  }]
 
   const rawVehicleEntries = Array.isArray(transaction.sewa_kendaraan)
     ? (transaction.sewa_kendaraan as unknown as Array<VehicleRentEntry & { amount?: string }>)
     : []
   const firstVehicle = rawVehicleEntries[0]
-  const legacyVehicleAmounts: LegacyVehicleRentAmount[] = rawVehicleEntries.flatMap((entry) => {
+  const legacyVehicleAmounts: LegacyVehicleRentAmount[] = [
+    ...legacyVehicleFromDaily,
+    ...rawVehicleEntries.flatMap((entry) => {
     const legacy = [...(entry.legacyAmounts ?? [])]
     const oldAmount = entry.amount
     if (
@@ -638,7 +664,8 @@ function normalizeTransaction(
       })
     }
     return legacy
-  })
+    })
+  ]
   const normalizedVehicle: VehicleRentEntry[] = [{
     id: firstVehicle?.id ?? 1,
     startDate: firstVehicle?.startDate ?? legacyVehicleAmounts[0]?.startDate ?? '',
