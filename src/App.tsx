@@ -641,10 +641,10 @@ function normalizeTransaction(
     (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
     0
   )
-  const normalizedSewa = [{
+  const normalizedSewa: DailyPaymentEntry[] = [{
     ...sewaTemplate,
-    category: 'sewa' as const,
-    kinds: ['Sewa SPPG'] as DailyPaymentKind[],
+    category: 'sewa',
+    kinds: ['Sewa SPPG'],
     amount: String(sewaTotal || '')
   }]
 
