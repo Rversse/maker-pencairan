@@ -1697,7 +1697,7 @@ function App() {
 
               {kitchenId && activeTransaction && (
                 <>
-                  <section className="rounded-xl border border-stone-500 bg-slate-900 p-3">
+                  <section className="w-full min-w-0 rounded-xl border border-stone-500 bg-slate-900 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
