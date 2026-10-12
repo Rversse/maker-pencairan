@@ -530,9 +530,7 @@ function getPayrollStructure(
     const combined = gajiRows.find((entry) =>
       DAILY_PAYMENT_GAJI_OPTIONS.every((kind) => entry.kinds.includes(kind))
     )
-    const amountsToCombine = combined
-      ? [combined.amount]
-      : gajiRows.map((entry) => entry.amount)
+    const amountsToCombine = gajiRows.map((entry) => entry.amount)
     const combinedAmount = String(
       amountsToCombine.reduce(
         (total, value) => total + Number((value ?? '').replace(/\\D/g, '')),
@@ -551,7 +549,11 @@ function getPayrollStructure(
     }
   }
 
-  const groupedLegacy = gajiRows.filter((entry) => (entry.kinds ?? []).length > 1)
+  const groupedLegacy = gajiRows.filter(
+    (entry) =>
+      (entry.kinds ?? []).length !== 1 &&
+      isCompleteAmount(entry.amount)
+  )
   const legacyMap = new Map<string, DailyPaymentEntry>()
   for (const entry of [...currentLegacy, ...groupedLegacy]) {
     const key = [entry.id, entry.kinds.join('|'), entry.amount].join(':')
@@ -559,14 +561,18 @@ function getPayrollStructure(
   }
 
   const perKindRows = DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) => {
-    const existing = gajiRows.find(
+    const matchingEntries = gajiRows.filter(
       (entry) => entry.kinds.length === 1 && entry.kinds[0] === kind
     )
+    const amountTotal = matchingEntries.reduce(
+      (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
+      0
+    )
     return createPayrollEntry(
-      existing?.id ?? nextId + index,
+      matchingEntries[0]?.id ?? nextId + index,
       kitchenName,
       [kind],
-      existing?.amount ?? ''
+      String(amountTotal || '')
     )
   })
 
