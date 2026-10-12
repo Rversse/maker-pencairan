@@ -574,7 +574,8 @@ function makeTransaction(
         amount: '',
         accountNumber: gasRule?.accounts?.account_number ?? '',
         ownerName: '',
-        need: ''
+        need: '',
+        transactionType: ''
       }
     ],
     pencairan_harian: [
@@ -936,7 +937,10 @@ function App() {
       accountId: operationalMapping?.bank ?? '',
       accountNumber: operationalMapping?.accountNumber ?? '',
       ownerName: operationalMapping?.ownerName ?? '',
-      need: transactionType === 'operasional_harian' ? 'Operasional Harian' : '',
+      need:
+        transactionType === 'operasional_harian' && operationalMapping
+          ? 'Operasional Harian'
+          : '',
       amount: ''
     })
   }
@@ -1107,9 +1111,13 @@ function App() {
       const ownerName = (operationalMapping?.ownerName ?? entry.ownerName).trim()
       if (!bank || !accountNumber || !ownerName) continue
 
+      const operationalDescription = entry.need.trim()
       const line =
         entry.transactionType === 'operasional_harian'
           ? 'Operasional Harian : ' +
+            (operationalMapping || !operationalDescription
+              ? ''
+              : operationalDescription + ' - ') +
             ownerName +
             ' - ' +
             bank +
