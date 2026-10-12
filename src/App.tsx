@@ -2103,6 +2103,113 @@ function App() {
                     </section>
                   </div>
 
+                  <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
+                      <button
+                        type="button"
+                        onClick={() => addSimpleEntry('lain_lain')}
+                        className="h-10 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold text-slate-100 transition hover:border-stone-500 hover:bg-slate-700"
+                      >
+                        + Transaksi
+                      </button>
+                    </div>
+
+                    <div className="mt-3 space-y-2.5">
+                      {activeTransaction.lain_lain.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="rounded-lg border border-slate-800 bg-slate-950 p-3"
+                        >
+                          <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(110px,0.65fr)_minmax(145px,0.9fr)_minmax(160px,1fr)_minmax(170px,1.2fr)_minmax(135px,0.8fr)] lg:items-end">
+                            <div className="min-w-0">
+                              <select
+                                value={entry.accountId}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    { accountId: event.target.value }
+                                  )
+                                }
+                                aria-label="Bank rekening Lain-Lain"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              >
+                                <option value="">Pilih Bank</option>
+                                {OPERATIONAL_BANKS.map((bank) => (
+                                  <option key={bank} value={bank}>{bank}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={entry.accountNumber}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { accountNumber: event.target.value.replace(/\D/g, '') }
+                                )
+                              }
+                              placeholder="Nomor rekening"
+                              aria-label="Nomor rekening Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                            <input
+                              type="text"
+                              value={entry.ownerName}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { ownerName: sanitizeOwnerName(event.target.value) }
+                                )
+                              }
+                              placeholder="Nama pemilik rekening"
+                              aria-label="Nama pemilik rekening Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                            <input
+                              type="text"
+                              value={entry.need}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { need: event.target.value }
+                                )
+                              }
+                              placeholder="Deskripsi / keperluan"
+                              aria-label="Deskripsi Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={formatNumber(entry.amount)}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { amount: event.target.value.replace(/\D/g, '') }
+                                )
+                              }
+                              placeholder="Nominal"
+                              aria-label="Nominal Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
 
                 </>
               )}
