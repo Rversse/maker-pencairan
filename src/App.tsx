@@ -11,6 +11,8 @@ type RabEntry = {
   amount: string
 }
 
+type OtherTransactionType = '' | 'operasional_harian' | 'lain_lain'
+
 type SimpleEntry = {
   id: number
   accountId: string
@@ -18,6 +20,7 @@ type SimpleEntry = {
   accountNumber: string
   ownerName: string
   need: string
+  transactionType: OtherTransactionType
 }
 
 type DailyPaymentKind =
@@ -138,6 +141,104 @@ const SPPG_RENTAL_BY_KITCHEN: Record<
   }
 }
 
+type BankAccountMapping = {
+  ownerName: string
+  bank: string
+  accountNumber: string
+}
+
+const OPERATIONAL_HARIAN_BY_KITCHEN: Record<string, BankAccountMapping> = {
+  Campakamulya: { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
+  Cihaur: { ownerName: 'Rizki Ginanjar', bank: 'BRI', accountNumber: '010501136046504' },
+  Cikondang: { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
+  Cipetir: { ownerName: 'Fairuz Hibatullah', bank: 'SEABANK', accountNumber: '901222967962' },
+  Cisepat: { ownerName: 'Lia Ariska', bank: 'BNI', accountNumber: '1688603689' },
+  Kertajadi: { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+}
+
+const GAJI_ACCOUNT_BY_KITCHEN: Record<
+  string,
+  Partial<Record<DailyPaymentKind, BankAccountMapping>>
+> = {
+  Campakamulya: {
+    'Gaji Relawan': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
+    'Insentif PIC Sekolah': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
+    'Insentif Kader Posyandu': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' }
+  },
+  Cihaur: {
+    'Gaji Relawan': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
+    'Insentif PIC Sekolah': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
+  },
+  Cikondang: {
+    'Gaji Relawan': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
+    'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
+  },
+  Cipetir: {
+    'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
+    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' }
+  },
+  Cisepat: {
+    'Gaji Relawan': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
+    'Insentif PIC Sekolah': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
+  },
+  Kertajadi: {
+    'Gaji Relawan': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
+    'Insentif PIC Sekolah': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+  },
+  Sukaraja: {
+    'Gaji Relawan': { ownerName: 'Ade Rohmat Hidayat', bank: 'BRI', accountNumber: '010501002303563' },
+    'Insentif PIC Sekolah': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
+  }
+}
+
+function getOperationalAccount(kitchenName: string): BankAccountMapping | null {
+  return OPERATIONAL_HARIAN_BY_KITCHEN[kitchenName] ?? null
+}
+
+function getDailyPaymentAccount(kitchenName: string, kind: DailyPaymentKind): BankAccountMapping | null {
+  return GAJI_ACCOUNT_BY_KITCHEN[kitchenName]?.[kind] ?? null
+}
+
+function sameAccount(left: BankAccountMapping, right: BankAccountMapping) {
+  return left.bank === right.bank &&
+    left.accountNumber === right.accountNumber &&
+    left.ownerName === right.ownerName
+}
+
+function getDailyPaymentMappingForKinds(kitchenName: string, kinds: DailyPaymentKind[]): BankAccountMapping | null {
+  if (kinds.length === 0) return null
+  const mappings = kinds.map((kind) => getDailyPaymentAccount(kitchenName, kind))
+  if (mappings.some((mapping) => !mapping)) return null
+  const first = mappings[0]
+  if (!first) return null
+  return mappings.every((mapping) => mapping && sameAccount(first, mapping)) ? first : null
+}
+
+function getDailyPaymentTargetKey(kitchenName: string, kind: DailyPaymentKind) {
+  const mapping = getDailyPaymentAccount(kitchenName, kind)
+  return mapping ? mapping.bank + '|' + mapping.accountNumber + '|' + mapping.ownerName : 'manual'
+}
+
+function areDailyPaymentKindsCompatible(kitchenName: string, kinds: DailyPaymentKind[]) {
+  return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind))).size <= 1
+}
+
+function getDailyPaymentButtonOptions(kitchenName: string): Array<{ label: string; kinds: DailyPaymentKind[] }> {
+  if (kitchenName === 'Campakamulya') {
+    return [{
+      label: 'Gaji Relawan + Insentif PIC Sekolah + Insentif Kader Posyandu',
+      kinds: [...DAILY_PAYMENT_GAJI_OPTIONS]
+    }]
+  }
+  return DAILY_PAYMENT_GAJI_OPTIONS.map((kind) => ({ label: kind, kinds: [kind] }))
+}
+
+function getSewaAccount(kitchenName: string, kinds: DailyPaymentKind[]): BankAccountMapping | null {
+  if (kinds.includes('Sewa SPPG')) return getSppgRental(kitchenName)
+  if (kinds.includes('Sewa Kendaraan')) return SEWA_KENDARAAN_ACCOUNT
+  return null
+}
+
 function toIsoDate(date: Date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -229,17 +330,12 @@ function getPreferredBank(kitchenName: string) {
 }
 
 function getOutputCategoryRank(
-  kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
+  kind: 'rab' | 'pencairan_harian' | 'gas' | 'operasional_harian' | 'lain_lain'
 ) {
-  return kind === 'rab' ? 1 : 0
-}
-
-function getOutputModeRank(
-  kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
-) {
-  if (kind === 'pencairan_harian') return 1
-  if (kind === 'gas') return 2
-  if (kind === 'lain_lain') return 3
+  if (kind === 'rab') return 0
+  if (kind === 'operasional_harian') return 1
+  if (kind === 'pencairan_harian') return 2
+  if (kind === 'gas') return 3
   return 4
 }
 
@@ -344,7 +440,8 @@ function emptySimpleEntry(id = 1): SimpleEntry {
     amount: '',
     accountNumber: '',
     ownerName: '',
-    need: ''
+    need: '',
+    transactionType: ''
   }
 }
 
@@ -394,7 +491,8 @@ function normalizeTransaction(
     gas: Array.isArray(transaction.gas)
       ? transaction.gas.map((entry) => ({
           ...entry,
-          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+          ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
+          transactionType: entry.transactionType ?? ''
         }))
       : [],
     pencairan_harian: ensureDailyPaymentCategories(
@@ -428,11 +526,24 @@ function normalizeTransaction(
         : [emptyDailyPaymentEntry(1, 'sewa')]
     ),
     lain_lain: Array.isArray(transaction.lain_lain)
-      ? transaction.lain_lain.map((entry) => ({
-          ...entry,
-          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
-          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
-        }))
+      ? transaction.lain_lain.map((entry) => {
+          const hasLegacyData = Boolean(
+            entry.accountId || entry.accountNumber || entry.ownerName || entry.need || entry.amount
+          )
+          const transactionType: OtherTransactionType =
+            entry.transactionType === 'operasional_harian' || entry.transactionType === 'lain_lain'
+              ? entry.transactionType
+              : hasLegacyData
+                ? 'lain_lain'
+                : ''
+
+          return {
+            ...entry,
+            transactionType,
+            accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+            ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+          }
+        })
       : [emptySimpleEntry(1)]
   }
 }
@@ -463,7 +574,8 @@ function makeTransaction(
         amount: '',
         accountNumber: gasRule?.accounts?.account_number ?? '',
         ownerName: '',
-        need: ''
+        need: '',
+        transactionType: ''
       }
     ],
     pencairan_harian: [
@@ -738,40 +850,98 @@ function App() {
     const isSelected = currentKinds.includes(option)
     const isRental = option === 'Sewa SPPG' || option === 'Sewa Kendaraan'
     const optionCategory: DailyPaymentCategory = isRental ? 'sewa' : 'gaji'
-
     if (entry.category !== optionCategory) return
 
-    if (isRental) {
-      if (isSelected) {
-        updateDailyPaymentEntry(transactionId, id, {
-          kinds: [],
-          bank: '',
-          accountNumber: '',
-          ownerName: ''
-        })
-        return
-      }
+    if (!isRental) {
+      toggleDailyPaymentKinds(transactionId, id, [option])
+      return
+    }
 
-      const rental =
-        option === 'Sewa SPPG'
-          ? getSppgRental(selectedKitchen?.name ?? '')
-          : SEWA_KENDARAAN_ACCOUNT
-
+    if (isSelected) {
       updateDailyPaymentEntry(transactionId, id, {
-        kinds: [option],
-        bank: rental?.bank ?? '',
-        accountNumber: rental?.accountNumber ?? '',
-        ownerName: rental?.ownerName ?? ''
+        kinds: [],
+        bank: '',
+        accountNumber: '',
+        ownerName: ''
       })
       return
     }
 
-    const nextKinds = isSelected
-      ? currentKinds.filter((kind) => kind !== option)
-      : [...currentKinds, option]
+    const rental =
+      option === 'Sewa SPPG'
+        ? getSppgRental(selectedKitchen?.name ?? '')
+        : SEWA_KENDARAAN_ACCOUNT
 
     updateDailyPaymentEntry(transactionId, id, {
+      kinds: [option],
+      bank: rental?.bank ?? '',
+      accountNumber: rental?.accountNumber ?? '',
+      ownerName: rental?.ownerName ?? ''
+    })
+  }
+
+  function toggleDailyPaymentKinds(
+    transactionId: number,
+    id: number,
+    optionKinds: DailyPaymentKind[]
+  ) {
+    const transaction = transactions.find((item) => item.id === transactionId)
+    const entry = transaction?.pencairan_harian.find((item) => item.id === id)
+    if (!entry || entry.category !== 'gaji') return
+
+    const currentKinds = entry.kinds ?? []
+    const isSelected = optionKinds.every((kind) => currentKinds.includes(kind))
+    const nextKinds = isSelected
+      ? currentKinds.filter((kind) => !optionKinds.includes(kind))
+      : sortDailyPaymentKinds([...new Set([...currentKinds, ...optionKinds])])
+
+    const kitchenName = selectedKitchen?.name ?? ''
+    if (!areDailyPaymentKindsCompatible(kitchenName, nextKinds)) return
+
+    const update: Partial<DailyPaymentEntry> = {
       kinds: sortDailyPaymentKinds(nextKinds)
+    }
+
+    if (nextKinds.length === 0) {
+      update.bank = ''
+      update.accountNumber = ''
+      update.ownerName = ''
+    } else {
+      const mapping = getDailyPaymentMappingForKinds(kitchenName, nextKinds)
+      if (mapping) {
+        update.bank = mapping.bank
+        update.accountNumber = mapping.accountNumber
+        update.ownerName = mapping.ownerName
+      } else if (currentKinds.length === 0) {
+        update.bank = ''
+        update.accountNumber = ''
+        update.ownerName = ''
+      }
+    }
+
+    updateDailyPaymentEntry(transactionId, id, update)
+  }
+
+  function selectOtherTransactionType(
+    transactionId: number,
+    id: number,
+    transactionType: OtherTransactionType
+  ) {
+    const operationalMapping =
+      transactionType === 'operasional_harian'
+        ? getOperationalAccount(selectedKitchen?.name ?? '')
+        : null
+
+    updateSimpleEntry(transactionId, 'lain_lain', id, {
+      transactionType,
+      accountId: operationalMapping?.bank ?? '',
+      accountNumber: operationalMapping?.accountNumber ?? '',
+      ownerName: operationalMapping?.ownerName ?? '',
+      need:
+        transactionType === 'operasional_harian' && operationalMapping
+          ? 'Operasional Harian'
+          : '',
+      amount: ''
     })
   }
 
@@ -921,39 +1091,52 @@ function App() {
   function getSimpleOutputs(transaction: TransactionGroup): Array<{
     bank: string
     line: string
-    kind: 'lain_lain'
+    kind: 'operasional_harian' | 'lain_lain'
   }> {
     const outputs: Array<{
       bank: string
       line: string
-      kind: 'lain_lain'
+      kind: 'operasional_harian' | 'lain_lain'
     }> = []
 
     for (const entry of transaction.lain_lain) {
-      if (!isCompleteAmount(entry.amount)) continue
+      if (!entry.transactionType || !isCompleteAmount(entry.amount)) continue
 
-      const bank = entry.accountId.trim()
-      const accountNumber = entry.accountNumber.trim()
-      const ownerName = entry.ownerName.trim()
+      const operationalMapping =
+        entry.transactionType === 'operasional_harian'
+          ? getOperationalAccount(selectedKitchen?.name ?? '')
+          : null
+      const bank = getOutputBank(operationalMapping?.bank ?? entry.accountId)
+      const accountNumber = (operationalMapping?.accountNumber ?? entry.accountNumber).trim()
+      const ownerName = (operationalMapping?.ownerName ?? entry.ownerName).trim()
       if (!bank || !accountNumber || !ownerName) continue
 
-      const need = entry.need.trim() || 'Biaya Ops Harian'
+      const operationalDescription = entry.need.trim()
+      const line =
+        entry.transactionType === 'operasional_harian'
+          ? 'Operasional Harian : ' +
+            (operationalMapping || !operationalDescription
+              ? ''
+              : operationalDescription + ' - ') +
+            ownerName +
+            ' - ' +
+            bank +
+            ' / ' +
+            accountNumber +
+            ' · ' +
+            formatNumber(entry.amount)
+          : 'Lain-lain : ' +
+            (entry.need.trim() || 'Biaya Ops Harian') +
+            ' - ' +
+            ownerName +
+            ' - ' +
+            bank +
+            ' / ' +
+            accountNumber +
+            ' · ' +
+            formatNumber(entry.amount)
 
-      outputs.push({
-        bank: getOutputBank(bank),
-        line:
-          'Lain-lain : ' +
-          need +
-          ' - ' +
-          ownerName +
-          ' - ' +
-          bank +
-          ' / ' +
-          accountNumber +
-          ' · ' +
-          formatNumber(entry.amount),
-        kind: 'lain_lain'
-      })
+      outputs.push({ bank, line, kind: entry.transactionType })
     }
 
     return outputs
@@ -961,14 +1144,21 @@ function App() {
 
   function getTransactionOutput(transaction: TransactionGroup) {
     type OutputItem = {
-      kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
+      kind:
+        | 'rab'
+        | 'pencairan_harian'
+        | 'gas'
+        | 'operasional_harian'
+        | 'lain_lain'
       bank: string
       line: string
       index: number
+      modeRank: number
     }
 
     const items: OutputItem[] = []
-    const preferredBank = getPreferredBank(selectedKitchen?.name ?? '')
+    const kitchenName = selectedKitchen?.name ?? ''
+    const preferredBank = getPreferredBank(kitchenName)
 
     for (const entry of transaction.gas) {
       if (!isCompleteAmount(entry.amount)) continue
@@ -978,28 +1168,48 @@ function App() {
       if (!rule?.accounts) continue
 
       const accountName = rule.supplier?.business_name || rule.accounts.name
-      const outputLine = `${accountName} - ${rule.accounts.bank} / ${rule.accounts.account_number ?? '-'} · ${formatNumber(entry.amount)}`
+      const outputLine =
+        accountName +
+        ' - ' +
+        rule.accounts.bank +
+        ' / ' +
+        (rule.accounts.account_number ?? '-') +
+        ' · ' +
+        formatNumber(entry.amount)
 
       items.push({
         kind: 'gas',
         bank: getOutputBank(rule.accounts.bank),
-        line: `GAS : ${outputLine}`,
-        index: items.length
+        line: 'GAS : ' + outputLine,
+        index: items.length,
+        modeRank: 0
       })
     }
 
     for (const entry of transaction.pencairan_harian) {
       if (!isCompleteAmount(entry.amount)) continue
 
-      const bank = entry.bank.trim()
-      const accountNumber = entry.accountNumber.trim()
-      const ownerName = entry.ownerName.trim()
       const kinds = entry.kinds ?? []
-      if (!bank || !accountNumber || !ownerName || kinds.length === 0) continue
+      if (kinds.length === 0) continue
+      if (
+        entry.category === 'gaji' &&
+        !areDailyPaymentKindsCompatible(kitchenName, kinds)
+      ) {
+        continue
+      }
+
+      const mappedAccount =
+        entry.category === 'sewa'
+          ? getSewaAccount(kitchenName, kinds)
+          : getDailyPaymentMappingForKinds(kitchenName, kinds)
+      const bank = getOutputBank(mappedAccount?.bank ?? entry.bank)
+      const accountNumber = (mappedAccount?.accountNumber ?? entry.accountNumber).trim()
+      const ownerName = (mappedAccount?.ownerName ?? entry.ownerName).trim()
+      if (!bank || !accountNumber || !ownerName) continue
 
       items.push({
         kind: 'pencairan_harian',
-        bank: getOutputBank(bank),
+        bank,
         line:
           kinds.join(', ') +
           ' : ' +
@@ -1010,7 +1220,8 @@ function App() {
           accountNumber +
           ' · ' +
           formatNumber(entry.amount),
-        index: items.length
+        index: items.length,
+        modeRank: kinds.some((kind) => DAILY_PAYMENT_SEWA_OPTIONS.includes(kind)) ? 0 : 1
       })
     }
 
@@ -1023,21 +1234,26 @@ function App() {
       const hasAmount = isCompleteAmount(entry.amount)
       const productText = sortStrings(entry.productTypes).join(', ')
       const hasProduct = productText.length > 0
-
       if (!hasAmount && !hasProduct) continue
 
       const supplierName = rule.supplier?.business_name ?? rule.accounts.name
-      const accountText = `${supplierName} - ${rule.accounts.bank} / ${rule.accounts.account_number ?? '-'}`
+      const accountText =
+        supplierName +
+        ' - ' +
+        rule.accounts.bank +
+        ' / ' +
+        (rule.accounts.account_number ?? '-')
       const amountText = formatNumber(entry.amount) || '0'
       const outputLine = hasProduct
-        ? `${accountText} · ${productText} · ${amountText}`
-        : `${accountText} · ${amountText}`
+        ? accountText + ' · ' + productText + ' · ' + amountText
+        : accountText + ' · ' + amountText
 
       items.push({
         kind: 'rab',
         bank: getOutputBank(rule.accounts.bank),
-        line: `RAB : ${outputLine}`,
-        index: items.length
+        line: 'RAB : ' + outputLine,
+        index: items.length,
+        modeRank: 0
       })
     }
 
@@ -1046,36 +1262,35 @@ function App() {
         kind: output.kind,
         bank: output.bank,
         line: output.line,
-        index: items.length
+        index: items.length,
+        modeRank: 0
       })
     }
 
     items.sort((a, b) => {
       const aPreferred = a.bank === preferredBank ? 0 : 1
       const bPreferred = b.bank === preferredBank ? 0 : 1
-
       if (aPreferred !== bPreferred) return aPreferred - bPreferred
 
-      const aCategory = getOutputCategoryRank(a.kind)
-      const bCategory = getOutputCategoryRank(b.kind)
-
-      if (aCategory !== bCategory) return aCategory - bCategory
-
+      // First priority: group every transaction by bank.
       const bankCompare = a.bank.localeCompare(b.bank, 'id', {
         sensitivity: 'base'
       })
       if (bankCompare !== 0) return bankCompare
 
-      const modeCompare = getOutputModeRank(a.kind) - getOutputModeRank(b.kind)
-      if (modeCompare !== 0) return modeCompare
+      // Inside each bank: RAB, operational, rental/payroll, GAS, then other expenses.
+      const aCategory = getOutputCategoryRank(a.kind)
+      const bCategory = getOutputCategoryRank(b.kind)
+      if (aCategory !== bCategory) return aCategory - bCategory
 
+      if (a.modeRank !== b.modeRank) return a.modeRank - b.modeRank
       return a.index - b.index
     })
 
     if (items.length === 0) return []
 
     return [
-      `${selectedKitchen?.name ?? 'Dapur'}, ${formatDate(transaction.date)}`,
+      kitchenName + ', ' + formatDate(transaction.date),
       ...items.map((item) => item.line)
     ]
   }
@@ -1482,137 +1697,171 @@ function App() {
                   )}
 
 
-                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-rose-950/10 p-3">
+                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-base font-semibold">Form Lain-Lain</h2>
+                        <h2 className="text-base font-semibold">Operasional Harian / Lain-Lain</h2>
                         <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Pilih bank, isi nomor rekening, nama pemilik rekening,
-                          keperluan, dan nominal.
+                          Pilih jenis transaksi terlebih dahulu. Operasional Harian menggunakan rekening mapping; Lain-Lain diisi manual.
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
+                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-slate-700"
                       >
                         + Transaksi
                       </button>
                     </div>
 
                     <div className="mt-3 space-y-2.5">
-                      {activeTransaction.lain_lain.map((entry) => (
-                        <div
-                          key={entry.id}
-                          className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
-                        >
-                          <div className="grid gap-2 lg:grid-cols-[120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
-                            <div>
-                              <select
-                                value={entry.accountId}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    { accountId: event.target.value }
-                                  )
-                                }
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              >
-                                <option value="">Pilih Bank</option>
-                                {OPERATIONAL_BANKS.map((bank) => (
-                                  <option key={bank} value={bank}>
-                                    {bank}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
+                      {activeTransaction.lain_lain.map((entry) => {
+                        const operationalMapping =
+                          entry.transactionType === 'operasional_harian'
+                            ? getOperationalAccount(selectedKitchen?.name ?? '')
+                            : null
+                        const fieldsDisabled = !entry.transactionType
+                        const accountFieldsDisabled = fieldsDisabled || Boolean(operationalMapping)
 
-                            <div>
-                              <input
-                                id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={entry.accountNumber}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      accountNumber: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nomor rekening"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
+                        return (
+                          <div
+                            key={entry.id}
+                            className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
+                          >
+                            <div className="grid gap-2 lg:grid-cols-[150px_120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
+                              <div>
+                                <select
+                                  value={entry.transactionType ?? ''}
+                                  onChange={(event) =>
+                                    selectOtherTransactionType(
+                                      activeTransaction.id,
+                                      entry.id,
+                                      event.target.value as OtherTransactionType
+                                    )
+                                  }
+                                  aria-label="Pilih transaksi"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                >
+                                  <option value="">Pilih Transaksi</option>
+                                  <option value="operasional_harian">Operasional Harian</option>
+                                  <option value="lain_lain">Lain-lain</option>
+                                </select>
+                              </div>
 
-                            <div>
-                              <input
-                                id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                value={entry.ownerName}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      ownerName: sanitizeOwnerName(
-                                        event.target.value
-                                      )
-                                    }
-                                  )
-                                }
-                                placeholder="Nama pemilik rekening"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
+                              <div>
+                                <select
+                                  value={entry.accountId}
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      { accountId: event.target.value }
+                                    )
+                                  }
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  <option value="">Pilih Bank</option>
+                                  {OPERATIONAL_BANKS.map((bank) => (
+                                    <option key={bank} value={bank}>
+                                      {bank}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
 
-                            <div>
-                              <input
-                                id={'need-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                value={entry.need}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    { need: event.target.value }
-                                  )
-                                }
-                                placeholder="Isi dengan keperluan / kosongkan untuk otomatis diisi Ops Harian"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
+                              <div>
+                                <input
+                                  id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={entry.accountNumber}
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      {
+                                        accountNumber: event.target.value.replace(/\D/g, '')
+                                      }
+                                    )
+                                  }
+                                  placeholder="Nomor rekening"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
 
-                            <div>
-                              <input
-                                id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={formatNumber(entry.amount)}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      amount: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nominal"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                              />
+                              <div>
+                                <input
+                                  id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  value={entry.ownerName}
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      {
+                                        ownerName: sanitizeOwnerName(event.target.value)
+                                      }
+                                    )
+                                  }
+                                  placeholder="Nama pemilik rekening"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
+
+                              <div>
+                                <input
+                                  id={'need-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  value={
+                                    operationalMapping
+                                      ? 'Operasional Harian'
+                                      : entry.need
+                                  }
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      { need: event.target.value }
+                                    )
+                                  }
+                                  placeholder="Deskripsi / keperluan"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-rose-400 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
+
+                              <div>
+                                <input
+                                  id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={formatNumber(entry.amount)}
+                                  disabled={fieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      {
+                                        amount: event.target.value.replace(/\D/g, '')
+                                      }
+                                    )
+                                  }
+                                  placeholder="Nominal"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </section>
 
@@ -1690,7 +1939,7 @@ function App() {
                                         aria-readonly="true"
                                         className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                       >
-                                        {entry.bank || 'Pilih Bank'}
+                                        {getSewaAccount(selectedKitchen?.name ?? '', entry.kinds)?.bank ?? (entry.bank || 'Pilih Bank')}
                                       </div>
                                     ) : (
                                       <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
@@ -1705,7 +1954,7 @@ function App() {
                                         aria-readonly="true"
                                         className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                       >
-                                        {entry.accountNumber || 'No. rekening'}
+                                        {getSewaAccount(selectedKitchen?.name ?? '', entry.kinds)?.accountNumber ?? (entry.accountNumber || 'No. rekening')}
                                       </div>
                                     ) : (
                                       <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
@@ -1720,7 +1969,7 @@ function App() {
                                         aria-readonly="true"
                                         className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                       >
-                                        {entry.ownerName || 'Nama pemilik rekening'}
+                                        {getSewaAccount(selectedKitchen?.name ?? '', entry.kinds)?.ownerName ?? (entry.ownerName || 'Nama pemilik rekening')}
                                       </div>
                                     ) : (
                                       <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
@@ -1788,95 +2037,143 @@ function App() {
                               <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_130px_155px_190px_160px]">
                                 <div className="min-w-0">
                                   <div className="flex h-full flex-wrap content-center gap-1.5">
-                                    {DAILY_PAYMENT_GAJI_OPTIONS.map((option) => {
-                                      const selected = entry.kinds.includes(option)
+                                    {getDailyPaymentButtonOptions(selectedKitchen?.name ?? '').map((option) => {
+                                      const selected = option.kinds.every((kind) =>
+                                        entry.kinds.includes(kind)
+                                      )
+                                      const disabled =
+                                        !selected &&
+                                        !areDailyPaymentKindsCompatible(
+                                          selectedKitchen?.name ?? '',
+                                          [...entry.kinds, ...option.kinds]
+                                        )
 
                                       return (
                                         <button
-                                          key={option}
+                                          key={option.label}
                                           type="button"
+                                          disabled={disabled}
+                                          title={
+                                            disabled
+                                              ? 'Gunakan + Transaksi untuk rekening tujuan berbeda'
+                                              : undefined
+                                          }
                                           onClick={() =>
-                                            toggleDailyPaymentKind(
+                                            toggleDailyPaymentKinds(
                                               activeTransaction.id,
                                               entry.id,
-                                              option
+                                              option.kinds
                                             )
                                           }
                                           className={[
-                                            'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
+                                            'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40',
                                             selected
                                               ? 'border-violet-400 bg-violet-600 text-white'
                                               : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-violet-500/60 hover:bg-slate-800'
                                           ].join(' ')}
                                         >
-                                          {option}
+                                          {selected ? '✓ ' : ''}
+                                          {option.label}
                                         </button>
                                       )
                                     })}
                                   </div>
-                                </div>
-
+                                </div> 
                                 <div className="flex h-full items-center">
-                                  <select
-                                    value={entry.bank}
-                                    onChange={(event) =>
-                                      updateDailyPaymentEntry(
-                                        activeTransaction.id,
-                                        entry.id,
-                                        { bank: event.target.value }
-                                      )
-                                    }
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                  >
-                                    <option value="">Pilih Bank</option>
-                                    {OPERATIONAL_BANKS.map((bank) => (
-                                      <option key={bank} value={bank}>
-                                        {bank}
-                                      </option>
-                                    ))}
-                                  </select>
+                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
+                                    <div
+                                      aria-readonly="true"
+                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                    >
+                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.bank}
+                                    </div>
+                                  ) : entry.kinds.length === 0 ? (
+                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                      Pilih jenis
+                                    </div>
+                                  ) : (
+                                    <select
+                                      value={entry.bank}
+                                      onChange={(event) =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          { bank: event.target.value }
+                                        )
+                                      }
+                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                    >
+                                      <option value="">Pilih Bank</option>
+                                      {OPERATIONAL_BANKS.map((bank) => (
+                                        <option key={bank} value={bank}>
+                                          {bank}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  )}
                                 </div>
-
+ 
                                 <div className="flex h-full items-center">
-                                  <input
-                                    type="text"
-                                    inputMode="numeric"
-                                    value={entry.accountNumber}
-                                    onChange={(event) =>
-                                      updateDailyPaymentEntry(
-                                        activeTransaction.id,
-                                        entry.id,
-                                        {
-                                          accountNumber: event.target.value.replace(
-                                            /\D/g,
-                                            ''
-                                          )
-                                        }
-                                      )
-                                    }
-                                    placeholder="No. rekening"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                  />
+                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
+                                    <div
+                                      aria-readonly="true"
+                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                    >
+                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.accountNumber}
+                                    </div>
+                                  ) : entry.kinds.length === 0 ? (
+                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                      Pilih jenis
+                                    </div>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      value={entry.accountNumber}
+                                      onChange={(event) =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          {
+                                            accountNumber: event.target.value.replace(/\D/g, '')
+                                          }
+                                        )
+                                      }
+                                      placeholder="No. rekening"
+                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                    />
+                                  )}
                                 </div>
-
+ 
                                 <div className="flex h-full items-center">
-                                  <input
-                                    type="text"
-                                    value={entry.ownerName}
-                                    onChange={(event) =>
-                                      updateDailyPaymentEntry(
-                                        activeTransaction.id,
-                                        entry.id,
-                                        {
-                                          ownerName: sanitizeOwnerName(
-                                            event.target.value
-                                          )
-                                        }
-                                      )
-                                    }
-                                    placeholder="Nama pemilik rekening"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                  />
+                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
+                                    <div
+                                      aria-readonly="true"
+                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                    >
+                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.ownerName}
+                                    </div>
+                                  ) : entry.kinds.length === 0 ? (
+                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                      Pilih jenis
+                                    </div>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      value={entry.ownerName}
+                                      onChange={(event) =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          {
+                                            ownerName: sanitizeOwnerName(event.target.value)
+                                          }
+                                        )
+                                      }
+                                      placeholder="Nama pemilik rekening"
+                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                    />
+                                  )}
                                 </div>
 
                                 <div className="flex h-full items-center">
