@@ -648,7 +648,7 @@ function normalizeTransaction(
     legacyAmounts: legacyVehicleAmounts
   }]
 
-  const normalizedGas = Array.isArray(transaction.gas)
+  const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
     ? transaction.gas.map((entry) => ({
         ...entry,
         ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
@@ -661,7 +661,7 @@ function normalizeTransaction(
         ownerName: '',
         amount: '',
         need: '',
-        transactionType: ''
+        transactionType: '' as const
       }]
 
   const normalizedOthers = Array.isArray(transaction.lain_lain)
