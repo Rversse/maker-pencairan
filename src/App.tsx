@@ -1828,7 +1828,7 @@ function App() {
                   )}
 
 
-                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-slate-900/40 p-3">
+                  <section className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <h2 className="text-base font-semibold">Ops Harian / Lain-Lain</h2>
@@ -1839,7 +1839,7 @@ function App() {
                       <button
                         type="button"
                         onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-slate-700"
+                        className="h-10 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold text-slate-100 transition hover:border-stone-500 hover:bg-slate-700"
                       >
                         + Transaksi
                       </button>
@@ -1852,15 +1852,16 @@ function App() {
                             ? getOperationalAccount(selectedKitchen?.name ?? '')
                             : null
                         const fieldsDisabled = !entry.transactionType
-                        const accountFieldsDisabled = fieldsDisabled || Boolean(operationalMapping)
+                        const accountFieldsDisabled =
+                          fieldsDisabled || Boolean(operationalMapping)
 
                         return (
                           <div
                             key={entry.id}
-                            className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
+                            className="rounded-lg border border-slate-800 bg-slate-950 p-3"
                           >
-                            <div className="grid gap-2 lg:grid-cols-[150px_120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
-                              <div>
+                            <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(180px,1.2fr)_minmax(100px,0.7fr)_minmax(130px,0.9fr)_minmax(155px,1fr)_minmax(115px,0.7fr)_minmax(130px,0.8fr)] lg:items-end">
+                              <div className="min-w-0">
                                 <select
                                   value={entry.transactionType ?? ''}
                                   onChange={(event) =>
@@ -1871,7 +1872,7 @@ function App() {
                                     )
                                   }
                                   aria-label="Pilih transaksi"
-                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                                 >
                                   <option value="">Pilih Transaksi</option>
                                   <option value="operasional_harian">Ops Harian</option>
@@ -1879,7 +1880,7 @@ function App() {
                                 </select>
                               </div>
 
-                              <div>
+                              <div className="min-w-0">
                                 <select
                                   value={entry.accountId}
                                   disabled={accountFieldsDisabled}
@@ -1891,7 +1892,7 @@ function App() {
                                       { accountId: event.target.value }
                                     )
                                   }
-                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
                                 >
                                   <option value="">Pilih Bank</option>
                                   {OPERATIONAL_BANKS.map((bank) => (
@@ -1902,7 +1903,7 @@ function App() {
                                 </select>
                               </div>
 
-                              <div>
+                              <div className="min-w-0">
                                 <input
                                   id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
                                   type="text"
@@ -1914,17 +1915,15 @@ function App() {
                                       activeTransaction.id,
                                       'lain_lain',
                                       entry.id,
-                                      {
-                                        accountNumber: event.target.value.replace(/\D/g, '')
-                                      }
+                                      { accountNumber: event.target.value.replace(/\D/g, '') }
                                     )
                                   }
                                   placeholder="Nomor rekening"
-                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
                                 />
                               </div>
 
-                              <div>
+                              <div className="min-w-0">
                                 <input
                                   id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
                                   type="text"
@@ -1935,25 +1934,19 @@ function App() {
                                       activeTransaction.id,
                                       'lain_lain',
                                       entry.id,
-                                      {
-                                        ownerName: sanitizeOwnerName(event.target.value)
-                                      }
+                                      { ownerName: sanitizeOwnerName(event.target.value) }
                                     )
                                   }
-                                  placeholder="Nama pemilik rekening"
-                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                  placeholder="Nama pemilik"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
                                 />
                               </div>
 
-                              <div>
+                              <div className="min-w-0">
                                 <input
                                   id={'need-' + activeTransaction.id + '-lain-' + entry.id}
                                   type="text"
-                                  value={
-                                    operationalMapping
-                                      ? 'Ops Harian'
-                                      : entry.need
-                                  }
+                                  value={operationalMapping ? 'Ops Harian' : entry.need}
                                   disabled={accountFieldsDisabled}
                                   onChange={(event) =>
                                     updateSimpleEntry(
@@ -1963,12 +1956,12 @@ function App() {
                                       { need: event.target.value }
                                     )
                                   }
-                                  placeholder="Deskripsi / keperluan"
-                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-rose-400 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                  placeholder="Keperluan"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
                                 />
                               </div>
 
-                              <div>
+                              <div className="min-w-0">
                                 <input
                                   id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
                                   type="text"
@@ -1980,13 +1973,11 @@ function App() {
                                       activeTransaction.id,
                                       'lain_lain',
                                       entry.id,
-                                      {
-                                        amount: event.target.value.replace(/\D/g, '')
-                                      }
+                                      { amount: event.target.value.replace(/\D/g, '') }
                                     )
                                   }
                                   placeholder="Nominal"
-                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
                                 />
                               </div>
                             </div>
