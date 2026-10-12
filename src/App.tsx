@@ -1689,137 +1689,171 @@ function App() {
                   )}
 
 
-                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-rose-950/10 p-3">
+                  <section className="mt-2 w-full rounded-xl border border-rose-600/60 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-base font-semibold">Form Lain-Lain</h2>
+                        <h2 className="text-base font-semibold">Operasional Harian / Lain-Lain</h2>
                         <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Pilih bank, isi nomor rekening, nama pemilik rekening,
-                          keperluan, dan nominal.
+                          Pilih jenis transaksi terlebih dahulu. Operasional Harian menggunakan rekening mapping; Lain-Lain diisi manual.
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-stone-700"
+                        className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-slate-700"
                       >
                         + Transaksi
                       </button>
                     </div>
 
                     <div className="mt-3 space-y-2.5">
-                      {activeTransaction.lain_lain.map((entry) => (
-                        <div
-                          key={entry.id}
-                          className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
-                        >
-                          <div className="grid gap-2 lg:grid-cols-[120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
-                            <div>
-                              <select
-                                value={entry.accountId}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    { accountId: event.target.value }
-                                  )
-                                }
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              >
-                                <option value="">Pilih Bank</option>
-                                {OPERATIONAL_BANKS.map((bank) => (
-                                  <option key={bank} value={bank}>
-                                    {bank}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
+                      {activeTransaction.lain_lain.map((entry) => {
+                        const operationalMapping =
+                          entry.transactionType === 'operasional_harian'
+                            ? getOperationalAccount(selectedKitchen?.name ?? '')
+                            : null
+                        const fieldsDisabled = !entry.transactionType
+                        const accountFieldsDisabled = fieldsDisabled || Boolean(operationalMapping)
 
-                            <div>
-                              <input
-                                id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={entry.accountNumber}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      accountNumber: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nomor rekening"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
+                        return (
+                          <div
+                            key={entry.id}
+                            className="rounded-lg border border-rose-800/50 bg-slate-950 p-3"
+                          >
+                            <div className="grid gap-2 lg:grid-cols-[150px_120px_150px_190px_minmax(0,1fr)_160px] lg:items-end">
+                              <div>
+                                <select
+                                  value={entry.transactionType ?? ''}
+                                  onChange={(event) =>
+                                    selectOtherTransactionType(
+                                      activeTransaction.id,
+                                      entry.id,
+                                      event.target.value as OtherTransactionType
+                                    )
+                                  }
+                                  aria-label="Pilih transaksi"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
+                                >
+                                  <option value="">Pilih Transaksi</option>
+                                  <option value="operasional_harian">Operasional Harian</option>
+                                  <option value="lain_lain">Lain-lain</option>
+                                </select>
+                              </div>
 
-                            <div>
-                              <input
-                                id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                value={entry.ownerName}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      ownerName: sanitizeOwnerName(
-                                        event.target.value
-                                      )
-                                    }
-                                  )
-                                }
-                                placeholder="Nama pemilik rekening"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
+                              <div>
+                                <select
+                                  value={entry.accountId}
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      { accountId: event.target.value }
+                                    )
+                                  }
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  <option value="">Pilih Bank</option>
+                                  {OPERATIONAL_BANKS.map((bank) => (
+                                    <option key={bank} value={bank}>
+                                      {bank}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
 
-                            <div>
-                              <input
-                                id={'need-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                value={entry.need}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    { need: event.target.value }
-                                  )
-                                }
-                                placeholder="Isi dengan keperluan / kosongkan untuk otomatis diisi Ops Harian"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30"
-                              />
-                            </div>
+                              <div>
+                                <input
+                                  id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={entry.accountNumber}
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      {
+                                        accountNumber: event.target.value.replace(/\D/g, '')
+                                      }
+                                    )
+                                  }
+                                  placeholder="Nomor rekening"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
 
-                            <div>
-                              <input
-                                id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={formatNumber(entry.amount)}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    {
-                                      amount: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nominal"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                              />
+                              <div>
+                                <input
+                                  id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  value={entry.ownerName}
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      {
+                                        ownerName: sanitizeOwnerName(event.target.value)
+                                      }
+                                    )
+                                  }
+                                  placeholder="Nama pemilik rekening"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
+
+                              <div>
+                                <input
+                                  id={'need-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  value={
+                                    operationalMapping
+                                      ? 'Operasional Harian'
+                                      : entry.need
+                                  }
+                                  disabled={accountFieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      { need: event.target.value }
+                                    )
+                                  }
+                                  placeholder="Deskripsi / keperluan"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-rose-400 focus:border-rose-400 focus:ring-1 focus:ring-rose-400/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
+
+                              <div>
+                                <input
+                                  id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={formatNumber(entry.amount)}
+                                  disabled={fieldsDisabled}
+                                  onChange={(event) =>
+                                    updateSimpleEntry(
+                                      activeTransaction.id,
+                                      'lain_lain',
+                                      entry.id,
+                                      {
+                                        amount: event.target.value.replace(/\D/g, '')
+                                      }
+                                    )
+                                  }
+                                  placeholder="Nominal"
+                                  className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </section>
 
