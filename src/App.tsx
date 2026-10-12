@@ -849,40 +849,95 @@ function App() {
     const isSelected = currentKinds.includes(option)
     const isRental = option === 'Sewa SPPG' || option === 'Sewa Kendaraan'
     const optionCategory: DailyPaymentCategory = isRental ? 'sewa' : 'gaji'
-
     if (entry.category !== optionCategory) return
 
-    if (isRental) {
-      if (isSelected) {
-        updateDailyPaymentEntry(transactionId, id, {
-          kinds: [],
-          bank: '',
-          accountNumber: '',
-          ownerName: ''
-        })
-        return
-      }
+    if (!isRental) {
+      toggleDailyPaymentKinds(transactionId, id, [option])
+      return
+    }
 
-      const rental =
-        option === 'Sewa SPPG'
-          ? getSppgRental(selectedKitchen?.name ?? '')
-          : SEWA_KENDARAAN_ACCOUNT
-
+    if (isSelected) {
       updateDailyPaymentEntry(transactionId, id, {
-        kinds: [option],
-        bank: rental?.bank ?? '',
-        accountNumber: rental?.accountNumber ?? '',
-        ownerName: rental?.ownerName ?? ''
+        kinds: [],
+        bank: '',
+        accountNumber: '',
+        ownerName: ''
       })
       return
     }
 
-    const nextKinds = isSelected
-      ? currentKinds.filter((kind) => kind !== option)
-      : [...currentKinds, option]
+    const rental =
+      option === 'Sewa SPPG'
+        ? getSppgRental(selectedKitchen?.name ?? '')
+        : SEWA_KENDARAAN_ACCOUNT
 
     updateDailyPaymentEntry(transactionId, id, {
+      kinds: [option],
+      bank: rental?.bank ?? '',
+      accountNumber: rental?.accountNumber ?? '',
+      ownerName: rental?.ownerName ?? ''
+    })
+  }
+
+  function toggleDailyPaymentKinds(
+    transactionId: number,
+    id: number,
+    optionKinds: DailyPaymentKind[]
+  ) {
+    const transaction = transactions.find((item) => item.id === transactionId)
+    const entry = transaction?.pencairan_harian.find((item) => item.id === id)
+    if (!entry || entry.category !== 'gaji') return
+
+    const currentKinds = entry.kinds ?? []
+    const isSelected = optionKinds.every((kind) => currentKinds.includes(kind))
+    const nextKinds = isSelected
+      ? currentKinds.filter((kind) => !optionKinds.includes(kind))
+      : sortDailyPaymentKinds([...new Set([...currentKinds, ...optionKinds])])
+
+    const kitchenName = selectedKitchen?.name ?? ''
+    if (!areDailyPaymentKindsCompatible(kitchenName, nextKinds)) return
+
+    const update: Partial<DailyPaymentEntry> = {
       kinds: sortDailyPaymentKinds(nextKinds)
+    }
+
+    if (nextKinds.length === 0) {
+      update.bank = ''
+      update.accountNumber = ''
+      update.ownerName = ''
+    } else {
+      const mapping = getDailyPaymentMappingForKinds(kitchenName, nextKinds)
+      if (mapping) {
+        update.bank = mapping.bank
+        update.accountNumber = mapping.accountNumber
+        update.ownerName = mapping.ownerName
+      } else if (currentKinds.length === 0) {
+        update.bank = ''
+        update.accountNumber = ''
+        update.ownerName = ''
+      }
+    }
+
+    updateDailyPaymentEntry(transactionId, id, update)
+  }
+
+  function selectOtherTransactionType(
+    transactionId: number,
+    id: number,
+    transactionType: OtherTransactionType
+  ) {
+    const operationalMapping =
+      transactionType === 'operasional_harian'
+        ? getOperationalAccount(selectedKitchen?.name ?? '')
+        : null
+
+    updateSimpleEntry(transactionId, 'lain_lain', id, {
+      transactionType,
+      accountId: operationalMapping?.bank ?? '',
+      accountNumber: operationalMapping?.accountNumber ?? '',
+      ownerName: operationalMapping?.ownerName ?? '',
+      need: transactionType === 'operasional_harian' ? 'Operasional Harian' : '',
+      amount: ''
     })
   }
 
@@ -1032,39 +1087,48 @@ function App() {
   function getSimpleOutputs(transaction: TransactionGroup): Array<{
     bank: string
     line: string
-    kind: 'lain_lain'
+    kind: 'operasional_harian' | 'lain_lain'
   }> {
     const outputs: Array<{
       bank: string
       line: string
-      kind: 'lain_lain'
+      kind: 'operasional_harian' | 'lain_lain'
     }> = []
 
     for (const entry of transaction.lain_lain) {
-      if (!isCompleteAmount(entry.amount)) continue
+      if (!entry.transactionType || !isCompleteAmount(entry.amount)) continue
 
-      const bank = entry.accountId.trim()
-      const accountNumber = entry.accountNumber.trim()
-      const ownerName = entry.ownerName.trim()
+      const operationalMapping =
+        entry.transactionType === 'operasional_harian'
+          ? getOperationalAccount(selectedKitchen?.name ?? '')
+          : null
+      const bank = getOutputBank(operationalMapping?.bank ?? entry.accountId)
+      const accountNumber = (operationalMapping?.accountNumber ?? entry.accountNumber).trim()
+      const ownerName = (operationalMapping?.ownerName ?? entry.ownerName).trim()
       if (!bank || !accountNumber || !ownerName) continue
 
-      const need = entry.need.trim() || 'Biaya Ops Harian'
+      const line =
+        entry.transactionType === 'operasional_harian'
+          ? 'Operasional Harian : ' +
+            ownerName +
+            ' - ' +
+            bank +
+            ' / ' +
+            accountNumber +
+            ' · ' +
+            formatNumber(entry.amount)
+          : 'Lain-lain : ' +
+            (entry.need.trim() || 'Biaya Ops Harian') +
+            ' - ' +
+            ownerName +
+            ' - ' +
+            bank +
+            ' / ' +
+            accountNumber +
+            ' · ' +
+            formatNumber(entry.amount)
 
-      outputs.push({
-        bank: getOutputBank(bank),
-        line:
-          'Lain-lain : ' +
-          need +
-          ' - ' +
-          ownerName +
-          ' - ' +
-          bank +
-          ' / ' +
-          accountNumber +
-          ' · ' +
-          formatNumber(entry.amount),
-        kind: 'lain_lain'
-      })
+      outputs.push({ bank, line, kind: entry.transactionType })
     }
 
     return outputs
@@ -1072,14 +1136,21 @@ function App() {
 
   function getTransactionOutput(transaction: TransactionGroup) {
     type OutputItem = {
-      kind: 'rab' | 'pencairan_harian' | 'gas' | 'lain_lain'
+      kind:
+        | 'rab'
+        | 'pencairan_harian'
+        | 'gas'
+        | 'operasional_harian'
+        | 'lain_lain'
       bank: string
       line: string
       index: number
+      modeRank: number
     }
 
     const items: OutputItem[] = []
-    const preferredBank = getPreferredBank(selectedKitchen?.name ?? '')
+    const kitchenName = selectedKitchen?.name ?? ''
+    const preferredBank = getPreferredBank(kitchenName)
 
     for (const entry of transaction.gas) {
       if (!isCompleteAmount(entry.amount)) continue
@@ -1089,28 +1160,48 @@ function App() {
       if (!rule?.accounts) continue
 
       const accountName = rule.supplier?.business_name || rule.accounts.name
-      const outputLine = `${accountName} - ${rule.accounts.bank} / ${rule.accounts.account_number ?? '-'} · ${formatNumber(entry.amount)}`
+      const outputLine =
+        accountName +
+        ' - ' +
+        rule.accounts.bank +
+        ' / ' +
+        (rule.accounts.account_number ?? '-') +
+        ' · ' +
+        formatNumber(entry.amount)
 
       items.push({
         kind: 'gas',
         bank: getOutputBank(rule.accounts.bank),
-        line: `GAS : ${outputLine}`,
-        index: items.length
+        line: 'GAS : ' + outputLine,
+        index: items.length,
+        modeRank: 0
       })
     }
 
     for (const entry of transaction.pencairan_harian) {
       if (!isCompleteAmount(entry.amount)) continue
 
-      const bank = entry.bank.trim()
-      const accountNumber = entry.accountNumber.trim()
-      const ownerName = entry.ownerName.trim()
       const kinds = entry.kinds ?? []
-      if (!bank || !accountNumber || !ownerName || kinds.length === 0) continue
+      if (kinds.length === 0) continue
+      if (
+        entry.category === 'gaji' &&
+        !areDailyPaymentKindsCompatible(kitchenName, kinds)
+      ) {
+        continue
+      }
+
+      const mappedAccount =
+        entry.category === 'sewa'
+          ? getSewaAccount(kitchenName, kinds)
+          : getDailyPaymentMappingForKinds(kitchenName, kinds)
+      const bank = getOutputBank(mappedAccount?.bank ?? entry.bank)
+      const accountNumber = (mappedAccount?.accountNumber ?? entry.accountNumber).trim()
+      const ownerName = (mappedAccount?.ownerName ?? entry.ownerName).trim()
+      if (!bank || !accountNumber || !ownerName) continue
 
       items.push({
         kind: 'pencairan_harian',
-        bank: getOutputBank(bank),
+        bank,
         line:
           kinds.join(', ') +
           ' : ' +
@@ -1121,7 +1212,8 @@ function App() {
           accountNumber +
           ' · ' +
           formatNumber(entry.amount),
-        index: items.length
+        index: items.length,
+        modeRank: kinds.some((kind) => DAILY_PAYMENT_SEWA_OPTIONS.includes(kind)) ? 0 : 1
       })
     }
 
@@ -1134,21 +1226,26 @@ function App() {
       const hasAmount = isCompleteAmount(entry.amount)
       const productText = sortStrings(entry.productTypes).join(', ')
       const hasProduct = productText.length > 0
-
       if (!hasAmount && !hasProduct) continue
 
       const supplierName = rule.supplier?.business_name ?? rule.accounts.name
-      const accountText = `${supplierName} - ${rule.accounts.bank} / ${rule.accounts.account_number ?? '-'}`
+      const accountText =
+        supplierName +
+        ' - ' +
+        rule.accounts.bank +
+        ' / ' +
+        (rule.accounts.account_number ?? '-')
       const amountText = formatNumber(entry.amount) || '0'
       const outputLine = hasProduct
-        ? `${accountText} · ${productText} · ${amountText}`
-        : `${accountText} · ${amountText}`
+        ? accountText + ' · ' + productText + ' · ' + amountText
+        : accountText + ' · ' + amountText
 
       items.push({
         kind: 'rab',
         bank: getOutputBank(rule.accounts.bank),
-        line: `RAB : ${outputLine}`,
-        index: items.length
+        line: 'RAB : ' + outputLine,
+        index: items.length,
+        modeRank: 0
       })
     }
 
@@ -1157,36 +1254,35 @@ function App() {
         kind: output.kind,
         bank: output.bank,
         line: output.line,
-        index: items.length
+        index: items.length,
+        modeRank: 0
       })
     }
 
     items.sort((a, b) => {
       const aPreferred = a.bank === preferredBank ? 0 : 1
       const bPreferred = b.bank === preferredBank ? 0 : 1
-
       if (aPreferred !== bPreferred) return aPreferred - bPreferred
 
-      const aCategory = getOutputCategoryRank(a.kind)
-      const bCategory = getOutputCategoryRank(b.kind)
-
-      if (aCategory !== bCategory) return aCategory - bCategory
-
+      // First priority: group every transaction by bank.
       const bankCompare = a.bank.localeCompare(b.bank, 'id', {
         sensitivity: 'base'
       })
       if (bankCompare !== 0) return bankCompare
 
-      const modeCompare = getOutputModeRank(a.kind) - getOutputModeRank(b.kind)
-      if (modeCompare !== 0) return modeCompare
+      // Inside each bank: RAB, operational, rental/payroll, GAS, then other expenses.
+      const aCategory = getOutputCategoryRank(a.kind)
+      const bCategory = getOutputCategoryRank(b.kind)
+      if (aCategory !== bCategory) return aCategory - bCategory
 
+      if (a.modeRank !== b.modeRank) return a.modeRank - b.modeRank
       return a.index - b.index
     })
 
     if (items.length === 0) return []
 
     return [
-      `${selectedKitchen?.name ?? 'Dapur'}, ${formatDate(transaction.date)}`,
+      kitchenName + ', ' + formatDate(transaction.date),
       ...items.map((item) => item.line)
     ]
   }
