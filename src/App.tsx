@@ -43,11 +43,19 @@ type DailyPaymentEntry = {
   amount: string
 }
 
+type LegacyVehicleRentAmount = {
+  startDate: string
+  endDate: string
+  amount: string
+}
+
 type VehicleRentEntry = {
   id: number
   startDate: string
   endDate: string
-  amount: string
+  mobilAmount: string
+  motorAmount: string
+  legacyAmounts?: LegacyVehicleRentAmount[]
 }
 
 type TransactionGroup = {
@@ -55,7 +63,8 @@ type TransactionGroup = {
   date: string
   rab: RabEntry[]
   gas: SimpleEntry[]
-  operasional?: SimpleEntry[]
+  operasional: SimpleEntry[]
+  legacy_gaji?: DailyPaymentEntry[]
   pencairan_harian: DailyPaymentEntry[]
   sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
@@ -233,16 +242,6 @@ function getDailyPaymentTargetKey(kitchenName: string, kind: DailyPaymentKind) {
 
 function areDailyPaymentKindsCompatible(kitchenName: string, kinds: DailyPaymentKind[]) {
   return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind))).size <= 1
-}
-
-function getDailyPaymentButtonOptions(kitchenName: string): Array<{ label: string; kinds: DailyPaymentKind[] }> {
-  if (kitchenName === 'Campakamulya') {
-    return [{
-      label: 'Gaji Relawan + Insentif PIC Sekolah + Insentif Kader Posyandu',
-      kinds: [...DAILY_PAYMENT_GAJI_OPTIONS]
-    }]
-  }
-  return DAILY_PAYMENT_GAJI_OPTIONS.map((kind) => ({ label: kind, kinds: [kind] }))
 }
 
 function toIsoDate(date: Date) {
@@ -457,6 +456,10 @@ function emptySimpleEntry(id = 1): SimpleEntry {
   }
 }
 
+function emptyOtherEntry(id = 1): SimpleEntry {
+  return { ...emptySimpleEntry(id), transactionType: 'lain_lain' }
+}
+
 function emptyDailyPaymentEntry(
   id = 1,
   category: DailyPaymentCategory = 'sewa'
@@ -473,27 +476,118 @@ function emptyDailyPaymentEntry(
 }
 
 function emptyVehicleRentEntry(id = 1): VehicleRentEntry {
-  return { id, startDate: '', endDate: '', amount: '' }
+  return {
+    id,
+    startDate: '',
+    endDate: '',
+    mobilAmount: '',
+    motorAmount: '',
+    legacyAmounts: []
+  }
 }
 
-function ensureDailyPaymentCategories(
-  entries: DailyPaymentEntry[]
-): DailyPaymentEntry[] {
-  const next = [...entries]
-  let nextId =
-    next.length === 0
-      ? 1
-      : Math.max(...next.map((entry) => entry.id)) + 1
+function createPayrollEntry(
+  id: number,
+  kitchenName: string,
+  kinds: DailyPaymentKind[],
+  amount = ''
+): DailyPaymentEntry {
+  const mapping = getDailyPaymentMappingForKinds(kitchenName, kinds)
+  return {
+    id,
+    category: 'gaji',
+    kinds: sortDailyPaymentKinds(kinds),
+    bank: mapping?.bank ?? '',
+    accountNumber: mapping?.accountNumber ?? '',
+    ownerName: mapping?.ownerName ?? '',
+    amount
+  }
+}
 
-  if (!next.some((entry) => entry.category === 'sewa')) {
-    next.push(emptyDailyPaymentEntry(nextId++, 'sewa'))
+function createPayrollRowsForKitchen(kitchenName: string, startId = 2) {
+  if (kitchenName === 'Campakamulya') {
+    return [
+      createPayrollEntry(startId, kitchenName, [...DAILY_PAYMENT_GAJI_OPTIONS])
+    ]
   }
 
-  if (!next.some((entry) => entry.category === 'gaji')) {
-    next.push(emptyDailyPaymentEntry(nextId, 'gaji'))
+  return DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) =>
+    createPayrollEntry(startId + index, kitchenName, [kind])
+  )
+}
+
+function getPayrollStructure(
+  currentPayments: DailyPaymentEntry[],
+  kitchenName: string,
+  currentLegacy: DailyPaymentEntry[] = []
+): { payments: DailyPaymentEntry[]; legacy: DailyPaymentEntry[] } {
+  const sewaRows = currentPayments.filter((entry) => entry.category === 'sewa')
+  const gajiRows = currentPayments.filter((entry) => entry.category === 'gaji')
+  const nextId =
+    Math.max(1, ...currentPayments.map((entry) => entry.id), ...currentLegacy.map((entry) => entry.id)) + 1
+
+  if (kitchenName === 'Campakamulya') {
+    const combined = gajiRows.find((entry) =>
+      DAILY_PAYMENT_GAJI_OPTIONS.every((kind) => entry.kinds.includes(kind))
+    )
+    const amountsToCombine = gajiRows.map((entry) => entry.amount)
+    const combinedAmount = String(
+      amountsToCombine.reduce(
+        (total, value) => total + Number((value ?? '').replace(/\\D/g, '')),
+        0
+      ) || ''
+    )
+    const target = createPayrollEntry(
+      combined?.id ?? nextId,
+      kitchenName,
+      [...DAILY_PAYMENT_GAJI_OPTIONS],
+      combinedAmount
+    )
+    return {
+      payments: [...sewaRows, target],
+      legacy: []
+    }
   }
 
-  return next
+  const groupedLegacy = gajiRows.filter(
+    (entry) =>
+      (entry.kinds ?? []).length !== 1 &&
+      isCompleteAmount(entry.amount)
+  )
+  const legacyMap = new Map<string, DailyPaymentEntry>()
+  for (const entry of [...currentLegacy, ...groupedLegacy]) {
+    const key = [entry.id, entry.kinds.join('|'), entry.amount].join(':')
+    legacyMap.set(key, entry)
+  }
+
+  const perKindRows = DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) => {
+    const matchingEntries = gajiRows.filter(
+      (entry) => entry.kinds.length === 1 && entry.kinds[0] === kind
+    )
+    const amountTotal = matchingEntries.reduce(
+      (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
+      0
+    )
+    return createPayrollEntry(
+      matchingEntries[0]?.id ?? nextId + index,
+      kitchenName,
+      [kind],
+      String(amountTotal || '')
+    )
+  })
+
+  return {
+    payments: [...sewaRows, ...perKindRows],
+    legacy: [...legacyMap.values()]
+  }
+}
+
+function createOperationalEntry(id = 1): SimpleEntry {
+  return {
+    ...emptySimpleEntry(id),
+    transactionType: 'operasional_harian',
+    need: 'Ops Harian'
+  }
 }
 
 function normalizeTransaction(
@@ -519,29 +613,13 @@ function normalizeTransaction(
           category,
           kinds: sortDailyPaymentKinds(legacyKinds),
           bank: entry.bank ?? '',
-          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+          accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''),
           ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }
       })
     : [emptyDailyPaymentEntry(1, 'sewa')]
 
-  const dailyPayments = ensureDailyPaymentCategories(rawDailyPayments)
-  const existingVehicleRentals = Array.isArray(transaction.sewa_kendaraan)
-    ? transaction.sewa_kendaraan.map((entry) => ({
-        ...entry,
-        startDate: entry.startDate ?? '',
-        endDate: entry.endDate ?? '',
-        amount: entry.amount ?? ''
-      }))
-    : []
-  let nextVehicleRentId =
-    existingVehicleRentals.length === 0
-      ? 1
-      : Math.max(...existingVehicleRentals.map((entry) => entry.id)) + 1
-
-  // Keep amounts from older drafts that used the former Sewa Kendaraan toggle.
-  // The akuntan can add the date range to the newly separated vehicle-rent card.
-  const migratedVehicleRentals = dailyPayments
+  const legacyVehicleFromDaily: LegacyVehicleRentAmount[] = rawDailyPayments
     .filter(
       (entry) =>
         entry.category === 'sewa' &&
@@ -549,55 +627,118 @@ function normalizeTransaction(
         isCompleteAmount(entry.amount)
     )
     .map((entry) => ({
-      id: nextVehicleRentId++,
       startDate: '',
       endDate: '',
       amount: entry.amount
     }))
+  const sewaRows = rawDailyPayments.filter(
+    (entry) =>
+      entry.category === 'sewa' &&
+      !entry.kinds.includes('Sewa Kendaraan')
+  )
+  const sewaTemplate = sewaRows[0] ?? emptyDailyPaymentEntry(1, 'sewa')
+  const sewaTotal = sewaRows.reduce(
+    (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
+    0
+  )
+  const normalizedSewa: DailyPaymentEntry[] = [{
+    ...sewaTemplate,
+    category: 'sewa',
+    kinds: ['Sewa SPPG'],
+    amount: String(sewaTotal || '')
+  }]
 
-  const normalizedDailyPayments = dailyPayments.map((entry) => {
-    if (entry.category !== 'sewa') return entry
-    const wasVehicleRent = entry.kinds.includes('Sewa Kendaraan')
-    return {
-      ...entry,
-      kinds: ['Sewa SPPG'] as DailyPaymentKind[],
-      amount: wasVehicleRent ? '' : entry.amount
+  const rawVehicleEntries = Array.isArray(transaction.sewa_kendaraan)
+    ? (transaction.sewa_kendaraan as unknown as Array<VehicleRentEntry & { amount?: string }>)
+    : []
+  const firstVehicle = rawVehicleEntries[0]
+  const legacyVehicleAmounts: LegacyVehicleRentAmount[] = [
+    ...legacyVehicleFromDaily,
+    ...rawVehicleEntries.flatMap((entry) => {
+    const legacy = [...(entry.legacyAmounts ?? [])]
+    const oldAmount = entry.amount
+    if (
+      typeof oldAmount === 'string' &&
+      isCompleteAmount(oldAmount) &&
+      !entry.mobilAmount &&
+      !entry.motorAmount
+    ) {
+      legacy.push({
+        startDate: entry.startDate ?? '',
+        endDate: entry.endDate ?? '',
+        amount: oldAmount
+      })
     }
-  })
+    return legacy
+    })
+  ]
+  const normalizedVehicle: VehicleRentEntry[] = [{
+    id: firstVehicle?.id ?? 1,
+    startDate: firstVehicle?.startDate ?? legacyVehicleAmounts[0]?.startDate ?? '',
+    endDate: firstVehicle?.endDate ?? legacyVehicleAmounts[0]?.endDate ?? '',
+    mobilAmount: firstVehicle?.mobilAmount ?? '',
+    motorAmount: firstVehicle?.motorAmount ?? '',
+    legacyAmounts: legacyVehicleAmounts
+  }]
+
+  const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
+    ? transaction.gas.map((entry) => ({
+        ...entry,
+        ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
+        transactionType: entry.transactionType ?? ''
+      }))
+    : [{
+        ...emptySimpleEntry(1),
+        accountId: '',
+        accountNumber: '',
+        ownerName: '',
+        amount: '',
+        need: '',
+        transactionType: '' as const
+      }]
+
+  const normalizedOthers = Array.isArray(transaction.lain_lain)
+    ? transaction.lain_lain.map((entry) => ({
+        ...entry,
+        transactionType: entry.transactionType === 'operasional_harian'
+          ? 'operasional_harian' as const
+          : 'lain_lain' as const,
+        accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+        ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+      }))
+    : [emptyOtherEntry(1)]
+
+  const legacyOps = normalizedOthers.filter((entry) => entry.transactionType === 'operasional_harian')
+  const existingOps = Array.isArray(transaction.operasional) ? transaction.operasional : []
+  const operationalSource = existingOps.length > 0 ? existingOps : legacyOps
+  const operationalFirst = operationalSource[0] ?? createOperationalEntry()
+  const oldOpsTotal = operationalSource.reduce(
+    (total, entry) => total + Number((entry.amount ?? '').replace(/\\D/g, '')),
+    0
+  )
+  const operational = [{
+    ...createOperationalEntry(operationalFirst.id),
+    ...operationalFirst,
+    transactionType: 'operasional_harian' as const,
+    amount: String(oldOpsTotal || operationalFirst.amount || '')
+  }]
+  const lain_lain = normalizedOthers.filter((entry) => entry.transactionType !== 'operasional_harian')
+  const legacyGaji = Array.isArray(transaction.legacy_gaji)
+    ? transaction.legacy_gaji
+    : []
 
   return {
     ...transaction,
     date: transaction.date || fallbackDate,
     rab: Array.isArray(transaction.rab) ? transaction.rab : [],
-    gas: Array.isArray(transaction.gas)
-      ? transaction.gas.map((entry) => ({
-          ...entry,
-          ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
-          transactionType: entry.transactionType ?? ''
-        }))
-      : [],
-    pencairan_harian: normalizedDailyPayments,
-    sewa_kendaraan: [...existingVehicleRentals, ...migratedVehicleRentals],
-    lain_lain: Array.isArray(transaction.lain_lain)
-      ? transaction.lain_lain.map((entry) => {
-          const hasLegacyData = Boolean(
-            entry.accountId || entry.accountNumber || entry.ownerName || entry.need || entry.amount
-          )
-          const transactionType: OtherTransactionType =
-            entry.transactionType === 'operasional_harian' || entry.transactionType === 'lain_lain'
-              ? entry.transactionType
-              : hasLegacyData
-                ? 'lain_lain'
-                : ''
-
-          return {
-            ...entry,
-            transactionType,
-            accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
-            ownerName: sanitizeOwnerName(entry.ownerName ?? '')
-          }
-        })
-      : [emptySimpleEntry(1)]
+    gas: normalizedGas,
+    operasional: operational,
+    pencairan_harian: normalizedSewa.concat(
+      rawDailyPayments.filter((entry) => entry.category === 'gaji')
+    ),
+    sewa_kendaraan: normalizedVehicle,
+    lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
+    legacy_gaji: legacyGaji
   }
 }
 
@@ -608,7 +749,8 @@ function makeTransaction(
   gasRules: Array<{
     account_id: string
     accounts: { account_number: string | null } | null
-  }>
+  }>,
+  kitchenName = ''
 ): TransactionGroup {
   const gasRule = gasRules[0]
 
@@ -631,12 +773,14 @@ function makeTransaction(
         transactionType: ''
       }
     ],
+    operasional: [createOperationalEntry(1)],
     pencairan_harian: [
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
-      emptyDailyPaymentEntry(2, 'gaji')
+      ...createPayrollRowsForKitchen(kitchenName, 2)
     ],
     sewa_kendaraan: [emptyVehicleRentEntry(1)],
-    lain_lain: [emptySimpleEntry(1)]
+    lain_lain: [emptyOtherEntry(1)],
+    legacy_gaji: []
   }
 }
 
@@ -813,6 +957,27 @@ function App() {
     })
   }, [activeTransaction, selectedKitchen])
 
+  useEffect(() => {
+    if (!selectedKitchen || !activeTransaction) return
+
+    const structure = getPayrollStructure(
+      activeTransaction.pencairan_harian,
+      selectedKitchen.name,
+      activeTransaction.legacy_gaji ?? []
+    )
+    if (
+      JSON.stringify(structure.payments) === JSON.stringify(activeTransaction.pencairan_harian) &&
+      JSON.stringify(structure.legacy) === JSON.stringify(activeTransaction.legacy_gaji ?? [])
+    ) {
+      return
+    }
+
+    updateTransaction(activeTransaction.id, {
+      pencairan_harian: structure.payments,
+      legacy_gaji: structure.legacy
+    })
+  }, [activeTransaction, selectedKitchen])
+
   function updateTransaction(
     transactionId: number,
     update: Partial<TransactionGroup>
@@ -854,21 +1019,21 @@ function App() {
 
   function updateSimpleEntry(
     transactionId: number,
-    section: 'gas' | 'lain_lain',
+    section: 'gas' | 'operasional' | 'lain_lain',
     id: number,
     update: Partial<SimpleEntry>
   ) {
     setTransactions((current) =>
-      current.map((transaction) =>
-        transaction.id === transactionId
-          ? {
-              ...transaction,
-              [section]: transaction[section].map((entry) =>
-                entry.id === id ? { ...entry, ...update } : entry
-              )
-            }
-          : transaction
-      )
+      current.map((transaction) => {
+        if (transaction.id !== transactionId) return transaction
+        const entries = transaction[section] ?? []
+        return {
+          ...transaction,
+          [section]: entries.map((entry) =>
+            entry.id === id ? { ...entry, ...update } : entry
+          )
+        }
+      })
     )
   }
 
@@ -910,100 +1075,6 @@ function App() {
     )
   }
 
-  function addVehicleRentEntry() {
-    if (!activeTransaction) return
-    const current = activeTransaction.sewa_kendaraan ?? []
-    const nextId =
-      current.length === 0
-        ? 1
-        : Math.max(...current.map((entry) => entry.id)) + 1
-    updateTransaction(activeTransaction.id, {
-      sewa_kendaraan: [...current, emptyVehicleRentEntry(nextId)]
-    })
-  }
-
-  function toggleDailyPaymentKinds(
-    transactionId: number,
-    id: number,
-    optionKinds: DailyPaymentKind[]
-  ) {
-    const transaction = transactions.find((item) => item.id === transactionId)
-    const entry = transaction?.pencairan_harian.find((item) => item.id === id)
-    if (!entry || entry.category !== 'gaji') return
-
-    const currentKinds = entry.kinds ?? []
-    const isSelected = optionKinds.every((kind) => currentKinds.includes(kind))
-    const nextKinds = isSelected
-      ? currentKinds.filter((kind) => !optionKinds.includes(kind))
-      : sortDailyPaymentKinds([...new Set([...currentKinds, ...optionKinds])])
-
-    const kitchenName = selectedKitchen?.name ?? ''
-    if (!areDailyPaymentKindsCompatible(kitchenName, nextKinds)) return
-
-    const update: Partial<DailyPaymentEntry> = {
-      kinds: sortDailyPaymentKinds(nextKinds)
-    }
-
-    if (nextKinds.length === 0) {
-      update.bank = ''
-      update.accountNumber = ''
-      update.ownerName = ''
-    } else {
-      const mapping = getDailyPaymentMappingForKinds(kitchenName, nextKinds)
-      if (mapping) {
-        update.bank = mapping.bank
-        update.accountNumber = mapping.accountNumber
-        update.ownerName = mapping.ownerName
-      } else if (currentKinds.length === 0) {
-        update.bank = ''
-        update.accountNumber = ''
-        update.ownerName = ''
-      }
-    }
-
-    updateDailyPaymentEntry(transactionId, id, update)
-  }
-
-  function selectOtherTransactionType(
-    transactionId: number,
-    id: number,
-    transactionType: OtherTransactionType
-  ) {
-    const operationalMapping =
-      transactionType === 'operasional_harian'
-        ? getOperationalAccount(selectedKitchen?.name ?? '')
-        : null
-
-    updateSimpleEntry(transactionId, 'lain_lain', id, {
-      transactionType,
-      accountId: operationalMapping?.bank ?? '',
-      accountNumber: operationalMapping?.accountNumber ?? '',
-      ownerName: operationalMapping?.ownerName ?? '',
-      need:
-        transactionType === 'operasional_harian' && operationalMapping
-          ? 'Ops Harian'
-          : '',
-      amount: ''
-    })
-  }
-
-  function addDailyPaymentEntry(category: DailyPaymentCategory) {
-    if (!activeTransaction) return
-
-    const currentEntries = activeTransaction.pencairan_harian
-    const nextId =
-      currentEntries.length === 0
-        ? 1
-        : Math.max(...currentEntries.map((entry) => entry.id)) + 1
-
-    updateTransaction(activeTransaction.id, {
-      pencairan_harian: [
-        ...currentEntries,
-        emptyDailyPaymentEntry(nextId, category)
-      ]
-    })
-  }
-
   function addSimpleEntry(section: 'lain_lain') {
     if (!activeTransaction) return
 
@@ -1014,7 +1085,7 @@ function App() {
         : Math.max(...currentEntries.map((entry) => entry.id)) + 1
 
     updateTransaction(activeTransaction.id, {
-      [section]: [...currentEntries, emptySimpleEntry(nextId)]
+      [section]: [...currentEntries, emptyOtherEntry(nextId)]
     })
   }
 
@@ -1067,6 +1138,8 @@ function App() {
     const nextGasRules = rules.filter(
       (rule) => rule.flow_type === 'neutral'
     )
+    const nextKitchenName =
+      masterData?.kitchens.find((kitchen) => kitchen.id === nextKitchenId)?.name ?? ''
     const nextTransaction = makeTransaction(
       1,
       activeDate,
@@ -1074,7 +1147,8 @@ function App() {
       nextGasRules.map((rule) => ({
         account_id: rule.account_id,
         accounts: rule.accounts
-      }))
+      })),
+      nextKitchenName
     )
 
     setTransactions([nextTransaction])
@@ -1121,7 +1195,8 @@ function App() {
       gasRules.map((rule) => ({
         account_id: rule.account_id,
         accounts: rule.accounts
-      }))
+      })),
+      selectedKitchen?.name ?? ''
     )
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
@@ -1140,51 +1215,61 @@ function App() {
       line: string
       kind: 'operasional_harian' | 'lain_lain'
     }> = []
+    const kitchenName = selectedKitchen?.name ?? ''
+
+    const operationalEntry = transaction.operasional?.[0]
+    if (operationalEntry && isCompleteAmount(operationalEntry.amount)) {
+      const mapping = getOperationalAccount(kitchenName)
+      const bank = getOutputBank(mapping?.bank ?? operationalEntry.accountId)
+      const accountNumber = (mapping?.accountNumber ?? operationalEntry.accountNumber).trim()
+      const ownerName = (mapping?.ownerName ?? operationalEntry.ownerName).trim()
+
+      if (bank && accountNumber && ownerName) {
+        outputs.push({
+          bank,
+          line:
+            'Ops Harian : ' +
+            ownerName +
+            ' - ' +
+            bank +
+            ' / ' +
+            accountNumber +
+            ' · ' +
+            formatNumber(operationalEntry.amount),
+          kind: 'operasional_harian'
+        })
+      }
+    }
 
     for (const entry of transaction.lain_lain) {
-      if (!entry.transactionType || !isCompleteAmount(entry.amount)) continue
+      if (entry.transactionType !== 'lain_lain' || !isCompleteAmount(entry.amount)) continue
 
-      const operationalMapping =
-        entry.transactionType === 'operasional_harian'
-          ? getOperationalAccount(selectedKitchen?.name ?? '')
-          : null
-      const bank = getOutputBank(operationalMapping?.bank ?? entry.accountId)
-      const accountNumber = (operationalMapping?.accountNumber ?? entry.accountNumber).trim()
-      const ownerName = (operationalMapping?.ownerName ?? entry.ownerName).trim()
+      const bank = getOutputBank(entry.accountId)
+      const accountNumber = entry.accountNumber.trim()
+      const ownerName = entry.ownerName.trim()
       if (!bank || !accountNumber || !ownerName) continue
 
-      const operationalDescription = entry.need.trim()
-      const line =
-        entry.transactionType === 'operasional_harian'
-          ? 'Ops Harian : ' +
-            (operationalMapping || !operationalDescription
-              ? ''
-              : operationalDescription + ' - ') +
-            ownerName +
-            ' - ' +
-            bank +
-            ' / ' +
-            accountNumber +
-            ' · ' +
-            formatNumber(entry.amount)
-          : 'Lain-lain : ' +
-            (entry.need.trim() || 'Biaya Ops Harian') +
-            ' - ' +
-            ownerName +
-            ' - ' +
-            bank +
-            ' / ' +
-            accountNumber +
-            ' · ' +
-            formatNumber(entry.amount)
-
-      outputs.push({ bank, line, kind: entry.transactionType })
+      outputs.push({
+        bank,
+        line:
+          'Lain-lain : ' +
+          (entry.need.trim() || 'Biaya Ops Harian') +
+          ' - ' +
+          ownerName +
+          ' - ' +
+          bank +
+          ' / ' +
+          accountNumber +
+          ' · ' +
+          formatNumber(entry.amount),
+        kind: 'lain_lain'
+      })
     }
 
     return outputs
   }
 
-  function getTransactionOutput(transaction: TransactionGroup) {
+    function getTransactionOutput(transaction: TransactionGroup) {
     type OutputItem = {
       kind:
         | 'rab'
@@ -1282,9 +1367,8 @@ function App() {
       })
     }
 
-    for (const entry of transaction.sewa_kendaraan ?? []) {
+    for (const entry of (transaction.sewa_kendaraan ?? []).slice(0, 1)) {
       if (
-        !isCompleteAmount(entry.amount) ||
         !entry.startDate ||
         !entry.endDate ||
         entry.endDate < entry.startDate
@@ -1293,25 +1377,34 @@ function App() {
       }
 
       const account = SEWA_KENDARAAN_ACCOUNT
-      items.push({
-        kind: 'sewa_kendaraan',
-        bank: getOutputBank(account.bank),
-        line:
-          'Sewa Kendaraan (' +
-          formatDate(entry.startDate) +
-          ' – ' +
-          formatDate(entry.endDate) +
-          ') : ' +
-          account.ownerName +
-          ' - ' +
-          account.bank +
-          ' / ' +
-          account.accountNumber +
-          ' · ' +
-          formatNumber(entry.amount),
-        index: items.length,
-        modeRank: 0
-      })
+      const period = formatDate(entry.startDate) + ' – ' + formatDate(entry.endDate)
+      const vehicleAmounts: Array<{ label: string; amount: string }> = [
+        { label: 'Mobil', amount: entry.mobilAmount },
+        { label: 'Motor', amount: entry.motorAmount }
+      ]
+
+      for (const vehicle of vehicleAmounts) {
+        if (!isCompleteAmount(vehicle.amount)) continue
+        items.push({
+          kind: 'sewa_kendaraan',
+          bank: getOutputBank(account.bank),
+          line:
+            'Sewa Kendaraan ' +
+            vehicle.label +
+            ' (' +
+            period +
+            ') : ' +
+            account.ownerName +
+            ' - ' +
+            account.bank +
+            ' / ' +
+            account.accountNumber +
+            ' · ' +
+            formatNumber(vehicle.amount),
+          index: items.length,
+          modeRank: 0
+        })
+      }
     }
 
     for (const rule of sortedRabRules) {
@@ -1509,7 +1602,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-4 px-3 pb-3 pt-1 md:px-4">
+              <div className="mt-4 w-full min-w-0 space-y-2">
                 <section className="rounded-xl border border-stone-600 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
@@ -1604,7 +1697,7 @@ function App() {
 
               {kitchenId && activeTransaction && (
                 <>
-                  <section className="rounded-xl border border-stone-500 bg-slate-900 p-3">
+                  <section className="w-full min-w-0 rounded-xl border border-stone-500 bg-slate-900 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -1728,9 +1821,6 @@ function App() {
                     <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
                       <div>
                         <h2 className="text-base font-semibold text-white">GAS</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Isi nominal GAS. Rekening tujuan mengikuti mapping GAS dapur.
-                        </p>
                       </div>
 
                       <div className="mt-2 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
@@ -1785,175 +1875,48 @@ function App() {
                   )}
 
 
-                  <section className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-900/40 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <h2 className="text-base font-semibold">Ops Harian / Lain-Lain</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Pilih jenis transaksi terlebih dahulu. Ops Harian menggunakan rekening mapping; Lain-Lain diisi manual.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold text-slate-100 transition hover:border-stone-500 hover:bg-slate-700"
-                      >
-                        + Transaksi
-                      </button>
-                    </div>
-
-                    <div className="mt-3 space-y-2.5">
-                      {activeTransaction.lain_lain.map((entry) => {
-                        const operationalMapping =
-                          entry.transactionType === 'operasional_harian'
-                            ? getOperationalAccount(selectedKitchen?.name ?? '')
-                            : null
-                        const fieldsDisabled = !entry.transactionType
-                        const accountFieldsDisabled =
-                          fieldsDisabled || Boolean(operationalMapping)
-
-                        return (
-                          <div
-                            key={entry.id}
-                            className="rounded-lg border border-slate-800 bg-slate-950 p-3"
-                          >
-                            <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(180px,1.2fr)_minmax(100px,0.7fr)_minmax(130px,0.9fr)_minmax(155px,1fr)_minmax(115px,0.7fr)_minmax(130px,0.8fr)] lg:items-end">
-                              <div className="min-w-0">
-                                <select
-                                  value={entry.transactionType ?? ''}
-                                  onChange={(event) =>
-                                    selectOtherTransactionType(
-                                      activeTransaction.id,
-                                      entry.id,
-                                      event.target.value as OtherTransactionType
-                                    )
-                                  }
-                                  aria-label="Pilih transaksi"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                                >
-                                  <option value="">Pilih Transaksi</option>
-                                  <option value="operasional_harian">Ops Harian</option>
-                                  <option value="lain_lain">Lain-lain</option>
-                                </select>
-                              </div>
-
-                              <div className="min-w-0">
-                                <select
-                                  value={entry.accountId}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { accountId: event.target.value }
-                                    )
-                                  }
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                >
-                                  <option value="">Pilih Bank</option>
-                                  {OPERATIONAL_BANKS.map((bank) => (
-                                    <option key={bank} value={bank}>
-                                      {bank}
-                                    </option>
-                                  ))}
-                                </select>
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'acc-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={entry.accountNumber}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { accountNumber: event.target.value.replace(/\D/g, '') }
-                                    )
-                                  }
-                                  placeholder="Nomor rekening"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'owner-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  value={entry.ownerName}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { ownerName: sanitizeOwnerName(event.target.value) }
-                                    )
-                                  }
-                                  placeholder="Nama pemilik"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'need-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  value={operationalMapping ? 'Ops Harian' : entry.need}
-                                  disabled={accountFieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { need: event.target.value }
-                                    )
-                                  }
-                                  placeholder="Keperluan"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-
-                              <div className="min-w-0">
-                                <input
-                                  id={'amount-' + activeTransaction.id + '-lain-' + entry.id}
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={formatNumber(entry.amount)}
-                                  disabled={fieldsDisabled}
-                                  onChange={(event) =>
-                                    updateSimpleEntry(
-                                      activeTransaction.id,
-                                      'lain_lain',
-                                      entry.id,
-                                      { amount: event.target.value.replace(/\D/g, '') }
-                                    )
-                                  }
-                                  placeholder="Nominal"
-                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:border-slate-800 disabled:bg-slate-950 disabled:text-slate-500 disabled:opacity-70"
-                                />
-                              </div>
-                            </div>
+                  <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                    <h2 className="text-base font-semibold text-white">Ops Harian</h2>
+                    {(() => {
+                      const mapping = getOperationalAccount(selectedKitchen?.name ?? '')
+                      const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
+                      return (
+                        <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]">
+                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                            <span className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                           </div>
-                        )
-                      })}
-                    </div>
+                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                            {mapping?.bank ?? '-'}
+                          </div>
+                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                            <span className="truncate">{mapping?.accountNumber ?? '-'}</span>
+                          </div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={formatNumber(entry.amount)}
+                            disabled={!mapping}
+                            onChange={(event) =>
+                              updateSimpleEntry(
+                                activeTransaction.id,
+                                'operasional',
+                                entry.id,
+                                { amount: event.target.value.replace(/\D/g, '') }
+                              )
+                            }
+                            placeholder="Nominal"
+                            aria-label="Nominal Ops Harian"
+                            className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        </div>
+                      )
+                    })()}
                   </section>
 
 
                   <div className="mt-2 space-y-2.5">
-                    <section className="w-full rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
-                      <div>
-                        <h2 className="text-base font-semibold text-white">Pencairan Sewa</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Rekening Sewa SPPG mengikuti mapping dapur secara otomatis. Akuntan cukup mengisi nominal.
-                        </p>
-                      </div>
-
+                    <section className="w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
+                      <h2 className="text-base font-semibold text-white">Pencairan Sewa SPPG</h2>
                       <div className="mt-3 space-y-2.5">
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa')
@@ -1964,14 +1927,14 @@ function App() {
                                 key={entry.id}
                                 className="rounded-lg border border-sky-800/50 bg-slate-950 p-3"
                               >
-                                <div className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_90px_minmax(145px,0.8fr)_145px]">
-                                  <div className="flex min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                    <span className="truncate">{rental?.ownerName ?? 'Rekening belum dimapping'}</span>
+                                <div className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]">
+                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                    <span className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div className="flex h-10 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                     {rental?.bank ?? '-'}
                                   </div>
-                                  <div className="flex min-w-0 h-10 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                     <span className="truncate">{rental?.accountNumber ?? '-'}</span>
                                   </div>
                                   <input
@@ -1988,7 +1951,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Sewa SPPG"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                               </div>
@@ -1997,37 +1960,20 @@ function App() {
                       </div>
                     </section>
 
-                    <section className="mt-2 w-full rounded-xl border border-slate-600 bg-slate-900/40 p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
-                          <p className="mt-1 text-xs leading-5 text-slate-300">
-                            Pilih tanggal awal dan akhir periode sewa, lalu isi nominal. Rekening tujuan sudah ditetapkan.
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={addVehicleRentEntry}
-                          className="h-10 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold text-slate-100 transition hover:border-stone-500 hover:bg-slate-700"
-                        >
-                          + Transaksi
-                        </button>
-                      </div>
-
-                      <div className="mt-3 space-y-2.5">
-                        {(activeTransaction.sewa_kendaraan ?? []).map((entry) => (
-                          <div
-                            key={entry.id}
-                            className="rounded-lg border border-slate-700 bg-slate-950 p-3"
-                          >
-                            <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_105px_minmax(145px,0.8fr)_minmax(230px,1fr)_145px]">
-                              <div className="flex min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                    <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-600 bg-slate-900/40 p-3">
+                      <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
+                      {(() => {
+                        const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
+                        return (
+                          <>
+                            <div className="mt-3 grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_105px_minmax(145px,0.8fr)_minmax(230px,1fr)]">
+                              <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 <span className="truncate">{SEWA_KENDARAAN_ACCOUNT.ownerName}</span>
                               </div>
-                              <div className="flex h-10 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 {SEWA_KENDARAAN_ACCOUNT.bank}
                               </div>
-                              <div className="flex min-w-0 h-10 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 <span className="truncate">{SEWA_KENDARAAN_ACCOUNT.accountNumber}</span>
                               </div>
                               <DateRangePicker
@@ -2040,222 +1986,237 @@ function App() {
                                 }
                                 placeholder="Pilih rentang tanggal"
                               />
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={formatNumber(entry.amount)}
-                                onChange={(event) =>
-                                  updateVehicleRentEntry(activeTransaction.id, entry.id, {
-                                    amount: event.target.value.replace(/\D/g, '')
-                                  })
-                                }
-                                placeholder="Nominal"
-                                aria-label="Nominal Sewa Kendaraan"
-                                className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
-                              />
                             </div>
-                          </div>
-                        ))}
-                      </div>
+
+                            {entry.legacyAmounts && entry.legacyAmounts.length > 0 && (
+                              <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
+                                Draft lama memiliki nominal Sewa Kendaraan yang belum ditentukan jenisnya:
+                                {entry.legacyAmounts.map((legacy, index) => (
+                                  <div key={index} className="mt-1 font-semibold">
+                                    {legacy.startDate && legacy.endDate
+                                      ? formatDate(legacy.startDate) + ' – ' + formatDate(legacy.endDate) + ' · '
+                                      : ''}
+                                    {formatNumber(legacy.amount)}
+                                  </div>
+                                ))}
+                                Masukkan nominal ke Mobil atau Motor sesuai jenis kendaraan. Nominal lama tidak otomatis masuk output agar tidak salah kategori.
+                              </div>
+                            )}
+
+                            <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
+                              <label className="grid min-w-0 gap-1.5">
+                                <span className="text-xs font-semibold text-slate-300">Kendaraan Mobil</span>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={formatNumber(entry.mobilAmount)}
+                                  onChange={(event) =>
+                                    updateVehicleRentEntry(activeTransaction.id, entry.id, {
+                                      mobilAmount: event.target.value.replace(/\D/g, '')
+                                    })
+                                  }
+                                  placeholder="Nominal Mobil"
+                                  aria-label="Nominal Kendaraan Mobil"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                />
+                              </label>
+                              <label className="grid min-w-0 gap-1.5">
+                                <span className="text-xs font-semibold text-slate-300">Kendaraan Motor</span>
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={formatNumber(entry.motorAmount)}
+                                  onChange={(event) =>
+                                    updateVehicleRentEntry(activeTransaction.id, entry.id, {
+                                      motorAmount: event.target.value.replace(/\D/g, '')
+                                    })
+                                  }
+                                  placeholder="Nominal Motor"
+                                  aria-label="Nominal Kendaraan Motor"
+                                  className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                />
+                              </label>
+                            </div>
+                          </>
+                        )
+                      })()}
                     </section>
 
-                    <section className="w-full rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <h2 className="text-base font-semibold text-white">
-                            Pencairan Gaji
-                          </h2>
-                          <p className="mt-1 text-xs leading-5 text-slate-300">
-                            Gaji Relawan, Insentif PIC Sekolah, dan Insentif Kader
-                            Posyandu dapat dipilih satu, dua, atau sekaligus tiga.
-                          </p>
+                    <section className="w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
+                      <h2 className="text-base font-semibold text-white">Pencairan Gaji dan Insentif</h2>
+
+                      {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
+                        <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
+                          Draft lama menyimpan nominal gabungan yang tidak bisa dibagi otomatis ke jenis baru. Nominal tersebut tidak masuk output; pindahkan nominal ke kolom masing-masing setelah memastikan alokasinya.
+                          {activeTransaction.legacy_gaji.map((legacy, index) => (
+                            <div key={index} className="mt-1 font-semibold">
+                              {legacy.kinds.join(' + ')} · {formatNumber(legacy.amount)}
+                            </div>
+                          ))}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => addDailyPaymentEntry('gaji')}
-                          className="h-10 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold transition hover:bg-slate-700"
-                        >
-                          + Transaksi
-                        </button>
-                      </div>
+                      )}
 
                       <div className="mt-3 space-y-2.5">
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'gaji')
-                          .map((entry) => (
-                            <div
-                              key={entry.id}
-                              className="rounded-lg border border-violet-800/50 bg-slate-950 p-3"
-                            >
-                              <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_130px_155px_190px_160px]">
-                                <div className="min-w-0">
-                                  <div className="flex h-full flex-wrap content-center gap-1.5">
-                                    {getDailyPaymentButtonOptions(selectedKitchen?.name ?? '').map((option) => {
-                                      const selected = option.kinds.every((kind) =>
-                                        entry.kinds.includes(kind)
-                                      )
-                                      const disabled =
-                                        !selected &&
-                                        !areDailyPaymentKindsCompatible(
-                                          selectedKitchen?.name ?? '',
-                                          [...entry.kinds, ...option.kinds]
-                                        )
+                          .map((entry) => {
+                            const mapping = getDailyPaymentMappingForKinds(
+                              selectedKitchen?.name ?? '',
+                              entry.kinds
+                            )
+                            const combined = entry.kinds.length > 1
+                            const label = combined
+                              ? 'Gaji Relawan + Insentif PIC Sekolah + Insentif Kader Posyandu'
+                              : entry.kinds[0] ?? 'Jenis belum dimapping'
 
-                                      return (
-                                        <button
-                                          key={option.label}
-                                          type="button"
-                                          disabled={disabled}
-                                          title={
-                                            disabled
-                                              ? 'Gunakan + Transaksi untuk rekening tujuan berbeda'
-                                              : undefined
-                                          }
-                                          onClick={() =>
-                                            toggleDailyPaymentKinds(
-                                              activeTransaction.id,
-                                              entry.id,
-                                              option.kinds
-                                            )
-                                          }
-                                          className={[
-                                            'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40',
-                                            selected
-                                              ? 'border-violet-400 bg-violet-600 text-white'
-                                              : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-violet-500/60 hover:bg-slate-800'
-                                          ].join(' ')}
-                                        >
-                                          {selected ? '✓ ' : ''}
-                                          {option.label}
-                                        </button>
-                                      )
-                                    })}
+                            return (
+                              <div
+                                key={entry.id}
+                                className="rounded-lg border border-violet-800/50 bg-slate-950 p-3"
+                              >
+                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(210px,1.2fr)_minmax(145px,1fr)_95px_minmax(145px,0.9fr)_145px]">
+                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                    <span className="truncate">{label}</span>
                                   </div>
-                                </div> 
-                                <div className="flex h-full items-center">
-                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
-                                    <div
-                                      aria-readonly="true"
-                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
-                                    >
-                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.bank}
-                                    </div>
-                                  ) : entry.kinds.length === 0 ? (
-                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
-                                      Pilih jenis
-                                    </div>
-                                  ) : (
-                                    <select
-                                      value={entry.bank}
-                                      onChange={(event) =>
-                                        updateDailyPaymentEntry(
-                                          activeTransaction.id,
-                                          entry.id,
-                                          { bank: event.target.value }
-                                        )
-                                      }
-                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                    >
-                                      <option value="">Pilih Bank</option>
-                                      {OPERATIONAL_BANKS.map((bank) => (
-                                        <option key={bank} value={bank}>
-                                          {bank}
-                                        </option>
-                                      ))}
-                                    </select>
-                                  )}
-                                </div>
- 
-                                <div className="flex h-full items-center">
-                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
-                                    <div
-                                      aria-readonly="true"
-                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
-                                    >
-                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.accountNumber}
-                                    </div>
-                                  ) : entry.kinds.length === 0 ? (
-                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
-                                      Pilih jenis
-                                    </div>
-                                  ) : (
-                                    <input
-                                      type="text"
-                                      inputMode="numeric"
-                                      value={entry.accountNumber}
-                                      onChange={(event) =>
-                                        updateDailyPaymentEntry(
-                                          activeTransaction.id,
-                                          entry.id,
-                                          {
-                                            accountNumber: event.target.value.replace(/\D/g, '')
-                                          }
-                                        )
-                                      }
-                                      placeholder="No. rekening"
-                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                    />
-                                  )}
-                                </div>
- 
-                                <div className="flex h-full items-center">
-                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
-                                    <div
-                                      aria-readonly="true"
-                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
-                                    >
-                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.ownerName}
-                                    </div>
-                                  ) : entry.kinds.length === 0 ? (
-                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
-                                      Pilih jenis
-                                    </div>
-                                  ) : (
-                                    <input
-                                      type="text"
-                                      value={entry.ownerName}
-                                      onChange={(event) =>
-                                        updateDailyPaymentEntry(
-                                          activeTransaction.id,
-                                          entry.id,
-                                          {
-                                            ownerName: sanitizeOwnerName(event.target.value)
-                                          }
-                                        )
-                                      }
-                                      placeholder="Nama pemilik rekening"
-                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                    />
-                                  )}
-                                </div>
-
-                                <div className="flex h-full items-center">
+                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                    <span className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
+                                  </div>
+                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                    {mapping?.bank ?? '-'}
+                                  </div>
+                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                    <span className="truncate">{mapping?.accountNumber ?? '-'}</span>
+                                  </div>
                                   <input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
+                                    disabled={!mapping}
                                     onChange={(event) =>
                                       updateDailyPaymentEntry(
                                         activeTransaction.id,
                                         entry.id,
-                                        {
-                                          amount: event.target.value.replace(
-                                            /\D/g,
-                                            ''
-                                          )
-                                        }
+                                        { amount: event.target.value.replace(/\D/g, '') }
                                       )
                                     }
                                     placeholder="Nominal"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                    aria-label={'Nominal ' + label}
+                                    className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            )
+                          })}
                       </div>
                     </section>
                   </div>
+
+                  <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
+                      <button
+                        type="button"
+                        onClick={() => addSimpleEntry('lain_lain')}
+                        className="h-10 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold text-slate-100 transition hover:border-stone-500 hover:bg-slate-700"
+                      >
+                        + Transaksi
+                      </button>
+                    </div>
+
+                    <div className="mt-3 space-y-2.5">
+                      {activeTransaction.lain_lain.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="rounded-lg border border-slate-800 bg-slate-950 p-3"
+                        >
+                          <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(110px,0.65fr)_minmax(145px,0.9fr)_minmax(160px,1fr)_minmax(170px,1.2fr)_minmax(135px,0.8fr)] lg:items-end">
+                            <div className="min-w-0">
+                              <select
+                                value={entry.accountId}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'lain_lain',
+                                    entry.id,
+                                    { accountId: event.target.value }
+                                  )
+                                }
+                                aria-label="Bank rekening Lain-Lain"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              >
+                                <option value="">Pilih Bank</option>
+                                {OPERATIONAL_BANKS.map((bank) => (
+                                  <option key={bank} value={bank}>{bank}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={entry.accountNumber}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { accountNumber: event.target.value.replace(/\D/g, '') }
+                                )
+                              }
+                              placeholder="Nomor rekening"
+                              aria-label="Nomor rekening Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                            <input
+                              type="text"
+                              value={entry.ownerName}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { ownerName: sanitizeOwnerName(event.target.value) }
+                                )
+                              }
+                              placeholder="Nama pemilik rekening"
+                              aria-label="Nama pemilik rekening Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                            <input
+                              type="text"
+                              value={entry.need}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { need: event.target.value }
+                                )
+                              }
+                              placeholder="Deskripsi / keperluan"
+                              aria-label="Deskripsi Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={formatNumber(entry.amount)}
+                              onChange={(event) =>
+                                updateSimpleEntry(
+                                  activeTransaction.id,
+                                  'lain_lain',
+                                  entry.id,
+                                  { amount: event.target.value.replace(/\D/g, '') }
+                                )
+                              }
+                              placeholder="Nominal"
+                              aria-label="Nominal Lain-Lain"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
 
 
                 </>
