@@ -1931,7 +1931,7 @@ function App() {
                                         aria-readonly="true"
                                         className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                       >
-                                        {entry.bank || 'Pilih Bank'}
+                                        {getSewaAccount(selectedKitchen?.name ?? '', entry.kinds)?.bank ?? (entry.bank || 'Pilih Bank')}
                                       </div>
                                     ) : (
                                       <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
@@ -1946,7 +1946,7 @@ function App() {
                                         aria-readonly="true"
                                         className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                       >
-                                        {entry.accountNumber || 'No. rekening'}
+                                        {getSewaAccount(selectedKitchen?.name ?? '', entry.kinds)?.accountNumber ?? (entry.accountNumber || 'No. rekening')}
                                       </div>
                                     ) : (
                                       <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
@@ -1961,7 +1961,7 @@ function App() {
                                         aria-readonly="true"
                                         className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
                                       >
-                                        {entry.ownerName || 'Nama pemilik rekening'}
+                                        {getSewaAccount(selectedKitchen?.name ?? '', entry.kinds)?.ownerName ?? (entry.ownerName || 'Nama pemilik rekening')}
                                       </div>
                                     ) : (
                                       <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
@@ -2029,95 +2029,143 @@ function App() {
                               <div className="grid items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_130px_155px_190px_160px]">
                                 <div className="min-w-0">
                                   <div className="flex h-full flex-wrap content-center gap-1.5">
-                                    {DAILY_PAYMENT_GAJI_OPTIONS.map((option) => {
-                                      const selected = entry.kinds.includes(option)
+                                    {getDailyPaymentButtonOptions(selectedKitchen?.name ?? '').map((option) => {
+                                      const selected = option.kinds.every((kind) =>
+                                        entry.kinds.includes(kind)
+                                      )
+                                      const disabled =
+                                        !selected &&
+                                        !areDailyPaymentKindsCompatible(
+                                          selectedKitchen?.name ?? '',
+                                          [...entry.kinds, ...option.kinds]
+                                        )
 
                                       return (
                                         <button
-                                          key={option}
+                                          key={option.label}
                                           type="button"
+                                          disabled={disabled}
+                                          title={
+                                            disabled
+                                              ? 'Gunakan + Transaksi untuk rekening tujuan berbeda'
+                                              : undefined
+                                          }
                                           onClick={() =>
-                                            toggleDailyPaymentKind(
+                                            toggleDailyPaymentKinds(
                                               activeTransaction.id,
                                               entry.id,
-                                              option
+                                              option.kinds
                                             )
                                           }
                                           className={[
-                                            'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition',
+                                            'inline-flex h-10 items-center rounded-md border px-3 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40',
                                             selected
                                               ? 'border-violet-400 bg-violet-600 text-white'
                                               : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-violet-500/60 hover:bg-slate-800'
                                           ].join(' ')}
                                         >
-                                          {option}
+                                          {selected ? '✓ ' : ''}
+                                          {option.label}
                                         </button>
                                       )
                                     })}
                                   </div>
-                                </div>
-
+                                </div> 
                                 <div className="flex h-full items-center">
-                                  <select
-                                    value={entry.bank}
-                                    onChange={(event) =>
-                                      updateDailyPaymentEntry(
-                                        activeTransaction.id,
-                                        entry.id,
-                                        { bank: event.target.value }
-                                      )
-                                    }
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                  >
-                                    <option value="">Pilih Bank</option>
-                                    {OPERATIONAL_BANKS.map((bank) => (
-                                      <option key={bank} value={bank}>
-                                        {bank}
-                                      </option>
-                                    ))}
-                                  </select>
+                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
+                                    <div
+                                      aria-readonly="true"
+                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                    >
+                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.bank}
+                                    </div>
+                                  ) : entry.kinds.length === 0 ? (
+                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                      Pilih jenis
+                                    </div>
+                                  ) : (
+                                    <select
+                                      value={entry.bank}
+                                      onChange={(event) =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          { bank: event.target.value }
+                                        )
+                                      }
+                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                    >
+                                      <option value="">Pilih Bank</option>
+                                      {OPERATIONAL_BANKS.map((bank) => (
+                                        <option key={bank} value={bank}>
+                                          {bank}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  )}
                                 </div>
-
+ 
                                 <div className="flex h-full items-center">
-                                  <input
-                                    type="text"
-                                    inputMode="numeric"
-                                    value={entry.accountNumber}
-                                    onChange={(event) =>
-                                      updateDailyPaymentEntry(
-                                        activeTransaction.id,
-                                        entry.id,
-                                        {
-                                          accountNumber: event.target.value.replace(
-                                            /\D/g,
-                                            ''
-                                          )
-                                        }
-                                      )
-                                    }
-                                    placeholder="No. rekening"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                  />
+                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
+                                    <div
+                                      aria-readonly="true"
+                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                    >
+                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.accountNumber}
+                                    </div>
+                                  ) : entry.kinds.length === 0 ? (
+                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                      Pilih jenis
+                                    </div>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      value={entry.accountNumber}
+                                      onChange={(event) =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          {
+                                            accountNumber: event.target.value.replace(/\D/g, '')
+                                          }
+                                        )
+                                      }
+                                      placeholder="No. rekening"
+                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                    />
+                                  )}
                                 </div>
-
+ 
                                 <div className="flex h-full items-center">
-                                  <input
-                                    type="text"
-                                    value={entry.ownerName}
-                                    onChange={(event) =>
-                                      updateDailyPaymentEntry(
-                                        activeTransaction.id,
-                                        entry.id,
-                                        {
-                                          ownerName: sanitizeOwnerName(
-                                            event.target.value
-                                          )
-                                        }
-                                      )
-                                    }
-                                    placeholder="Nama pemilik rekening"
-                                    className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
-                                  />
+                                  {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds) ? (
+                                    <div
+                                      aria-readonly="true"
+                                      className="flex h-10 w-full items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100 shadow-inner"
+                                    >
+                                      {getDailyPaymentMappingForKinds(selectedKitchen?.name ?? '', entry.kinds)?.ownerName}
+                                    </div>
+                                  ) : entry.kinds.length === 0 ? (
+                                    <div className="flex h-10 w-full items-center rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-500">
+                                      Pilih jenis
+                                    </div>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      value={entry.ownerName}
+                                      onChange={(event) =>
+                                        updateDailyPaymentEntry(
+                                          activeTransaction.id,
+                                          entry.id,
+                                          {
+                                            ownerName: sanitizeOwnerName(event.target.value)
+                                          }
+                                        )
+                                      }
+                                      placeholder="Nama pemilik rekening"
+                                      className="h-10 w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-600 focus:border-violet-400 focus:ring-1 focus:ring-violet-400/30"
+                                    />
+                                  )}
                                 </div>
 
                                 <div className="flex h-full items-center">
