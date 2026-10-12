@@ -12,7 +12,7 @@ type RabEntry = {
   amount: string
 }
 
-type OtherTransactionType = '' | 'lain_lain'
+type OtherTransactionType = '' | 'operasional_harian' | 'lain_lain'
 
 type SimpleEntry = {
   id: number
@@ -942,6 +942,27 @@ function App() {
     })
   }, [activeTransaction, selectedKitchen])
 
+  useEffect(() => {
+    if (!selectedKitchen || !activeTransaction) return
+
+    const structure = getPayrollStructure(
+      activeTransaction.pencairan_harian,
+      selectedKitchen.name,
+      activeTransaction.legacy_gaji ?? []
+    )
+    if (
+      JSON.stringify(structure.payments) === JSON.stringify(activeTransaction.pencairan_harian) &&
+      JSON.stringify(structure.legacy) === JSON.stringify(activeTransaction.legacy_gaji ?? [])
+    ) {
+      return
+    }
+
+    updateTransaction(activeTransaction.id, {
+      pencairan_harian: structure.payments,
+      legacy_gaji: structure.legacy
+    })
+  }, [activeTransaction, selectedKitchen])
+
   function updateTransaction(
     transactionId: number,
     update: Partial<TransactionGroup>
@@ -983,21 +1004,21 @@ function App() {
 
   function updateSimpleEntry(
     transactionId: number,
-    section: 'gas' | 'lain_lain',
+    section: 'gas' | 'operasional' | 'lain_lain',
     id: number,
     update: Partial<SimpleEntry>
   ) {
     setTransactions((current) =>
-      current.map((transaction) =>
-        transaction.id === transactionId
-          ? {
-              ...transaction,
-              [section]: transaction[section].map((entry) =>
-                entry.id === id ? { ...entry, ...update } : entry
-              )
-            }
-          : transaction
-      )
+      current.map((transaction) => {
+        if (transaction.id !== transactionId) return transaction
+        const entries = transaction[section] ?? []
+        return {
+          ...transaction,
+          [section]: entries.map((entry) =>
+            entry.id === id ? { ...entry, ...update } : entry
+          )
+        }
+      })
     )
   }
 
@@ -1039,97 +1060,18 @@ function App() {
     )
   }
 
-  function addVehicleRentEntry() {
-    if (!activeTransaction) return
-    const current = activeTransaction.sewa_kendaraan ?? []
-    const nextId =
-      current.length === 0
-        ? 1
-        : Math.max(...current.map((entry) => entry.id)) + 1
-    updateTransaction(activeTransaction.id, {
-      sewa_kendaraan: [...current, emptyVehicleRentEntry(nextId)]
-    })
-  }
-
-  function toggleDailyPaymentKinds(
-    transactionId: number,
-    id: number,
-    optionKinds: DailyPaymentKind[]
-  ) {
-    const transaction = transactions.find((item) => item.id === transactionId)
-    const entry = transaction?.pencairan_harian.find((item) => item.id === id)
-    if (!entry || entry.category !== 'gaji') return
-
-    const currentKinds = entry.kinds ?? []
-    const isSelected = optionKinds.every((kind) => currentKinds.includes(kind))
-    const nextKinds = isSelected
-      ? currentKinds.filter((kind) => !optionKinds.includes(kind))
-      : sortDailyPaymentKinds([...new Set([...currentKinds, ...optionKinds])])
-
-    const kitchenName = selectedKitchen?.name ?? ''
-    if (!areDailyPaymentKindsCompatible(kitchenName, nextKinds)) return
-
-    const update: Partial<DailyPaymentEntry> = {
-      kinds: sortDailyPaymentKinds(nextKinds)
-    }
-
-    if (nextKinds.length === 0) {
-      update.bank = ''
-      update.accountNumber = ''
-      update.ownerName = ''
-    } else {
-      const mapping = getDailyPaymentMappingForKinds(kitchenName, nextKinds)
-      if (mapping) {
-        update.bank = mapping.bank
-        update.accountNumber = mapping.accountNumber
-        update.ownerName = mapping.ownerName
-      } else if (currentKinds.length === 0) {
-        update.bank = ''
-        update.accountNumber = ''
-        update.ownerName = ''
-      }
-    }
-
-    updateDailyPaymentEntry(transactionId, id, update)
-  }
-
   function selectOtherTransactionType(
     transactionId: number,
     id: number,
     transactionType: OtherTransactionType
   ) {
-    const operationalMapping =
-      transactionType === 'operasional_harian'
-        ? getOperationalAccount(selectedKitchen?.name ?? '')
-        : null
-
     updateSimpleEntry(transactionId, 'lain_lain', id, {
       transactionType,
-      accountId: operationalMapping?.bank ?? '',
-      accountNumber: operationalMapping?.accountNumber ?? '',
-      ownerName: operationalMapping?.ownerName ?? '',
-      need:
-        transactionType === 'operasional_harian' && operationalMapping
-          ? 'Ops Harian'
-          : '',
+      accountId: '',
+      accountNumber: '',
+      ownerName: '',
+      need: '',
       amount: ''
-    })
-  }
-
-  function addDailyPaymentEntry(category: DailyPaymentCategory) {
-    if (!activeTransaction) return
-
-    const currentEntries = activeTransaction.pencairan_harian
-    const nextId =
-      currentEntries.length === 0
-        ? 1
-        : Math.max(...currentEntries.map((entry) => entry.id)) + 1
-
-    updateTransaction(activeTransaction.id, {
-      pencairan_harian: [
-        ...currentEntries,
-        emptyDailyPaymentEntry(nextId, category)
-      ]
     })
   }
 
@@ -1196,6 +1138,8 @@ function App() {
     const nextGasRules = rules.filter(
       (rule) => rule.flow_type === 'neutral'
     )
+    const nextKitchenName =
+      masterData.kitchens.find((kitchen) => kitchen.id === nextKitchenId)?.name ?? ''
     const nextTransaction = makeTransaction(
       1,
       activeDate,
@@ -1203,7 +1147,8 @@ function App() {
       nextGasRules.map((rule) => ({
         account_id: rule.account_id,
         accounts: rule.accounts
-      }))
+      })),
+      nextKitchenName
     )
 
     setTransactions([nextTransaction])
@@ -1250,7 +1195,8 @@ function App() {
       gasRules.map((rule) => ({
         account_id: rule.account_id,
         accounts: rule.accounts
-      }))
+      })),
+      selectedKitchen?.name ?? ''
     )
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
