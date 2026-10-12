@@ -466,6 +466,10 @@ function emptySimpleEntry(id = 1): SimpleEntry {
   }
 }
 
+function emptyOtherEntry(id = 1): SimpleEntry {
+  return { ...emptySimpleEntry(id), transactionType: 'lain_lain' }
+}
+
 function emptyDailyPaymentEntry(
   id = 1,
   category: DailyPaymentCategory = 'sewa'
@@ -671,27 +675,15 @@ function normalizeTransaction(
       }]
 
   const normalizedOthers = Array.isArray(transaction.lain_lain)
-    ? transaction.lain_lain.map((entry) => {
-        const hasLegacyData = Boolean(
-          entry.accountId || entry.accountNumber || entry.ownerName || entry.need || entry.amount
-        )
-        const transactionType: OtherTransactionType =
-          entry.transactionType === 'lain_lain'
-            ? entry.transactionType
-            : entry.transactionType === 'operasional_harian'
-              ? 'operasional_harian'
-              : hasLegacyData
-                ? 'lain_lain'
-                : ''
-
-        return {
-          ...entry,
-          transactionType,
-          accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''),
-          ownerName: sanitizeOwnerName(entry.ownerName ?? '')
-        }
-      })
-    : [emptySimpleEntry(1)]
+    ? transaction.lain_lain.map((entry) => ({
+        ...entry,
+        transactionType: entry.transactionType === 'operasional_harian'
+          ? 'operasional_harian' as const
+          : 'lain_lain' as const,
+        accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+        ownerName: sanitizeOwnerName(entry.ownerName ?? '')
+      }))
+    : [emptyOtherEntry(1)]
 
   const legacyOps = normalizedOthers.filter((entry) => entry.transactionType === 'operasional_harian')
   const existingOps = Array.isArray(transaction.operasional) ? transaction.operasional : []
@@ -764,7 +756,7 @@ function makeTransaction(
       ...createPayrollRowsForKitchen(kitchenName, 2)
     ],
     sewa_kendaraan: [emptyVehicleRentEntry(1)],
-    lain_lain: [emptySimpleEntry(1)],
+    lain_lain: [emptyOtherEntry(1)],
     legacy_gaji: []
   }
 }
@@ -1085,7 +1077,7 @@ function App() {
         : Math.max(...currentEntries.map((entry) => entry.id)) + 1
 
     updateTransaction(activeTransaction.id, {
-      [section]: [...currentEntries, emptySimpleEntry(nextId)]
+      [section]: [...currentEntries, emptyOtherEntry(nextId)]
     })
   }
 
@@ -1988,7 +1980,7 @@ function App() {
                               />
                             </div>
 
-                            {entry.legacyAmounts && entry.legacyAmounts.length > 0 && (
+                            {entry.legacyAmounts && entry.legacyAmounts.length > 0 && !entry.mobilAmount && !entry.motorAmount && (
                               <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
                                 Draft lama memiliki nominal Sewa Kendaraan yang belum ditentukan jenisnya:
                                 {entry.legacyAmounts.map((legacy, index) => (
