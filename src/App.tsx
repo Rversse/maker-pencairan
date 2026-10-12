@@ -244,16 +244,6 @@ function areDailyPaymentKindsCompatible(kitchenName: string, kinds: DailyPayment
   return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind))).size <= 1
 }
 
-function getDailyPaymentButtonOptions(kitchenName: string): Array<{ label: string; kinds: DailyPaymentKind[] }> {
-  if (kitchenName === 'Campakamulya') {
-    return [{
-      label: 'Gaji Relawan + Insentif PIC Sekolah + Insentif Kader Posyandu',
-      kinds: [...DAILY_PAYMENT_GAJI_OPTIONS]
-    }]
-  }
-  return DAILY_PAYMENT_GAJI_OPTIONS.map((kind) => ({ label: kind, kinds: [kind] }))
-}
-
 function toIsoDate(date: Date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -1052,21 +1042,6 @@ function App() {
     )
   }
 
-  function selectOtherTransactionType(
-    transactionId: number,
-    id: number,
-    transactionType: OtherTransactionType
-  ) {
-    updateSimpleEntry(transactionId, 'lain_lain', id, {
-      transactionType,
-      accountId: '',
-      accountNumber: '',
-      ownerName: '',
-      need: '',
-      amount: ''
-    })
-  }
-
   function addSimpleEntry(section: 'lain_lain') {
     if (!activeTransaction) return
 
@@ -1131,7 +1106,7 @@ function App() {
       (rule) => rule.flow_type === 'neutral'
     )
     const nextKitchenName =
-      masterData.kitchens.find((kitchen) => kitchen.id === nextKitchenId)?.name ?? ''
+      masterData?.kitchens.find((kitchen) => kitchen.id === nextKitchenId)?.name ?? ''
     const nextTransaction = makeTransaction(
       1,
       activeDate,
