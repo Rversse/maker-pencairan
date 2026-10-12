@@ -1215,51 +1215,61 @@ function App() {
       line: string
       kind: 'operasional_harian' | 'lain_lain'
     }> = []
+    const kitchenName = selectedKitchen?.name ?? ''
+
+    const operationalEntry = transaction.operasional?.[0]
+    if (operationalEntry && isCompleteAmount(operationalEntry.amount)) {
+      const mapping = getOperationalAccount(kitchenName)
+      const bank = getOutputBank(mapping?.bank ?? operationalEntry.accountId)
+      const accountNumber = (mapping?.accountNumber ?? operationalEntry.accountNumber).trim()
+      const ownerName = (mapping?.ownerName ?? operationalEntry.ownerName).trim()
+
+      if (bank && accountNumber && ownerName) {
+        outputs.push({
+          bank,
+          line:
+            'Ops Harian : ' +
+            ownerName +
+            ' - ' +
+            bank +
+            ' / ' +
+            accountNumber +
+            ' · ' +
+            formatNumber(operationalEntry.amount),
+          kind: 'operasional_harian'
+        })
+      }
+    }
 
     for (const entry of transaction.lain_lain) {
-      if (!entry.transactionType || !isCompleteAmount(entry.amount)) continue
+      if (entry.transactionType !== 'lain_lain' || !isCompleteAmount(entry.amount)) continue
 
-      const operationalMapping =
-        entry.transactionType === 'operasional_harian'
-          ? getOperationalAccount(selectedKitchen?.name ?? '')
-          : null
-      const bank = getOutputBank(operationalMapping?.bank ?? entry.accountId)
-      const accountNumber = (operationalMapping?.accountNumber ?? entry.accountNumber).trim()
-      const ownerName = (operationalMapping?.ownerName ?? entry.ownerName).trim()
+      const bank = getOutputBank(entry.accountId)
+      const accountNumber = entry.accountNumber.trim()
+      const ownerName = entry.ownerName.trim()
       if (!bank || !accountNumber || !ownerName) continue
 
-      const operationalDescription = entry.need.trim()
-      const line =
-        entry.transactionType === 'operasional_harian'
-          ? 'Ops Harian : ' +
-            (operationalMapping || !operationalDescription
-              ? ''
-              : operationalDescription + ' - ') +
-            ownerName +
-            ' - ' +
-            bank +
-            ' / ' +
-            accountNumber +
-            ' · ' +
-            formatNumber(entry.amount)
-          : 'Lain-lain : ' +
-            (entry.need.trim() || 'Biaya Ops Harian') +
-            ' - ' +
-            ownerName +
-            ' - ' +
-            bank +
-            ' / ' +
-            accountNumber +
-            ' · ' +
-            formatNumber(entry.amount)
-
-      outputs.push({ bank, line, kind: entry.transactionType })
+      outputs.push({
+        bank,
+        line:
+          'Lain-lain : ' +
+          (entry.need.trim() || 'Biaya Ops Harian') +
+          ' - ' +
+          ownerName +
+          ' - ' +
+          bank +
+          ' / ' +
+          accountNumber +
+          ' · ' +
+          formatNumber(entry.amount),
+        kind: 'lain_lain'
+      })
     }
 
     return outputs
   }
 
-  function getTransactionOutput(transaction: TransactionGroup) {
+    function getTransactionOutput(transaction: TransactionGroup) {
     type OutputItem = {
       kind:
         | 'rab'
@@ -1357,9 +1367,8 @@ function App() {
       })
     }
 
-    for (const entry of transaction.sewa_kendaraan ?? []) {
+    for (const entry of (transaction.sewa_kendaraan ?? []).slice(0, 1)) {
       if (
-        !isCompleteAmount(entry.amount) ||
         !entry.startDate ||
         !entry.endDate ||
         entry.endDate < entry.startDate
@@ -1368,25 +1377,34 @@ function App() {
       }
 
       const account = SEWA_KENDARAAN_ACCOUNT
-      items.push({
-        kind: 'sewa_kendaraan',
-        bank: getOutputBank(account.bank),
-        line:
-          'Sewa Kendaraan (' +
-          formatDate(entry.startDate) +
-          ' – ' +
-          formatDate(entry.endDate) +
-          ') : ' +
-          account.ownerName +
-          ' - ' +
-          account.bank +
-          ' / ' +
-          account.accountNumber +
-          ' · ' +
-          formatNumber(entry.amount),
-        index: items.length,
-        modeRank: 0
-      })
+      const period = formatDate(entry.startDate) + ' – ' + formatDate(entry.endDate)
+      const vehicleAmounts: Array<{ label: string; amount: string }> = [
+        { label: 'Mobil', amount: entry.mobilAmount },
+        { label: 'Motor', amount: entry.motorAmount }
+      ]
+
+      for (const vehicle of vehicleAmounts) {
+        if (!isCompleteAmount(vehicle.amount)) continue
+        items.push({
+          kind: 'sewa_kendaraan',
+          bank: getOutputBank(account.bank),
+          line:
+            'Sewa Kendaraan ' +
+            vehicle.label +
+            ' (' +
+            period +
+            ') : ' +
+            account.ownerName +
+            ' - ' +
+            account.bank +
+            ' / ' +
+            account.accountNumber +
+            ' · ' +
+            formatNumber(vehicle.amount),
+          index: items.length,
+          modeRank: 0
+        })
+      }
     }
 
     for (const rule of sortedRabRules) {
