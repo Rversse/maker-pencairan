@@ -1611,7 +1611,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-4 w-full min-w-0 space-y-2">
+              <div className="mt-4 w-full min-w-0 space-y-3">
                 <section className="rounded-xl border border-stone-600 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
@@ -1677,7 +1677,7 @@ function App() {
                 </section>
 
                 {kitchenId && activeTransaction && (
-                  <section className="mt-2 rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
+                  <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <h2 className="text-sm font-semibold">Output</h2>
@@ -1706,7 +1706,7 @@ function App() {
 
               {kitchenId && activeTransaction && (
                 <>
-                  <section className="w-full min-w-0 rounded-xl border border-stone-500 bg-slate-900 p-3">
+                  <section className="mt-3 w-full min-w-0 rounded-xl border border-stone-500 bg-slate-900 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -1827,12 +1827,10 @@ function App() {
 
 
                   {gasRules.length > 0 && (
-                    <section className="mt-2 w-full rounded-xl border border-emerald-600/50 bg-emerald-950/10 p-3">
-                      <div>
-                        <h2 className="text-base font-semibold text-white">GAS</h2>
-                      </div>
+                    <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                      <h2 className="text-base font-semibold text-white">GAS</h2>
 
-                      <div className="mt-2 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
+                      <div className="mt-3 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
                         {activeTransaction.gas.map((entry) => {
                           const rule =
                             gasRules.find(
@@ -1878,13 +1876,13 @@ function App() {
                   )}
 
                   {gasRules.length === 0 && (
-                    <div className="mt-2 w-full rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-500">
+                    <div className="mt-3 w-full rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-500">
                       Dapur ini tidak memiliki mapping GAS.
                     </div>
                   )}
 
 
-                  <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                  <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '')
@@ -1923,7 +1921,7 @@ function App() {
                   </section>
 
 
-                  <div className="mt-2 space-y-2.5">
+                  <div className="mt-3 w-full min-w-0 space-y-3">
                     <section className="w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa SPPG</h2>
                       <div className="mt-3 space-y-2.5">
@@ -1969,7 +1967,7 @@ function App() {
                       </div>
                     </section>
 
-                    <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-600 bg-slate-900/40 p-3">
+                    <section className="w-full min-w-0 rounded-xl border border-slate-600 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
                         const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
@@ -2120,7 +2118,7 @@ function App() {
                     </section>
                   </div>
 
-                  <section className="mt-2 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                  <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
                       <button
