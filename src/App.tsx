@@ -1095,15 +1095,19 @@ function App() {
     productType: string
   ) {
     const transaction = transactions.find((item) => item.id === transactionId)
-    const entry = transaction?.rab.find((item) => item.accountId === accountId)
-    if (!entry) return
+    if (!transaction) return
 
-    const exists = entry.productTypes.includes(productType)
+    // Be resilient to older drafts or incomplete transaction rows. If this
+    // account has no RAB entry yet, updateRabEntry will create one on demand.
+    const entry = transaction.rab.find((item) => item.accountId === accountId)
+    const currentProducts = entry?.productTypes ?? []
+    const exists = currentProducts.includes(productType)
+
     updateRabEntry(transactionId, accountId, {
       productTypes: sortStrings(
         exists
-          ? entry.productTypes.filter((item) => item !== productType)
-          : [...entry.productTypes, productType]
+          ? currentProducts.filter((item) => item !== productType)
+          : [...currentProducts, productType]
       )
     })
   }
@@ -1115,8 +1119,13 @@ function App() {
     return masterData.account_rules.filter((rule) => {
       if (rule.kitchen_id !== kitchen) return false
       if (!rule.accounts || !rule.supplier) return false
-      if (seen.has(rule.account_id)) return false
-      seen.add(rule.account_id)
+
+      // One account can legitimately appear under more than one flow type.
+      // Deduplicate within Income/Neutral, not across both, or the Income RAB
+      // entry can disappear if the Neutral row is encountered first.
+      const ruleKey = rule.flow_type + ':' + rule.account_id
+      if (seen.has(ruleKey)) return false
+      seen.add(ruleKey)
       return true
     })
   }
