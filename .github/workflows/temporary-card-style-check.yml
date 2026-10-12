@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - style/unify-card-gaps-and-gas-2026-10-13
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/App.tsx'
+      - '.github/workflows/temporary-card-style-check.yml'
 permissions:
   contents: read
 jobs:
