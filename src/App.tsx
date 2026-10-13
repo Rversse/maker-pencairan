@@ -136,7 +136,7 @@ const SPPG_RENTAL_BY_KITCHEN: Record<
   },
   Cipetir: {
     bank: 'BNI',
-    ownerName: 'Yusgar Anggara',
+    ownerName: 'Yusgar Anggara Dinata',
     accountNumber: '885788718'
   },
   Kertajadi: {
