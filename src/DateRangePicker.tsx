@@ -94,9 +94,9 @@ export function DateRangePicker({
   const [popupPosition, setPopupPosition] = useState<{
     top: number
     left: number
-    maxHeight: number
     placement: 'above' | 'below'
   } | null>(null)
+  const [density, setDensity] = useState<'normal' | 'compact' | 'tight'>('normal')
   const today = getTodayKey()
   const initialMonth = useMemo(() => {
     const date = value.startDate ? parseDateKey(value.startDate) : parseDateKey(today)
@@ -130,23 +130,38 @@ export function DateRangePicker({
         0,
         viewportHeight - rect.bottom - gap - viewportMargin
       )
-      const naturalHeight = popup.scrollHeight
-      const naturalWidth = popup.getBoundingClientRect().width
-      const desiredHeight = Math.min(naturalHeight, viewportHeight - viewportMargin * 2)
+      const popupRect = popup.getBoundingClientRect()
+      const naturalHeight = popupRect.height
+      const naturalWidth = popupRect.width
       const shouldOpenAbove =
-        availableBelow < desiredHeight && availableAbove > availableBelow
+        availableBelow < naturalHeight && availableAbove > availableBelow
       const availableSpace = shouldOpenAbove ? availableAbove : availableBelow
-      const maxHeight = Math.max(
-        120,
-        Math.min(naturalHeight, availableSpace || viewportHeight - viewportMargin * 2)
-      )
-      const popupHeight = Math.min(naturalHeight, maxHeight)
-      const top = shouldOpenAbove
-        ? Math.max(viewportMargin, rect.top - gap - popupHeight)
-        : Math.min(
-            viewportHeight - viewportMargin - Math.min(popupHeight, maxHeight),
-            rect.bottom + gap
-          )
+
+      // Compact the calendar before constraining its height. This keeps all
+      // dates visible without introducing a nested scrollbar on typical screens.
+      let nextDensity = density
+      if (availableSpace < naturalHeight + 8) {
+        if (density === 'normal') nextDensity = 'compact'
+        else if (density === 'compact') nextDensity = 'tight'
+      } else if (availableSpace > naturalHeight + 140) {
+        if (density === 'tight') nextDensity = 'compact'
+        else if (density === 'compact') nextDensity = 'normal'
+      }
+      if (nextDensity !== density) {
+        setDensity(nextDensity)
+        return
+      }
+
+      const popupHeight = naturalHeight
+      const preferredTop = shouldOpenAbove
+        ? rect.top - gap - popupHeight
+        : rect.bottom + gap
+      const maxTop = viewportHeight - popupHeight - viewportMargin
+      // If neither side has enough room, keep the complete compact popup
+      // inside the viewport. It may overlap the trigger rather than clip dates.
+      const top = maxTop >= viewportMargin
+        ? Math.max(viewportMargin, Math.min(preferredTop, maxTop))
+        : viewportMargin
       const left = Math.max(
         viewportMargin,
         Math.min(rect.left, viewportWidth - naturalWidth - viewportMargin)
@@ -155,7 +170,6 @@ export function DateRangePicker({
       setPopupPosition({
         top,
         left,
-        maxHeight,
         placement: shouldOpenAbove ? 'above' : 'below'
       })
     }
@@ -170,7 +184,7 @@ export function DateRangePicker({
       window.removeEventListener('resize', updatePopupPosition)
       window.removeEventListener('scroll', updatePopupPosition, true)
     }
-  }, [open, showMonthYearPicker, viewMonth])
+  }, [density, open, showMonthYearPicker, viewMonth])
 
   const selectedYear = viewMonth.getUTCFullYear()
   const selectedMonth = viewMonth.getUTCMonth()
@@ -284,28 +298,39 @@ export function DateRangePicker({
       {open && createPortal(
         <div
           ref={popoverRef}
-          className="fixed z-[9999] w-[min(280px,calc(100vw-24px))] overflow-y-auto overscroll-contain rounded-xl border border-slate-600 bg-slate-800 text-slate-100 shadow-2xl"
+          className={[
+            'fixed z-[9999] w-[min(280px,calc(100vw-24px))] overflow-hidden rounded-xl border border-slate-600 bg-slate-800 text-slate-100 shadow-2xl',
+            density === 'normal' ? '' : density === 'compact' ? 'text-[12px]' : 'text-[11px]'
+          ].join(' ')}
           style={{
             top: popupPosition?.top ?? 12,
             left: popupPosition?.left ?? 12,
-            maxHeight: popupPosition?.maxHeight ?? 'calc(100dvh - 24px)',
             visibility: popupPosition ? 'visible' : 'hidden'
           }}
           data-placement={popupPosition?.placement ?? 'measuring'}
           role="dialog"
           aria-label="Pilih rentang tanggal sewa kendaraan"
         >
-          <div className="grid grid-cols-[30px_minmax(0,1fr)_30px] items-center gap-2 border-b border-slate-700 px-2 py-2">
+          <div className={[
+            'grid grid-cols-[30px_minmax(0,1fr)_30px] items-center gap-2 border-b border-slate-700 px-2',
+            density === 'normal' ? 'py-2' : density === 'compact' ? 'py-1.5' : 'py-1'
+          ].join(' ')}>
             <button
               type="button"
               aria-label="Bulan sebelumnya"
-              className="grid h-7 w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 hover:bg-slate-700"
+              className={[
+                'grid w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 hover:bg-slate-700',
+                density === 'normal' ? 'h-7' : density === 'compact' ? 'h-6' : 'h-5'
+              ].join(' ')}
               onClick={() => { setShowMonthYearPicker(false); setViewMonth((current) => addMonths(current, -1)) }}
             >‹</button>
             <button
               type="button"
               aria-expanded={showMonthYearPicker}
-              className="flex min-w-0 items-center justify-center gap-1 rounded-md px-2 py-1 text-xs font-bold text-sky-200 hover:bg-slate-700"
+              className={[
+                'flex min-w-0 items-center justify-center gap-1 px-2 font-bold text-sky-200 hover:bg-slate-700',
+                density === 'normal' ? 'rounded-md py-1 text-xs' : density === 'compact' ? 'rounded-md py-0.5 text-[11px]' : 'rounded py-0 text-[10px]'
+              ].join(' ')}
               onClick={() => setShowMonthYearPicker((current) => !current)}
             >
               {MONTH_LONG_NAMES[selectedMonth]} {selectedYear} <span aria-hidden="true">▾</span>
@@ -313,19 +338,28 @@ export function DateRangePicker({
             <button
               type="button"
               aria-label="Bulan berikutnya"
-              className="grid h-7 w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 hover:bg-slate-700"
+              className={[
+                'grid w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 hover:bg-slate-700',
+                density === 'normal' ? 'h-7' : density === 'compact' ? 'h-6' : 'h-5'
+              ].join(' ')}
               onClick={() => { setShowMonthYearPicker(false); setViewMonth((current) => addMonths(current, 1)) }}
             >›</button>
           </div>
 
           {showMonthYearPicker && (
-            <div className="grid grid-cols-[1.2fr_.8fr] gap-2 border-b border-slate-700 bg-slate-900/70 p-3">
+            <div className={[
+              'grid grid-cols-[1.2fr_.8fr] gap-2 border-b border-slate-700 bg-slate-900/70',
+              density === 'normal' ? 'p-3' : density === 'compact' ? 'p-2' : 'p-1.5'
+            ].join(' ')}>
               <label className="grid min-w-0 gap-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 Bulan
                 <select
                   value={selectedMonth}
                   onChange={(event) => setViewMonth(new Date(Date.UTC(selectedYear, Number(event.target.value), 1)))}
-                  className="h-8 min-w-0 rounded-md border border-slate-600 bg-slate-800 px-2 text-xs font-medium text-white"
+                  className={[
+                    'min-w-0 rounded-md border border-slate-600 bg-slate-800 px-2 font-medium text-white',
+                    density === 'normal' ? 'h-8 text-xs' : density === 'compact' ? 'h-7 text-[11px]' : 'h-6 text-[10px]'
+                  ].join(' ')}
                 >
                   {MONTH_LONG_NAMES.map((name, index) => <option value={index} key={name}>{name}</option>)}
                 </select>
@@ -335,7 +369,10 @@ export function DateRangePicker({
                 <select
                   value={selectedYear}
                   onChange={(event) => setViewMonth(new Date(Date.UTC(Number(event.target.value), selectedMonth, 1)))}
-                  className="h-8 min-w-0 rounded-md border border-slate-600 bg-slate-800 px-2 text-xs font-medium text-white"
+                  className={[
+                    'min-w-0 rounded-md border border-slate-600 bg-slate-800 px-2 font-medium text-white',
+                    density === 'normal' ? 'h-8 text-xs' : density === 'compact' ? 'h-7 text-[11px]' : 'h-6 text-[10px]'
+                  ].join(' ')}
                 >
                   {yearOptions.map((year) => <option value={year} key={year}>{year}</option>)}
                 </select>
@@ -343,12 +380,26 @@ export function DateRangePicker({
             </div>
           )}
 
-          <div className="grid grid-cols-7 gap-1 p-3">
+          <div className={[
+            'grid grid-cols-7',
+            density === 'normal' ? 'gap-1 p-3' : density === 'compact' ? 'gap-0.5 p-2' : 'gap-0.5 p-1.5'
+          ].join(' ')}>
             {WEEK_DAYS.map((day) => (
-              <span key={day} className="pb-1 text-center text-[9px] font-black uppercase text-slate-400">{day}</span>
+              <span
+                key={day}
+                className={[
+                  'text-center font-black uppercase text-slate-400',
+                  density === 'normal' ? 'pb-1 text-[9px]' : density === 'compact' ? 'pb-0.5 text-[8px]' : 'text-[7px]'
+                ].join(' ')}
+              >{day}</span>
             ))}
             {monthCells.map((dateKey, index) => {
-              if (!dateKey) return <span key={`empty-${index}`} className="h-8" />
+              if (!dateKey) return (
+                <span
+                  key={`empty-${index}`}
+                  className={density === 'normal' ? 'h-8' : density === 'compact' ? 'h-7' : 'h-6'}
+                />
+              )
               const isStart = dateKey === (pendingStart || value.startDate)
               const isEnd = !pendingStart && Boolean(value.endDate) && dateKey === value.endDate
               const rangeStart = pendingStart || value.startDate
@@ -373,7 +424,12 @@ export function DateRangePicker({
                   onFocus={() => setHoverDate(dateKey)}
                   onClick={() => selectDate(dateKey)}
                   className={[
-                    'grid h-8 w-full place-items-center rounded-md border text-[11px] font-bold transition',
+                    'grid w-full place-items-center rounded-md border font-bold transition',
+                    density === 'normal'
+                      ? 'h-8 text-[11px]'
+                      : density === 'compact'
+                        ? 'h-7 text-[10px]'
+                        : 'h-6 text-[9px]',
                     isStart || isEnd
                       ? 'border-sky-400 bg-sky-500 text-slate-950'
                       : inRange
@@ -388,7 +444,14 @@ export function DateRangePicker({
             })}
           </div>
 
-          <div className="flex min-h-9 items-center justify-between gap-2 border-t border-slate-700 bg-slate-900/70 px-3 py-2 text-[10px] text-slate-400">
+          <div className={[
+            'flex items-center justify-between gap-2 border-t border-slate-700 bg-slate-900/70 px-3 text-slate-400',
+            density === 'normal'
+              ? 'min-h-9 py-2 text-[10px]'
+              : density === 'compact'
+                ? 'min-h-7 py-1 text-[9px]'
+                : 'min-h-6 py-0.5 text-[8px]'
+          ].join(' ')}>
             <span>{pendingStart ? 'Pilih tanggal akhir' : 'Pilih tanggal awal lalu tanggal akhir'}</span>
             {pendingStart && (
               <button
