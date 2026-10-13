@@ -29,7 +29,7 @@ type DailyPaymentKind =
   | 'Sewa Kendaraan'
   | 'Gaji Relawan'
   | 'Insentif PIC Sekolah'
-  | 'Insentif Kader Posyandu'
+  | 'Insentif PIC Posyandu'
 
 type DailyPaymentCategory = 'sewa' | 'gaji'
 
@@ -101,7 +101,7 @@ const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = ['Sewa SPPG']
 const DAILY_PAYMENT_GAJI_OPTIONS: DailyPaymentKind[] = [
   'Gaji Relawan',
   'Insentif PIC Sekolah',
-  'Insentif Kader Posyandu'
+  'Insentif PIC Posyandu'
 ]
 
 const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
@@ -178,37 +178,37 @@ const GAJI_ACCOUNT_BY_KITCHEN: Record<
   Campakamulya: {
     'Gaji Relawan': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
     'Insentif PIC Sekolah': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
-    'Insentif Kader Posyandu': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' }
+    'Insentif PIC Posyandu': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' }
   },
   Cihaur: {
     'Gaji Relawan': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
     'Insentif PIC Sekolah': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
-    'Insentif Kader Posyandu': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
+    'Insentif PIC Posyandu': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
   },
   Cikondang: {
     'Gaji Relawan': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
     'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-    'Insentif Kader Posyandu': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
+    'Insentif PIC Posyandu': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
   },
   Cipetir: {
     'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
     'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
-    'Insentif Kader Posyandu': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' }
+    'Insentif PIC Posyandu': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' }
   },
   Cisepat: {
     'Gaji Relawan': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
     'Insentif PIC Sekolah': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
-    'Insentif Kader Posyandu': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
+    'Insentif PIC Posyandu': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
   },
   Kertajadi: {
     'Gaji Relawan': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
     'Insentif PIC Sekolah': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
-    'Insentif Kader Posyandu': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+    'Insentif PIC Posyandu': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
   },
   Sukaraja: {
     'Gaji Relawan': { ownerName: 'Ade Rohmat Hidayat', bank: 'BRI', accountNumber: '010501002303563' },
     'Insentif PIC Sekolah': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' },
-    'Insentif Kader Posyandu': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
+    'Insentif PIC Posyandu': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
   }
 }
 
@@ -597,11 +597,17 @@ function normalizeTransaction(
   const rawDailyPayments = Array.isArray(transaction.pencairan_harian)
     ? transaction.pencairan_harian.map((entry) => {
         const legacyEntry = entry as DailyPaymentEntry & { kind?: DailyPaymentKind }
-        const legacyKinds = Array.isArray(entry.kinds)
+        const storedKinds = Array.isArray(entry.kinds)
           ? entry.kinds
           : legacyEntry.kind
             ? [legacyEntry.kind]
             : []
+        // Keep drafts made before the label change working as expected.
+        const legacyKinds: DailyPaymentKind[] = storedKinds.map((kind) =>
+          String(kind) === 'Insentif Kader Posyandu'
+            ? 'Insentif PIC Posyandu'
+            : kind
+        )
         const category: DailyPaymentCategory =
           entry.category ??
           (legacyKinds.some((kind) => DAILY_PAYMENT_GAJI_OPTIONS.includes(kind))
@@ -724,7 +730,14 @@ function normalizeTransaction(
   }]
   const lain_lain = normalizedOthers.filter((entry) => entry.transactionType !== 'operasional_harian')
   const legacyGaji = Array.isArray(transaction.legacy_gaji)
-    ? transaction.legacy_gaji
+    ? transaction.legacy_gaji.map((entry) => ({
+        ...entry,
+        kinds: (entry.kinds ?? []).map((kind) =>
+          String(kind) === 'Insentif Kader Posyandu'
+            ? 'Insentif PIC Posyandu'
+            : kind
+        )
+      }))
     : []
 
   return {
@@ -1210,7 +1223,7 @@ function App() {
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
     setCopyMessage('')
-    setHistoryMessage('Draft browser direset. Snapshot pemulihan disimpan.')
+    setHistoryMessage('Data direset. Data sebelumnya bisa dipulihkan.')
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
 
@@ -1504,7 +1517,7 @@ function App() {
     const stored = recovery ?? readSavedWorkspace()
 
     if (!stored) {
-      setHistoryMessage('Belum ada draft tersimpan di browser.')
+      setHistoryMessage('Belum ada data tersimpan di browser.')
       window.setTimeout(() => setHistoryMessage(''), 1800)
       return
     }
@@ -1537,8 +1550,8 @@ function App() {
 
     setHistoryMessage(
       recovery
-        ? 'Draft sebelum Reset dipulihkan untuk hari ini.'
-        : 'Draft terakhir dipulihkan untuk hari ini.'
+        ? 'Data sebelum reset berhasil dipulihkan.'
+        : 'Data terakhir berhasil dipulihkan.'
     )
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
@@ -1557,7 +1570,7 @@ function App() {
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
               <p className="mt-1 text-sm leading-5 text-slate-300">
-                Pencairan harian dengan tanggal fleksibel.
+                Isi semua nominal yang dibutuhkan di sini. Setelah itu, klik Copy pada output dan kirim ke Maker lewat WhatsApp.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -1579,7 +1592,7 @@ function App() {
           </header>
 
           <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-100">
-            Jika rekening tujuan yang dibutuhkan tidak tersedia atau ada pergantian rekening tujuan, silakan hubungi lewat{' '}
+            Kalau rekening tujuan belum tersedia atau ada perubahan rekening, kabari lewat{' '}
             <a
               href="https://wa.me/6285794323042"
               target="_blank"
@@ -1682,9 +1695,7 @@ function App() {
                       <div>
                         <h2 className="text-sm font-semibold">Output</h2>
                         <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Draft otomatis tersimpan di browser. Reset menyimpan
-                          snapshot pemulihan. Copy untuk menyalin dan dikirim ke
-                          Whatsapp.
+                          Hasilnya tersusun otomatis dari data yang diisi. Tinggal klik Copy, lalu kirim ke Maker lewat WhatsApp.
                         </p>
                       </div>
                       <button
@@ -1698,7 +1709,7 @@ function App() {
                     </div>
 
                     <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200">
-                      {output || 'Belum ada transaksi yang nominalnya terisi.'}
+                      {output || 'Belum ada nominal yang diisi. Isi yang diperlukan, nanti hasilnya muncul di sini.'}
                     </pre>
                   </section>
                 )}
@@ -1711,8 +1722,7 @@ function App() {
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
                         <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Rekening RAB hanya keluar ke output jika nominal diisi, bisa langsung paste.
-                          Produk yang ada bisa dipilih sebagai opsional. Jika tidak ada produknya bisa dikosongkan saja.
+                          Isi nominal untuk rekening yang dipakai. Jenis produk boleh dipilih kalau diperlukan; kalau tidak, kosongkan saja.
                         </p>
                       </div>
                     </div>
@@ -1875,16 +1885,6 @@ function App() {
                     </section>
                   )}
 
-                  {gasRules.length === 0 && (
-                    <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
-                      <h2 className="text-base font-semibold text-white">GAS</h2>
-                      <p className="mt-3 text-sm text-slate-500">
-                        Dapur ini tidak memiliki mapping GAS.
-                      </p>
-                    </section>
-                  )}
-
-
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
@@ -1998,7 +1998,7 @@ function App() {
 
                             {entry.legacyAmounts && entry.legacyAmounts.length > 0 && (
                               <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
-                                Draft lama memiliki nominal Sewa Kendaraan yang belum ditentukan jenisnya:
+                                Ada nominal sewa kendaraan dari data lama yang jenisnya belum dipilih:
                                 {entry.legacyAmounts.map((legacy, index) => (
                                   <div key={index} className="mt-1 font-semibold">
                                     {legacy.startDate && legacy.endDate
@@ -2007,7 +2007,7 @@ function App() {
                                     {formatNumber(legacy.amount)}
                                   </div>
                                 ))}
-                                Masukkan nominal ke Mobil atau Motor sesuai jenis kendaraan. Nominal lama tidak otomatis masuk output agar tidak salah kategori.
+                                Pindahkan nominal ke Mobil atau Motor yang sesuai. Nominal lama belum masuk ke output supaya tidak salah kategori.
                               </div>
                             )}
 
@@ -2055,7 +2055,7 @@ function App() {
 
                       {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
                         <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
-                          Draft lama menyimpan nominal gabungan yang tidak bisa dibagi otomatis ke jenis baru. Nominal tersebut tidak masuk output; pindahkan nominal ke kolom masing-masing setelah memastikan alokasinya.
+                          Ada nominal dari data lama yang masih digabung. Nominal ini belum masuk ke output—cek pembagiannya, lalu pindahkan ke kolom yang sesuai.
                           {activeTransaction.legacy_gaji.map((legacy, index) => (
                             <div key={index} className="mt-1 font-semibold">
                               {legacy.kinds.join(' + ')} · {formatNumber(legacy.amount)}
@@ -2074,7 +2074,7 @@ function App() {
                             )
                             const combined = entry.kinds.length > 1
                             const label = combined
-                              ? 'Gaji Relawan + Insentif PIC Sekolah + Insentif Kader Posyandu'
+                              ? 'Gaji Relawan + Insentif PIC Sekolah + Insentif PIC Posyandu'
                               : entry.kinds[0] ?? 'Jenis belum dimapping'
 
                             return (
