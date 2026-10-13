@@ -1503,6 +1503,7 @@ function App() {
     activeTransaction
       ? getTransactionOutput(activeTransaction).join('\n')
       : ''
+  const outputLineCount = output ? Math.max(0, output.split('\n').length - 1) : 0
 
   async function copyOutput() {
     if (!output) return
@@ -1563,8 +1564,8 @@ function App() {
   )
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-slate-950 p-2 text-white sm:p-3 md:p-4">
-      <div className="mx-auto w-full max-w-[1280px]">
+    <main className="min-h-screen overflow-x-clip bg-slate-950 p-2 text-white sm:p-3 md:p-4">
+      <div className="mx-auto w-full max-w-[1220px]">
         <>
           <header className="flex items-center justify-between gap-3">
             <div>
@@ -1624,7 +1625,50 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-4 w-full min-w-0 space-y-3">
+              <div className="mt-3 grid w-full min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(330px,370px)] xl:items-start">
+                {kitchenId && activeTransaction && (
+                  <aside className="sticky top-2 z-20 min-w-0 self-start xl:col-start-2 xl:row-start-1 xl:top-3">
+                    <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="text-sm font-semibold">Output</h2>
+                            <span
+                              className={[
+                                'rounded-full border px-2 py-0.5 text-[10px] font-medium',
+                                outputLineCount > 0
+                                  ? 'border-emerald-700 bg-emerald-950/60 text-emerald-200'
+                                  : 'border-slate-700 bg-slate-900 text-slate-300'
+                              ].join(' ')}
+                            >
+                              {outputLineCount > 0
+                                ? outputLineCount + ' baris siap disalin'
+                                : 'Belum ada nominal masuk output'}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs leading-5 text-slate-300">
+                            {outputLineCount > 0
+                              ? 'Cek lagi rekening dan nominalnya sebelum disalin.'
+                              : 'Isi nominal di form. Baris yang sudah memenuhi syarat akan muncul di sini.'}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void copyOutput()}
+                          disabled={!output}
+                          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {copyMessage || 'Copy'}
+                        </button>
+                      </div>
+
+                      <pre className="mt-2 max-h-[18vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 xl:max-h-[calc(100vh-10rem)]">
+                        {output || 'Belum ada nominal yang diisi. Isi nominal yang diperlukan, nanti hasilnya muncul di sini.'}
+                      </pre>
+                    </section>
+                  </aside>
+                )}
+                <div className="min-w-0 xl:col-start-1 xl:row-start-1">
                 <section className="rounded-xl border border-stone-600 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
@@ -1689,32 +1733,6 @@ function App() {
                   )}
                 </section>
 
-                {kitchenId && activeTransaction && (
-                  <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <h2 className="text-sm font-semibold">Output</h2>
-                        <p className="mt-1 text-xs leading-5 text-slate-300">
-                          Hasilnya tersusun otomatis dari data yang diisi. Tinggal klik Copy, lalu kirim ke Maker lewat WhatsApp.
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => void copyOutput()}
-                        disabled={!output}
-                        className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        {copyMessage || 'Copy'}
-                      </button>
-                    </div>
-
-                    <pre className="mt-2 whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200">
-                      {output || 'Belum ada nominal yang diisi. Isi yang diperlukan, nanti hasilnya muncul di sini.'}
-                    </pre>
-                  </section>
-                )}
-              </div>
-
               {kitchenId && activeTransaction && (
                 <>
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-stone-500 bg-slate-900 p-3">
@@ -1728,10 +1746,6 @@ function App() {
                     </div>
 
                     {(() => {
-                      const splitIndex = Math.ceil(sortedRabRules.length / 2)
-                      const rabLeftRules = sortedRabRules.slice(0, splitIndex)
-                      const rabRightRules = sortedRabRules.slice(splitIndex)
-
                       const renderRabRow = (
                         rule: MakerAccountRule,
                         index: number
@@ -1748,7 +1762,7 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className="grid min-w-0 gap-2 border-b border-slate-800 py-2 last:border-b-0 sm:grid-cols-[minmax(0,1fr)_150px] sm:items-center"
+                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_108px] items-start gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:grid-cols-[minmax(0,1fr)_145px] sm:gap-3"
                           >
                             <div className="min-w-0">
                               <div className="truncate text-sm font-semibold text-white">
@@ -1819,17 +1833,10 @@ function App() {
                       }
 
                       return (
-                        <div className="mt-2 grid grid-cols-1 gap-x-8 lg:grid-cols-2">
-                          <div className="min-w-0">
-                            {rabLeftRules.map((rule, index) =>
-                              renderRabRow(rule, index)
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            {rabRightRules.map((rule, offset) =>
-                              renderRabRow(rule, splitIndex + offset)
-                            )}
-                          </div>
+                        <div className="mt-2 space-y-2">
+                          {sortedRabRules.map((rule, index) =>
+                            renderRabRow(rule, index)
+                          )}
                         </div>
                       )
                     })()}
@@ -2239,6 +2246,8 @@ function App() {
 
                 </>
               )}
+                </div>
+              </div>
             </>
           )}
         </>
