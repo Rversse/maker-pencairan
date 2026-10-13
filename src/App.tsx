@@ -190,6 +190,7 @@ const GAJI_ACCOUNT_BY_KITCHEN: Record<
     'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
     'Insentif PIC Posyandu': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
   },
+  // Cipetir gaji/PIC incentives use Mandiri; Sewa SPPG remains on BNI above.
   Cipetir: {
     'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
     'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
