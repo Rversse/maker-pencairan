@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export type DateRangeValue = {
   startDate: string
@@ -88,6 +89,14 @@ export function DateRangePicker({
   placeholder = 'Pilih rentang tanggal'
 }: DateRangePickerProps) {
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const [popupPosition, setPopupPosition] = useState<{
+    top: number
+    left: number
+    maxHeight: number
+    placement: 'above' | 'below'
+  } | null>(null)
   const today = getTodayKey()
   const initialMonth = useMemo(() => {
     const date = value.startDate ? parseDateKey(value.startDate) : parseDateKey(today)
@@ -99,6 +108,69 @@ export function DateRangePicker({
   const [pendingStart, setPendingStart] = useState('')
   const [hoverDate, setHoverDate] = useState('')
   const [showMonthYearPicker, setShowMonthYearPicker] = useState(false)
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPopupPosition(null)
+      return
+    }
+
+    function updatePopupPosition() {
+      const trigger = triggerRef.current
+      const popup = popoverRef.current
+      if (!trigger || !popup) return
+
+      const rect = trigger.getBoundingClientRect()
+      const viewportMargin = 12
+      const gap = 8
+      const viewportHeight = window.innerHeight
+      const viewportWidth = window.innerWidth
+      const availableAbove = Math.max(0, rect.top - gap - viewportMargin)
+      const availableBelow = Math.max(
+        0,
+        viewportHeight - rect.bottom - gap - viewportMargin
+      )
+      const naturalHeight = popup.scrollHeight
+      const naturalWidth = popup.getBoundingClientRect().width
+      const desiredHeight = Math.min(naturalHeight, viewportHeight - viewportMargin * 2)
+      const shouldOpenAbove =
+        availableBelow < desiredHeight && availableAbove > availableBelow
+      const availableSpace = shouldOpenAbove ? availableAbove : availableBelow
+      const maxHeight = Math.max(
+        120,
+        Math.min(naturalHeight, availableSpace || viewportHeight - viewportMargin * 2)
+      )
+      const popupHeight = Math.min(naturalHeight, maxHeight)
+      const top = shouldOpenAbove
+        ? Math.max(viewportMargin, rect.top - gap - popupHeight)
+        : Math.min(
+            viewportHeight - viewportMargin - Math.min(popupHeight, maxHeight),
+            rect.bottom + gap
+          )
+      const left = Math.max(
+        viewportMargin,
+        Math.min(rect.left, viewportWidth - naturalWidth - viewportMargin)
+      )
+
+      setPopupPosition({
+        top,
+        left,
+        maxHeight,
+        placement: shouldOpenAbove ? 'above' : 'below'
+      })
+    }
+
+    // Measure after the popup is rendered (initially hidden), then keep it
+    // anchored to the trigger while the page or viewport scrolls/resizes.
+    updatePopupPosition()
+    window.addEventListener('resize', updatePopupPosition)
+    window.addEventListener('scroll', updatePopupPosition, true)
+
+    return () => {
+      window.removeEventListener('resize', updatePopupPosition)
+      window.removeEventListener('scroll', updatePopupPosition, true)
+    }
+  }, [open, showMonthYearPicker, viewMonth])
 
   const selectedYear = viewMonth.getUTCFullYear()
   const selectedMonth = viewMonth.getUTCMonth()
@@ -121,7 +193,8 @@ export function DateRangePicker({
       if (
         event.target instanceof Node &&
         rootRef.current &&
-        !rootRef.current.contains(event.target)
+        !rootRef.current.contains(event.target) &&
+        !popoverRef.current?.contains(event.target)
       ) {
         setOpen(false)
         setPendingStart('')
@@ -155,6 +228,7 @@ export function DateRangePicker({
       return
     }
 
+    setPopupPosition(null)
     setViewMonth(initialMonth)
     setPendingStart('')
     setHoverDate('')
@@ -190,6 +264,7 @@ export function DateRangePicker({
       className={`relative min-w-0 w-full ${open ? 'z-50' : 'z-0'}`}
     >
       <button
+        ref={triggerRef}
         type="button"
         className="flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-slate-700 bg-slate-900 px-3 text-left text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 hover:bg-slate-800 focus-visible:border-stone-300 focus-visible:ring-1 focus-visible:ring-stone-300/30"
         aria-expanded={open}
@@ -206,9 +281,17 @@ export function DateRangePicker({
         <span aria-hidden="true" className="shrink-0 text-[10px] text-slate-400">▾</span>
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
-          className="absolute left-0 top-full z-[80] mt-2 w-[min(280px,calc(100vw-24px))] overflow-hidden rounded-xl border border-slate-600 bg-slate-800 text-slate-100 shadow-2xl"
+          ref={popoverRef}
+          className="fixed z-[9999] w-[min(280px,calc(100vw-24px))] overflow-y-auto overscroll-contain rounded-xl border border-slate-600 bg-slate-800 text-slate-100 shadow-2xl"
+          style={{
+            top: popupPosition?.top ?? 12,
+            left: popupPosition?.left ?? 12,
+            maxHeight: popupPosition?.maxHeight ?? 'calc(100dvh - 24px)',
+            visibility: popupPosition ? 'visible' : 'hidden'
+          }}
+          data-placement={popupPosition?.placement ?? 'measuring'}
           role="dialog"
           aria-label="Pilih rentang tanggal sewa kendaraan"
         >
@@ -315,7 +398,8 @@ export function DateRangePicker({
               >Batal</button>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
