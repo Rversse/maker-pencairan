@@ -191,9 +191,9 @@ const GAJI_ACCOUNT_BY_KITCHEN: Record<
     'Insentif PIC Posyandu': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
   },
   Cipetir: {
-    'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
-    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' },
-    'Insentif PIC Posyandu': { ownerName: 'Yusgar Anggara Dinata', bank: 'BRI', accountNumber: '1820018916205' }
+    'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
+    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
+    'Insentif PIC Posyandu': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' }
   },
   Cisepat: {
     'Gaji Relawan': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
