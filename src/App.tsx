@@ -109,116 +109,57 @@ const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
   ...DAILY_PAYMENT_GAJI_OPTIONS
 ]
 
-const SEWA_KENDARAAN_ACCOUNT = {
-  bank: 'MANDIRI',
-  ownerName: 'Berkah Mandiri Putra',
-  accountNumber: '1820015963523'
-}
-
-const SPPG_RENTAL_BY_KITCHEN: Record<
-  string,
-  { bank: string; ownerName: string; accountNumber: string }
-> = {
-  Campakamulya: {
-    bank: 'BNI',
-    ownerName: 'Enceng Kodir',
-    accountNumber: '2028813591'
-  },
-  Cihaur: {
-    bank: 'BRI',
-    ownerName: 'Taufik Hidayat',
-    accountNumber: '407701030044506'
-  },
-  Cisepat: {
-    bank: 'BNI',
-    ownerName: 'Robi Sulaeman',
-    accountNumber: '2025279933'
-  },
-  Cipetir: {
-    bank: 'BNI',
-    ownerName: 'Yusgar Anggara Dinata',
-    accountNumber: '885788718'
-  },
-  Kertajadi: {
-    bank: 'BNI',
-    ownerName: 'Rizki Ginanjar',
-    accountNumber: '2033626616'
-  },
-  Cikondang: {
-    bank: 'BNI',
-    ownerName: 'Aryana',
-    accountNumber: '1976811401'
-  },
-  Sukaraja: {
-    bank: 'BRI',
-    ownerName: 'Ade Rohmat Hidayat',
-    accountNumber: '010501002303563'
-  }
-}
-
 type BankAccountMapping = {
   ownerName: string
   bank: string
   accountNumber: string
 }
 
-const OPERATIONAL_HARIAN_BY_KITCHEN: Record<string, BankAccountMapping> = {
-  Campakamulya: { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
-  Cihaur: { ownerName: 'Rizki Ginanjar', bank: 'BRI', accountNumber: '010501136046504' },
-  Cikondang: { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-  Cipetir: { ownerName: 'Fairuz Hibatullah', bank: 'SEABANK', accountNumber: '901222967962' },
-  Cisepat: { ownerName: 'Lia Ariska', bank: 'BNI', accountNumber: '1688603689' },
-  Kertajadi: { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+const DAILY_PAYMENT_RULE_TYPE: Record<DailyPaymentKind, string> = {
+  'Sewa SPPG': 'sppg_rent',
+  'Gaji Relawan': 'gaji_relawan',
+  'Insentif PIC Sekolah': 'pic_incentive_school',
+  'Insentif PIC Posyandu': 'pic_incentive_posyandu',
+  'Sewa Kendaraan': 'vehicle_rent'
 }
 
-const GAJI_ACCOUNT_BY_KITCHEN: Record<
-  string,
-  Partial<Record<DailyPaymentKind, BankAccountMapping>>
-> = {
-  Campakamulya: {
-    'Gaji Relawan': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
-    'Insentif PIC Sekolah': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
-    'Insentif PIC Posyandu': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' }
-  },
-  Cihaur: {
-    'Gaji Relawan': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
-    'Insentif PIC Sekolah': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
-    'Insentif PIC Posyandu': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
-  },
-  Cikondang: {
-    'Gaji Relawan': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-    'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-    'Insentif PIC Posyandu': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
-  },
-  // Cipetir gaji/PIC incentives use Mandiri; Sewa SPPG remains on BNI above.
-  Cipetir: {
-    'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
-    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
-    'Insentif PIC Posyandu': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' }
-  },
-  Cisepat: {
-    'Gaji Relawan': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
-    'Insentif PIC Sekolah': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
-    'Insentif PIC Posyandu': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
-  },
-  Kertajadi: {
-    'Gaji Relawan': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
-    'Insentif PIC Sekolah': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
-    'Insentif PIC Posyandu': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
-  },
-  Sukaraja: {
-    'Gaji Relawan': { ownerName: 'Ade Rohmat Hidayat', bank: 'BRI', accountNumber: '010501002303563' },
-    'Insentif PIC Sekolah': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' },
-    'Insentif PIC Posyandu': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
-  }
+function getOperationalMapping(
+  kitchenName: string,
+  masterData: MakerMasterData | null,
+  ruleType: string
+): BankAccountMapping | null {
+  if (!masterData || !kitchenName) return null
+  const normalizedName = kitchenName.trim().toLocaleLowerCase('id-ID')
+  const kitchen = masterData.kitchens.find(
+    (item) => item.name.trim().toLocaleLowerCase('id-ID') === normalizedName
+  )
+  if (!kitchen) return null
+
+  const rule = masterData.operational_rules.find(
+    (item) => item.kitchen_id === kitchen.id && item.rule_type === ruleType && item.is_active
+  )
+  return rule
+    ? {
+        ownerName: rule.owner_name,
+        bank: rule.bank,
+        accountNumber: rule.account_number
+      }
+    : null
 }
 
-function getOperationalAccount(kitchenName: string): BankAccountMapping | null {
-  return OPERATIONAL_HARIAN_BY_KITCHEN[kitchenName] ?? null
+function getOperationalAccount(
+  kitchenName: string,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, 'ops_harian')
 }
 
-function getDailyPaymentAccount(kitchenName: string, kind: DailyPaymentKind): BankAccountMapping | null {
-  return GAJI_ACCOUNT_BY_KITCHEN[kitchenName]?.[kind] ?? null
+function getDailyPaymentAccount(
+  kitchenName: string,
+  kind: DailyPaymentKind,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, DAILY_PAYMENT_RULE_TYPE[kind])
 }
 
 function sameAccount(left: BankAccountMapping, right: BankAccountMapping) {
@@ -227,22 +168,48 @@ function sameAccount(left: BankAccountMapping, right: BankAccountMapping) {
     left.ownerName === right.ownerName
 }
 
-function getDailyPaymentMappingForKinds(kitchenName: string, kinds: DailyPaymentKind[]): BankAccountMapping | null {
+function getDailyPaymentMappingForKinds(
+  kitchenName: string,
+  kinds: DailyPaymentKind[],
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
   if (kinds.length === 0) return null
-  const mappings = kinds.map((kind) => getDailyPaymentAccount(kitchenName, kind))
+  const mappings = kinds.map((kind) => getDailyPaymentAccount(kitchenName, kind, masterData))
   if (mappings.some((mapping) => !mapping)) return null
   const first = mappings[0]
   if (!first) return null
   return mappings.every((mapping) => mapping && sameAccount(first, mapping)) ? first : null
 }
 
-function getDailyPaymentTargetKey(kitchenName: string, kind: DailyPaymentKind) {
-  const mapping = getDailyPaymentAccount(kitchenName, kind)
+function getDailyPaymentTargetKey(
+  kitchenName: string,
+  kind: DailyPaymentKind,
+  masterData: MakerMasterData | null
+) {
+  const mapping = getDailyPaymentAccount(kitchenName, kind, masterData)
   return mapping ? mapping.bank + '|' + mapping.accountNumber + '|' + mapping.ownerName : 'manual'
 }
 
-function areDailyPaymentKindsCompatible(kitchenName: string, kinds: DailyPaymentKind[]) {
-  return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind))).size <= 1
+function areDailyPaymentKindsCompatible(
+  kitchenName: string,
+  kinds: DailyPaymentKind[],
+  masterData: MakerMasterData | null
+) {
+  return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind, masterData))).size <= 1
+}
+
+function getSppgRental(
+  kitchenName: string,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, 'sppg_rent')
+}
+
+function getVehicleRentAccount(
+  kitchenName: string,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, 'vehicle_rent')
 }
 
 function toIsoDate(date: Date) {
@@ -319,10 +286,6 @@ function sortDailyPaymentKinds(values: DailyPaymentKind[]) {
   return [...new Set(values)].sort(
     (a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99)
   )
-}
-
-function getSppgRental(kitchenName: string) {
-  return SPPG_RENTAL_BY_KITCHEN[kitchenName] ?? null
 }
 
 function getPreferredBank(kitchenName: string) {
