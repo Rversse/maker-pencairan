@@ -453,10 +453,11 @@ function emptyVehicleRentEntry(id = 1): VehicleRentEntry {
 function createPayrollEntry(
   id: number,
   kitchenName: string,
+  masterData: MakerMasterData | null,
   kinds: DailyPaymentKind[],
   amount = ''
 ): DailyPaymentEntry {
-  const mapping = getDailyPaymentMappingForKinds(kitchenName, kinds)
+  const mapping = getDailyPaymentMappingForKinds(kitchenName, kinds, masterData)
   return {
     id,
     category: 'gaji',
@@ -468,21 +469,26 @@ function createPayrollEntry(
   }
 }
 
-function createPayrollRowsForKitchen(kitchenName: string, startId = 2) {
+function createPayrollRowsForKitchen(
+  kitchenName: string,
+  masterData: MakerMasterData | null,
+  startId = 2
+) {
   if (kitchenName === 'Campakamulya') {
     return [
-      createPayrollEntry(startId, kitchenName, [...DAILY_PAYMENT_GAJI_OPTIONS])
+      createPayrollEntry(startId, kitchenName, masterData, [...DAILY_PAYMENT_GAJI_OPTIONS])
     ]
   }
 
   return DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) =>
-    createPayrollEntry(startId + index, kitchenName, [kind])
+    createPayrollEntry(startId + index, kitchenName, masterData, [kind])
   )
 }
 
 function getPayrollStructure(
   currentPayments: DailyPaymentEntry[],
   kitchenName: string,
+  masterData: MakerMasterData | null,
   currentLegacy: DailyPaymentEntry[] = []
 ): { payments: DailyPaymentEntry[]; legacy: DailyPaymentEntry[] } {
   const sewaRows = currentPayments.filter((entry) => entry.category === 'sewa')
@@ -504,6 +510,7 @@ function getPayrollStructure(
     const target = createPayrollEntry(
       combined?.id ?? nextId,
       kitchenName,
+      masterData,
       [...DAILY_PAYMENT_GAJI_OPTIONS],
       combinedAmount
     )
@@ -535,6 +542,7 @@ function getPayrollStructure(
     return createPayrollEntry(
       matchingEntries[0]?.id ?? nextId + index,
       kitchenName,
+      masterData,
       [kind],
       String(amountTotal || '')
     )
@@ -727,7 +735,8 @@ function makeTransaction(
     account_id: string
     accounts: { account_number: string | null } | null
   }>,
-  kitchenName = ''
+  kitchenName = '',
+  masterData: MakerMasterData | null = null
 ): TransactionGroup {
   const gasRule = gasRules[0]
 
@@ -753,7 +762,7 @@ function makeTransaction(
     operasional: [createOperationalEntry(1)],
     pencairan_harian: [
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
-      ...createPayrollRowsForKitchen(kitchenName, 2)
+      ...createPayrollRowsForKitchen(kitchenName, masterData, 2)
     ],
     sewa_kendaraan: [emptyVehicleRentEntry(1)],
     lain_lain: [emptyOtherEntry(1)],
@@ -909,7 +918,7 @@ function App() {
     )
     if (!entry) return
 
-    const rental = getSppgRental(selectedKitchen.name)
+    const rental = getSppgRental(selectedKitchen.name, masterData)
     if (!rental) return
 
     if (
@@ -940,6 +949,7 @@ function App() {
     const structure = getPayrollStructure(
       activeTransaction.pencairan_harian,
       selectedKitchen.name,
+      masterData,
       activeTransaction.legacy_gaji ?? []
     )
     if (
@@ -1134,7 +1144,8 @@ function App() {
         account_id: rule.account_id,
         accounts: rule.accounts
       })),
-      nextKitchenName
+      nextKitchenName,
+      masterData
     )
 
     setTransactions([nextTransaction])
@@ -1182,7 +1193,8 @@ function App() {
         account_id: rule.account_id,
         accounts: rule.accounts
       })),
-      selectedKitchen?.name ?? ''
+      selectedKitchen?.name ?? '',
+      masterData
     )
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
@@ -1205,7 +1217,7 @@ function App() {
 
     const operationalEntry = transaction.operasional?.[0]
     if (operationalEntry && isCompleteAmount(operationalEntry.amount)) {
-      const mapping = getOperationalAccount(kitchenName)
+      const mapping = getOperationalAccount(kitchenName, masterData)
       const bank = getOutputBank(mapping?.bank ?? operationalEntry.accountId)
       const accountNumber = (mapping?.accountNumber ?? operationalEntry.accountNumber).trim()
       const ownerName = (mapping?.ownerName ?? operationalEntry.ownerName).trim()
@@ -1304,7 +1316,7 @@ function App() {
       if (!isCompleteAmount(entry.amount)) continue
 
       if (entry.category === 'sewa') {
-        const rental = getSppgRental(kitchenName)
+        const rental = getSppgRental(kitchenName, masterData)
         if (!rental) continue
 
         items.push({
@@ -1327,9 +1339,9 @@ function App() {
 
       const kinds = entry.kinds ?? []
       if (kinds.length === 0) continue
-      if (!areDailyPaymentKindsCompatible(kitchenName, kinds)) continue
+      if (!areDailyPaymentKindsCompatible(kitchenName, kinds, masterData)) continue
 
-      const mappedAccount = getDailyPaymentMappingForKinds(kitchenName, kinds)
+      const mappedAccount = getDailyPaymentMappingForKinds(kitchenName, kinds, masterData)
       const bank = getOutputBank(mappedAccount?.bank ?? entry.bank)
       const accountNumber = (mappedAccount?.accountNumber ?? entry.accountNumber).trim()
       const ownerName = (mappedAccount?.ownerName ?? entry.ownerName).trim()
@@ -1859,7 +1871,7 @@ function App() {
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
-                      const mapping = getOperationalAccount(selectedKitchen?.name ?? '')
+                      const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
                       return (
                         <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]">
@@ -2041,7 +2053,8 @@ function App() {
                           .map((entry) => {
                             const mapping = getDailyPaymentMappingForKinds(
                               selectedKitchen?.name ?? '',
-                              entry.kinds
+                              entry.kinds,
+                              masterData
                             )
                             const combined = entry.kinds.length > 1
                             const label = combined
