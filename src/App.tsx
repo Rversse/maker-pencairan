@@ -1628,21 +1628,7 @@ function App() {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <a
-                href="https://rversse.github.io/sim-sppg/"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-9 items-center gap-2 rounded-lg border border-sky-800/70 bg-sky-950/40 px-2.5 text-xs font-semibold text-sky-100 transition hover:border-sky-600 hover:bg-sky-900/50"
-                aria-label="Buka SIM-SPPG"
-                title="Buka SIM-SPPG"
-              >
-                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-                  <rect x="2.5" y="4.5" width="19" height="15" rx="4" stroke="currentColor" strokeWidth="1.6" />
-                  <path d="M6.5 9h11M6.5 12.5h11M6.5 16h6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-                <span className="hidden sm:inline">SIM-SPPG</span>
-              </a>
-              <button
+                            <button
                 type="button"
                 onClick={restoreLastDraft}
                 className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
