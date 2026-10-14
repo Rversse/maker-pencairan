@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   getMakerMasterData,
   type MakerMasterData,
   type MakerAccountRule
 } from './services/master-data'
+import { supabase } from './lib/supabase'
 import { DateRangePicker } from './DateRangePicker'
 
 type RabEntry = {
@@ -854,21 +855,87 @@ function App() {
     }
   }, [])
 
-  async function loadMasterData() {
-    setMasterLoading(true)
+  const loadMasterData = useCallback(async (silent = false) => {
+    if (!silent) setMasterLoading(true)
     setMasterError('')
 
     try {
       const data = await getMakerMasterData()
       setMasterData(data)
     } catch (err) {
-      setMasterError(
-        err instanceof Error ? err.message : 'Gagal memuat master data.'
-      )
+      if (silent) {
+        console.warn('Gagal memperbarui master data secara otomatis:', err)
+      } else {
+        setMasterError(
+          err instanceof Error ? err.message : 'Gagal memuat master data.'
+        )
+      }
     } finally {
-      setMasterLoading(false)
+      if (!silent) setMasterLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    let refreshTimer: number | undefined
+    let refreshInFlight = false
+    let refreshQueued = false
+
+    const refreshMasterData = async () => {
+      if (cancelled) return
+      if (refreshInFlight) {
+        refreshQueued = true
+        return
+      }
+
+      refreshInFlight = true
+      try {
+        await loadMasterData(true)
+      } finally {
+        refreshInFlight = false
+        if (refreshQueued && !cancelled) {
+          refreshQueued = false
+          scheduleRefresh()
+        }
+      }
+    }
+
+    const scheduleRefresh = () => {
+      if (cancelled) return
+      if (refreshTimer !== undefined) {
+        window.clearTimeout(refreshTimer)
+      }
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = undefined
+        void refreshMasterData()
+      }, 250)
+    }
+
+    const channel = supabase
+      .channel('maker-master-data-version-live')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'maker_master_data_version'
+        },
+        scheduleRefresh
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.warn('[Maker master-data Realtime]', status)
+        }
+      })
+
+    return () => {
+      cancelled = true
+      if (refreshTimer !== undefined) {
+        window.clearTimeout(refreshTimer)
+      }
+      void supabase.removeChannel(channel)
+    }
+  }, [loadMasterData])
 
   const selectedKitchen = masterData?.kitchens.find(
     (kitchen) => kitchen.id === kitchenId
@@ -1545,13 +1612,36 @@ function App() {
       <div className="mx-auto w-full max-w-[1220px]">
         <>
           <header className="flex items-center justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
-              <p className="mt-1 text-sm leading-5 text-slate-300">
-                Isi semua nominal yang dibutuhkan di sini. Setelah itu, klik Copy pada output dan kirim ke Maker lewat WhatsApp.
-              </p>
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-emerald-700/60 bg-emerald-950/50 shadow-sm" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none" className="h-9 w-9">
+                  <rect x="7" y="6" width="34" height="36" rx="10" stroke="#34d399" strokeWidth="2" />
+                  <path d="M16 17h16M16 23.5h16M16 30h9" stroke="#a7f3d0" strokeWidth="2.5" strokeLinecap="round" />
+                  <circle cx="31.5" cy="30" r="2.6" fill="#34d399" />
+                </svg>
+              </span>
+              <div className="min-w-0">
+                <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
+                <p className="mt-1 text-sm leading-5 text-slate-300">
+                  Isi nominal, periksa rekening tujuan, lalu salin output untuk dikirim lewat WhatsApp.
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
+              <a
+                href="https://rversse.github.io/sim-sppg/"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 items-center gap-2 rounded-lg border border-sky-800/70 bg-sky-950/40 px-2.5 text-xs font-semibold text-sky-100 transition hover:border-sky-600 hover:bg-sky-900/50"
+                aria-label="Buka SIM-SPPG"
+                title="Buka SIM-SPPG"
+              >
+                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+                  <rect x="2.5" y="4.5" width="19" height="15" rx="4" stroke="currentColor" strokeWidth="1.6" />
+                  <path d="M6.5 9h11M6.5 12.5h11M6.5 16h6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+                <span className="hidden sm:inline">SIM-SPPG</span>
+              </a>
               <button
                 type="button"
                 onClick={restoreLastDraft}
