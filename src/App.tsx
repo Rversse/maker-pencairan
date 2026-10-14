@@ -941,7 +941,7 @@ function App() {
           : item
       )
     })
-  }, [activeTransaction, selectedKitchen])
+  }, [activeTransaction, selectedKitchen, masterData])
 
   useEffect(() => {
     if (!selectedKitchen || !activeTransaction) return
@@ -963,7 +963,7 @@ function App() {
       pencairan_harian: structure.payments,
       legacy_gaji: structure.legacy
     })
-  }, [activeTransaction, selectedKitchen])
+  }, [activeTransaction, selectedKitchen, masterData])
 
   function updateTransaction(
     transactionId: number,
@@ -1374,7 +1374,8 @@ function App() {
         continue
       }
 
-      const account = SEWA_KENDARAAN_ACCOUNT
+      const account = getVehicleRentAccount(kitchenName, masterData)
+      if (!account) continue
       const period = formatDate(entry.startDate) + ' – ' + formatDate(entry.endDate)
       const vehicleAmounts: Array<{ label: string; amount: string }> = [
         { label: 'Mobil', amount: entry.mobilAmount },
@@ -1914,7 +1915,7 @@ function App() {
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa')
                           .map((entry) => {
-                            const rental = getSppgRental(selectedKitchen?.name ?? '')
+                            const rental = getSppgRental(selectedKitchen?.name ?? '', masterData)
                             return (
                               <div
                                 key={entry.id}
@@ -1955,17 +1956,18 @@ function App() {
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
                         const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
+                        const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
                             <div className="mt-3 grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_105px_minmax(145px,0.8fr)_minmax(230px,1fr)]">
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                <span className="truncate">{SEWA_KENDARAAN_ACCOUNT.ownerName}</span>
+                                <span className="truncate">{account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                {SEWA_KENDARAAN_ACCOUNT.bank}
+                                {account?.bank ?? '-'}
                               </div>
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                <span className="truncate">{SEWA_KENDARAAN_ACCOUNT.accountNumber}</span>
+                                <span className="truncate">{account?.accountNumber ?? '-'}</span>
                               </div>
                               <DateRangePicker
                                 value={{ startDate: entry.startDate, endDate: entry.endDate }}
