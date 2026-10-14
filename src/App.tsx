@@ -109,116 +109,57 @@ const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
   ...DAILY_PAYMENT_GAJI_OPTIONS
 ]
 
-const SEWA_KENDARAAN_ACCOUNT = {
-  bank: 'MANDIRI',
-  ownerName: 'Berkah Mandiri Putra',
-  accountNumber: '1820015963523'
-}
-
-const SPPG_RENTAL_BY_KITCHEN: Record<
-  string,
-  { bank: string; ownerName: string; accountNumber: string }
-> = {
-  Campakamulya: {
-    bank: 'BNI',
-    ownerName: 'Enceng Kodir',
-    accountNumber: '2028813591'
-  },
-  Cihaur: {
-    bank: 'BRI',
-    ownerName: 'Taufik Hidayat',
-    accountNumber: '407701030044506'
-  },
-  Cisepat: {
-    bank: 'BNI',
-    ownerName: 'Robi Sulaeman',
-    accountNumber: '2025279933'
-  },
-  Cipetir: {
-    bank: 'BNI',
-    ownerName: 'Yusgar Anggara Dinata',
-    accountNumber: '885788718'
-  },
-  Kertajadi: {
-    bank: 'BNI',
-    ownerName: 'Rizki Ginanjar',
-    accountNumber: '2033626616'
-  },
-  Cikondang: {
-    bank: 'BNI',
-    ownerName: 'Aryana',
-    accountNumber: '1976811401'
-  },
-  Sukaraja: {
-    bank: 'BRI',
-    ownerName: 'Ade Rohmat Hidayat',
-    accountNumber: '010501002303563'
-  }
-}
-
 type BankAccountMapping = {
   ownerName: string
   bank: string
   accountNumber: string
 }
 
-const OPERATIONAL_HARIAN_BY_KITCHEN: Record<string, BankAccountMapping> = {
-  Campakamulya: { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
-  Cihaur: { ownerName: 'Rizki Ginanjar', bank: 'BRI', accountNumber: '010501136046504' },
-  Cikondang: { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-  Cipetir: { ownerName: 'Fairuz Hibatullah', bank: 'SEABANK', accountNumber: '901222967962' },
-  Cisepat: { ownerName: 'Lia Ariska', bank: 'BNI', accountNumber: '1688603689' },
-  Kertajadi: { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
+const DAILY_PAYMENT_RULE_TYPE: Record<DailyPaymentKind, string> = {
+  'Sewa SPPG': 'sppg_rent',
+  'Gaji Relawan': 'gaji_relawan',
+  'Insentif PIC Sekolah': 'pic_incentive_school',
+  'Insentif PIC Posyandu': 'pic_incentive_posyandu',
+  'Sewa Kendaraan': 'vehicle_rent'
 }
 
-const GAJI_ACCOUNT_BY_KITCHEN: Record<
-  string,
-  Partial<Record<DailyPaymentKind, BankAccountMapping>>
-> = {
-  Campakamulya: {
-    'Gaji Relawan': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
-    'Insentif PIC Sekolah': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' },
-    'Insentif PIC Posyandu': { ownerName: 'Melan Fitriani', bank: 'BNI', accountNumber: '2035516850' }
-  },
-  Cihaur: {
-    'Gaji Relawan': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
-    'Insentif PIC Sekolah': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' },
-    'Insentif PIC Posyandu': { ownerName: 'Taufik Hidayat', bank: 'BRI', accountNumber: '407701030044506' }
-  },
-  Cikondang: {
-    'Gaji Relawan': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-    'Insentif PIC Sekolah': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' },
-    'Insentif PIC Posyandu': { ownerName: 'Annisa Wulan Dari', bank: 'BNI', accountNumber: '2044709294' }
-  },
-  // Cipetir gaji/PIC incentives use Mandiri; Sewa SPPG remains on BNI above.
-  Cipetir: {
-    'Gaji Relawan': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
-    'Insentif PIC Sekolah': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' },
-    'Insentif PIC Posyandu': { ownerName: 'Yusgar Anggara Dinata', bank: 'MANDIRI', accountNumber: '1820018916205' }
-  },
-  Cisepat: {
-    'Gaji Relawan': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
-    'Insentif PIC Sekolah': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' },
-    'Insentif PIC Posyandu': { ownerName: 'Robi Sulaeman', bank: 'BNI', accountNumber: '2025279933' }
-  },
-  Kertajadi: {
-    'Gaji Relawan': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
-    'Insentif PIC Sekolah': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' },
-    'Insentif PIC Posyandu': { ownerName: 'Rachmat Surya', bank: 'BRI', accountNumber: '407701032673505' }
-  },
-  Sukaraja: {
-    'Gaji Relawan': { ownerName: 'Ade Rohmat Hidayat', bank: 'BRI', accountNumber: '010501002303563' },
-    'Insentif PIC Sekolah': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' },
-    'Insentif PIC Posyandu': { ownerName: 'Riri Risa Amelia', bank: 'BRI', accountNumber: '406701011792501' }
-  }
+function getOperationalMapping(
+  kitchenName: string,
+  masterData: MakerMasterData | null,
+  ruleType: string
+): BankAccountMapping | null {
+  if (!masterData || !kitchenName) return null
+  const normalizedName = kitchenName.trim().toLocaleLowerCase('id-ID')
+  const kitchen = masterData.kitchens.find(
+    (item) => item.name.trim().toLocaleLowerCase('id-ID') === normalizedName
+  )
+  if (!kitchen) return null
+
+  const rule = masterData.operational_rules.find(
+    (item) => item.kitchen_id === kitchen.id && item.rule_type === ruleType && item.is_active
+  )
+  return rule
+    ? {
+        ownerName: rule.owner_name,
+        bank: rule.bank,
+        accountNumber: rule.account_number
+      }
+    : null
 }
 
-function getOperationalAccount(kitchenName: string): BankAccountMapping | null {
-  return OPERATIONAL_HARIAN_BY_KITCHEN[kitchenName] ?? null
+function getOperationalAccount(
+  kitchenName: string,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, 'ops_harian')
 }
 
-function getDailyPaymentAccount(kitchenName: string, kind: DailyPaymentKind): BankAccountMapping | null {
-  return GAJI_ACCOUNT_BY_KITCHEN[kitchenName]?.[kind] ?? null
+function getDailyPaymentAccount(
+  kitchenName: string,
+  kind: DailyPaymentKind,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, DAILY_PAYMENT_RULE_TYPE[kind])
 }
 
 function sameAccount(left: BankAccountMapping, right: BankAccountMapping) {
@@ -227,22 +168,48 @@ function sameAccount(left: BankAccountMapping, right: BankAccountMapping) {
     left.ownerName === right.ownerName
 }
 
-function getDailyPaymentMappingForKinds(kitchenName: string, kinds: DailyPaymentKind[]): BankAccountMapping | null {
+function getDailyPaymentMappingForKinds(
+  kitchenName: string,
+  kinds: DailyPaymentKind[],
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
   if (kinds.length === 0) return null
-  const mappings = kinds.map((kind) => getDailyPaymentAccount(kitchenName, kind))
+  const mappings = kinds.map((kind) => getDailyPaymentAccount(kitchenName, kind, masterData))
   if (mappings.some((mapping) => !mapping)) return null
   const first = mappings[0]
   if (!first) return null
   return mappings.every((mapping) => mapping && sameAccount(first, mapping)) ? first : null
 }
 
-function getDailyPaymentTargetKey(kitchenName: string, kind: DailyPaymentKind) {
-  const mapping = getDailyPaymentAccount(kitchenName, kind)
+function getDailyPaymentTargetKey(
+  kitchenName: string,
+  kind: DailyPaymentKind,
+  masterData: MakerMasterData | null
+) {
+  const mapping = getDailyPaymentAccount(kitchenName, kind, masterData)
   return mapping ? mapping.bank + '|' + mapping.accountNumber + '|' + mapping.ownerName : 'manual'
 }
 
-function areDailyPaymentKindsCompatible(kitchenName: string, kinds: DailyPaymentKind[]) {
-  return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind))).size <= 1
+function areDailyPaymentKindsCompatible(
+  kitchenName: string,
+  kinds: DailyPaymentKind[],
+  masterData: MakerMasterData | null
+) {
+  return new Set(kinds.map((kind) => getDailyPaymentTargetKey(kitchenName, kind, masterData))).size <= 1
+}
+
+function getSppgRental(
+  kitchenName: string,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, 'sppg_rent')
+}
+
+function getVehicleRentAccount(
+  kitchenName: string,
+  masterData: MakerMasterData | null
+): BankAccountMapping | null {
+  return getOperationalMapping(kitchenName, masterData, 'vehicle_rent')
 }
 
 function toIsoDate(date: Date) {
@@ -319,10 +286,6 @@ function sortDailyPaymentKinds(values: DailyPaymentKind[]) {
   return [...new Set(values)].sort(
     (a, b) => (order.get(a) ?? 99) - (order.get(b) ?? 99)
   )
-}
-
-function getSppgRental(kitchenName: string) {
-  return SPPG_RENTAL_BY_KITCHEN[kitchenName] ?? null
 }
 
 function getPreferredBank(kitchenName: string) {
@@ -490,10 +453,11 @@ function emptyVehicleRentEntry(id = 1): VehicleRentEntry {
 function createPayrollEntry(
   id: number,
   kitchenName: string,
+  masterData: MakerMasterData | null,
   kinds: DailyPaymentKind[],
   amount = ''
 ): DailyPaymentEntry {
-  const mapping = getDailyPaymentMappingForKinds(kitchenName, kinds)
+  const mapping = getDailyPaymentMappingForKinds(kitchenName, kinds, masterData)
   return {
     id,
     category: 'gaji',
@@ -505,21 +469,26 @@ function createPayrollEntry(
   }
 }
 
-function createPayrollRowsForKitchen(kitchenName: string, startId = 2) {
+function createPayrollRowsForKitchen(
+  kitchenName: string,
+  masterData: MakerMasterData | null,
+  startId = 2
+) {
   if (kitchenName === 'Campakamulya') {
     return [
-      createPayrollEntry(startId, kitchenName, [...DAILY_PAYMENT_GAJI_OPTIONS])
+      createPayrollEntry(startId, kitchenName, masterData, [...DAILY_PAYMENT_GAJI_OPTIONS])
     ]
   }
 
   return DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) =>
-    createPayrollEntry(startId + index, kitchenName, [kind])
+    createPayrollEntry(startId + index, kitchenName, masterData, [kind])
   )
 }
 
 function getPayrollStructure(
   currentPayments: DailyPaymentEntry[],
   kitchenName: string,
+  masterData: MakerMasterData | null,
   currentLegacy: DailyPaymentEntry[] = []
 ): { payments: DailyPaymentEntry[]; legacy: DailyPaymentEntry[] } {
   const sewaRows = currentPayments.filter((entry) => entry.category === 'sewa')
@@ -541,6 +510,7 @@ function getPayrollStructure(
     const target = createPayrollEntry(
       combined?.id ?? nextId,
       kitchenName,
+      masterData,
       [...DAILY_PAYMENT_GAJI_OPTIONS],
       combinedAmount
     )
@@ -572,6 +542,7 @@ function getPayrollStructure(
     return createPayrollEntry(
       matchingEntries[0]?.id ?? nextId + index,
       kitchenName,
+      masterData,
       [kind],
       String(amountTotal || '')
     )
@@ -764,7 +735,8 @@ function makeTransaction(
     account_id: string
     accounts: { account_number: string | null } | null
   }>,
-  kitchenName = ''
+  kitchenName = '',
+  masterData: MakerMasterData | null = null
 ): TransactionGroup {
   const gasRule = gasRules[0]
 
@@ -790,7 +762,7 @@ function makeTransaction(
     operasional: [createOperationalEntry(1)],
     pencairan_harian: [
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
-      ...createPayrollRowsForKitchen(kitchenName, 2)
+      ...createPayrollRowsForKitchen(kitchenName, masterData, 2)
     ],
     sewa_kendaraan: [emptyVehicleRentEntry(1)],
     lain_lain: [emptyOtherEntry(1)],
@@ -946,7 +918,7 @@ function App() {
     )
     if (!entry) return
 
-    const rental = getSppgRental(selectedKitchen.name)
+    const rental = getSppgRental(selectedKitchen.name, masterData)
     if (!rental) return
 
     if (
@@ -969,7 +941,7 @@ function App() {
           : item
       )
     })
-  }, [activeTransaction, selectedKitchen])
+  }, [activeTransaction, selectedKitchen, masterData])
 
   useEffect(() => {
     if (!selectedKitchen || !activeTransaction) return
@@ -977,6 +949,7 @@ function App() {
     const structure = getPayrollStructure(
       activeTransaction.pencairan_harian,
       selectedKitchen.name,
+      masterData,
       activeTransaction.legacy_gaji ?? []
     )
     if (
@@ -990,7 +963,7 @@ function App() {
       pencairan_harian: structure.payments,
       legacy_gaji: structure.legacy
     })
-  }, [activeTransaction, selectedKitchen])
+  }, [activeTransaction, selectedKitchen, masterData])
 
   function updateTransaction(
     transactionId: number,
@@ -1171,7 +1144,8 @@ function App() {
         account_id: rule.account_id,
         accounts: rule.accounts
       })),
-      nextKitchenName
+      nextKitchenName,
+      masterData
     )
 
     setTransactions([nextTransaction])
@@ -1219,7 +1193,8 @@ function App() {
         account_id: rule.account_id,
         accounts: rule.accounts
       })),
-      selectedKitchen?.name ?? ''
+      selectedKitchen?.name ?? '',
+      masterData
     )
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
@@ -1242,7 +1217,7 @@ function App() {
 
     const operationalEntry = transaction.operasional?.[0]
     if (operationalEntry && isCompleteAmount(operationalEntry.amount)) {
-      const mapping = getOperationalAccount(kitchenName)
+      const mapping = getOperationalAccount(kitchenName, masterData)
       const bank = getOutputBank(mapping?.bank ?? operationalEntry.accountId)
       const accountNumber = (mapping?.accountNumber ?? operationalEntry.accountNumber).trim()
       const ownerName = (mapping?.ownerName ?? operationalEntry.ownerName).trim()
@@ -1341,7 +1316,7 @@ function App() {
       if (!isCompleteAmount(entry.amount)) continue
 
       if (entry.category === 'sewa') {
-        const rental = getSppgRental(kitchenName)
+        const rental = getSppgRental(kitchenName, masterData)
         if (!rental) continue
 
         items.push({
@@ -1364,9 +1339,9 @@ function App() {
 
       const kinds = entry.kinds ?? []
       if (kinds.length === 0) continue
-      if (!areDailyPaymentKindsCompatible(kitchenName, kinds)) continue
+      if (!areDailyPaymentKindsCompatible(kitchenName, kinds, masterData)) continue
 
-      const mappedAccount = getDailyPaymentMappingForKinds(kitchenName, kinds)
+      const mappedAccount = getDailyPaymentMappingForKinds(kitchenName, kinds, masterData)
       const bank = getOutputBank(mappedAccount?.bank ?? entry.bank)
       const accountNumber = (mappedAccount?.accountNumber ?? entry.accountNumber).trim()
       const ownerName = (mappedAccount?.ownerName ?? entry.ownerName).trim()
@@ -1399,7 +1374,8 @@ function App() {
         continue
       }
 
-      const account = SEWA_KENDARAAN_ACCOUNT
+      const account = getVehicleRentAccount(kitchenName, masterData)
+      if (!account) continue
       const period = formatDate(entry.startDate) + ' – ' + formatDate(entry.endDate)
       const vehicleAmounts: Array<{ label: string; amount: string }> = [
         { label: 'Mobil', amount: entry.mobilAmount },
@@ -1896,7 +1872,7 @@ function App() {
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
-                      const mapping = getOperationalAccount(selectedKitchen?.name ?? '')
+                      const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
                       return (
                         <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]">
@@ -1939,7 +1915,7 @@ function App() {
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa')
                           .map((entry) => {
-                            const rental = getSppgRental(selectedKitchen?.name ?? '')
+                            const rental = getSppgRental(selectedKitchen?.name ?? '', masterData)
                             return (
                               <div
                                 key={entry.id}
@@ -1980,17 +1956,18 @@ function App() {
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
                         const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
+                        const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
                             <div className="mt-3 grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_105px_minmax(145px,0.8fr)_minmax(230px,1fr)]">
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                <span className="truncate">{SEWA_KENDARAAN_ACCOUNT.ownerName}</span>
+                                <span className="truncate">{account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                {SEWA_KENDARAAN_ACCOUNT.bank}
+                                {account?.bank ?? '-'}
                               </div>
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                <span className="truncate">{SEWA_KENDARAAN_ACCOUNT.accountNumber}</span>
+                                <span className="truncate">{account?.accountNumber ?? '-'}</span>
                               </div>
                               <DateRangePicker
                                 value={{ startDate: entry.startDate, endDate: entry.endDate }}
@@ -2078,7 +2055,8 @@ function App() {
                           .map((entry) => {
                             const mapping = getDailyPaymentMappingForKinds(
                               selectedKitchen?.name ?? '',
-                              entry.kinds
+                              entry.kinds,
+                              masterData
                             )
                             const combined = entry.kinds.length > 1
                             const label = combined

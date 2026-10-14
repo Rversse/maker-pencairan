@@ -34,11 +34,24 @@ export type MakerAccountRule = {
   supplier: MakerSupplierInfo | null
 }
 
+export type MakerOperationalRule = {
+  id: string
+  kitchen_id: string
+  rule_type: string
+  owner_name: string
+  bank: string
+  account_number: string
+  is_active: boolean
+  mapping_status: 'active' | 'excluded'
+  target_role: 'aslap' | 'akuntan' | 'pic_yayasan' | 'berkah_mandiri_putra' | 'supplier' | 'other' | null
+}
+
 export type MakerMasterData = {
   ok: boolean
   kitchens: MakerKitchen[]
   account_rules: MakerAccountRule[]
   operational_accounts: MakerAccount[]
+  operational_rules: MakerOperationalRule[]
 }
 
 export async function getMakerMasterData(): Promise<MakerMasterData> {
