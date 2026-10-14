@@ -231,14 +231,14 @@ function formatDate(date: string) {
     'Feb',
     'Mar',
     'Apr',
-    'May',
+    'Mei',
     'Jun',
     'Jul',
-    'Aug',
+    'Agu',
     'Sep',
-    'Oct',
+    'Okt',
     'Nov',
-    'Dec'
+    'Des'
   ]
 
   const monthName = monthNames[Number(month) - 1]
@@ -785,7 +785,7 @@ function App() {
   const initialTransaction = useMemo(
     () =>
       savedTransaction
-        ? normalizeTransaction(savedTransaction, today)
+        ? normalizeTransaction({ ...savedTransaction, date: today }, today)
         : null,
     [savedTransaction, today]
   )
@@ -1252,9 +1252,10 @@ function App() {
       transactions
     })
 
+    const resetDate = toIsoDate(new Date())
     const nextTransaction = makeTransaction(
       1,
-      activeDate,
+      resetDate,
       sortedRabRules.map((rule) => ({ account_id: rule.account_id })),
       gasRules.map((rule) => ({
         account_id: rule.account_id,
