@@ -1855,22 +1855,6 @@ function App() {
                 <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-                            <button
-                type="button"
-                onClick={restoreLastDraft}
-                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
-              >
-                Pulihkan sebelum Reset
-              </button>
-              <button
-                type="button"
-                onClick={resetWorkspace}
-                className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
-              >
-                Reset
-              </button>
-            </div>
           </header>
 
           <div className="mt-3 max-w-[1432px] rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-100">
@@ -1906,10 +1890,76 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-3 grid w-full min-w-0 justify-start gap-3 2xl:grid-cols-[minmax(0,960px)_minmax(400px,460px)] 2xl:items-start">
-                {kitchenId && activeTransaction && (
-                  <aside className="min-w-0 self-start 2xl:sticky 2xl:top-3 2xl:z-20 2xl:col-start-2 2xl:row-start-1">
-                    <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
+              <div className="sticky top-2 z-40 mb-3 rounded-2xl border border-slate-700/80 bg-slate-950/95 p-3 shadow-xl backdrop-blur">
+                <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(380px,440px)] xl:items-stretch">
+                  <section className="min-w-0 rounded-xl border border-indigo-600/70 bg-slate-900 p-3">
+                    <div className="grid min-w-0 items-end gap-3 lg:grid-cols-[150px_minmax(180px,1fr)_auto]">
+                      <div className="min-w-0">
+                        <label htmlFor="date" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Tanggal</label>
+                        <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-3 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/30">
+                          <span className="text-xs font-semibold text-slate-500">TANGGAL</span>
+                          <span className="ml-3 text-sm font-semibold text-white">{formatDate(activeDate)}</span>
+                          <input
+                            ref={dateInputRef}
+                            id="date"
+                            type="date"
+                            value={activeDate}
+                            onChange={(event) => changeActiveDate(event.target.value)}
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              openDatePicker()
+                            }}
+                            aria-label="Pilih tanggal transaksi"
+                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="min-w-0">
+                        <label htmlFor="kitchen" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Dapur</label>
+                        <select
+                          id="kitchen"
+                          value={kitchenId}
+                          title={selectedKitchen?.name ?? 'Pilih dapur'}
+                          onChange={(event) => handleKitchenChange(event.target.value)}
+                          className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                        >
+                          <option value="">Pilih dapur</option>
+                          {masterData.kitchens.map((kitchen) => (
+                            <option key={kitchen.id} value={kitchen.id}>
+                              {kitchen.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="flex h-10 shrink-0 items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={restoreLastDraft}
+                          className="h-10 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-950 px-3 text-xs font-medium text-slate-200 transition hover:border-sky-500/60 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40"
+                        >
+                          Pulihkan sebelum Reset
+                        </button>
+                        <button
+                          type="button"
+                          onClick={resetWorkspace}
+                          className="h-10 rounded-lg border border-slate-700 bg-slate-950 px-3 text-xs font-medium text-slate-200 transition hover:border-rose-500/60 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40"
+                        >
+                          Reset
+                        </button>
+                      </div>
+                    </div>
+
+                    {historyMessage && (
+                      <div className="mt-2 text-[11px] text-emerald-300">
+                        {historyMessage}
+                      </div>
+                    )}
+                  </section>
+
+                  {kitchenId && activeTransaction && (
+                    <section className="min-w-0 rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
@@ -1926,13 +1976,13 @@ function App() {
                           type="button"
                           onClick={() => void copyOutput()}
                           disabled={!output}
-                          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
+                          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           {copyMessage || 'Copy'}
                         </button>
                       </div>
 
-                      <pre className="mt-2 max-h-[32vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 2xl:max-h-[calc(100vh-10rem)]">
+                      <pre className="mt-2 max-h-[20vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 xl:max-h-[24vh]">
                         {output}
                       </pre>
 
@@ -1947,93 +1997,29 @@ function App() {
                             {[...outputChecks]
                               .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
                               .map((check) => (
-                              <div key={check.label} className="flex min-w-0 items-center gap-2 text-xs leading-5">
-                                <span
-                                  aria-hidden="true"
-                                  className={[
-                                    'h-2.5 w-2.5 shrink-0 rounded-full',
-                                    check.complete ? 'bg-emerald-400' : 'bg-rose-500'
-                                  ].join(' ')}
-                                />
-                                <span className="min-w-0 flex-1 text-slate-200">{check.label}</span>
-                                <span className={check.complete ? 'shrink-0 text-emerald-300' : 'shrink-0 text-rose-300'}>
-                                  {check.complete ? 'Terisi' : 'Belum diisi'}
-                                </span>
-                              </div>
-                            ))}
+                                <div key={check.label} className="flex min-w-0 items-center gap-2 text-xs leading-5">
+                                  <span
+                                    aria-hidden="true"
+                                    className={[
+                                      'h-2.5 w-2.5 shrink-0 rounded-full',
+                                      check.complete ? 'bg-emerald-400' : 'bg-rose-500'
+                                    ].join(' ')}
+                                  />
+                                  <span title={check.label} className="min-w-0 flex-1 truncate text-slate-200">{check.label}</span>
+                                  <span className={check.complete ? 'shrink-0 text-emerald-300' : 'shrink-0 text-rose-300'}>
+                                    {check.complete ? 'Terisi' : 'Belum diisi'}
+                                  </span>
+                                </div>
+                              ))}
                           </div>
                         </div>
                       )}
                     </section>
-                  </aside>
-                )}
-                <div className="min-w-0 2xl:col-start-1 2xl:row-start-1">
-                <section className="rounded-xl border border-indigo-600/70 bg-slate-900 p-4 shadow-lg">
-                  <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
-                    <div>
-                      <label
-                        htmlFor="date"
-                        className="mb-1 block text-sm font-medium leading-5 text-slate-300"
-                      >
-                        Tanggal
-                      </label>
-                      <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-3 transition hover:border-stone-600 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/40">
-                        <span className="text-xs font-semibold text-slate-500">
-                          TANGGAL
-                        </span>
-                        <span className="ml-3 text-sm font-semibold text-white">
-                          {formatDate(activeDate)}
-                        </span>
-                        <input
-                          ref={dateInputRef}
-                          id="date"
-                          type="date"
-                          value={activeDate}
-                          onChange={(event) => changeActiveDate(event.target.value)}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            openDatePicker()
-                          }}
-                          aria-label="Pilih tanggal transaksi"
-                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label
-                        htmlFor="kitchen"
-                        className="mb-1 block text-sm font-medium leading-5 text-slate-300"
-                      >
-                        Dapur
-                      </label>
-                      <select
-                        id="kitchen"
-                        value={kitchenId}
-                        title={selectedKitchen?.name ?? 'Pilih dapur'}
-                        onChange={(event) =>
-                          handleKitchenChange(event.target.value)
-                        }
-                        className="h-10 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm font-semibold text-white outline-none transition hover:border-stone-600 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/40"
-                      >
-                        <option value="">Pilih dapur</option>
-                        {masterData.kitchens.map((kitchen) => (
-                          <option key={kitchen.id} value={kitchen.id}>
-                            {kitchen.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  {historyMessage && (
-                    <div className="mt-2 text-[11px] text-emerald-300">
-                      {historyMessage}
-                    </div>
                   )}
-                </section>
+                </div>
+              </div>
 
-              {kitchenId && activeTransaction && (
+              <div className="min-w-0 max-w-[960px]">              {kitchenId && activeTransaction && (
                 <>
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-amber-500/70 bg-slate-900 p-3">
                     <div className="flex items-start justify-between gap-3">
@@ -2062,7 +2048,7 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-start gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
+                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
                           >
                             <div className="min-w-0">
                               <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
@@ -2126,7 +2112,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                             />
                           </div>
                         )
@@ -2197,7 +2183,7 @@ function App() {
                                 }
                                 placeholder="Keterangan tambahan (mis. 50 kg, tali rapia, plastik 12 x 25)"
                                 aria-label="Keterangan tambahan GAS"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                               />
 
                               <input
@@ -2217,7 +2203,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                               />
                             </div>
                           )
@@ -2257,7 +2243,7 @@ function App() {
                             }
                             placeholder="Nominal"
                             aria-label="Nominal Ops Harian"
-                            className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         </div>
                       )
@@ -2301,7 +2287,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Sewa SPPG"
-                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                               </div>
                             )
@@ -2316,7 +2302,7 @@ function App() {
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
-                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[70px_88px_105px_minmax(200px,1fr)_140px_140px]">
+                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[70px_88px_minmax(130px,0.9fr)_minmax(155px,1fr)_140px_140px]">
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
@@ -2348,7 +2334,7 @@ function App() {
                                   }
                                   placeholder="Nominal Mobil"
                                   aria-label="Nominal Kendaraan Mobil"
-                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                                 />
                               </div>
                               <div className="min-w-0">
@@ -2363,7 +2349,7 @@ function App() {
                                   }
                                   placeholder="Nominal Motor"
                                   aria-label="Nominal Kendaraan Motor"
-                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                                 />
                               </div>
                             </div>
@@ -2451,7 +2437,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                               </div>
@@ -2473,7 +2459,7 @@ function App() {
                           })}
                           placeholder="Nominal"
                           aria-label="Nominal OPS Real"
-                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                         />
                       </label>
                     </section>
@@ -2514,7 +2500,7 @@ function App() {
                                   )
                                 }
                                 aria-label="Bank rekening Lain-Lain"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                               >
                                 <option value="">Pilih Bank</option>
                                 {OPERATIONAL_BANKS.map((bank) => (
@@ -2537,7 +2523,7 @@ function App() {
                               }
                               placeholder="Nomor rekening"
                               aria-label="Nomor rekening Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                             />
                             <input
                               type="text"
@@ -2553,7 +2539,7 @@ function App() {
                               }
                               placeholder="Nama pemilik rekening"
                               aria-label="Nama pemilik rekening Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                             />
                             <input
                               type="text"
@@ -2569,7 +2555,7 @@ function App() {
                               }
                               placeholder="Deskripsi / keperluan"
                               aria-label="Deskripsi Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                             />
                             <input
                               type="text"
@@ -2585,7 +2571,7 @@ function App() {
                               }
                               placeholder="Nominal"
                               aria-label="Nominal Lain-Lain"
-                              className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
                             />
                           </div>
                         </div>
@@ -2596,7 +2582,6 @@ function App() {
 
                 </>
               )}
-                </div>
               </div>
             </>
           )}
