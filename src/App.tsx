@@ -1709,7 +1709,7 @@ function App() {
     activeTransaction
       ? getTransactionOutput(activeTransaction).join('\n')
       : ''
-  const outputLineCount = output ? Math.max(0, output.split('\n').length - 1) : 0
+  const outputLineCount = output ? output.split('\n').filter((line) => line.trim()).length : 0
 
   const outputChecks: { label: string; complete: boolean }[] = []
   if (activeTransaction && selectedKitchen) {
@@ -1919,26 +1919,15 @@ function App() {
                     <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
+                          <div className="flex items-center gap-2">
                             <h2 className="text-sm font-semibold">Output</h2>
                             <span
-                              className={[
-                                'rounded-full border px-2 py-0.5 text-[10px] font-medium',
-                                outputLineCount > 0
-                                  ? 'border-emerald-700 bg-emerald-950/60 text-emerald-200'
-                                  : 'border-slate-700 bg-slate-900 text-slate-300'
-                              ].join(' ')}
+                              aria-label={outputLineCount + ' baris output'}
+                              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-xs font-semibold tabular-nums text-emerald-200"
                             >
-                              {outputLineCount > 0
-                                ? outputLineCount + ' baris siap disalin'
-                                : 'Belum ada nominal masuk output'}
+                              {outputLineCount}
                             </span>
                           </div>
-                          <p className="mt-1 text-xs leading-5 text-slate-300">
-                            {outputLineCount > 0
-                              ? 'Cek lagi rekening dan nominalnya sebelum disalin.'
-                              : 'Isi nominal di form. Baris yang sudah memenuhi syarat akan muncul di sini.'}
-                          </p>
                         </div>
                         <button
                           type="button"
@@ -1951,7 +1940,7 @@ function App() {
                       </div>
 
                       <pre className="mt-2 max-h-[32vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 2xl:max-h-[calc(100vh-10rem)]">
-                        {output || 'Belum ada nominal yang diisi. Isi nominal yang diperlukan, nanti hasilnya muncul di sini.'}
+                        {output}
                       </pre>
 
                       {outputChecks.length > 0 && (
