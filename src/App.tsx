@@ -1890,134 +1890,125 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="sticky top-2 z-40 mb-3 rounded-2xl border border-slate-700/80 bg-slate-950/95 p-3 shadow-xl backdrop-blur">
-                <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(380px,440px)] xl:items-stretch">
-                  <section className="min-w-0 rounded-xl border border-indigo-600/70 bg-slate-900 p-3">
-                    <div className="grid min-w-0 items-end gap-3 lg:grid-cols-[150px_minmax(180px,1fr)_auto]">
-                      <div className="min-w-0">
-                        <label htmlFor="date" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Tanggal</label>
-                        <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-3 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500/30">
-                          <span className="text-xs font-semibold text-slate-500">TANGGAL</span>
-                          <span className="ml-3 text-sm font-semibold text-white">{formatDate(activeDate)}</span>
-                          <input
-                            ref={dateInputRef}
-                            id="date"
-                            type="date"
-                            value={activeDate}
-                            onChange={(event) => changeActiveDate(event.target.value)}
-                            onClick={(event) => {
-                              event.stopPropagation()
-                              openDatePicker()
-                            }}
-                            aria-label="Pilih tanggal transaksi"
-                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                          />
-                        </div>
-                      </div>
+              <section className="sticky top-2 z-40 mb-3 max-w-[1432px] rounded-2xl border border-emerald-800/70 bg-slate-950/95 p-3 shadow-xl shadow-black/20 backdrop-blur">
+                <div className="grid min-w-0 items-end gap-3 sm:grid-cols-[150px_minmax(0,1fr)] xl:grid-cols-[150px_minmax(240px,1fr)_auto]">
+                  <div className="min-w-0">
+                    <label htmlFor="date" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Tanggal</label>
+                    <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-3 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
+                      <span className="text-xs font-semibold text-slate-500">TANGGAL</span>
+                      <span className="ml-3 text-sm font-semibold text-white">{formatDate(activeDate)}</span>
+                      <input
+                        ref={dateInputRef}
+                        id="date"
+                        type="date"
+                        value={activeDate}
+                        onChange={(event) => changeActiveDate(event.target.value)}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          openDatePicker()
+                        }}
+                        aria-label="Pilih tanggal transaksi"
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </div>
+                  </div>
 
-                      <div className="min-w-0">
-                        <label htmlFor="kitchen" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Dapur</label>
-                        <select
-                          id="kitchen"
-                          value={kitchenId}
-                          title={selectedKitchen?.name ?? 'Pilih dapur'}
-                          onChange={(event) => handleKitchenChange(event.target.value)}
-                          className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
-                        >
-                          <option value="">Pilih dapur</option>
-                          {masterData.kitchens.map((kitchen) => (
-                            <option key={kitchen.id} value={kitchen.id}>
-                              {kitchen.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                  <div className="min-w-0">
+                    <label htmlFor="kitchen" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Dapur</label>
+                    <select
+                      id="kitchen"
+                      value={kitchenId}
+                      title={selectedKitchen?.name ?? 'Pilih dapur'}
+                      onChange={(event) => handleKitchenChange(event.target.value)}
+                      className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                    >
+                      <option value="">Pilih dapur</option>
+                      {masterData.kitchens.map((kitchen) => (
+                        <option key={kitchen.id} value={kitchen.id}>
+                          {kitchen.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                      <div className="flex h-10 shrink-0 items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={restoreLastDraft}
-                          className="h-10 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-950 px-3 text-xs font-medium text-slate-200 transition hover:border-sky-500/60 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/40"
+                  <div className="flex h-10 shrink-0 items-center gap-2 sm:col-span-2 xl:col-span-1">
+                    <button
+                      type="button"
+                      onClick={restoreLastDraft}
+                      className="h-10 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30"
+                    >
+                      Pulihkan sebelum Reset
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetWorkspace}
+                      className="h-10 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/30"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+
+                {historyMessage && (
+                  <div className="mt-2 text-[11px] text-emerald-300">
+                    {historyMessage}
+                  </div>
+                )}
+
+                {kitchenId && activeTransaction && (
+                  <div className="mt-3 border-t border-slate-800/90 pt-3">
+                    <div className="flex min-w-0 items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <h2 className="text-sm font-semibold">Output</h2>
+                        <span
+                          aria-label={outputLineCount + ' baris output'}
+                          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-xs font-semibold tabular-nums text-emerald-200"
                         >
-                          Pulihkan sebelum Reset
-                        </button>
-                        <button
-                          type="button"
-                          onClick={resetWorkspace}
-                          className="h-10 rounded-lg border border-slate-700 bg-slate-950 px-3 text-xs font-medium text-slate-200 transition hover:border-rose-500/60 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40"
-                        >
-                          Reset
-                        </button>
+                          {outputLineCount}
+                        </span>
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => void copyOutput()}
+                        disabled={!output}
+                        className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {copyMessage || 'Copy'}
+                      </button>
                     </div>
 
-                    {historyMessage && (
-                      <div className="mt-2 text-[11px] text-emerald-300">
-                        {historyMessage}
+                    <pre className="mt-2 max-h-[16vh] min-h-[48px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-3 text-xs leading-5 text-slate-200 shadow-inner shadow-black/20 2xl:max-h-[15vh]">
+                      {output}
+                    </pre>
+
+                    {outputChecks.length > 0 && (
+                      <div className="mt-3">
+                        <div className="text-xs font-semibold text-slate-200">Pengingat</div>
+                        <div className="mt-2 grid min-w-0 gap-x-5 gap-y-1.5 sm:grid-cols-2 xl:grid-cols-3">
+                          {[...outputChecks]
+                            .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
+                            .map((check) => (
+                              <div key={check.label} className="flex min-w-0 items-center gap-2 text-xs leading-5">
+                                <span
+                                  aria-hidden="true"
+                                  className={[
+                                    'h-2.5 w-2.5 shrink-0 rounded-full',
+                                    check.complete ? 'bg-emerald-400' : 'bg-rose-500'
+                                  ].join(' ')}
+                                />
+                                <span title={check.label} className="min-w-0 flex-1 truncate text-slate-200">{check.label}</span>
+                                <span className={check.complete ? 'shrink-0 text-emerald-300' : 'shrink-0 text-rose-300'}>
+                                  {check.complete ? 'Terisi' : 'Belum diisi'}
+                                </span>
+                              </div>
+                            ))}
+                        </div>
                       </div>
                     )}
-                  </section>
+                  </div>
+                )}
+              </section>
 
-                  {kitchenId && activeTransaction && (
-                    <section className="min-w-0 rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-sm font-semibold">Output</h2>
-                            <span
-                              aria-label={outputLineCount + ' baris output'}
-                              className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-xs font-semibold tabular-nums text-emerald-200"
-                            >
-                              {outputLineCount}
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => void copyOutput()}
-                          disabled={!output}
-                          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          {copyMessage || 'Copy'}
-                        </button>
-                      </div>
-
-                      <pre className="mt-2 max-h-[20vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 xl:max-h-[24vh]">
-                        {output}
-                      </pre>
-
-                      {outputChecks.length > 0 && (
-                        <div
-                          className="mt-3 rounded-lg border border-slate-800 bg-slate-950/70 p-3"
-                          role="status"
-                          aria-live="polite"
-                        >
-                          <div className="text-xs font-semibold text-slate-200">Pengingat</div>
-                          <div className="mt-2 flex flex-col gap-2">
-                            {[...outputChecks]
-                              .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
-                              .map((check) => (
-                                <div key={check.label} className="flex min-w-0 items-center gap-2 text-xs leading-5">
-                                  <span
-                                    aria-hidden="true"
-                                    className={[
-                                      'h-2.5 w-2.5 shrink-0 rounded-full',
-                                      check.complete ? 'bg-emerald-400' : 'bg-rose-500'
-                                    ].join(' ')}
-                                  />
-                                  <span title={check.label} className="min-w-0 flex-1 truncate text-slate-200">{check.label}</span>
-                                  <span className={check.complete ? 'shrink-0 text-emerald-300' : 'shrink-0 text-rose-300'}>
-                                    {check.complete ? 'Terisi' : 'Belum diisi'}
-                                  </span>
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      )}
-                    </section>
-                  )}
-                </div>
-              </div>
 
               <div className="min-w-0 max-w-[960px]">
                 {kitchenId && activeTransaction && (
@@ -2113,7 +2104,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                              className="h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                             />
                           </div>
                         )
@@ -2154,7 +2145,7 @@ function App() {
                               key={entry.id}
                               className="grid min-w-0 gap-2.5 lg:grid-cols-[minmax(150px,1.1fr)_76px_minmax(105px,0.75fr)_minmax(240px,1.8fr)_140px] lg:items-center"
                             >
-                              <div title={rule?.supplier?.business_name || rule?.accounts?.name || 'Tanpa nama'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div title={rule?.supplier?.business_name || rule?.accounts?.name || 'Tanpa nama'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 <span className="truncate">
                                   {(rule?.supplier?.business_name || rule?.accounts?.name || 'Tanpa nama')
                                     .toLocaleLowerCase('id-ID')
@@ -2162,11 +2153,11 @@ function App() {
                                 </span>
                               </div>
 
-                              <div title={rule?.accounts?.bank ?? '-'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div title={rule?.accounts?.bank ?? '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 {rule?.accounts?.bank ?? '-'}
                               </div>
 
-                              <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 <span title={rule?.accounts?.account_number ?? '-'} className="truncate">{rule?.accounts?.account_number ?? '-'}</span>
                               </div>
 
@@ -2184,7 +2175,7 @@ function App() {
                                 }
                                 placeholder="Keterangan tambahan (mis. 50 kg, tali rapia, plastik 12 x 25)"
                                 aria-label="Keterangan tambahan GAS"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                               />
 
                               <input
@@ -2204,7 +2195,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                                className="h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                               />
                             </div>
                           )
@@ -2220,13 +2211,13 @@ function App() {
                       const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
                       return (
                         <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]">
-                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                          <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                             <span title={mapping?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                           </div>
-                          <div title={mapping?.bank ?? '-'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                          <div title={mapping?.bank ?? '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                             {mapping?.bank ?? '-'}
                           </div>
-                          <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                          <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                             <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                           </div>
                           <input
@@ -2244,7 +2235,7 @@ function App() {
                             }
                             placeholder="Nominal"
                             aria-label="Nominal Ops Harian"
-                            className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         </div>
                       )
@@ -2265,13 +2256,13 @@ function App() {
                                 key={entry.id}
                                 className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]"
                               >
-                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div title={rental?.bank ?? '-'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div title={rental?.bank ?? '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     {rental?.bank ?? '-'}
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                   </div>
                                   <input
@@ -2288,7 +2279,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Sewa SPPG"
-                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                               </div>
                             )
@@ -2304,13 +2295,13 @@ function App() {
                         return (
                           <>
                             <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[70px_88px_minmax(130px,0.9fr)_minmax(155px,1fr)_140px_140px]">
-                              <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
-                              <div title={account?.bank ?? '-'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div title={account?.bank ?? '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 {account?.bank ?? '-'}
                               </div>
-                              <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 <span title={account?.accountNumber ?? '-'} className="truncate">{account?.accountNumber ?? '-'} </span>
                               </div>
                               <DateRangePicker
@@ -2335,7 +2326,7 @@ function App() {
                                   }
                                   placeholder="Nominal Mobil"
                                   aria-label="Nominal Kendaraan Mobil"
-                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                                 />
                               </div>
                               <div className="min-w-0">
@@ -2350,7 +2341,7 @@ function App() {
                                   }
                                   placeholder="Nominal Motor"
                                   aria-label="Nominal Kendaraan Motor"
-                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                                 />
                               </div>
                             </div>
@@ -2408,20 +2399,20 @@ function App() {
                                 <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
                                   <div
                                     title={label}
-                                    className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100"
+                                    className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100"
                                   >
                                     <span title={label} className="truncate">{label}</span>
                                   </div>
                                   <div
                                     title={mapping?.ownerName ?? 'Mapping belum tersedia'}
-                                    className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100"
+                                    className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100"
                                   >
                                     <span title={mapping?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     {mapping?.bank ?? '-'}
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                                   </div>
                                   <input
@@ -2438,7 +2429,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                               </div>
@@ -2460,7 +2451,7 @@ function App() {
                           })}
                           placeholder="Nominal"
                           aria-label="Nominal OPS Real"
-                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                         />
                       </label>
                     </section>
@@ -2501,7 +2492,7 @@ function App() {
                                   )
                                 }
                                 aria-label="Bank rekening Lain-Lain"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                               >
                                 <option value="">Pilih Bank</option>
                                 {OPERATIONAL_BANKS.map((bank) => (
@@ -2524,7 +2515,7 @@ function App() {
                               }
                               placeholder="Nomor rekening"
                               aria-label="Nomor rekening Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                             />
                             <input
                               type="text"
@@ -2540,7 +2531,7 @@ function App() {
                               }
                               placeholder="Nama pemilik rekening"
                               aria-label="Nama pemilik rekening Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                             />
                             <input
                               type="text"
@@ -2556,7 +2547,7 @@ function App() {
                               }
                               placeholder="Deskripsi / keperluan"
                               aria-label="Deskripsi Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                              className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                             />
                             <input
                               type="text"
@@ -2572,7 +2563,7 @@ function App() {
                               }
                               placeholder="Nominal"
                               aria-label="Nominal Lain-Lain"
-                              className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                              className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                             />
                           </div>
                         </div>
