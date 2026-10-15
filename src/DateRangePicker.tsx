@@ -289,7 +289,7 @@ export function DateRangePicker({
           <rect x="3" y="5" width="18" height="16" rx="2" />
           <path d="M16 3v4M8 3v4M3 10h18" />
         </svg>
-        <span className="min-w-0 flex-1 truncate text-xs font-semibold">
+        <span title={formatRangeText(value, placeholder)} className="min-w-0 flex-1 truncate text-xs font-semibold">
           {formatRangeText(value, placeholder)}
         </span>
         <span aria-hidden="true" className="shrink-0 text-[10px] text-slate-400">▾</span>
