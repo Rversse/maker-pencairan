@@ -1959,7 +1959,9 @@ function App() {
                         >
                           <div className="text-xs font-semibold text-slate-200">Pengingat</div>
                           <div className="mt-2 flex flex-col gap-2">
-                            {outputChecks.map((check) => (
+                            {[...outputChecks]
+                              .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
+                              .map((check) => (
                               <div key={check.label} className="flex min-w-0 items-center gap-2 text-xs leading-5">
                                 <span
                                   aria-hidden="true"
