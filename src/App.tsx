@@ -1871,7 +1871,6 @@ function App() {
               </span>
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
-                <p className="mt-0.5 hidden text-xs font-medium tracking-wide text-slate-400 sm:block">FINANCIAL OPERATIONS</p>
               </div>
             </div>
             <button
@@ -2027,15 +2026,15 @@ function App() {
                     </pre>
 
                     {outputChecks.length > 0 && (
-                      <div className="mt-3 flex min-w-0 flex-wrap items-center">
+                      <div className="mt-3 grid min-w-0 grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-5">
                         {[...outputChecks]
                           .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
                           .map((check, index) => (
                             <div
                               key={check.label}
                               className={[
-                                'flex min-w-0 items-center gap-1.5 py-1 text-xs leading-5',
-                                index > 0 ? 'ml-3 border-l border-slate-800 pl-3' : ''
+                                'flex min-w-0 flex-col items-center justify-center gap-1.5 px-2 py-1 text-center text-xs leading-5',
+                                index > 0 ? 'sm:border-l sm:border-slate-800 sm:pl-3' : ''
                               ].join(' ')}
                             >
                               <span
@@ -2045,7 +2044,7 @@ function App() {
                                   check.complete ? 'bg-emerald-400' : 'bg-rose-500'
                                 ].join(' ')}
                               />
-                              <span title={check.label} className="truncate text-slate-200">{check.label}</span>
+                              <span title={check.label} className="max-w-full truncate text-slate-200">{check.label}</span>
                             </div>
                           ))}
                       </div>
@@ -2221,7 +2220,7 @@ function App() {
                                     { need: event.target.value }
                                   )
                                 }
-                                placeholder="Keterangan tambahan (mis. 50 kg, tali rapia, plastik 12 x 25)"
+                                placeholder="Keterangan tambahan (opsional)"
                                 aria-label="Keterangan tambahan GAS"
                                 className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                               />
@@ -2294,7 +2293,6 @@ function App() {
                           <span className="inline-flex items-center rounded-md border border-emerald-700/50 bg-emerald-950/40 px-2.5 py-1.5 text-xs font-semibold tracking-wide text-emerald-200">
                             OPS HARIAN (R)
                           </span>
-                          <span className="text-xs text-slate-400">Nominal real · tanpa mapping rekening</span>
                         </div>
                         <input
                           type="text"
