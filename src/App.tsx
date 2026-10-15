@@ -1645,11 +1645,19 @@ function App() {
       if (!entry || !rule.accounts) continue
 
       const hasAmount = isCompleteAmount(entry.amount)
-      const productText = sortStrings(entry.productTypes).join(', ')
+      const supplierName = rule.supplier?.business_name ?? rule.accounts.name
+      const sortedProducts = sortStrings(entry.productTypes)
+      if (supplierName.trim().toLocaleLowerCase('id') === 'koperasi arutala') {
+        sortedProducts.sort((a, b) => {
+          const aIsOther = a.trim().toLocaleLowerCase('id') === 'lainnya'
+          const bIsOther = b.trim().toLocaleLowerCase('id') === 'lainnya'
+          if (aIsOther !== bIsOther) return aIsOther ? 1 : -1
+          return a.localeCompare(b, 'id', { sensitivity: 'base' })
+        })
+      }
+      const productText = sortedProducts.join(', ')
       const hasProduct = productText.length > 0
       if (!hasAmount && !hasProduct) continue
-
-      const supplierName = rule.supplier?.business_name ?? rule.accounts.name
       const accountText =
         supplierName +
         ' - ' +
