@@ -906,6 +906,7 @@ function App() {
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
+  const [customRabDrafts, setCustomRabDrafts] = useState<Record<string, string[]>>({})
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark'
     try {
@@ -1315,9 +1316,14 @@ function App() {
     const customProducts = currentProducts.filter(
       (item) => !availableProducts.includes(item)
     )
-    while (customProducts.length <= fieldIndex) customProducts.push('')
-    customProducts[fieldIndex] = value.trimStart()
-    const nextCustomProducts = customProducts
+    const draftKey = transactionId + ':' + accountId
+    const existingDraft = customRabDrafts[draftKey] ?? customProducts
+    const nextDraft = [...existingDraft]
+    while (nextDraft.length <= fieldIndex) nextDraft.push('')
+    nextDraft[fieldIndex] = value
+    setCustomRabDrafts((current) => ({ ...current, [draftKey]: nextDraft }))
+
+    const nextCustomProducts = nextDraft
       .map((item) => item.trim())
       .filter(Boolean)
     updateRabEntry(transactionId, accountId, {
@@ -2117,6 +2123,8 @@ function App() {
                         const customProducts = entry.productTypes
                           .filter((product) => !products.includes(product))
                           .slice(0, 3)
+                        const customDraftKey = activeTransaction.id + ':' + rule.account_id
+                        const customDraft = customRabDrafts[customDraftKey] ?? customProducts
 
                         return (
                           <div
@@ -2184,7 +2192,7 @@ function App() {
                                       <input
                                         key={fieldIndex}
                                         type="text"
-                                        value={customProducts[fieldIndex] ?? ''}
+                                        value={customDraft[fieldIndex] ?? ''}
                                         maxLength={40}
                                         aria-label={'Item custom ' + (fieldIndex + 1)}
                                         onChange={(event) =>
