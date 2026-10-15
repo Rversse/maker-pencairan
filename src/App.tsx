@@ -336,6 +336,27 @@ function displaySupplierName(
     : supplier.business_name
 }
 
+function formatDescriptionList(value: string) {
+  const items = value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) =>
+      item
+        .toLocaleLowerCase('id-ID')
+        .replace(/(^|[\\s-])(\\p{L})/gu, (_match, separator: string, letter: string) =>
+          separator + letter.toLocaleUpperCase('id-ID')
+        )
+        .replace(/(\\d)\\s*(kg|gr|g|ml|cm|mm|km|m|l)\\b/giu, (_match, number: string, unit: string) =>
+          `${number} ${unit.toLocaleLowerCase('id-ID')}`
+        )
+        .replace(/\\bX\\b/g, 'x')
+    )
+
+  if (items.length < 2) return items[0] ?? ''
+  return `${items.slice(0, -1).join(', ')} dan ${items[items.length - 1]}`
+}
+
 function isValidSavedWorkspace(value: unknown): value is SavedWorkspace {
   if (!value || typeof value !== 'object') return false
 
@@ -749,6 +770,7 @@ function normalizeTransaction(
   const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
     ? transaction.gas.map((entry) => ({
         ...entry,
+        need: entry.need ?? '',
         ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
         transactionType: entry.transactionType ?? ''
       }))
@@ -1047,14 +1069,24 @@ function App() {
 
     const seen = new Set<string>()
 
-    return masterData.account_rules.filter((rule) => {
-      if (rule.kitchen_id !== kitchenId) return false
-      if (rule.flow_type !== 'neutral') return false
-      if (!rule.accounts) return false
-      if (seen.has(rule.account_id)) return false
-      seen.add(rule.account_id)
-      return true
-    })
+    return masterData.account_rules
+      .filter((rule) => {
+        if (rule.kitchen_id !== kitchenId) return false
+        if (rule.flow_type !== 'neutral') return false
+        if (!rule.accounts) return false
+        if (seen.has(rule.account_id)) return false
+        seen.add(rule.account_id)
+        return true
+      })
+      .sort((a, b) => {
+        const aName = (a.supplier?.business_name ?? a.accounts?.name ?? '').trim()
+        const bName = (b.supplier?.business_name ?? b.accounts?.name ?? '').trim()
+        const nameCompare = aName.localeCompare(bName, 'id', { sensitivity: 'base' })
+        if (nameCompare !== 0) return nameCompare
+        return (a.accounts?.bank ?? '').localeCompare(b.accounts?.bank ?? '', 'id', {
+          sensitivity: 'base'
+        })
+      })
   }, [masterData, kitchenId])
 
   const activeTransaction =
@@ -1456,7 +1488,13 @@ function App() {
     const kitchenName = selectedKitchen?.name ?? ''
     const preferredBank = getPreferredBank(kitchenName)
 
-    for (const entry of transaction.gas) {
+    for (const entry of [...transaction.gas].sort((a, b) => {
+      const aRule = gasRules.find((item) => item.account_id === a.accountId) ?? gasRules[0]
+      const bRule = gasRules.find((item) => item.account_id === b.accountId) ?? gasRules[0]
+      const aName = (aRule?.supplier?.business_name ?? aRule?.accounts?.name ?? '').trim()
+      const bName = (bRule?.supplier?.business_name ?? bRule?.accounts?.name ?? '').trim()
+      return aName.localeCompare(bName, 'id', { sensitivity: 'base' })
+    })) {
       if (!isCompleteAmount(entry.amount)) continue
       const rule =
         gasRules.find((item) => item.account_id === entry.accountId) ??
@@ -1464,8 +1502,11 @@ function App() {
       if (!rule?.accounts) continue
 
       const accountName = rule.supplier?.business_name || rule.accounts.name
+      const description = formatDescriptionList(entry.need?.trim() || 'Gas') || 'Gas'
       const outputLine =
         accountName +
+        ' / ' +
+        description +
         ' - ' +
         rule.accounts.bank +
         ' / ' +
@@ -1476,7 +1517,7 @@ function App() {
       items.push({
         kind: 'gas',
         bank: getOutputBank(rule.accounts.bank),
-        line: 'GAS : ' + outputLine,
+        line: outputLine,
         index: items.length,
         modeRank: 0
       })
@@ -2111,15 +2152,26 @@ function App() {
                     <section className="mt-3 w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">GAS</h2>
 
-                      <div className="mt-3 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
-                        {activeTransaction.gas.map((entry) => {
+                      <div className="mt-3 space-y-2.5">
+                        {[...activeTransaction.gas]
+                          .sort((a, b) => {
+                            const aRule = gasRules.find((item) => item.account_id === a.accountId) ?? gasRules[0]
+                            const bRule = gasRules.find((item) => item.account_id === b.accountId) ?? gasRules[0]
+                            const aName = (aRule?.supplier?.business_name ?? aRule?.accounts?.name ?? '').trim()
+                            const bName = (bRule?.supplier?.business_name ?? bRule?.accounts?.name ?? '').trim()
+                            return aName.localeCompare(bName, 'id', { sensitivity: 'base' })
+                          })
+                          .map((entry) => {
                           const rule =
                             gasRules.find(
                               (item) => item.account_id === entry.accountId
                             ) ?? gasRules[0]
 
                           return (
-                            <div key={entry.id} className="contents">
+                            <div
+                              key={entry.id}
+                              className="grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(220px,1.4fr)_160px] sm:items-center"
+                            >
                               <div className="min-w-0">
                                 <div className="truncate text-sm font-semibold text-white">
                                   {displaySupplierName(rule?.supplier) ||
@@ -2129,6 +2181,22 @@ function App() {
                                   {rule?.accounts?.account_number ?? '-'})
                                 </div>
                               </div>
+
+                              <input
+                                type="text"
+                                value={entry.need ?? ''}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'gas',
+                                    entry.id,
+                                    { need: event.target.value }
+                                  )
+                                }
+                                placeholder="Keterangan tambahan (mis. Gas 50 kg, tali rapia, plastik 12 x 25)"
+                                aria-label="Keterangan tambahan GAS"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              />
 
                               <input
                                 id={'gas-' + activeTransaction.id + '-' + entry.id}
