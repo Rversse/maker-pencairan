@@ -2321,7 +2321,7 @@ function App() {
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
-                            <div className="mt-3 grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(150px,1fr)_76px_minmax(105px,0.7fr)_minmax(210px,1fr)]">
+                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[minmax(150px,1.1fr)_76px_minmax(105px,0.8fr)_minmax(170px,1fr)_minmax(130px,0.8fr)_minmax(130px,0.8fr)]">
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 <span className="truncate">{account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
@@ -2358,7 +2358,7 @@ function App() {
                               </div>
                             )}
 
-                            <div className="mt-3 grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-[160px_160px]">
+                            <div className="mt-3 grid min-w-0 grid-cols-2 gap-2 lg:contents">
                               <label className="grid min-w-0 gap-1.5">
                                 <span className="text-center text-xs font-semibold text-slate-300">Mobil</span>
                                 <input
