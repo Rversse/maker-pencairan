@@ -1299,6 +1299,34 @@ function App() {
     })
   }
 
+  function updateCustomRabProduct(
+    transactionId: number,
+    accountId: string,
+    fieldIndex: number,
+    value: string,
+    availableProducts: string[]
+  ) {
+    const transaction = transactions.find((item) => item.id === transactionId)
+    if (!transaction) return
+
+    const entry = transaction.rab.find((item) => item.accountId === accountId)
+    const currentProducts = entry?.productTypes ?? []
+    const customProducts = currentProducts.filter(
+      (item) => !availableProducts.includes(item)
+    )
+    while (customProducts.length <= fieldIndex) customProducts.push('')
+    customProducts[fieldIndex] = value.trimStart()
+    const nextCustomProducts = customProducts
+      .map((item) => item.trim())
+      .filter(Boolean)
+    updateRabEntry(transactionId, accountId, {
+      productTypes: sortStrings([
+        ...currentProducts.filter((item) => availableProducts.includes(item)),
+        ...nextCustomProducts
+      ])
+    })
+  }
+
   function getKitchenRulesFor(kitchen: string): MakerAccountRule[] {
     if (!masterData) return []
 
@@ -2085,6 +2113,9 @@ function App() {
                         const products = sortStrings(
                           rule.supplier?.product_types ?? []
                         )
+                        const customProducts = entry.productTypes
+                          .filter((product) => !products.includes(product))
+                          .slice(0, 3)
 
                         return (
                           <div
@@ -2101,8 +2132,7 @@ function App() {
                                 {rule.accounts?.account_number ?? '-'})
                               </div>
 
-                              {products.length > 0 ? (
-                                <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                                   {products.map((product) => {
                                     const selected =
                                       entry.productTypes.includes(product)
@@ -2133,12 +2163,49 @@ function App() {
                                       </button>
                                     )
                                   })}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const currentCustom = entry.productTypes.filter((product) => !products.includes(product))
+                                      if (currentCustom.length >= 3) return
+                                      updateCustomRabProduct(
+                                        activeTransaction.id,
+                                        rule.account_id,
+                                        currentCustom.length,
+                                        '',
+                                        products
+                                      )
+                                    }}
+                                    disabled={customProducts.length >= 3}
+                                    className="inline-flex h-9 items-center rounded-md border border-dashed border-sky-700 bg-sky-950/40 px-2.5 text-xs font-medium text-sky-200 transition hover:bg-sky-900/50 disabled:cursor-not-allowed disabled:opacity-40"
+                                  >
+                                    + Custom
+                                  </button>
                                 </div>
-                              ) : (
-                                <div className="mt-1 text-[11px] text-slate-500">
-                                  Tidak ada produk yang bisa dipilih untuk rekening ini.
-                                </div>
-                              )}
+                                {customProducts.length > 0 && (
+                                  <div className="mt-2 flex flex-wrap gap-1.5">
+                                    {[0, 1, 2].map((fieldIndex) => (
+                                      <input
+                                        key={fieldIndex}
+                                        type="text"
+                                        value={customProducts[fieldIndex] ?? ''}
+                                        maxLength={40}
+                                        aria-label={'Item custom ' + (fieldIndex + 1)}
+                                        onChange={(event) =>
+                                          updateCustomRabProduct(
+                                            activeTransaction.id,
+                                            rule.account_id,
+                                            fieldIndex,
+                                            event.target.value,
+                                            products
+                                          )
+                                        }
+                                        placeholder={'Custom ' + (fieldIndex + 1)}
+                                        className="h-8 w-[100px] rounded-md border border-slate-700 bg-slate-900 px-2 text-[11px] text-slate-100 placeholder:text-slate-500 outline-none focus:border-sky-500"
+                                      />
+                                    ))}
+                                  </div>
+                                )}
                             </div>
 
                             <input
