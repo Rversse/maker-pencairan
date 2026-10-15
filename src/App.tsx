@@ -2111,7 +2111,7 @@ function App() {
                       }
 
                       return (
-                        <div className="mt-2 space-y-2">
+                        <div className="mt-2 space-y-2.5">
                           {sortedRabRules.map((rule, index) =>
                             renderRabRow(rule, index)
                           )}
@@ -2125,7 +2125,7 @@ function App() {
                     <section className="mt-3 w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">GAS</h2>
 
-                      <div className="mt-3 space-y-2.5">
+                      <div className="mt-3 space-y-3">
                         {[...activeTransaction.gas]
                           .sort((a, b) => {
                             const aRule = gasRules.find((item) => item.account_id === a.accountId) ?? gasRules[0]
@@ -2246,7 +2246,7 @@ function App() {
                   <div className="mt-3 w-full min-w-0 space-y-3">
                     <section className="w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa SPPG</h2>
-                      <div className="mt-3 space-y-2.5">
+                      <div className="mt-3 space-y-3">
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa')
                           .map((entry) => {
@@ -2380,7 +2380,7 @@ function App() {
                         </div>
                       )}
 
-                      <div className="mt-3 space-y-2.5">
+                      <div className="mt-3 space-y-3">
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'gaji')
                           .map((entry) => {
@@ -2438,10 +2438,14 @@ function App() {
                       </div>
                     </section>
 
-                    <section className="w-full min-w-0 rounded-xl border border-emerald-600/60 bg-emerald-950/10 p-3">
-                      <h2 className="text-base font-semibold text-white">OPS Harian (R)</h2>
-                      <label className="mt-3 grid min-w-0 gap-1.5 sm:grid-cols-[minmax(0,1fr)_140px] sm:items-center">
-                        <span className="text-sm text-slate-300">Nominal OPS Real</span>
+                    <div className="mt-3 border-t border-slate-800/80 pt-3">
+                      <div className="grid min-w-0 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_140px]">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                          <span className="inline-flex items-center rounded-md border border-emerald-700/50 bg-emerald-950/40 px-2.5 py-1.5 text-xs font-semibold tracking-wide text-emerald-200">
+                            OPS HARIAN (R)
+                          </span>
+                          <span className="text-xs text-slate-400">Nominal real · tanpa mapping rekening</span>
+                        </div>
                         <input
                           type="text"
                           inputMode="numeric"
@@ -2449,12 +2453,12 @@ function App() {
                           onChange={(event) => updateTransaction(activeTransaction.id, {
                             opsRealAmount: event.target.value.replace(/\D/g, '')
                           })}
-                          placeholder="Nominal"
+                          placeholder="Nominal OPS Real"
                           aria-label="Nominal OPS Real"
-                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 shadow-inner shadow-black/20 outline-none transition placeholder:text-slate-500 hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                         />
-                      </label>
-                    </section>
+                      </div>
+                    </div>
                   </div>
 
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
@@ -2469,7 +2473,7 @@ function App() {
                       </button>
                     </div>
 
-                    <div className="mt-3 space-y-2.5">
+                    <div className="mt-3 space-y-3">
                       {activeTransaction.lain_lain.map((entry) => (
                         <div
                           key={entry.id}
