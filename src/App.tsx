@@ -353,7 +353,14 @@ function formatDescriptionList(value: string) {
         .replace(/\bX\b/g, 'x')
     )
 
-  if (items.length < 2) return items[0] ?? ''
+  if (items.length === 0) return 'Gas'
+
+  const firstItem = items[0].toLocaleLowerCase('id-ID')
+  if (firstItem !== 'gas' && !firstItem.startsWith('gas ')) {
+    items[0] = 'Gas ' + items[0]
+  }
+
+  if (items.length < 2) return items[0] ?? 'Gas'
   return `${items.slice(0, -1).join(', ')} dan ${items[items.length - 1]}`
 }
 
@@ -2193,7 +2200,7 @@ function App() {
                                     { need: event.target.value }
                                   )
                                 }
-                                placeholder="Keterangan tambahan (mis. Gas 50 kg, tali rapia, plastik 12 x 25)"
+                                placeholder="Keterangan tambahan (mis. 50 kg, tali rapia, plastik 12 x 25)"
                                 aria-label="Keterangan tambahan GAS"
                                 className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                               />
