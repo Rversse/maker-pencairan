@@ -1890,7 +1890,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <section className="sticky top-2 z-40 mb-4 w-full rounded-2xl border border-emerald-700/50 bg-gradient-to-b from-slate-900/98 to-slate-950/98 p-3 shadow-xl shadow-black/25 ring-1 ring-white/[0.025] backdrop-blur-xl">
+              <section className="sticky top-2 z-40 mt-3 mb-3 w-full rounded-2xl border border-emerald-700/50 bg-gradient-to-b from-slate-900/98 to-slate-950/98 p-3 shadow-xl shadow-black/25 ring-1 ring-white/[0.025] backdrop-blur-xl">
                 <div className="grid min-w-0 items-end gap-3 sm:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[200px_minmax(220px,1fr)_auto]">
                   <div className="min-w-0">
                     <label htmlFor="date" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Tanggal</label>
@@ -2111,7 +2111,7 @@ function App() {
                       }
 
                       return (
-                        <div className="mt-2 space-y-2.5">
+                        <div className="mt-2 space-y-3">
                           {sortedRabRules.map((rule, index) =>
                             renderRabRow(rule, index)
                           )}
@@ -2240,7 +2240,7 @@ function App() {
                         </div>
                       )
                     })()}
-<div className="mt-3 border-t border-slate-800/80 pt-3">
+                    <div className="mt-3 border-t border-slate-800/80 pt-3">
                       <div className="grid min-w-0 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_140px]">
                         <div className="flex min-w-0 flex-wrap items-center gap-2">
                           <span className="inline-flex items-center rounded-md border border-emerald-700/50 bg-emerald-950/40 px-2.5 py-1.5 text-xs font-semibold tracking-wide text-emerald-200">
