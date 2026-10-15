@@ -2014,7 +2014,7 @@ function App() {
                       <button
                         type="button"
                         data-button-kind="primary"
-                        onClick={() => void copyOutput()
+                        onClick={() => void copyOutput()}
                         disabled={!output}
                         className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
                       >
