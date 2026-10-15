@@ -280,7 +280,7 @@ export function DateRangePicker({
       <button
         ref={triggerRef}
         type="button"
-        className="flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-slate-700 bg-slate-900 px-3 text-left text-sm font-medium text-slate-100 outline-none transition hover:border-stone-500 hover:bg-slate-800 focus-visible:border-stone-300 focus-visible:ring-1 focus-visible:ring-stone-300/30"
+        className="flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-slate-700 bg-slate-900 px-3 text-left text-sm font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 hover:bg-slate-800 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500/30"
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={handleTriggerClick}
