@@ -1744,14 +1744,8 @@ function App() {
     const mainLines = items.length > 0
       ? [headerLine, ...items.map((item) => item.line)]
       : []
-    const hasOpsRealAmount = isCompleteAmount(transaction.opsRealAmount)
-
-    if (mainLines.length === 0 && !hasOpsRealAmount) return []
-    if (mainLines.length === 0) mainLines.push(headerLine)
-    if (hasOpsRealAmount) {
-      // Keep realization data outside bank sorting: it is a record, not a transfer instruction.
-      mainLines.push('', '_OPS Real_ · ' + formatNumber(transaction.opsRealAmount))
-    }
+    // Ops Real is temporarily disabled, so it is omitted from generated output.
+    if (mainLines.length === 0) return []
 
     return mainLines
   }
@@ -2325,7 +2319,7 @@ function App() {
                   )}
 
                   <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
-                    <h2 className="text-base font-semibold text-white">Ops Harian dan Ops Harian (R)</h2>
+                    <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
@@ -2360,26 +2354,6 @@ function App() {
                         </div>
                       )
                     })()}
-                    <div className="mt-3 border-t border-slate-800/80 pt-3">
-                      <div className="grid min-w-0 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_140px]">
-                        <div className="flex min-w-0 flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center rounded-md border border-emerald-700/50 bg-emerald-950/40 px-2.5 py-1.5 text-xs font-semibold tracking-wide text-emerald-200">
-                            OPS HARIAN (R)
-                          </span>
-                        </div>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={formatNumber(activeTransaction.opsRealAmount)}
-                          onChange={(event) => updateTransaction(activeTransaction.id, {
-                            opsRealAmount: event.target.value.replace(/\D/g, '')
-                          })}
-                          placeholder="Nominal OPS Real"
-                          aria-label="Nominal OPS Real"
-                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 shadow-inner shadow-black/20 outline-none transition placeholder:text-slate-500 hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
-                        />
-                      </div>
-                    </div>
                   </section>
 
 
