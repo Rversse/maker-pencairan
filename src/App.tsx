@@ -324,18 +324,6 @@ function getOutputCategoryRank(
   return 4
 }
 
-function displaySupplierName(
-  supplier:
-    | { business_name: string; owner_name: string | null }
-    | null
-    | undefined
-) {
-  if (!supplier) return ''
-  return supplier.owner_name
-    ? `${supplier.business_name} (${supplier.owner_name})`
-    : supplier.business_name
-}
-
 function formatDescriptionList(value: string) {
   const items = value
     .split(',')
