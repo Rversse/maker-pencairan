@@ -1550,6 +1550,53 @@ function App() {
       : ''
   const outputLineCount = output ? Math.max(0, output.split('\n').length - 1) : 0
 
+  const outputWarnings: string[] = []
+  if (activeTransaction && selectedKitchen) {
+    const kitchenName = selectedKitchen.name
+    const hasSewaMapping = Boolean(getSppgRental(kitchenName, masterData))
+    const sewaEntry = activeTransaction.pencairan_harian.find(
+      (entry) => entry.category === 'sewa' && entry.kinds.includes('Sewa SPPG')
+    )
+    if (hasSewaMapping && (!sewaEntry || !isCompleteAmount(sewaEntry.amount))) {
+      outputWarnings.push('Sewa SPPG belum diisi.')
+    }
+
+    const payrollEntries = activeTransaction.pencairan_harian.filter(
+      (entry) => entry.category === 'gaji'
+    )
+    if (kitchenName === 'Campakamulya') {
+      const combinedEntry = payrollEntries.find((entry) =>
+        DAILY_PAYMENT_GAJI_OPTIONS.every((kind) => entry.kinds.includes(kind))
+      )
+      const combinedMapping = combinedEntry
+        ? getDailyPaymentMappingForKinds(kitchenName, combinedEntry.kinds, masterData)
+        : null
+      if (combinedMapping && combinedEntry && !isCompleteAmount(combinedEntry.amount)) {
+        outputWarnings.push('Gaji Relawan + Insentif PIC belum diisi.')
+      }
+    } else {
+      for (const kind of DAILY_PAYMENT_GAJI_OPTIONS) {
+        const entry = payrollEntries.find(
+          (item) => item.kinds.length === 1 && item.kinds[0] === kind
+        )
+        if (
+          getDailyPaymentAccount(kitchenName, kind, masterData) &&
+          (!entry || !isCompleteAmount(entry.amount))
+        ) {
+          outputWarnings.push(kind + ' belum diisi.')
+        }
+      }
+    }
+
+    const operationalEntry = activeTransaction.operasional?.[0]
+    if (
+      getOperationalAccount(kitchenName, masterData) &&
+      (!operationalEntry || !isCompleteAmount(operationalEntry.amount))
+    ) {
+      outputWarnings.push('Ops Harian belum diisi.')
+    }
+  }
+
   async function copyOutput() {
     if (!output) return
 
@@ -1719,11 +1766,22 @@ function App() {
                       <pre className="mt-2 max-h-[18vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 xl:max-h-[calc(100vh-10rem)]">
                         {output || 'Belum ada nominal yang diisi. Isi nominal yang diperlukan, nanti hasilnya muncul di sini.'}
                       </pre>
+
+                      {outputWarnings.length > 0 && (
+                        <div
+                          className="mt-2 rounded-lg border border-amber-600/50 bg-amber-950/25 px-3 py-2 text-xs leading-5 text-amber-200"
+                          role="status"
+                          aria-live="polite"
+                        >
+                          <span className="font-semibold">Pengingat:</span>{' '}
+                          {outputWarnings.join(' ')}
+                        </div>
+                      )}
                     </section>
                   </aside>
                 )}
                 <div className="min-w-0 xl:col-start-1 xl:row-start-1">
-                <section className="rounded-xl border border-stone-600 bg-slate-900 p-4 shadow-lg">
+                <section className="rounded-xl border border-indigo-600/70 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
                       <label
@@ -1789,7 +1847,7 @@ function App() {
 
               {kitchenId && activeTransaction && (
                 <>
-                  <section className="mt-3 w-full min-w-0 rounded-xl border border-stone-500 bg-slate-900 p-3">
+                  <section className="mt-3 w-full min-w-0 rounded-xl border border-amber-500/70 bg-slate-900 p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -1898,7 +1956,7 @@ function App() {
 
 
                   {gasRules.length > 0 && (
-                    <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                    <section className="mt-3 w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">GAS</h2>
 
                       <div className="mt-3 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
@@ -1946,7 +2004,7 @@ function App() {
                     </section>
                   )}
 
-                  <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                  <section className="mt-3 w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
@@ -2029,7 +2087,7 @@ function App() {
                       </div>
                     </section>
 
-                    <section className="w-full min-w-0 rounded-xl border border-slate-600 bg-slate-900/40 p-3">
+                    <section className="w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
                         const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
@@ -2188,7 +2246,7 @@ function App() {
                     </section>
                   </div>
 
-                  <section className="mt-3 w-full min-w-0 rounded-xl border border-slate-700 bg-slate-900/40 p-3">
+                  <section className="mt-3 w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
                       <button
