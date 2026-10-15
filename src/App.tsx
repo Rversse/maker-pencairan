@@ -2186,7 +2186,7 @@ function App() {
                                 </span>
                               </div>
 
-                              <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                              <div title={rule?.accounts?.bank ?? '-'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 {rule?.accounts?.bank ?? '-'}
                               </div>
 
@@ -2397,6 +2397,7 @@ function App() {
                             )}
 
                           </>
+                        )
                       })()}
                     </section>
 
