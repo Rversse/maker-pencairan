@@ -1840,9 +1840,9 @@ function App() {
 
   return (
     <main className="min-h-screen overflow-x-clip bg-slate-950 p-2 text-white sm:p-3 md:p-4">
-      <div className="mx-auto w-full max-w-[1432px]">
+      <div className="mx-auto w-full max-w-[960px]">
         <>
-          <header className="flex max-w-[1432px] items-center justify-between gap-3">
+          <header className="flex w-full items-center justify-between gap-3 py-1">
             <div className="flex min-w-0 items-center gap-3">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-emerald-700/60 bg-emerald-950/50 shadow-sm" aria-hidden="true">
                 <svg viewBox="0 0 48 48" fill="none" className="h-9 w-9">
@@ -1857,7 +1857,7 @@ function App() {
             </div>
           </header>
 
-          <div className="mt-3 max-w-[1432px] rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-100">
+          <div className="mt-3 w-full rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-950/25 to-slate-900/80 p-3 text-sm text-amber-100 shadow-sm shadow-black/20">
             Kalo rekening tujuan gak ada atau mau ganti rekening bisa langsung ke{' '}
             <a
               href="https://wa.me/6285794323042"
@@ -1890,13 +1890,13 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <section className="sticky top-2 z-40 mb-3 max-w-[1432px] rounded-2xl border border-emerald-800/70 bg-slate-950/95 p-3 shadow-xl shadow-black/20 backdrop-blur">
-                <div className="grid min-w-0 items-end gap-3 sm:grid-cols-[150px_minmax(0,1fr)] xl:grid-cols-[150px_minmax(240px,1fr)_auto]">
+              <section className="sticky top-2 z-40 mb-4 w-full rounded-2xl border border-emerald-700/50 bg-gradient-to-b from-slate-900/98 to-slate-950/98 p-3 shadow-xl shadow-black/25 ring-1 ring-white/[0.025] backdrop-blur-xl">
+                <div className="grid min-w-0 items-end gap-3 sm:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[200px_minmax(220px,1fr)_auto]">
                   <div className="min-w-0">
                     <label htmlFor="date" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Tanggal</label>
                     <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-3 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
-                      <span className="text-xs font-semibold text-slate-500">TANGGAL</span>
-                      <span className="ml-3 text-sm font-semibold text-white">{formatDate(activeDate)}</span>
+                      <span className="whitespace-nowrap text-xs font-semibold tracking-wide text-slate-500">TANGGAL</span>
+                      <span className="ml-3 whitespace-nowrap text-sm font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
                       <input
                         ref={dateInputRef}
                         id="date"
@@ -2010,10 +2010,10 @@ function App() {
               </section>
 
 
-              <div className="min-w-0 max-w-[960px]">
+              <div className="min-w-0 w-full max-w-[960px]">
                 {kitchenId && activeTransaction && (
                 <>
-                  <section className="mt-3 w-full min-w-0 rounded-xl border border-amber-500/70 bg-slate-900 p-3">
+                  <section className="mt-3 w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
