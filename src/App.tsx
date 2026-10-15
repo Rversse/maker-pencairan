@@ -534,7 +534,7 @@ function getPayrollStructure(
     const amountsToCombine = gajiRows.map((entry) => entry.amount)
     const combinedAmount = String(
       amountsToCombine.reduce(
-        (total, value) => total + Number((value ?? '').replace(/\\D/g, '')),
+        (total, value) => total + Number((value ?? '').replace(/\D/g, '')),
         0
       ) || ''
     )
