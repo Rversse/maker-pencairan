@@ -1913,7 +1913,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-3 grid w-full min-w-0 gap-3 2xl:grid-cols-[minmax(0,1fr)_minmax(460px,540px)] 2xl:items-start">
+              <div className="mt-3 grid w-full min-w-0 justify-start gap-3 2xl:grid-cols-[minmax(0,960px)_minmax(400px,460px)] 2xl:items-start">
                 {kitchenId && activeTransaction && (
                   <aside className="min-w-0 self-start 2xl:sticky 2xl:top-3 2xl:z-20 2xl:col-start-2 2xl:row-start-1">
                     <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
