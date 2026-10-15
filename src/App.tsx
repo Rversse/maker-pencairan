@@ -2381,7 +2381,7 @@ function App() {
                           inputMode="numeric"
                           value={formatNumber(activeTransaction.opsRealAmount)}
                           onChange={(event) => updateTransaction(activeTransaction.id, {
-                            opsRealAmount: event.target.value.replace(/\\D/g, '')
+                            opsRealAmount: event.target.value.replace(/\D/g, '')
                           })}
                           placeholder="Nominal"
                           aria-label="Nominal OPS Real"
