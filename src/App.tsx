@@ -2026,16 +2026,13 @@ function App() {
                     </pre>
 
                     {outputChecks.length > 0 && (
-                      <div className="mt-3 grid min-w-0 grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-5">
+                      <div className="mt-3 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,130px),1fr))] gap-x-2 gap-y-3">
                         {[...outputChecks]
                           .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
-                          .map((check, index) => (
+                          .map((check) => (
                             <div
                               key={check.label}
-                              className={[
-                                'flex min-w-0 flex-col items-center justify-center gap-1.5 px-2 py-1 text-center text-xs leading-5',
-                                index > 0 ? 'sm:border-l sm:border-slate-800 sm:pl-3' : ''
-                              ].join(' ')}
+                              className="flex min-w-0 flex-col items-center justify-center gap-1.5 px-2 py-1 text-center text-xs leading-5"
                             >
                               <span
                                 aria-hidden="true"
@@ -2044,7 +2041,7 @@ function App() {
                                   check.complete ? 'bg-emerald-400' : 'bg-rose-500'
                                 ].join(' ')}
                               />
-                              <span title={check.label} className="max-w-full truncate text-slate-200">{check.label}</span>
+                              <span title={check.label} className="w-full max-w-full truncate text-center text-slate-200">{check.label}</span>
                             </div>
                           ))}
                       </div>
