@@ -419,6 +419,7 @@ export function DateRangePicker({
                 <button
                   key={dateKey}
                   type="button"
+                  data-calendar-day="true"
                   disabled={beforePending}
                   onMouseEnter={() => setHoverDate(dateKey)}
                   onFocus={() => setHoverDate(dateKey)}
