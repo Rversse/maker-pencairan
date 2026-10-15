@@ -510,3 +510,21 @@ button[data-option-button='true']:focus-visible {
   color: #065f46 !important;
   background: #d1fae5 !important;
 }
+
+
+/* One shared spacing rhythm for every form card. */
+.mp-form-stack {
+  gap: 12px;
+}
+
+.mp-form-stack > .mp-card,
+.mp-form-stack > div > .mp-card {
+  margin-block: 0 !important;
+}
+
+/* Restore sticky positioning after the premium-card base surface styling. */
+.mp-card--sticky {
+  position: sticky !important;
+  top: 8px;
+  z-index: 40;
+}
