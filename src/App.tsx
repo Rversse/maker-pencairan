@@ -905,12 +905,30 @@ function App() {
   )
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window === 'undefined') return 'dark'
+    try {
+      return window.localStorage.getItem('maker-pencairan-theme') === 'light' ? 'light' : 'dark'
+    } catch {
+      return 'dark'
+    }
+  })
   const dateInputRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef({
     kitchenId: saved?.kitchenId ?? '',
     activeTransactionId: 1,
     transactions: initialTransaction ? [initialTransaction] : []
   })
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+    try {
+      window.localStorage.setItem('maker-pencairan-theme', theme)
+    } catch {
+      // Theme still works for the current session when storage is unavailable.
+    }
+  }, [theme])
 
   useEffect(() => {
     if (masterData) return
@@ -1853,8 +1871,36 @@ function App() {
               </span>
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
+                <p className="mt-0.5 hidden text-xs font-medium tracking-wide text-slate-400 sm:block">FINANCIAL OPERATIONS</p>
               </div>
             </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={theme === 'dark'}
+              aria-label={theme === 'dark' ? 'Beralih ke tema terang' : 'Beralih ke tema gelap'}
+              title={theme === 'dark' ? 'Ganti ke Light Mode' : 'Ganti ke Dark Mode'}
+              data-theme={theme}
+              onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
+              className="theme-switch"
+            >
+              <span className="theme-switch__track" aria-hidden="true">
+                <span className="theme-switch__thumb">
+                  {theme === 'dark' ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20.2 15.4A8.4 8.4 0 0 1 8.6 3.8 8.5 8.5 0 1 0 20.2 15.4Z" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="4" />
+                      <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+                    </svg>
+                  )}
+                </span>
+              </span>
+              <span className="theme-switch__label">{theme === 'dark' ? 'Dark' : 'Light'}</span>
+              <span className="theme-switch__hint">{theme === 'dark' ? 'Mode' : 'Mode'}</span>
+            </button>
           </header>
 
           <div className="mt-3 w-full rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-950/25 to-slate-900/80 p-3 text-sm text-amber-100 shadow-sm shadow-black/20">
