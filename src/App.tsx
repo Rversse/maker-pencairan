@@ -1709,7 +1709,7 @@ function App() {
     activeTransaction
       ? getTransactionOutput(activeTransaction).join('\n')
       : ''
-  const outputLineCount = output ? output.split('\\n').slice(1).filter((line) => line.trim()).length : 0
+  const outputLineCount = output ? output.split('\n').slice(1).filter((line) => line.trim()).length : 0
 
   const outputChecks: { label: string; complete: boolean }[] = []
   if (activeTransaction && selectedKitchen) {
