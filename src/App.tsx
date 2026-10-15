@@ -678,7 +678,7 @@ function normalizeTransaction(
           category,
           kinds: sortDailyPaymentKinds(legacyKinds),
           bank: entry.bank ?? '',
-          accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''),
+          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
           ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }
       })
