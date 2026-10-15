@@ -2054,10 +2054,10 @@ function App() {
               </section>
 
 
-              <div className="min-w-0 w-full max-w-[960px]">
+              <div className="mp-form-stack flex min-w-0 w-full max-w-[960px] flex-col gap-3">
                 {kitchenId && activeTransaction && (
                 <>
-                  <section className="mp-card mt-3 w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
+                  <section className="mp-card w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -2169,7 +2169,7 @@ function App() {
 
 
                   {gasRules.length > 0 && (
-                    <section className="mp-card mt-3 w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">GAS</h2>
 
                       <div className="mt-3 space-y-3">
@@ -2251,7 +2251,7 @@ function App() {
                     </section>
                   )}
 
-                  <section className="mp-card mt-3 w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
+                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian dan Ops Harian (R)</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
@@ -2310,7 +2310,7 @@ function App() {
                   </section>
 
 
-                  <div className="mt-3 w-full min-w-0 space-y-3">
+                  <div className="w-full min-w-0 space-y-3">
                     <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa SPPG</h2>
                       <div className="mt-3 space-y-3">
@@ -2508,7 +2508,7 @@ function App() {
                     
                   </div>
 
-                  <section className="mp-card mt-3 w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
+                  <section className="mp-card w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
                       <button
