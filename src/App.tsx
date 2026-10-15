@@ -344,13 +344,13 @@ function formatDescriptionList(value: string) {
     .map((item) =>
       item
         .toLocaleLowerCase('id-ID')
-        .replace(/(^|[\\s-])(\\p{L})/gu, (_match, separator: string, letter: string) =>
+        .replace(/(^|[\s-])(\p{L})/gu, (_match, separator: string, letter: string) =>
           separator + letter.toLocaleUpperCase('id-ID')
         )
-        .replace(/(\\d)\\s*(kg|gr|g|ml|cm|mm|km|m|l)\\b/giu, (_match, number: string, unit: string) =>
+        .replace(/(\d)\s*(kg|gr|g|ml|cm|mm|km|m|l)\b/giu, (_match, number: string, unit: string) =>
           `${number} ${unit.toLocaleLowerCase('id-ID')}`
         )
-        .replace(/\\bX\\b/g, 'x')
+        .replace(/\bX\b/g, 'x')
     )
 
   if (items.length < 2) return items[0] ?? ''
