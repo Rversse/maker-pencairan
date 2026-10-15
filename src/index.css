@@ -258,3 +258,219 @@ body {
     transition: none !important;
   }
 }
+
+
+
+/* Premium financial UI: subtle edge glow and elevated card surfaces. */
+:root {
+  --mp-card-top: #111c2c;
+  --mp-card-bottom: #0b1321;
+  --mp-card-rim-a: rgb(71 92 118 / 72%);
+  --mp-card-rim-b: rgb(16 185 129 / 38%);
+  --mp-card-glow: rgb(16 185 129 / 10%);
+  --mp-card-shadow: 0 14px 34px rgb(0 0 0 / 18%);
+  --mp-card-shadow-hover: 0 18px 38px rgb(0 0 0 / 24%);
+  --mp-action-bg: linear-gradient(145deg, #172235, #0d1726);
+  --mp-action-text: #e7edf7;
+  --mp-action-border: #3a4b62;
+  --mp-action-hover-bg: #f8fafc;
+  --mp-action-hover-text: #101827;
+  --mp-action-hover-border: #f8fafc;
+}
+
+:root[data-theme='light'] {
+  --mp-card-top: #ffffff;
+  --mp-card-bottom: #f8fafc;
+  --mp-card-rim-a: #dbe5f0;
+  --mp-card-rim-b: #b7e8d3;
+  --mp-card-glow: rgb(16 185 129 / 5%);
+  --mp-card-shadow: 0 10px 28px rgb(31 48 72 / 7%);
+  --mp-card-shadow-hover: 0 14px 32px rgb(31 48 72 / 12%);
+  --mp-action-bg: linear-gradient(145deg, #ffffff, #edf2f8);
+  --mp-action-text: #1e293b;
+  --mp-action-border: #d0dbea;
+  --mp-action-hover-bg: #111827;
+  --mp-action-hover-text: #f8fafc;
+  --mp-action-hover-border: #111827;
+}
+
+.mp-card {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid transparent !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(145deg, var(--mp-card-top), var(--mp-card-bottom)) padding-box,
+    linear-gradient(135deg, var(--mp-card-rim-a), var(--mp-card-rim-b)) border-box !important;
+  box-shadow: var(--mp-card-shadow), inset 0 1px 0 rgb(255 255 255 / 3%);
+  transition: box-shadow 200ms ease, --mp-card-rim-a 200ms ease, --mp-card-rim-b 200ms ease;
+}
+
+.mp-card::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 0% 0%, var(--mp-card-glow), transparent 62%);
+  pointer-events: none;
+}
+
+.mp-card:hover {
+  --mp-card-rim-a: rgb(100 126 158 / 78%);
+  --mp-card-rim-b: rgb(16 185 129 / 62%);
+  box-shadow: var(--mp-card-shadow-hover), inset 0 1px 0 rgb(255 255 255 / 4%);
+}
+
+:root[data-theme='light'] .mp-card:hover {
+  --mp-card-rim-a: #b8c9dc;
+  --mp-card-rim-b: #6fd6ae;
+}
+
+.mp-card--sticky {
+  backdrop-filter: blur(18px);
+}
+
+/* Theme-aware action buttons inspired by the linked Uiverse component:
+   dark surfaces invert to light on hover; light surfaces invert to dark. */
+button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
+  border: 1px solid var(--mp-action-border) !important;
+  border-radius: 10px;
+  background: var(--mp-action-bg) !important;
+  color: var(--mp-action-text) !important;
+  box-shadow: 0 2px 7px rgb(0 0 0 / 10%), inset 0 1px 0 rgb(255 255 255 / 4%);
+  transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
+}
+
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
+  border-color: var(--mp-action-hover-border) !important;
+  background: var(--mp-action-hover-bg) !important;
+  color: var(--mp-action-hover-text) !important;
+  box-shadow: 0 5px 14px rgb(0 0 0 / 22%);
+  transform: translateY(-1px);
+}
+
+:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
+  border-color: var(--mp-action-hover-border) !important;
+  background: var(--mp-action-hover-bg) !important;
+  color: var(--mp-action-hover-text) !important;
+  box-shadow: 0 5px 14px rgb(31 48 72 / 13%);
+  transform: translateY(-1px);
+}
+
+button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 3px;
+}
+
+button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
+  transform: translateY(0) scale(0.985);
+}
+
+button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+  box-shadow: none;
+  transform: none;
+}
+
+button[data-button-kind='primary'] {
+  border-color: #059669 !important;
+  background: linear-gradient(145deg, #10b981, #047857) !important;
+  color: #f0fdf4 !important;
+  box-shadow: 0 4px 12px rgb(5 150 105 / 20%), inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+
+:root:not([data-theme='light']) button[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: #f8fafc !important;
+  background: #f8fafc !important;
+  color: #101827 !important;
+}
+
+:root[data-theme='light'] button[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: #111827 !important;
+  background: #111827 !important;
+  color: #f8fafc !important;
+}
+
+/* Product buttons are persistent choices, so keep their selected state visible.
+   Unselected choices still invert on hover to match the theme's action buttons. */
+button[data-option-button='true'] {
+  border-radius: 9px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+  transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
+}
+
+:root:not([data-theme='light']) button[data-option-button='true'][data-selected='false'] {
+  border-color: #34445a !important;
+  background: linear-gradient(145deg, #172235, #0d1726) !important;
+  color: #dbe5f1 !important;
+}
+
+:root[data-theme='light'] button[data-option-button='true'][data-selected='false'] {
+  border-color: #d0dbea !important;
+  background: linear-gradient(145deg, #ffffff, #edf2f8) !important;
+  color: #243247 !important;
+}
+
+:root:not([data-theme='light']) button[data-option-button='true'][data-selected='false']:hover {
+  border-color: #f8fafc !important;
+  background: #f8fafc !important;
+  color: #101827 !important;
+  transform: translateY(-1px);
+}
+
+:root[data-theme='light'] button[data-option-button='true'][data-selected='false']:hover {
+  border-color: #111827 !important;
+  background: #111827 !important;
+  color: #f8fafc !important;
+  transform: translateY(-1px);
+}
+
+button[data-option-button='true'][data-selected='true'] {
+  border-color: #10b981 !important;
+  background: linear-gradient(145deg, #10b981, #047857) !important;
+  color: #ffffff !important;
+  box-shadow: 0 3px 9px rgb(5 150 105 / 16%);
+}
+
+button[data-option-button='true'][data-selected='true']:hover {
+  border-color: #34d399 !important;
+  background: linear-gradient(145deg, #34d399, #059669) !important;
+  color: #ffffff !important;
+}
+
+button[data-option-button='true']:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* Icon-only day/night switch. The icon itself shows the current mode. */
+.theme-switch {
+  width: 64px;
+  min-width: 64px;
+  height: 40px;
+  padding: 4px;
+  gap: 0;
+}
+
+.theme-switch__track {
+  width: 54px;
+  flex-basis: 54px;
+}
+
+.theme-switch__thumb {
+  transform: translateX(24px);
+}
+
+.theme-switch[data-theme='light'] .theme-switch__thumb {
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-card,
+  button:not(.theme-switch),
+  button[data-option-button='true'] {
+    transition: none !important;
+  }
+}
