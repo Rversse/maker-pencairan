@@ -2126,7 +2126,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className="h-10 w-[140px] max-w-[140px] max-w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                             />
                           </div>
                         )
@@ -2217,7 +2217,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className="h-10 w-[140px] max-w-[140px] max-w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                className="h-10 w-full max-w-[140px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                               />
                             </div>
                           )
@@ -2257,7 +2257,7 @@ function App() {
                             }
                             placeholder="Nominal"
                             aria-label="Nominal Ops Harian"
-                            className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         </div>
                       )
@@ -2301,7 +2301,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Sewa SPPG"
-                                    className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                               </div>
                             )
@@ -2348,7 +2348,7 @@ function App() {
                                   }
                                   placeholder="Nominal Mobil"
                                   aria-label="Nominal Kendaraan Mobil"
-                                  className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                                 />
                               </div>
                               <div className="min-w-0">
@@ -2363,7 +2363,7 @@ function App() {
                                   }
                                   placeholder="Nominal Motor"
                                   aria-label="Nominal Kendaraan Motor"
-                                  className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                                 />
                               </div>
                             </div>
@@ -2417,10 +2417,7 @@ function App() {
                               : entry.kinds[0] ?? 'Jenis belum dimapping'
 
                             return (
-                              <div
-                                key={entry.id}
-
-                              >
+                              <div key={entry.id}>
                                 <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
                                   <div
                                     title={label}
@@ -2454,7 +2451,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                               </div>
@@ -2476,7 +2473,7 @@ function App() {
                           })}
                           placeholder="Nominal"
                           aria-label="Nominal OPS Real"
-                          className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                          className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                         />
                       </label>
                     </section>
@@ -2588,7 +2585,7 @@ function App() {
                               }
                               placeholder="Nominal"
                               aria-label="Nominal Lain-Lain"
-                              className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                             />
                           </div>
                         </div>
