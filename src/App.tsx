@@ -1781,7 +1781,7 @@ function App() {
 
   return (
     <main className="min-h-screen overflow-x-clip bg-slate-950 p-2 text-white sm:p-3 md:p-4">
-      <div className="mx-auto w-full max-w-[1220px]">
+      <div className="mx-auto w-full max-w-none">
         <>
           <header className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
@@ -1847,9 +1847,9 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-3 grid w-full min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(330px,370px)] xl:items-start">
+              <div className="mt-3 grid w-full min-w-0 gap-3 2xl:grid-cols-[minmax(0,1fr)_minmax(330px,370px)] 2xl:items-start">
                 {kitchenId && activeTransaction && (
-                  <aside className="sticky top-2 z-20 min-w-0 self-start xl:col-start-2 xl:row-start-1 xl:top-3">
+                  <aside className="min-w-0 self-start 2xl:sticky 2xl:top-3 2xl:z-20 2xl:col-start-2 2xl:row-start-1">
                     <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -1884,7 +1884,7 @@ function App() {
                         </button>
                       </div>
 
-                      <pre className="mt-2 max-h-[18vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 xl:max-h-[calc(100vh-10rem)]">
+                      <pre className="mt-2 max-h-[32vh] min-h-[52px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs leading-5 text-slate-200 2xl:max-h-[calc(100vh-10rem)]">
                         {output || 'Belum ada nominal yang diisi. Isi nominal yang diperlukan, nanti hasilnya muncul di sini.'}
                       </pre>
 
@@ -1901,7 +1901,7 @@ function App() {
                     </section>
                   </aside>
                 )}
-                <div className="min-w-0 xl:col-start-1 xl:row-start-1">
+                <div className="min-w-0 2xl:col-start-1 2xl:row-start-1">
                 <section className="rounded-xl border border-indigo-600/70 bg-slate-900 p-4 shadow-lg">
                   <div className="grid gap-3 lg:grid-cols-[180px_minmax(220px,1fr)] lg:items-end">
                     <div>
