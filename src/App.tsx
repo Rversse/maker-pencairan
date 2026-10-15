@@ -1660,70 +1660,85 @@ function App() {
       : ''
   const outputLineCount = output ? Math.max(0, output.split('\n').length - 1) : 0
 
-  const outputWarnings: string[] = []
+  const outputChecks: { label: string; complete: boolean }[] = []
   if (activeTransaction && selectedKitchen) {
     const kitchenName = selectedKitchen.name
     const hasSewaMapping = Boolean(getSppgRental(kitchenName, masterData))
-    const sewaEntry = activeTransaction.pencairan_harian.find(
-      (entry) => entry.category === 'sewa' && entry.kinds.includes('Sewa SPPG')
-    )
-    if (hasSewaMapping && (!sewaEntry || !isCompleteAmount(sewaEntry.amount))) {
-      outputWarnings.push('Sewa SPPG belum diisi.')
+    if (hasSewaMapping) {
+      const sewaEntry = activeTransaction.pencairan_harian.find(
+        (entry) => entry.category === 'sewa' && entry.kinds.includes('Sewa SPPG')
+      )
+      outputChecks.push({
+        label: 'Sewa SPPG',
+        complete: Boolean(sewaEntry && isCompleteAmount(sewaEntry.amount))
+      })
     }
 
     const payrollEntries = activeTransaction.pencairan_harian.filter(
       (entry) => entry.category === 'gaji'
     )
     if (kitchenName === 'Campakamulya') {
-      const combinedEntry = payrollEntries.find((entry) =>
-        DAILY_PAYMENT_GAJI_OPTIONS.every((kind) => entry.kinds.includes(kind))
+      const combinedMapping = getDailyPaymentMappingForKinds(
+        kitchenName,
+        DAILY_PAYMENT_GAJI_OPTIONS,
+        masterData
       )
-      const combinedMapping = combinedEntry
-        ? getDailyPaymentMappingForKinds(kitchenName, combinedEntry.kinds, masterData)
-        : null
-      if (combinedMapping && combinedEntry && !isCompleteAmount(combinedEntry.amount)) {
-        outputWarnings.push('Gaji Relawan + Insentif PIC belum diisi.')
+      if (combinedMapping) {
+        const combinedEntry = payrollEntries.find((entry) =>
+          DAILY_PAYMENT_GAJI_OPTIONS.every((kind) => entry.kinds.includes(kind))
+        )
+        outputChecks.push({
+          label: 'Gaji Relawan + Insentif PIC',
+          complete: Boolean(combinedEntry && isCompleteAmount(combinedEntry.amount))
+        })
       }
     } else if (kitchenName === 'Cimanggu') {
-      const gajiEntry = payrollEntries.find(
-        (entry) => entry.kinds.length === 1 && entry.kinds[0] === 'Gaji Relawan'
-      )
-      if (
-        getDailyPaymentAccount(kitchenName, 'Gaji Relawan', masterData) &&
-        (!gajiEntry || !isCompleteAmount(gajiEntry.amount))
-      ) {
-        outputWarnings.push('Gaji Relawan belum diisi.')
+      const gajiMapping = getDailyPaymentAccount(kitchenName, 'Gaji Relawan', masterData)
+      if (gajiMapping) {
+        const gajiEntry = payrollEntries.find(
+          (entry) => entry.kinds.length === 1 && entry.kinds[0] === 'Gaji Relawan'
+        )
+        outputChecks.push({
+          label: 'Gaji Relawan',
+          complete: Boolean(gajiEntry && isCompleteAmount(gajiEntry.amount))
+        })
       }
 
-      const picEntry = payrollEntries.find((entry) =>
-        DAILY_PAYMENT_PIC_OPTIONS.every((kind) => entry.kinds.includes(kind))
+      const picMapping = getDailyPaymentMappingForKinds(
+        kitchenName,
+        DAILY_PAYMENT_PIC_OPTIONS,
+        masterData
       )
-      const picMapping = picEntry
-        ? getDailyPaymentMappingForKinds(kitchenName, picEntry.kinds, masterData)
-        : null
-      if (picMapping && picEntry && !isCompleteAmount(picEntry.amount)) {
-        outputWarnings.push('Insentif PIC Sekolah + Insentif PIC Posyandu belum diisi.')
+      if (picMapping) {
+        const picEntry = payrollEntries.find((entry) =>
+          DAILY_PAYMENT_PIC_OPTIONS.every((kind) => entry.kinds.includes(kind))
+        )
+        outputChecks.push({
+          label: 'Insentif PIC Sekolah + Insentif PIC Posyandu',
+          complete: Boolean(picEntry && isCompleteAmount(picEntry.amount))
+        })
       }
     } else {
       for (const kind of DAILY_PAYMENT_GAJI_OPTIONS) {
+        const mapping = getDailyPaymentAccount(kitchenName, kind, masterData)
+        if (!mapping) continue
         const entry = payrollEntries.find(
           (item) => item.kinds.length === 1 && item.kinds[0] === kind
         )
-        if (
-          getDailyPaymentAccount(kitchenName, kind, masterData) &&
-          (!entry || !isCompleteAmount(entry.amount))
-        ) {
-          outputWarnings.push(kind + ' belum diisi.')
-        }
+        outputChecks.push({
+          label: kind,
+          complete: Boolean(entry && isCompleteAmount(entry.amount))
+        })
       }
     }
 
-    const operationalEntry = activeTransaction.operasional?.[0]
-    if (
-      getOperationalAccount(kitchenName, masterData) &&
-      (!operationalEntry || !isCompleteAmount(operationalEntry.amount))
-    ) {
-      outputWarnings.push('Ops Harian belum diisi.')
+    const opsMapping = getOperationalAccount(kitchenName, masterData)
+    if (opsMapping) {
+      const operationalEntry = activeTransaction.operasional?.[0]
+      outputChecks.push({
+        label: 'Ops Harian',
+        complete: Boolean(operationalEntry && isCompleteAmount(operationalEntry.amount))
+      })
     }
   }
 
@@ -1781,7 +1796,7 @@ function App() {
 
   return (
     <main className="min-h-screen overflow-x-clip bg-slate-950 p-2 text-white sm:p-3 md:p-4">
-      <div className="mx-auto w-full max-w-none">
+      <div className="mx-auto w-full max-w-[1640px]">
         <>
           <header className="flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
@@ -1847,7 +1862,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <div className="mt-3 grid w-full min-w-0 gap-3 2xl:grid-cols-[minmax(0,1fr)_minmax(330px,370px)] 2xl:items-start">
+              <div className="mt-3 grid w-full min-w-0 gap-3 2xl:grid-cols-[minmax(0,1fr)_minmax(460px,540px)] 2xl:items-start">
                 {kitchenId && activeTransaction && (
                   <aside className="min-w-0 self-start 2xl:sticky 2xl:top-3 2xl:z-20 2xl:col-start-2 2xl:row-start-1">
                     <section className="rounded-xl border border-emerald-700/60 bg-emerald-950/20 p-3 shadow-lg">
@@ -1888,14 +1903,30 @@ function App() {
                         {output || 'Belum ada nominal yang diisi. Isi nominal yang diperlukan, nanti hasilnya muncul di sini.'}
                       </pre>
 
-                      {outputWarnings.length > 0 && (
+                      {outputChecks.length > 0 && (
                         <div
-                          className="mt-2 rounded-lg border border-amber-600/50 bg-amber-950/25 px-3 py-2 text-xs leading-5 text-amber-200"
+                          className="mt-3 rounded-lg border border-slate-800 bg-slate-950/70 p-3"
                           role="status"
                           aria-live="polite"
                         >
-                          <span className="font-semibold">Pengingat:</span>{' '}
-                          {outputWarnings.join(' ')}
+                          <div className="text-xs font-semibold text-slate-200">Pengingat</div>
+                          <div className="mt-2 flex flex-col gap-2">
+                            {outputChecks.map((check) => (
+                              <div key={check.label} className="flex min-w-0 items-center gap-2 text-xs leading-5">
+                                <span
+                                  aria-hidden="true"
+                                  className={[
+                                    'h-2.5 w-2.5 shrink-0 rounded-full',
+                                    check.complete ? 'bg-emerald-400' : 'bg-rose-500'
+                                  ].join(' ')}
+                                />
+                                <span className="min-w-0 flex-1 text-slate-200">{check.label}</span>
+                                <span className={check.complete ? 'shrink-0 text-emerald-300' : 'shrink-0 text-rose-300'}>
+                                  {check.complete ? 'Terisi' : 'Belum diisi'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </section>
