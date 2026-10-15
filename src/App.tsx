@@ -356,8 +356,10 @@ function formatDescriptionList(value: string) {
   if (items.length === 0) return 'Gas'
 
   const firstItem = items[0].toLocaleLowerCase('id-ID')
-  if (firstItem !== 'gas' && !firstItem.startsWith('gas ')) {
-    items[0] = 'Gas ' + items[0]
+  if (firstItem === 'gas') {
+    items[0] = 'Gas'
+  } else if (!firstItem.startsWith('gas ')) {
+    items[0] = 'Gas, ' + items[0]
   }
 
   if (items.length < 2) return items[0] ?? 'Gas'
