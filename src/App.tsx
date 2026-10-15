@@ -2205,7 +2205,7 @@ function App() {
                   )}
 
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
-                    <h2 className="text-base font-semibold text-white">Ops Harian</h2>
+                    <h2 className="text-base font-semibold text-white">Ops Harian dan Ops Harian (R)</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
