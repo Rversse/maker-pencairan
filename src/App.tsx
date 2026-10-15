@@ -1995,7 +1995,7 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_108px] items-start gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:grid-cols-[minmax(0,1fr)_145px] sm:gap-3"
+                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_160px] items-start gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
                           >
                             <div className="min-w-0">
                               <div className="truncate text-sm font-semibold text-white">
@@ -2131,7 +2131,7 @@ function App() {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
                       return (
-                        <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]">
+                        <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_160px]">
                           <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                             <span className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                           </div>
@@ -2175,7 +2175,7 @@ function App() {
                             return (
                               <div
                                 key={entry.id}
-                                className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(0,1fr)_100px_minmax(145px,0.9fr)_145px]"
+                                className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_160px]"
                               >
                                   <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                     <span className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
@@ -2215,7 +2215,7 @@ function App() {
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
-                            <div className="mt-3 grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(0,1fr)_105px_minmax(145px,0.8fr)_minmax(230px,1fr)]">
+                            <div className="mt-3 grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(230px,1fr)]">
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 <span className="truncate">{account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
@@ -2252,7 +2252,7 @@ function App() {
                               </div>
                             )}
 
-                            <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
+                            <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-[160px_160px]">
                               <label className="grid min-w-0 gap-1.5">
                                 <span className="text-xs font-semibold text-slate-300">Kendaraan Mobil</span>
                                 <input
@@ -2330,7 +2330,7 @@ function App() {
                                     : ''
                                 }
                               >
-                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(210px,1.2fr)_minmax(145px,1fr)_95px_minmax(145px,0.9fr)_145px]">
+                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_160px]">
                                   <div
                                     title={label}
                                     className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100"
@@ -2374,7 +2374,7 @@ function App() {
 
                     <section className="w-full min-w-0 rounded-xl border border-emerald-600/60 bg-emerald-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">OPS Harian (R)</h2>
-                      <label className="mt-3 grid min-w-0 gap-1.5 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-center">
+                      <label className="mt-3 grid min-w-0 gap-1.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
                         <span className="text-sm text-slate-300">Nominal OPS Real</span>
                         <input
                           type="text"
@@ -2413,7 +2413,7 @@ function App() {
                               : ''
                           }
                         >
-                          <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(110px,0.65fr)_minmax(145px,0.9fr)_minmax(160px,1fr)_minmax(170px,1.2fr)_minmax(135px,0.8fr)] lg:items-end">
+                          <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(90px,0.55fr)_minmax(130px,0.85fr)_minmax(180px,1.15fr)_minmax(180px,1.2fr)_160px] lg:items-end">
                             <div className="min-w-0">
                               <select
                                 value={entry.accountId}
