@@ -905,6 +905,7 @@ function App() {
   )
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
+  const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark'
     try {
@@ -2165,24 +2166,19 @@ function App() {
                                   })}
                                   <button
                                     type="button"
-                                    onClick={() => {
-                                      const currentCustom = entry.productTypes.filter((product) => !products.includes(product))
-                                      if (currentCustom.length >= 3) return
-                                      updateCustomRabProduct(
-                                        activeTransaction.id,
-                                        rule.account_id,
-                                        currentCustom.length,
-                                        '',
-                                        products
-                                      )
-                                    }}
-                                    disabled={customProducts.length >= 3}
+                                    onClick={() =>
+                                      setCustomRabOpen((current) => ({
+                                        ...current,
+                                        [rule.account_id]: !current[rule.account_id]
+                                      }))
+                                    }
+                                    disabled={customProducts.length >= 3 && !customRabOpen[rule.account_id]}
                                     className="inline-flex h-9 items-center rounded-md border border-dashed border-sky-700 bg-sky-950/40 px-2.5 text-xs font-medium text-sky-200 transition hover:bg-sky-900/50 disabled:cursor-not-allowed disabled:opacity-40"
                                   >
                                     + Custom
                                   </button>
                                 </div>
-                                {customProducts.length > 0 && (
+                                {customRabOpen[rule.account_id] && (
                                   <div className="mt-2 flex flex-wrap gap-1.5">
                                     {[0, 1, 2].map((fieldIndex) => (
                                       <input
