@@ -69,19 +69,23 @@ type TransactionGroup = {
   pencairan_harian: DailyPaymentEntry[]
   sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
+  opsRealAmount: string
 }
 
 type SavedWorkspace = {
-  version: 3 | 4 | 5 | 6
+  version: 3 | 4 | 5 | 6 | 7
   kitchenId: string
   activeTransactionId: number
   transactions: TransactionGroup[]
   savedAt?: number
 }
 
-const STORAGE_KEY = 'maker-pencairan-workspace-v6'
+const STORAGE_KEY = 'maker-pencairan-workspace-v7'
 const RECOVERY_STORAGE_KEY = 'maker-pencairan-workspace-recovery-v1'
+const KITCHEN_WORKSPACE_STORAGE_PREFIX = 'maker-pencairan-kitchen-workspace-v1:'
+const KITCHEN_RECOVERY_STORAGE_PREFIX = 'maker-pencairan-kitchen-recovery-v1:'
 const PREVIOUS_STORAGE_KEYS = [
+  'maker-pencairan-workspace-v6',
   'maker-pencairan-workspace-v5',
   'maker-pencairan-workspace-v4',
   'maker-pencairan-workspace-v3'
@@ -340,7 +344,8 @@ function isValidSavedWorkspace(value: unknown): value is SavedWorkspace {
     (candidate.version === 3 ||
       candidate.version === 4 ||
       candidate.version === 5 ||
-      candidate.version === 6) &&
+      candidate.version === 6 ||
+      candidate.version === 7) &&
     typeof candidate.kitchenId === 'string' &&
     typeof candidate.activeTransactionId === 'number' &&
     Array.isArray(candidate.transactions) &&
@@ -363,7 +368,7 @@ function readWorkspaceFromStorageKey(key: string): SavedWorkspace | null {
     )
 
     return {
-      version: 6,
+      version: 7,
       kitchenId: parsed.kitchenId,
       activeTransactionId: hasActiveTransaction
         ? parsed.activeTransactionId
@@ -394,7 +399,7 @@ function persistWorkspaceToKey(
 
   try {
     const payload: SavedWorkspace = {
-      version: 6,
+      version: 7,
       ...workspace,
       savedAt: Date.now()
     }
@@ -406,12 +411,25 @@ function persistWorkspaceToKey(
   }
 }
 
+function kitchenWorkspaceStorageKey(kitchenId: string) {
+  return KITCHEN_WORKSPACE_STORAGE_PREFIX + kitchenId
+}
+
+function kitchenRecoveryStorageKey(kitchenId: string) {
+  return KITCHEN_RECOVERY_STORAGE_PREFIX + kitchenId
+}
+
 function persistWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
+  if (!workspace.kitchenId) return
   persistWorkspaceToKey(workspace, STORAGE_KEY)
+  persistWorkspaceToKey(workspace, kitchenWorkspaceStorageKey(workspace.kitchenId))
 }
 
 function persistRecoveryWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
-  persistWorkspaceToKey(workspace, RECOVERY_STORAGE_KEY)
+  const key = workspace.kitchenId
+    ? kitchenRecoveryStorageKey(workspace.kitchenId)
+    : RECOVERY_STORAGE_KEY
+  persistWorkspaceToKey(workspace, key)
 }
 
 function emptySimpleEntry(id = 1): SimpleEntry {
@@ -516,7 +534,7 @@ function getPayrollStructure(
     const amountsToCombine = gajiRows.map((entry) => entry.amount)
     const combinedAmount = String(
       amountsToCombine.reduce(
-        (total, value) => total + Number((value ?? '').replace(/\\D/g, '')),
+        (total, value) => total + Number((value ?? '').replace(/\D/g, '')),
         0
       ) || ''
     )
@@ -660,7 +678,7 @@ function normalizeTransaction(
           category,
           kinds: sortDailyPaymentKinds(legacyKinds),
           bank: entry.bank ?? '',
-          accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''),
+          accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
           ownerName: sanitizeOwnerName(entry.ownerName ?? '')
         }
       })
@@ -792,6 +810,7 @@ function normalizeTransaction(
     ),
     sewa_kendaraan: normalizedVehicle,
     lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
+    opsRealAmount: typeof transaction.opsRealAmount === 'string' ? transaction.opsRealAmount : '',
     legacy_gaji: legacyGaji
   }
 }
@@ -835,6 +854,7 @@ function makeTransaction(
     ],
     sewa_kendaraan: [emptyVehicleRentEntry(1)],
     lain_lain: [emptyOtherEntry(1)],
+    opsRealAmount: '',
     legacy_gaji: []
   }
 }
@@ -851,10 +871,7 @@ function App() {
     )
   }, [saved])
   const initialTransaction = useMemo(
-    () =>
-      savedTransaction
-        ? normalizeTransaction({ ...savedTransaction, date: today }, today)
-        : null,
+    () => (savedTransaction ? normalizeTransaction(savedTransaction, today) : null),
     [savedTransaction, today]
   )
   const [masterData, setMasterData] = useState<MakerMasterData | null>(null)
@@ -1253,12 +1270,29 @@ function App() {
   }
 
   function handleKitchenChange(nextKitchenId: string) {
+    persistWorkspace({ kitchenId, activeTransactionId, transactions })
     setKitchenId(nextKitchenId)
     setCopyMessage('')
 
     if (!nextKitchenId) {
       setTransactions([])
       setActiveTransactionId(1)
+      return
+    }
+
+    const savedKitchen = readWorkspaceFromStorageKey(kitchenWorkspaceStorageKey(nextKitchenId))
+    const savedKitchenTransaction = savedKitchen?.transactions.find(
+      (transaction) => transaction.id === savedKitchen.activeTransactionId
+    ) ?? savedKitchen?.transactions[0]
+    if (savedKitchen && savedKitchenTransaction && savedKitchen.kitchenId === nextKitchenId) {
+      const restoredTransaction = normalizeTransaction(savedKitchenTransaction, today)
+      setTransactions([restoredTransaction])
+      setActiveTransactionId(restoredTransaction.id)
+      persistWorkspace({
+        kitchenId: nextKitchenId,
+        activeTransactionId: restoredTransaction.id,
+        transactions: [restoredTransaction]
+      })
       return
     }
 
@@ -1604,12 +1638,20 @@ function App() {
       return a.index - b.index
     })
 
-    if (items.length === 0) return []
+    const headerLine = kitchenName + ', ' + formatDate(transaction.date)
+    const mainLines = items.length > 0
+      ? [headerLine, ...items.map((item) => item.line)]
+      : []
+    const hasOpsRealAmount = isCompleteAmount(transaction.opsRealAmount)
 
-    return [
-      kitchenName + ', ' + formatDate(transaction.date),
-      ...items.map((item) => item.line)
-    ]
+    if (mainLines.length === 0 && !hasOpsRealAmount) return []
+    if (mainLines.length === 0) mainLines.push(headerLine)
+    if (hasOpsRealAmount) {
+      // Keep realization data outside bank sorting: it is a record, not a transfer instruction.
+      mainLines.push('', '_OPS Real_ · ' + formatNumber(transaction.opsRealAmount))
+    }
+
+    return mainLines
   }
 
   const output =
@@ -1694,47 +1736,41 @@ function App() {
   }
 
   function restoreLastDraft() {
-    const recovery = readWorkspaceFromStorageKey(RECOVERY_STORAGE_KEY)
-    const stored = recovery ?? readSavedWorkspace()
+    const recoveryKey = kitchenId
+      ? kitchenRecoveryStorageKey(kitchenId)
+      : RECOVERY_STORAGE_KEY
+    const recovery = readWorkspaceFromStorageKey(recoveryKey)
 
-    if (!stored) {
-      setHistoryMessage('Belum ada data tersimpan di browser.')
-      window.setTimeout(() => setHistoryMessage(''), 1800)
+    if (!recovery || (kitchenId && recovery.kitchenId !== kitchenId)) {
+      setHistoryMessage('Belum ada backup Reset untuk dapur ini.')
+      window.setTimeout(() => setHistoryMessage(''), 2200)
       return
     }
 
-    const storedTransaction =
-      stored.transactions.find(
-        (transaction) => transaction.id === stored.activeTransactionId
-      ) ?? stored.transactions[0]
+    const storedTransaction = recovery.transactions.find(
+      (transaction) => transaction.id === recovery.activeTransactionId
+    ) ?? recovery.transactions[0]
 
     if (!storedTransaction) {
-      setHistoryMessage('Belum ada transaksi tersimpan di browser.')
-      window.setTimeout(() => setHistoryMessage(''), 1800)
+      setHistoryMessage('Backup Reset tidak berisi transaksi yang bisa dipulihkan.')
+      window.setTimeout(() => setHistoryMessage(''), 2200)
       return
     }
 
-    const transaction = normalizeTransaction(storedTransaction, today)
+    const transaction = normalizeTransaction({ ...storedTransaction, id: 1 }, today)
 
-    setKitchenId(stored.kitchenId)
+    setKitchenId(recovery.kitchenId)
     setTransactions([transaction])
     setActiveTransactionId(1)
     persistWorkspace({
-      kitchenId: stored.kitchenId,
+      kitchenId: recovery.kitchenId,
       activeTransactionId: 1,
       transactions: [transaction]
     })
+    window.localStorage.removeItem(recoveryKey)
 
-    if (recovery) {
-      window.localStorage.removeItem(RECOVERY_STORAGE_KEY)
-    }
-
-    setHistoryMessage(
-      recovery
-        ? 'Data sebelum reset berhasil dipulihkan.'
-        : 'Data terakhir berhasil dipulihkan.'
-    )
-    window.setTimeout(() => setHistoryMessage(''), 1800)
+    setHistoryMessage('Draft sebelum Reset berhasil dipulihkan.')
+    window.setTimeout(() => setHistoryMessage(''), 2200)
   }
 
   const activeRabMap: Map<string, RabEntry> = new Map(
@@ -1758,9 +1794,6 @@ function App() {
               </span>
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
-                <p className="mt-1 text-sm leading-5 text-slate-300">
-                  Isi nominal, periksa rekening tujuan, lalu salin output untuk dikirim lewat WhatsApp.
-                </p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -1769,7 +1802,7 @@ function App() {
                 onClick={restoreLastDraft}
                 className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
               >
-                Pulihkan
+                Pulihkan sebelum Reset
               </button>
               <button
                 type="button"
@@ -1782,15 +1815,15 @@ function App() {
           </header>
 
           <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-950/20 p-3 text-sm text-amber-100">
-            Kalau rekening tujuan belum tersedia atau ada perubahan rekening, kabari lewat{' '}
+            Kalo rekening tujuan gak ada atau mau ganti rekening bisa langsung ke{' '}
             <a
               href="https://wa.me/6285794323042"
               target="_blank"
               rel="noreferrer"
               className="font-semibold underline underline-offset-2 hover:text-white"
             >
-              WhatsApp
-            </a>.
+              Whatsapp
+            </a>{' '}aja.
           </div>
 
           {masterLoading && (
@@ -2337,6 +2370,24 @@ function App() {
                             )
                           })}
                       </div>
+                    </section>
+
+                    <section className="w-full min-w-0 rounded-xl border border-emerald-600/60 bg-emerald-950/10 p-3">
+                      <h2 className="text-base font-semibold text-white">OPS Harian (R)</h2>
+                      <label className="mt-3 grid min-w-0 gap-1.5 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-center">
+                        <span className="text-sm text-slate-300">Nominal OPS Real</span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={formatNumber(activeTransaction.opsRealAmount)}
+                          onChange={(event) => updateTransaction(activeTransaction.id, {
+                            opsRealAmount: event.target.value.replace(/\D/g, '')
+                          })}
+                          placeholder="Nominal"
+                          aria-label="Nominal OPS Real"
+                          className="h-10 w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                        />
+                      </label>
                     </section>
                   </div>
 
