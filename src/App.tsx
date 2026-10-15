@@ -2316,7 +2316,7 @@ function App() {
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
-                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[90px_76px_minmax(100px,0.7fr)_minmax(180px,1fr)_140px_140px]">
+                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[70px_88px_105px_minmax(200px,1fr)_140px_140px]">
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
