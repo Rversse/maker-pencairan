@@ -2019,7 +2019,8 @@ function App() {
                 </div>
               </div>
 
-              <div className="min-w-0 max-w-[960px]">              {kitchenId && activeTransaction && (
+              <div className="min-w-0 max-w-[960px]">
+                {kitchenId && activeTransaction && (
                 <>
                   <section className="mt-3 w-full min-w-0 rounded-xl border border-amber-500/70 bg-slate-900 p-3">
                     <div className="flex items-start justify-between gap-3">
