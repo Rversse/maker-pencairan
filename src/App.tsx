@@ -1898,8 +1898,6 @@ function App() {
                   )}
                 </span>
               </span>
-              <span className="theme-switch__label">{theme === 'dark' ? 'Dark' : 'Light'}</span>
-              <span className="theme-switch__hint">{theme === 'dark' ? 'Mode' : 'Mode'}</span>
             </button>
           </header>
 
@@ -1936,7 +1934,7 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <section className="sticky top-2 z-40 mt-3 mb-3 w-full rounded-2xl border border-emerald-700/50 bg-gradient-to-b from-slate-900/98 to-slate-950/98 p-3 shadow-xl shadow-black/25 ring-1 ring-white/[0.025] backdrop-blur-xl">
+              <section className="mp-card mp-card--sticky sticky top-2 z-40 mt-3 mb-3 w-full rounded-2xl border border-emerald-700/50 bg-gradient-to-b from-slate-900/98 to-slate-950/98 p-3 shadow-xl shadow-black/25 ring-1 ring-white/[0.025] backdrop-blur-xl">
                 <div className="grid min-w-0 items-end gap-3 sm:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[200px_minmax(220px,1fr)_auto]">
                   <div className="min-w-0">
                     <label htmlFor="date" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Tanggal</label>
@@ -2015,7 +2013,8 @@ function App() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => void copyOutput()}
+                        data-button-kind="primary"
+                        onClick={() => void copyOutput()
                         disabled={!output}
                         className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
                       >
@@ -2028,27 +2027,27 @@ function App() {
                     </pre>
 
                     {outputChecks.length > 0 && (
-                      <div className="mt-3">
-                        <div className="text-xs font-semibold text-slate-200">Pengingat</div>
-                        <div className="mt-2 grid min-w-0 gap-x-5 gap-y-1.5 sm:grid-cols-2 xl:grid-cols-3">
-                          {[...outputChecks]
-                            .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
-                            .map((check) => (
-                              <div key={check.label} className="flex min-w-0 items-center gap-2 text-xs leading-5">
-                                <span
-                                  aria-hidden="true"
-                                  className={[
-                                    'h-2.5 w-2.5 shrink-0 rounded-full',
-                                    check.complete ? 'bg-emerald-400' : 'bg-rose-500'
-                                  ].join(' ')}
-                                />
-                                <span title={check.label} className="min-w-0 flex-1 truncate text-slate-200">{check.label}</span>
-                                <span className={check.complete ? 'shrink-0 text-emerald-300' : 'shrink-0 text-rose-300'}>
-                                  {check.complete ? 'Terisi' : 'Belum diisi'}
-                                </span>
-                              </div>
-                            ))}
-                        </div>
+                      <div className="mt-3 flex min-w-0 flex-wrap items-center">
+                        {[...outputChecks]
+                          .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
+                          .map((check, index) => (
+                            <div
+                              key={check.label}
+                              className={[
+                                'flex min-w-0 items-center gap-1.5 py-1 text-xs leading-5',
+                                index > 0 ? 'ml-3 border-l border-slate-800 pl-3' : ''
+                              ].join(' ')}
+                            >
+                              <span
+                                aria-hidden="true"
+                                className={[
+                                  'h-2 w-2 shrink-0 rounded-full',
+                                  check.complete ? 'bg-emerald-400' : 'bg-rose-500'
+                                ].join(' ')}
+                              />
+                              <span title={check.label} className="truncate text-slate-200">{check.label}</span>
+                            </div>
+                          ))}
                       </div>
                     )}
                   </div>
@@ -2059,7 +2058,7 @@ function App() {
               <div className="min-w-0 w-full max-w-[960px]">
                 {kitchenId && activeTransaction && (
                 <>
-                  <section className="mt-3 w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
+                  <section className="mp-card mt-3 w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -2108,6 +2107,9 @@ function App() {
                                       <button
                                         key={product}
                                         type="button"
+                                        data-option-button="true"
+                                        data-selected={selected}
+                                        aria-pressed={selected}
                                         onClick={() =>
                                           toggleRabProduct(
                                             activeTransaction.id,
@@ -2168,7 +2170,7 @@ function App() {
 
 
                   {gasRules.length > 0 && (
-                    <section className="mt-3 w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
+                    <section className="mp-card mt-3 w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">GAS</h2>
 
                       <div className="mt-3 space-y-3">
@@ -2250,7 +2252,7 @@ function App() {
                     </section>
                   )}
 
-                  <section className="mt-3 w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
+                  <section className="mp-card mt-3 w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian dan Ops Harian (R)</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
@@ -2311,7 +2313,7 @@ function App() {
 
 
                   <div className="mt-3 w-full min-w-0 space-y-3">
-                    <section className="w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa SPPG</h2>
                       <div className="mt-3 space-y-3">
                         {activeTransaction.pencairan_harian
@@ -2354,7 +2356,7 @@ function App() {
                       </div>
                     </section>
 
-                    <section className="w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
                         const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
@@ -2433,7 +2435,7 @@ function App() {
                       })()}
                     </section>
 
-                    <section className="w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Gaji dan Insentif</h2>
 
                       {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
@@ -2508,7 +2510,7 @@ function App() {
                     
                   </div>
 
-                  <section className="mt-3 w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
+                  <section className="mp-card mt-3 w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
                       <button
