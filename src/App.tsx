@@ -359,6 +359,7 @@ function formatDescriptionList(value: string) {
   if (firstItem === 'gas') {
     items[0] = 'Gas'
   } else if (!firstItem.startsWith('gas ')) {
+    if (items.length === 1) return 'Gas dan ' + items[0]
     items[0] = 'Gas, ' + items[0]
   }
 
