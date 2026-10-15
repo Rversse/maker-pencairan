@@ -105,6 +105,11 @@ const DAILY_PAYMENT_GAJI_OPTIONS: DailyPaymentKind[] = [
   'Insentif PIC Posyandu'
 ]
 
+const DAILY_PAYMENT_PIC_OPTIONS: DailyPaymentKind[] = [
+  'Insentif PIC Sekolah',
+  'Insentif PIC Posyandu'
+]
+
 const DAILY_PAYMENT_OPTIONS: DailyPaymentKind[] = [
   ...DAILY_PAYMENT_SEWA_OPTIONS,
   ...DAILY_PAYMENT_GAJI_OPTIONS
@@ -481,6 +486,13 @@ function createPayrollRowsForKitchen(
     ]
   }
 
+  if (kitchenName === 'Cimanggu') {
+    return [
+      createPayrollEntry(startId, kitchenName, masterData, ['Gaji Relawan']),
+      createPayrollEntry(startId + 1, kitchenName, masterData, [...DAILY_PAYMENT_PIC_OPTIONS])
+    ]
+  }
+
   return DAILY_PAYMENT_GAJI_OPTIONS.map((kind, index) =>
     createPayrollEntry(startId + index, kitchenName, masterData, [kind])
   )
@@ -518,6 +530,62 @@ function getPayrollStructure(
     return {
       payments: [...sewaRows, target],
       legacy: []
+    }
+  }
+
+  if (kitchenName === 'Cimanggu') {
+    const gajiRelawanRows = gajiRows.filter(
+      (entry) => entry.kinds.length === 1 && entry.kinds[0] === 'Gaji Relawan'
+    )
+    const picRows = gajiRows.filter(
+      (entry) =>
+        entry.kinds.length > 0 &&
+        entry.kinds.every((kind) => DAILY_PAYMENT_PIC_OPTIONS.includes(kind))
+    )
+    const groupedLegacy = gajiRows.filter(
+      (entry) =>
+        !(
+          entry.kinds.length === 1 &&
+          entry.kinds[0] === 'Gaji Relawan'
+        ) &&
+        !(
+          entry.kinds.length > 0 &&
+          entry.kinds.every((kind) => DAILY_PAYMENT_PIC_OPTIONS.includes(kind))
+        ) &&
+        isCompleteAmount(entry.amount)
+    )
+    const legacyMap = new Map<string, DailyPaymentEntry>()
+    for (const entry of [...currentLegacy, ...groupedLegacy]) {
+      const key = [entry.id, entry.kinds.join('|'), entry.amount].join(':')
+      legacyMap.set(key, entry)
+    }
+
+    const gajiAmount = gajiRelawanRows.reduce(
+      (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
+      0
+    )
+    const picAmount = picRows.reduce(
+      (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
+      0
+    )
+    const gajiEntry = createPayrollEntry(
+      gajiRelawanRows[0]?.id ?? nextId,
+      kitchenName,
+      masterData,
+      ['Gaji Relawan'],
+      String(gajiAmount || '')
+    )
+    const picEntry = createPayrollEntry(
+      picRows[0]?.id ?? nextId + 1,
+      kitchenName,
+      masterData,
+      [...DAILY_PAYMENT_PIC_OPTIONS],
+      String(picAmount || '')
+    )
+
+    return {
+      payments: [...sewaRows, gajiEntry, picEntry],
+      legacy: [...legacyMap.values()]
     }
   }
 
@@ -1574,6 +1642,26 @@ function App() {
       if (combinedMapping && combinedEntry && !isCompleteAmount(combinedEntry.amount)) {
         outputWarnings.push('Gaji Relawan + Insentif PIC belum diisi.')
       }
+    } else if (kitchenName === 'Cimanggu') {
+      const gajiEntry = payrollEntries.find(
+        (entry) => entry.kinds.length === 1 && entry.kinds[0] === 'Gaji Relawan'
+      )
+      if (
+        getDailyPaymentAccount(kitchenName, 'Gaji Relawan', masterData) &&
+        (!gajiEntry || !isCompleteAmount(gajiEntry.amount))
+      ) {
+        outputWarnings.push('Gaji Relawan belum diisi.')
+      }
+
+      const picEntry = payrollEntries.find((entry) =>
+        DAILY_PAYMENT_PIC_OPTIONS.every((kind) => entry.kinds.includes(kind))
+      )
+      const picMapping = picEntry
+        ? getDailyPaymentMappingForKinds(kitchenName, picEntry.kinds, masterData)
+        : null
+      if (picMapping && picEntry && !isCompleteAmount(picEntry.amount)) {
+        outputWarnings.push('Insentif PIC Sekolah + Insentif PIC Posyandu belum diisi.')
+      }
     } else {
       for (const kind of DAILY_PAYMENT_GAJI_OPTIONS) {
         const entry = payrollEntries.find(
@@ -2195,7 +2283,7 @@ function App() {
                             )
                             const combined = entry.kinds.length > 1
                             const label = combined
-                              ? 'Gaji Relawan + Insentif PIC Sekolah + Insentif PIC Posyandu'
+                              ? entry.kinds.join(' + ')
                               : entry.kinds[0] ?? 'Jenis belum dimapping'
 
                             return (
@@ -2210,10 +2298,16 @@ function App() {
                                 }
                               >
                                 <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(210px,1.2fr)_minmax(145px,1fr)_95px_minmax(145px,0.9fr)_145px]">
-                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div
+                                    title={label}
+                                    className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100"
+                                  >
                                     <span className="truncate">{label}</span>
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
+                                  <div
+                                    title={mapping?.ownerName ?? 'Mapping belum tersedia'}
+                                    className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100"
+                                  >
                                     <span className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
                                   <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
