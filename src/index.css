@@ -474,3 +474,39 @@ button[data-option-button='true']:focus-visible {
     transition: none !important;
   }
 }
+
+
+/* Native select and option menus must remain readable in either theme. */
+:root:not([data-theme='light']) select {
+  color: #e7edf7 !important;
+  background-color: #0d1726 !important;
+  color-scheme: dark;
+}
+
+:root:not([data-theme='light']) select option,
+:root:not([data-theme='light']) select optgroup {
+  color: #e7edf7 !important;
+  background: #0d1726 !important;
+}
+
+:root:not([data-theme='light']) select option:checked {
+  color: #f0fdf4 !important;
+  background: #1f3a36 !important;
+}
+
+:root[data-theme='light'] select {
+  color: #162338 !important;
+  background-color: #ffffff !important;
+  color-scheme: light;
+}
+
+:root[data-theme='light'] select option,
+:root[data-theme='light'] select optgroup {
+  color: #162338 !important;
+  background: #ffffff !important;
+}
+
+:root[data-theme='light'] select option:checked {
+  color: #065f46 !important;
+  background: #d1fae5 !important;
+}
