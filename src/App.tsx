@@ -1840,7 +1840,7 @@ function App() {
 
   return (
     <main className="min-h-screen overflow-x-clip bg-slate-950 p-2 text-white sm:p-3 md:p-4">
-      <div className="mx-auto w-full max-w-[1640px]">
+      <div className="mx-auto w-full max-w-[1432px]">
         <>
           <header className="flex max-w-[1432px] items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
@@ -2062,7 +2062,7 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_160px] items-start gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
+                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-start gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
                           >
                             <div className="min-w-0">
                               <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
@@ -2126,7 +2126,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className="h-10 w-full max-w-[160px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-[140px] max-w-[140px] max-w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                             />
                           </div>
                         )
@@ -2165,7 +2165,7 @@ function App() {
                           return (
                             <div
                               key={entry.id}
-                              className="grid min-w-0 gap-2.5 lg:grid-cols-[minmax(150px,1.1fr)_76px_minmax(105px,0.75fr)_minmax(240px,1.8fr)_160px] lg:items-center"
+                              className="grid min-w-0 gap-2.5 lg:grid-cols-[minmax(150px,1.1fr)_76px_minmax(105px,0.75fr)_minmax(240px,1.8fr)_140px] lg:items-center"
                             >
                               <div title={rule?.supplier?.business_name || rule?.accounts?.name || 'Tanpa nama'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 <span className="truncate">
@@ -2217,7 +2217,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className="h-10 w-full max-w-[160px] rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                className="h-10 w-[140px] max-w-[140px] max-w-full rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                               />
                             </div>
                           )
@@ -2232,7 +2232,7 @@ function App() {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entry = activeTransaction.operasional[0] ?? createOperationalEntry()
                       return (
-                        <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_160px]">
+                        <div className="mt-3 grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]">
                           <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                             <span title={mapping?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                           </div>
@@ -2257,7 +2257,7 @@ function App() {
                             }
                             placeholder="Nominal"
                             aria-label="Nominal Ops Harian"
-                            className="h-10 w-full max-w-[160px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         </div>
                       )
@@ -2276,7 +2276,7 @@ function App() {
                             return (
                               <div
                                 key={entry.id}
-                                className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_160px]"
+                                className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]"
                               >
                                   <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                     <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
@@ -2301,7 +2301,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Sewa SPPG"
-                                    className="h-10 w-full max-w-[160px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                               </div>
                             )
@@ -2316,9 +2316,9 @@ function App() {
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
-                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[minmax(0,1.1fr)_88px_minmax(0,0.8fr)_minmax(185px,1fr)_160px_160px]">
+                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[90px_76px_minmax(100px,0.7fr)_minmax(180px,1fr)_140px_140px]">
                               <div className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
-                                <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{account?.ownerName ?? 'Mapping belum tersedia'}</span>
+                                <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
                               <div title={account?.bank ?? '-'} className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100">
                                 {account?.bank ?? '-'}
@@ -2336,9 +2336,8 @@ function App() {
                                 }
                                 placeholder="Pilih rentang tanggal"
                               />
-                              <label className="grid min-w-0 gap-1.5">
-                                <span className="text-center text-xs font-semibold text-slate-300">Mobil</span>
-                                <input
+                              <div className="min-w-0">
+                                                                <input
                                   type="text"
                                   inputMode="numeric"
                                   value={formatNumber(entry.mobilAmount)}
@@ -2349,12 +2348,11 @@ function App() {
                                   }
                                   placeholder="Nominal Mobil"
                                   aria-label="Nominal Kendaraan Mobil"
-                                  className="h-10 w-full max-w-[160px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                  className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                                 />
-                              </label>
-                              <label className="grid min-w-0 gap-1.5">
-                                <span className="text-center text-xs font-semibold text-slate-300">Motor</span>
-                                <input
+                              </div>
+                              <div className="min-w-0">
+                                                                <input
                                   type="text"
                                   inputMode="numeric"
                                   value={formatNumber(entry.motorAmount)}
@@ -2365,9 +2363,9 @@ function App() {
                                   }
                                   placeholder="Nominal Motor"
                                   aria-label="Nominal Kendaraan Motor"
-                                  className="h-10 w-full max-w-[160px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                                  className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                                 />
-                              </label>
+                              </div>
                             </div>
 
                             {entry.legacyAmounts && entry.legacyAmounts.length > 0 && (
@@ -2421,15 +2419,9 @@ function App() {
                             return (
                               <div
                                 key={entry.id}
-                                className={
-                                  activeTransaction.pencairan_harian.filter(
-                                    (item) => item.category === 'gaji'
-                                  ).length > 1
-                                    ? 'rounded-lg border border-violet-800/50 bg-slate-950 p-3'
-                                    : ''
-                                }
+
                               >
-                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_160px]">
+                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
                                   <div
                                     title={label}
                                     className="flex h-10 min-w-0 items-center rounded-md border border-slate-700 bg-slate-800 px-3 text-sm font-semibold text-slate-100"
@@ -2462,7 +2454,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className="h-10 w-full max-w-[160px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                                 </div>
                               </div>
@@ -2473,7 +2465,7 @@ function App() {
 
                     <section className="w-full min-w-0 rounded-xl border border-emerald-600/60 bg-emerald-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">OPS Harian (R)</h2>
-                      <label className="mt-3 grid min-w-0 gap-1.5 sm:grid-cols-[minmax(0,1fr)_160px] sm:items-center">
+                      <label className="mt-3 grid min-w-0 gap-1.5 sm:grid-cols-[minmax(0,1fr)_140px] sm:items-center">
                         <span className="text-sm text-slate-300">Nominal OPS Real</span>
                         <input
                           type="text"
@@ -2484,7 +2476,7 @@ function App() {
                           })}
                           placeholder="Nominal"
                           aria-label="Nominal OPS Real"
-                          className="h-10 w-full max-w-[160px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                          className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                         />
                       </label>
                     </section>
@@ -2512,7 +2504,7 @@ function App() {
                               : ''
                           }
                         >
-                          <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(90px,0.55fr)_minmax(130px,0.85fr)_minmax(180px,1.15fr)_minmax(180px,1.2fr)_160px] lg:items-end">
+                          <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(90px,0.55fr)_minmax(130px,0.85fr)_minmax(180px,1.15fr)_minmax(180px,1.2fr)_140px] lg:items-end">
                             <div className="min-w-0">
                               <select
                                 value={entry.accountId}
@@ -2596,7 +2588,7 @@ function App() {
                               }
                               placeholder="Nominal"
                               aria-label="Nominal Lain-Lain"
-                              className="h-10 w-full max-w-[160px] min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
+                              className="h-10 w-[140px] max-w-[140px] max-w-full min-w-0 rounded-md border border-slate-700 bg-slate-900 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-stone-500 focus:border-stone-300 focus:ring-1 focus:ring-stone-300/30"
                             />
                           </div>
                         </div>
