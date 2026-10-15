@@ -2010,6 +2010,7 @@ function App() {
                       <select
                         id="kitchen"
                         value={kitchenId}
+                        title={selectedKitchen?.name ?? 'Pilih dapur'}
                         onChange={(event) =>
                           handleKitchenChange(event.target.value)
                         }
@@ -2536,6 +2537,7 @@ function App() {
                               type="text"
                               inputMode="numeric"
                               value={entry.accountNumber}
+                              title={entry.accountNumber}
                               onChange={(event) =>
                                 updateSimpleEntry(
                                   activeTransaction.id,
@@ -2551,6 +2553,7 @@ function App() {
                             <input
                               type="text"
                               value={entry.ownerName}
+                              title={entry.ownerName}
                               onChange={(event) =>
                                 updateSimpleEntry(
                                   activeTransaction.id,
@@ -2566,6 +2569,7 @@ function App() {
                             <input
                               type="text"
                               value={entry.need}
+                              title={entry.need}
                               onChange={(event) =>
                                 updateSimpleEntry(
                                   activeTransaction.id,
