@@ -1326,9 +1326,17 @@ function App() {
     const nextCustomProducts = nextDraft
       .map((item) => item.trim())
       .filter(Boolean)
+    // Custom input drafts and selected catalog items share productTypes.
+    // Exclude a catalog item when the user is in the middle of typing that
+    // same name (e.g. "Beras" before completing "Beras Merah").
+    const selectedCatalogProducts = currentProducts.filter(
+      (item) =>
+        availableProducts.includes(item) &&
+        !existingDraft.some((draft) => draft.trim() === item)
+    )
     updateRabEntry(transactionId, accountId, {
       productTypes: sortStrings([
-        ...currentProducts.filter((item) => availableProducts.includes(item)),
+        ...selectedCatalogProducts,
         ...nextCustomProducts
       ])
     })
@@ -2174,7 +2182,7 @@ function App() {
                                     disabled={customProducts.length >= 3 && !customRabOpen[rule.account_id]}
                                     className="inline-flex h-9 items-center rounded-md border border-dashed border-sky-700 bg-sky-950/40 px-2.5 text-xs font-medium text-sky-200 transition hover:bg-sky-900/50 disabled:cursor-not-allowed disabled:opacity-40"
                                   >
-                                    + Custom
+                                    + Item Lain
                                   </button>
                                 </div>
                                 {customRabOpen[rule.account_id] && (
@@ -2185,7 +2193,7 @@ function App() {
                                         type="text"
                                         value={customDraft[fieldIndex] ?? ''}
                                         maxLength={40}
-                                        aria-label={'Item custom ' + (fieldIndex + 1)}
+                                        aria-label={'Item ' + (fieldIndex + 1)}
                                         onChange={(event) =>
                                           updateCustomRabProduct(
                                             activeTransaction.id,
@@ -2195,7 +2203,7 @@ function App() {
                                             products
                                           )
                                         }
-                                        placeholder={'Custom ' + (fieldIndex + 1)}
+                                        placeholder={'Item ' + (fieldIndex + 1)}
                                         className="h-8 w-[100px] rounded-md border border-slate-700 bg-slate-900 px-2 text-[11px] text-slate-100 placeholder:text-slate-500 outline-none focus:border-sky-500"
                                       />
                                     ))}
