@@ -22,6 +22,8 @@ type SimpleEntry = {
   accountNumber: string
   ownerName: string
   need: string
+  gasQuantity?: string
+  gasSize?: '' | '12kg' | '50kg'
   transactionType: OtherTransactionType
 }
 
@@ -459,6 +461,8 @@ function emptySimpleEntry(id = 1): SimpleEntry {
     accountNumber: '',
     ownerName: '',
     need: '',
+    gasQuantity: '',
+    gasSize: '',
     transactionType: ''
   }
 }
@@ -769,6 +773,8 @@ function normalizeTransaction(
     ? transaction.gas.map((entry) => ({
         ...entry,
         need: entry.need ?? '',
+        gasQuantity: typeof entry.gasQuantity === 'string' ? entry.gasQuantity.replace(/\D/g, '') : '',
+        gasSize: entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : '',
         ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
         transactionType: entry.transactionType ?? ''
       }))
@@ -864,6 +870,8 @@ function makeTransaction(
         accountNumber: gasRule?.accounts?.account_number ?? '',
         ownerName: '',
         need: '',
+        gasQuantity: '',
+        gasSize: '',
         transactionType: ''
       }
     ],
@@ -1566,8 +1574,15 @@ function App() {
         .replace(/(^|[\s-])(\p{L})/gu, (_match, separator: string, letter: string) =>
           separator + letter.toLocaleUpperCase('id-ID')
         )
-      const description = formatDescriptionList(entry.need?.trim() || 'Gas') || 'Gas'
+      const gasSizeLabel = entry.gasSize ? 'Gas ' + entry.gasSize : 'Gas'
+      const gasQuantity = String(entry.gasQuantity ?? '').replace(/\D/g, '')
+      const gasItemDescription = gasSizeLabel + (gasQuantity ? ' (' + gasQuantity + ' tabung)' : '')
+      const extraDescription = entry.need?.trim() ? formatDescriptionList(entry.need.trim()) : ''
+      const description = [gasItemDescription, extraDescription && extraDescription.toLocaleLowerCase('id-ID') !== gasItemDescription.toLocaleLowerCase('id-ID') ? extraDescription : '']
+        .filter(Boolean)
+        .join(', ')
       const outputLine =
+        'GAS : ' +
         accountName +
         ' / ' +
         description +
@@ -2265,7 +2280,7 @@ function App() {
                           return (
                             <div
                               key={entry.id}
-                              className="grid min-w-0 gap-2.5 lg:grid-cols-[minmax(150px,1.1fr)_76px_minmax(105px,0.75fr)_minmax(240px,1.8fr)_140px] lg:items-center"
+                              className="grid min-w-0 gap-2.5 lg:grid-cols-[minmax(115px,0.8fr)_60px_minmax(78px,0.55fr)_64px_92px_minmax(120px,1fr)_120px] lg:items-center"
                             >
                               <div title={rule?.supplier?.business_name || rule?.accounts?.name || 'Tanpa nama'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 <span className="truncate">
@@ -2285,6 +2300,41 @@ function App() {
 
                               <input
                                 type="text"
+                                inputMode="numeric"
+                                value={entry.gasQuantity ?? ''}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'gas',
+                                    entry.id,
+                                    { gasQuantity: event.target.value.replace(/\D/g, '') }
+                                  )
+                                }
+                                placeholder="Jumlah"
+                                aria-label="Jumlah tabung gas"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                              />
+
+                              <select
+                                value={entry.gasSize ?? ''}
+                                onChange={(event) =>
+                                  updateSimpleEntry(
+                                    activeTransaction.id,
+                                    'gas',
+                                    entry.id,
+                                    { gasSize: event.target.value as SimpleEntry['gasSize'] }
+                                  )
+                                }
+                                aria-label="Jenis tabung gas"
+                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                              >
+                                <option value="">Ukuran</option>
+                                <option value="12kg">Gas 12kg</option>
+                                <option value="50kg">Gas 50kg</option>
+                              </select>
+
+                              <input
+                                type="text"
                                 value={entry.need ?? ''}
                                 title={entry.need ?? ''}
                                 onChange={(event) =>
@@ -2295,8 +2345,8 @@ function App() {
                                     { need: event.target.value }
                                   )
                                 }
-                                placeholder="Keterangan tambahan (opsional)"
-                                aria-label="Keterangan tambahan GAS"
+                                placeholder="Catatan (opsional)"
+                                aria-label="Catatan tambahan GAS"
                                 className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                               />
 
