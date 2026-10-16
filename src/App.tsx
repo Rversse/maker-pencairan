@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import appBrandIcon from '../fav.svg'
 import {
   getMakerMasterData,
   type MakerMasterData,
@@ -1931,11 +1932,7 @@ function App() {
           <header className="flex w-full items-center justify-between gap-3 py-1">
             <div className="flex min-w-0 items-center gap-3">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-emerald-700/60 bg-emerald-950/50 shadow-sm" aria-hidden="true">
-                <svg viewBox="0 0 48 48" fill="none" className="h-9 w-9">
-                  <rect x="7" y="6" width="34" height="36" rx="10" stroke="#34d399" strokeWidth="2" />
-                  <path d="M16 17h16M16 23.5h16M16 30h9" stroke="#a7f3d0" strokeWidth="2.5" strokeLinecap="round" />
-                  <circle cx="31.5" cy="30" r="2.6" fill="#34d399" />
-                </svg>
+                <img src={appBrandIcon} alt="" className="h-10 w-10 object-contain" />
               </span>
               <div className="min-w-0">
                 <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
