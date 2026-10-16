@@ -302,14 +302,6 @@ function formatRabSupplierName(value: string) {
   )
 }
 
-function formatOutputAccountNumber(value: string | null | undefined) {
-  const raw = String(value ?? '').trim()
-  if (!raw || raw === '-') return raw || '-'
-  const digits = raw.replace(/\D/g, '')
-  if (digits.length < 4) return raw
-  // Separate mask prefix from suffix so a double-click selects only the digits.
-  return 'xxx ' + digits.slice(-4)
-}
 
 function sanitizeOwnerName(value: string) {
   return value.replace(/[^\p{L}\s]/gu, '')
@@ -1494,7 +1486,7 @@ function App() {
             ' - ' +
             bank +
             ' / ' +
-            formatOutputAccountNumber(accountNumber) +
+            accountNumber +
             ' · ' +
             formatNumber(operationalEntry.amount),
           kind: 'operasional_harian'
@@ -1520,7 +1512,7 @@ function App() {
           ' - ' +
           bank +
           ' / ' +
-          formatOutputAccountNumber(accountNumber) +
+          accountNumber +
           ' · ' +
           formatNumber(entry.amount),
         kind: 'lain_lain'
@@ -1584,14 +1576,14 @@ function App() {
           ' - ' +
           getOutputBank(rule.accounts.bank) +
           ' / ' +
-          formatOutputAccountNumber(rule.accounts.account_number) +
+          (rule.accounts.account_number ?? '-') +
           ' · ' +
           formatNumber(entry.amount)
         : accountName +
           ' - ' +
           getOutputBank(rule.accounts.bank) +
           ' / ' +
-          formatOutputAccountNumber(rule.accounts.account_number) +
+          (rule.accounts.account_number ?? '-') +
           ' · ' +
           formatNumber(entry.amount)
       const outputLine = 'GAS : ' + accountAndAmount
@@ -1621,7 +1613,7 @@ function App() {
             ' - ' +
             getOutputBank(rental.bank) +
             ' / ' +
-            formatOutputAccountNumber(rental.accountNumber) +
+            rental.accountNumber +
             ' · ' +
             formatNumber(entry.amount),
           index: items.length,
@@ -1650,7 +1642,7 @@ function App() {
           ' - ' +
           bank +
           ' / ' +
-          formatOutputAccountNumber(accountNumber) +
+          accountNumber +
           ' · ' +
           formatNumber(entry.amount),
         index: items.length,
@@ -1690,7 +1682,7 @@ function App() {
             ' - ' +
             getOutputBank(account.bank) +
             ' / ' +
-            formatOutputAccountNumber(account.accountNumber) +
+            account.accountNumber +
             ' · ' +
             formatNumber(vehicle.amount),
           index: items.length,
@@ -1721,7 +1713,7 @@ function App() {
         ' - ' +
         getOutputBank(rule.accounts.bank) +
         ' / ' +
-        formatOutputAccountNumber(rule.accounts.account_number)
+        (rule.accounts.account_number ?? '-')
       const amountText = formatNumber(entry.amount) || '0'
       const outputLine = hasProduct
         ? accountText + ' · ' + productText + ' · ' + amountText
