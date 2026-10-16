@@ -885,7 +885,11 @@ function App() {
     )
   }, [saved])
   const initialTransaction = useMemo(
-    () => (savedTransaction ? normalizeTransaction(savedTransaction, today) : null),
+    () => (
+      savedTransaction
+        ? normalizeTransaction({ ...savedTransaction, date: today }, today)
+        : null
+    ),
     [savedTransaction, today]
   )
   const [masterData, setMasterData] = useState<MakerMasterData | null>(null)
@@ -1370,7 +1374,11 @@ function App() {
       (transaction) => transaction.id === savedKitchen.activeTransactionId
     ) ?? savedKitchen?.transactions[0]
     if (savedKitchen && savedKitchenTransaction && savedKitchen.kitchenId === nextKitchenId) {
-      const restoredTransaction = normalizeTransaction(savedKitchenTransaction, today)
+      // Keep saved payment/item state, but always start the selected kitchen on today's date.
+      const restoredTransaction = normalizeTransaction(
+        { ...savedKitchenTransaction, date: today },
+        today
+      )
       setTransactions([restoredTransaction])
       setActiveTransactionId(restoredTransaction.id)
       persistWorkspace({
@@ -1392,7 +1400,7 @@ function App() {
       masterData?.kitchens.find((kitchen) => kitchen.id === nextKitchenId)?.name ?? ''
     const nextTransaction = makeTransaction(
       1,
-      activeDate,
+      today,
       nextRabRules.map((rule) => ({ account_id: rule.account_id })),
       nextGasRules.map((rule) => ({
         account_id: rule.account_id,
