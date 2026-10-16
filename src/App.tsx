@@ -1608,7 +1608,7 @@ function App() {
           kind: 'pencairan_harian',
           bank: getOutputBank(rental.bank),
           line:
-            'SEWA SPPG : ' +
+            'INSENTIF FASILITAS SPPG : ' +
             capitalizeEachWord(rental.ownerName) +
             ' - ' +
             getOutputBank(rental.bank) +
@@ -1783,7 +1783,7 @@ function App() {
         (entry) => entry.category === 'sewa' && entry.kinds.includes('Sewa SPPG')
       )
       outputChecks.push({
-        label: 'Sewa SPPG',
+        label: 'Insentif Fasilitas SPPG',
         complete: Boolean(sewaEntry && isCompleteAmount(sewaEntry.amount))
       })
     }
@@ -2412,7 +2412,7 @@ function App() {
 
                   <div className="w-full min-w-0 space-y-3">
                     <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
-                      <h2 className="text-base font-semibold text-white">Pencairan Sewa SPPG</h2>
+                      <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
                       <div className="mt-3 space-y-3">
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa')
@@ -2445,7 +2445,7 @@ function App() {
                                       )
                                     }
                                     placeholder="Nominal"
-                                    aria-label="Nominal Sewa SPPG"
+                                    aria-label="Nominal Insentif Fasilitas SPPG"
                                     className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
                                   />
                               </div>
