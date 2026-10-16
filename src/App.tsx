@@ -1543,29 +1543,37 @@ function App() {
         .replace(/(^|[\s-])(\p{L})/gu, (_match, separator: string, letter: string) =>
           separator + letter.toLocaleUpperCase('id-ID')
         )
-      const gasSizeLabel = entry.gasSize ? 'Gas ' + entry.gasSize : 'Gas'
-      const gasQuantity = String(entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
-      const gasItemDescription = gasSizeLabel + (gasQuantity ? ' (' + gasQuantity + ' tabung)' : '')
+      const gasQuantityInput = String(entry.gasQuantity ?? '').trim()
+      const gasQuantity = gasQuantityInput.replace(/\D/g, '').replace(/^0+/, '')
+      const gasSize = entry.gasSize ?? ''
       const extraDescription = entry.need?.trim()
         ? entry.need.split(',').map((item) => item.trim()).filter(Boolean).join(', ')
         : ''
-      const description = [
-        gasItemDescription,
-        extraDescription && extraDescription.toLocaleLowerCase('id-ID') !== gasItemDescription.toLocaleLowerCase('id-ID')
-          ? extraDescription
-          : ''
-      ].filter(Boolean).join(', ')
-      const outputLine =
-        'GAS : ' +
-        accountName +
-        ' / ' +
-        description +
-        ' - ' +
-        rule.accounts.bank +
-        ' / ' +
-        (rule.accounts.account_number ?? '-') +
-        ' · ' +
-        formatNumber(entry.amount)
+      const hasGasDetails = Boolean(gasQuantityInput || gasSize || extraDescription)
+      const gasItemDescription = gasSize || gasQuantityInput
+        ? (gasSize ? 'Gas ' + gasSize : 'Gas') + (gasQuantity ? ' (' + gasQuantity + ' tabung)' : '')
+        : ''
+      const description = [gasItemDescription, extraDescription]
+        .filter(Boolean)
+        .join(', ')
+      const accountAndAmount = hasGasDetails
+        ? accountName +
+          ' / ' +
+          description +
+          ' - ' +
+          rule.accounts.bank +
+          ' / ' +
+          (rule.accounts.account_number ?? '-') +
+          ' · ' +
+          formatNumber(entry.amount)
+        : rawAccountName.toLocaleUpperCase('id-ID') +
+          ' - ' +
+          rule.accounts.bank +
+          ' / ' +
+          (rule.accounts.account_number ?? '-') +
+          ' · ' +
+          formatNumber(entry.amount)
+      const outputLine = 'GAS : ' + accountAndAmount
 
       items.push({
         kind: 'gas',
