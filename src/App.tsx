@@ -1575,12 +1575,17 @@ function App() {
           separator + letter.toLocaleUpperCase('id-ID')
         )
       const gasSizeLabel = entry.gasSize ? 'Gas ' + entry.gasSize : 'Gas'
-      const gasQuantity = String(entry.gasQuantity ?? '').replace(/\D/g, '')
+      const gasQuantity = String(entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
       const gasItemDescription = gasSizeLabel + (gasQuantity ? ' (' + gasQuantity + ' tabung)' : '')
-      const extraDescription = entry.need?.trim() ? formatDescriptionList(entry.need.trim()) : ''
-      const description = [gasItemDescription, extraDescription && extraDescription.toLocaleLowerCase('id-ID') !== gasItemDescription.toLocaleLowerCase('id-ID') ? extraDescription : '']
-        .filter(Boolean)
-        .join(', ')
+      const extraDescription = entry.need?.trim()
+        ? entry.need.split(',').map((item) => item.trim()).filter(Boolean).join(', ')
+        : ''
+      const description = [
+        gasItemDescription,
+        extraDescription && extraDescription.toLocaleLowerCase('id-ID') !== gasItemDescription.toLocaleLowerCase('id-ID')
+          ? extraDescription
+          : ''
+      ].filter(Boolean).join(', ')
       const outputLine =
         'GAS : ' +
         accountName +
