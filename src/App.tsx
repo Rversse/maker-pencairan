@@ -103,6 +103,9 @@ const OPERATIONAL_BANKS = [
   'SEABANK'
 ]
 
+// Virtual-account options are specific to the Lain-Lain card.
+const LAIN_LAIN_BANKS = [...OPERATIONAL_BANKS, 'VA BNI', 'VA BRI']
+
 const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = ['Sewa SPPG']
 
 const DAILY_PAYMENT_GAJI_OPTIONS: DailyPaymentKind[] = [
@@ -1713,9 +1716,14 @@ function App() {
         if (aIsOther !== bIsOther) return aIsOther ? 1 : -1
         return a.localeCompare(b, 'id', { sensitivity: 'base' })
       })
-      const productText = sortedProducts.join(', ')
+      const productText = sortedProducts.length <= 1
+        ? (sortedProducts[0] ?? '')
+        : sortedProducts.length === 2
+          ? sortedProducts[0] + ' dan ' + sortedProducts[1]
+          : sortedProducts.slice(0, -1).join(', ') + ', dan ' + sortedProducts[sortedProducts.length - 1]
       const hasProduct = productText.length > 0
-      if (!hasAmount && !hasProduct) continue
+      // Product selections alone do not create an output line; RAB requires a nominal.
+      if (!hasAmount) continue
       const accountText =
         supplierName +
         ' - ' +
@@ -2654,7 +2662,7 @@ function App() {
                                 className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                               >
                                 <option value="">Pilih Bank</option>
-                                {OPERATIONAL_BANKS.map((bank) => (
+                                {LAIN_LAIN_BANKS.map((bank) => (
                                   <option key={bank} value={bank}>{bank}</option>
                                 ))}
                               </select>
