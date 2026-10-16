@@ -1622,7 +1622,7 @@ function App() {
             getOutputBank(rental.bank) +
             ' / ' +
             formatOutputAccountNumber(rental.accountNumber) +
-            ' · '
+            ' · ' +
             formatNumber(entry.amount),
           index: items.length,
           modeRank: 0
@@ -1646,7 +1646,7 @@ function App() {
         line:
           kinds.join(', ').toLocaleUpperCase('id-ID') +
           ' : ' +
-          ownerName +
+          capitalizeEachWord(ownerName) +
           ' - ' +
           bank +
           ' / ' +
@@ -1688,9 +1688,9 @@ function App() {
             ') : ' +
             capitalizeEachWord(account.ownerName) +
             ' - ' +
-            account.bank +
+            getOutputBank(account.bank) +
             ' / ' +
-            account.accountNumber +
+            formatOutputAccountNumber(account.accountNumber) +
             ' · ' +
             formatNumber(vehicle.amount),
           index: items.length,
