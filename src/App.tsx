@@ -326,37 +326,6 @@ function getOutputCategoryRank(
   return 4
 }
 
-function formatDescriptionList(value: string) {
-  const items = value
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .map((item) =>
-      item
-        .toLocaleLowerCase('id-ID')
-        .replace(/(^|[\s-])(\p{L})/gu, (_match, separator: string, letter: string) =>
-          separator + letter.toLocaleUpperCase('id-ID')
-        )
-        .replace(/(\d)\s*(kg|gr|g|ml|cm|mm|km|m|l)\b/giu, (_match, number: string, unit: string) =>
-          `${number} ${unit.toLocaleLowerCase('id-ID')}`
-        )
-        .replace(/\bX\b/g, 'x')
-    )
-
-  if (items.length === 0) return 'Gas'
-
-  const firstItem = items[0].toLocaleLowerCase('id-ID')
-  if (firstItem === 'gas') {
-    items[0] = 'Gas'
-  } else if (!firstItem.startsWith('gas ')) {
-    if (items.length === 1) return 'Gas dan ' + items[0]
-    items[0] = 'Gas, ' + items[0]
-  }
-
-  if (items.length < 2) return items[0] ?? 'Gas'
-  return `${items.slice(0, -1).join(', ')} dan ${items[items.length - 1]}`
-}
-
 function isValidSavedWorkspace(value: unknown): value is SavedWorkspace {
   if (!value || typeof value !== 'object') return false
 
