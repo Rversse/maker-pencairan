@@ -290,14 +290,14 @@ function capitalizeEachWord(value: string) {
   return value
     .trim()
     .toLocaleLowerCase('id-ID')
-    .replace(/(^|[\\s-])(\\p{L})/gu, (_match, separator: string, letter: string) =>
+    .replace(/(^|[\s-])(\p{L})/gu, (_match, separator: string, letter: string) =>
       separator + letter.toLocaleUpperCase('id-ID')
     )
 }
 
 function formatRabSupplierName(value: string) {
   return capitalizeEachWord(value).replace(
-    /(^|[^\\p{L}\\p{N}])(cv|pt|umkm|kpws|rr|rpu|ud)(?=$|[^\\p{L}\\p{N}])/giu,
+    /(^|[^\p{L}\p{N}])(cv|pt|umkm|kpws|rr|rpu|ud)(?=$|[^\p{L}\p{N}])/giu,
     (_match, separator: string, acronym: string) => separator + acronym.toLocaleUpperCase('id-ID')
   )
 }
@@ -305,7 +305,7 @@ function formatRabSupplierName(value: string) {
 function formatOutputAccountNumber(value: string | null | undefined) {
   const raw = String(value ?? '').trim()
   if (!raw || raw === '-') return raw || '-'
-  const digits = raw.replace(/\\D/g, '')
+  const digits = raw.replace(/\D/g, '')
   if (digits.length < 4) return raw
   // Separate mask prefix from suffix so a double-click selects only the digits.
   return 'xxx ' + digits.slice(-4)
