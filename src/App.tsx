@@ -1711,12 +1711,17 @@ function App() {
 
       const hasAmount = isCompleteAmount(entry.amount)
       const supplierName = formatRabSupplierName(rule.supplier?.business_name ?? rule.accounts.name)
-      const sortedProducts = sortStrings(entry.productTypes).sort((a, b) => {
-        const aIsOther = a.trim().toLocaleLowerCase('id') === 'lainnya'
-        const bIsOther = b.trim().toLocaleLowerCase('id') === 'lainnya'
-        if (aIsOther !== bIsOther) return aIsOther ? 1 : -1
-        return a.localeCompare(b, 'id', { sensitivity: 'base' })
-      })
+      const catalogProducts = rule.supplier?.product_types ?? []
+      const sortedProducts = sortStrings(entry.productTypes)
+        .map((product) =>
+          catalogProducts.includes(product) ? product : capitalizeEachWord(product)
+        )
+        .sort((a, b) => {
+          const aIsOther = a.trim().toLocaleLowerCase('id') === 'lainnya'
+          const bIsOther = b.trim().toLocaleLowerCase('id') === 'lainnya'
+          if (aIsOther !== bIsOther) return aIsOther ? 1 : -1
+          return a.localeCompare(b, 'id', { sensitivity: 'base' })
+        })
       const productText = sortedProducts.length <= 1
         ? (sortedProducts[0] ?? '')
         : sortedProducts.length === 2
