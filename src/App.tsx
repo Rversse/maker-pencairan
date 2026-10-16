@@ -286,6 +286,31 @@ function getOutputBank(value: string) {
   return value.trim().toUpperCase()
 }
 
+function capitalizeEachWord(value: string) {
+  return value
+    .trim()
+    .toLocaleLowerCase('id-ID')
+    .replace(/(^|[\\s-])(\\p{L})/gu, (_match, separator: string, letter: string) =>
+      separator + letter.toLocaleUpperCase('id-ID')
+    )
+}
+
+function formatRabSupplierName(value: string) {
+  return capitalizeEachWord(value).replace(
+    /(^|[^\\p{L}\\p{N}])(cv|pt|umkm|kpws|rr|rpu|ud)(?=$|[^\\p{L}\\p{N}])/giu,
+    (_match, separator: string, acronym: string) => separator + acronym.toLocaleUpperCase('id-ID')
+  )
+}
+
+function formatOutputAccountNumber(value: string | null | undefined) {
+  const raw = String(value ?? '').trim()
+  if (!raw || raw === '-') return raw || '-'
+  const digits = raw.replace(/\\D/g, '')
+  if (digits.length < 4) return raw
+  // Separate mask prefix from suffix so a double-click selects only the digits.
+  return 'xxx ' + digits.slice(-4)
+}
+
 function sanitizeOwnerName(value: string) {
   return value.replace(/[^\p{L}\s]/gu, '')
 }
@@ -1464,12 +1489,12 @@ function App() {
         outputs.push({
           bank,
           line:
-            'Ops Harian : ' +
-            ownerName +
+            'OPS HARIAN : ' +
+            capitalizeEachWord(ownerName) +
             ' - ' +
             bank +
             ' / ' +
-            accountNumber +
+            formatOutputAccountNumber(accountNumber) +
             ' · ' +
             formatNumber(operationalEntry.amount),
           kind: 'operasional_harian'
@@ -1488,14 +1513,14 @@ function App() {
       outputs.push({
         bank,
         line:
-          'Lain-lain : ' +
+          'LAIN-LAIN : ' +
           (entry.need.trim() || 'Biaya Ops Harian') +
           ' - ' +
-          ownerName +
+          capitalizeEachWord(ownerName) +
           ' - ' +
           bank +
           ' / ' +
-          accountNumber +
+          formatOutputAccountNumber(accountNumber) +
           ' · ' +
           formatNumber(entry.amount),
         kind: 'lain_lain'
@@ -1538,11 +1563,7 @@ function App() {
       if (!rule?.accounts) continue
 
       const rawAccountName = rule.supplier?.business_name || rule.accounts.name
-      const accountName = rawAccountName
-        .toLocaleLowerCase('id-ID')
-        .replace(/(^|[\s-])(\p{L})/gu, (_match, separator: string, letter: string) =>
-          separator + letter.toLocaleUpperCase('id-ID')
-        )
+      const accountName = capitalizeEachWord(rawAccountName)
       const gasQuantityInput = String(entry.gasQuantity ?? '').trim()
       const gasQuantity = gasQuantityInput.replace(/\D/g, '').replace(/^0+/, '')
       const gasSize = entry.gasSize ?? ''
@@ -1561,16 +1582,16 @@ function App() {
           ' / ' +
           description +
           ' - ' +
-          rule.accounts.bank +
+          getOutputBank(rule.accounts.bank) +
           ' / ' +
-          (rule.accounts.account_number ?? '-') +
+          formatOutputAccountNumber(rule.accounts.account_number) +
           ' · ' +
           formatNumber(entry.amount)
-        : rawAccountName.toLocaleUpperCase('id-ID') +
+        : accountName +
           ' - ' +
-          rule.accounts.bank +
+          getOutputBank(rule.accounts.bank) +
           ' / ' +
-          (rule.accounts.account_number ?? '-') +
+          formatOutputAccountNumber(rule.accounts.account_number) +
           ' · ' +
           formatNumber(entry.amount)
       const outputLine = 'GAS : ' + accountAndAmount
@@ -1595,13 +1616,13 @@ function App() {
           kind: 'pencairan_harian',
           bank: getOutputBank(rental.bank),
           line:
-            'Sewa SPPG : ' +
-            rental.ownerName +
+            'SEWA SPPG : ' +
+            capitalizeEachWord(rental.ownerName) +
             ' - ' +
-            rental.bank +
+            getOutputBank(rental.bank) +
             ' / ' +
-            rental.accountNumber +
-            ' · ' +
+            formatOutputAccountNumber(rental.accountNumber) +
+            ' · '
             formatNumber(entry.amount),
           index: items.length,
           modeRank: 0
@@ -1623,13 +1644,13 @@ function App() {
         kind: 'pencairan_harian',
         bank,
         line:
-          kinds.join(', ') +
+          kinds.join(', ').toLocaleUpperCase('id-ID') +
           ' : ' +
           ownerName +
           ' - ' +
           bank +
           ' / ' +
-          accountNumber +
+          formatOutputAccountNumber(accountNumber) +
           ' · ' +
           formatNumber(entry.amount),
         index: items.length,
@@ -1660,12 +1681,12 @@ function App() {
           kind: 'sewa_kendaraan',
           bank: getOutputBank(account.bank),
           line:
-            'Sewa Kendaraan ' +
-            vehicle.label +
+            ('SEWA KENDARAAN ' +
+            vehicle.label).toLocaleUpperCase('id-ID') +
             ' (' +
             period +
             ') : ' +
-            account.ownerName +
+            capitalizeEachWord(account.ownerName) +
             ' - ' +
             account.bank +
             ' / ' +
@@ -1685,7 +1706,7 @@ function App() {
       if (!entry || !rule.accounts) continue
 
       const hasAmount = isCompleteAmount(entry.amount)
-      const supplierName = rule.supplier?.business_name ?? rule.accounts.name
+      const supplierName = formatRabSupplierName(rule.supplier?.business_name ?? rule.accounts.name)
       const sortedProducts = sortStrings(entry.productTypes).sort((a, b) => {
         const aIsOther = a.trim().toLocaleLowerCase('id') === 'lainnya'
         const bIsOther = b.trim().toLocaleLowerCase('id') === 'lainnya'
@@ -1698,9 +1719,9 @@ function App() {
       const accountText =
         supplierName +
         ' - ' +
-        rule.accounts.bank +
+        getOutputBank(rule.accounts.bank) +
         ' / ' +
-        (rule.accounts.account_number ?? '-')
+        formatOutputAccountNumber(rule.accounts.account_number)
       const amountText = formatNumber(entry.amount) || '0'
       const outputLine = hasProduct
         ? accountText + ' · ' + productText + ' · ' + amountText
