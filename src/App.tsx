@@ -2072,7 +2072,7 @@ function App() {
                   <div className="grid min-w-0 items-end gap-2 sm:grid-cols-[145px_minmax(0,1fr)] lg:grid-cols-[145px_minmax(180px,260px)_auto] lg:justify-between">
                     <div className="min-w-0">
                       <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
-                      <div className={`relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25 ${activeDate ? 'mp-field--has-output' : ''}`}>
+                      <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
                         <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
                         <span className="ml-2 whitespace-nowrap text-xs font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
                         <input
@@ -2098,7 +2098,7 @@ function App() {
                         value={kitchenId}
                         title={selectedKitchen?.name ?? 'Pilih dapur'}
                         onChange={(event) => handleKitchenChange(event.target.value)}
-                        className={`h-9 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(kitchenId) ? 'mp-field--has-output' : ''}`}
+                        className="h-9 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
                       >
                         <option value="">Pilih dapur</option>
                         {masterData.kitchens.map((kitchen) => (
