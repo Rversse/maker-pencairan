@@ -1804,7 +1804,25 @@ function App() {
     activeTransaction
       ? getTransactionOutput(activeTransaction).join('\n')
       : ''
-  const outputLineCount = output ? output.split('\n').slice(1).filter((line) => line.trim()).length : 0
+  const outputDetailLines = output ? output.split('\n').slice(1).filter((line) => line.trim()) : []
+  const outputLineCount = outputDetailLines.length
+  const getOutputAmount = (line: string) => {
+    const separatorIndex = line.lastIndexOf(' · ')
+    if (separatorIndex < 0) return 0
+    return Number(line.slice(separatorIndex + 3).replace(/\D/g, '')) || 0
+  }
+  const sumOutputLines = (matches: (line: string) => boolean) =>
+    outputDetailLines.reduce((total, line) => total + (matches(line) ? getOutputAmount(line) : 0), 0)
+  const hasOutputPrefix = (prefix: string) =>
+    outputDetailLines.some((line) => line.startsWith(prefix))
+  const totalRab = sumOutputLines((line) => line.startsWith('RAB : '))
+  const totalOpsOnly = sumOutputLines((line) => line.startsWith('OPS HARIAN : '))
+  const totalGas = sumOutputLines((line) => line.startsWith('GAS : '))
+  const totalLainLain = sumOutputLines((line) => line.startsWith('LAIN-LAIN : '))
+  const totalOpsHarian = totalOpsOnly + totalGas + totalLainLain
+  const hasPayrollOutput = outputDetailLines.some((line) =>
+    DAILY_PAYMENT_GAJI_OPTIONS.some((kind) => line.startsWith(kind.toLocaleUpperCase('id-ID')))
+  )
 
   const outputChecks: { label: string; complete: boolean }[] = []
   if (activeTransaction && selectedKitchen) {
@@ -1887,6 +1905,23 @@ function App() {
       })
     }
   }
+
+  const outputDisplayLabels = Array.from(
+    new Set(
+      outputChecks.flatMap(({ label }) => {
+        if (label === 'Insentif Fasilitas SPPG') return ['Fasilitas SPPG']
+        if (
+          label === 'Gaji Relawan + Insentif PIC' ||
+          label === 'Insentif PIC Sekolah + Insentif PIC Posyandu'
+        ) {
+          return ['PIC Kader', 'PIC Sekolah']
+        }
+        if (label === 'Insentif PIC Posyandu') return ['PIC Kader']
+        if (label === 'Insentif PIC Sekolah') return ['PIC Sekolah']
+        return []
+      })
+    )
+  ).sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
 
   async function copyOutput() {
     if (!output) return
@@ -2080,52 +2115,80 @@ function App() {
 
                 {kitchenId && activeTransaction && (
                   <div className="mt-3 border-t border-slate-800/90 pt-3">
-                    <div className="flex min-w-0 items-center justify-between gap-3">
-                      <div className="flex min-w-0 items-center gap-2">
-                        <h2 className="text-sm font-semibold">Output</h2>
-                        <span
-                          aria-label={outputLineCount + ' baris output'}
-                          className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-xs font-semibold tabular-nums text-emerald-200"
-                        >
-                          {outputLineCount}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        data-button-kind="primary"
-                        onClick={() => void copyOutput()}
-                        disabled={!output}
-                        className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        {copyMessage || 'Copy'}
-                      </button>
-                    </div>
-
-                    <pre className="mt-2 max-h-[16vh] min-h-[48px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-3 text-xs leading-5 text-slate-200 shadow-inner shadow-black/20 2xl:max-h-[15vh]">
-                      {output}
-                    </pre>
-
-                    {outputChecks.length > 0 && (
-                      <div className="mt-3 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,130px),1fr))] gap-x-2 gap-y-3">
-                        {[...outputChecks]
-                          .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
-                          .map((check) => (
-                            <div
-                              key={check.label}
-                              className="flex min-w-0 flex-col items-center justify-center gap-1.5 px-2 py-1 text-center text-xs leading-5"
+                    <div className="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.4fr)]">
+                      <section className="mp-card min-w-0 rounded-xl p-2.5 sm:p-3">
+                        <div className="flex min-w-0 items-center justify-between gap-3">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <h2 className="text-sm font-semibold">Output</h2>
+                            <span
+                              aria-label={outputLineCount + ' baris output'}
+                              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-[11px] font-semibold tabular-nums text-emerald-200"
                             >
+                              {outputLineCount}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            data-button-kind="primary"
+                            onClick={() => void copyOutput()}
+                            disabled={!output}
+                            className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            {copyMessage || 'Copy'}
+                          </button>
+                        </div>
+
+                        <pre className="mt-2 max-h-[14vh] min-h-[44px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2.5 text-[11px] leading-[1.15rem] text-slate-200 shadow-inner shadow-black/20 2xl:max-h-[13vh]">
+                          {output}
+                        </pre>
+
+                        {outputDisplayLabels.length > 0 && (
+                          <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-800/80 pt-2">
+                            {outputDisplayLabels.map((label) => (
                               <span
-                                aria-hidden="true"
-                                className={[
-                                  'h-2 w-2 shrink-0 rounded-full',
-                                  check.complete ? 'bg-emerald-400' : 'bg-rose-500'
-                                ].join(' ')}
-                              />
-                              <span title={check.label} className="w-full max-w-full truncate text-center text-slate-200">{check.label}</span>
+                                key={label}
+                                className="text-center text-[11px] font-medium leading-4 text-slate-300"
+                              >
+                                {label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </section>
+
+                      <aside className="mp-card min-w-0 rounded-xl p-3" aria-label="Ringkasan total nominal">
+                        <div className="flex min-w-0 items-start justify-between gap-2">
+                          <h2 className="text-sm font-semibold">Ringkasan Total</h2>
+                          <span className="shrink-0 rounded-md border border-slate-700/80 px-1.5 py-0.5 text-[10px] text-slate-400">Read-only</span>
+                        </div>
+                        <p className="mt-1 text-[10px] leading-4 text-slate-400">Tampilan saja · tidak ikut disalin</p>
+
+                        <div className="mt-3 space-y-2.5">
+                          <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-3 py-2">
+                            <div className="text-[11px] text-slate-400">Total RAB</div>
+                            <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalRab)) || '0'}</div>
+                          </div>
+                          <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-3 py-2">
+                            <div className="text-[11px] text-slate-400">Ops Harian</div>
+                            <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalOpsHarian)) || '0'}</div>
+                            <div className="mt-2 space-y-1 border-t border-slate-700/60 pt-2 text-[11px] text-slate-400">
+                              <div className="flex items-center justify-between gap-2">
+                                <span>Ops Harian</span>
+                                <span className="shrink-0 tabular-nums text-slate-300">Rp {formatNumber(String(totalOpsOnly)) || '0'}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-2">
+                                <span>GAS</span>
+                                <span className="shrink-0 tabular-nums text-slate-300">Rp {formatNumber(String(totalGas)) || '0'}</span>
+                              </div>
+                              <div className="flex items-center justify-between gap-2">
+                                <span>Lain-Lain</span>
+                                <span className="shrink-0 tabular-nums text-slate-300">Rp {formatNumber(String(totalLainLain)) || '0'}</span>
+                              </div>
                             </div>
-                          ))}
-                      </div>
-                    )}
+                          </div>
+                        </div>
+                      </aside>
+                    </div>
                   </div>
                 )}
               </section>
@@ -2134,7 +2197,7 @@ function App() {
               <div className="mp-form-stack flex min-w-0 w-full max-w-[960px] flex-col gap-3">
                 {kitchenId && activeTransaction && (
                 <>
-                  <section className="mp-card w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
+                  <section className={`mp-card w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15 ${hasOutputPrefix('RAB : ') ? 'mp-card--has-output' : ''}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -2166,7 +2229,7 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
+                            className={`grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3 ${isCompleteAmount(entry.amount) && Boolean(rule.accounts) ? 'mp-entry--has-output' : ''}`}
                           >
                             <div className="min-w-0">
                               <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
@@ -2282,7 +2345,7 @@ function App() {
 
 
                   {gasRules.length > 0 && (
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
+                    <section className={`mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('GAS : ') ? 'mp-card--has-output' : ''}`}>
                       <h2 className="text-base font-semibold text-white">GAS</h2>
 
                       <div className="mt-3 space-y-3">
@@ -2399,7 +2462,7 @@ function App() {
                     </section>
                   )}
 
-                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
+                  <section className={`mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('OPS HARIAN : ') ? 'mp-card--has-output' : ''}`}>
                     <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
@@ -2439,7 +2502,7 @@ function App() {
 
 
                   <div className="w-full min-w-0 space-y-3">
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
+                    <section className={`mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3 ${hasOutputPrefix('INSENTIF FASILITAS SPPG : ') ? 'mp-card--has-output' : ''}`}>
                       <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
                       <div className="mt-3 space-y-3">
                         {activeTransaction.pencairan_harian
@@ -2482,7 +2545,7 @@ function App() {
                       </div>
                     </section>
 
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
+                    <section className={`mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('SEWA KENDARAAN ') ? 'mp-card--has-output' : ''}`}>
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
                         const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
@@ -2561,7 +2624,7 @@ function App() {
                       })()}
                     </section>
 
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
+                    <section className={`mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3 ${hasPayrollOutput ? 'mp-card--has-output' : ''}`}>
                       <h2 className="text-base font-semibold text-white">Pencairan Gaji dan Insentif</h2>
 
                       {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
@@ -2636,7 +2699,7 @@ function App() {
                     
                   </div>
 
-                  <section className="mp-card w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
+                  <section className={`mp-card w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('LAIN-LAIN : ') ? 'mp-card--has-output' : ''}`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
                       <button
@@ -2652,11 +2715,16 @@ function App() {
                       {activeTransaction.lain_lain.map((entry) => (
                         <div
                           key={entry.id}
-                          className={
+                          className={[
                             activeTransaction.lain_lain.length > 1
                               ? 'rounded-lg border border-slate-800 bg-slate-950 p-3'
+                              : '',
+                            entry.transactionType === 'lain_lain' &&
+                            isCompleteAmount(entry.amount) &&
+                            Boolean(getOutputBank(entry.accountId) && entry.accountNumber.trim() && entry.ownerName.trim())
+                              ? 'mp-entry--has-output'
                               : ''
-                          }
+                          ].filter(Boolean).join(' ')}
                         >
                           <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(90px,0.55fr)_minmax(130px,0.85fr)_minmax(180px,1.15fr)_minmax(180px,1.2fr)_140px] lg:items-end">
                             <div className="min-w-0">
