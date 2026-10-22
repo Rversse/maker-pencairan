@@ -327,17 +327,25 @@ body {
   --mp-card-rim-b: #6fd6ae;
 }
 
-/* Valid nominal inputs use theme-aware borders: white in dark mode, green in light mode. */
+/* Every completed/valid data field uses a shared active border. */
 :root:not([data-theme='light']) .mp-field--has-output,
 :root:not([data-theme='light']) .mp-field--has-output:hover,
-:root:not([data-theme='light']) .mp-field--has-output:focus {
+:root:not([data-theme='light']) .mp-field--has-output:focus,
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
   border-color: #f8fafc !important;
+  box-shadow: 0 0 0 1px rgb(248 250 252 / 18%), 0 0 6px rgb(248 250 252 / 18%) !important;
 }
 
 :root[data-theme='light'] .mp-field--has-output,
 :root[data-theme='light'] .mp-field--has-output:hover,
-:root[data-theme='light'] .mp-field--has-output:focus {
-  border-color: #059669 !important;
+:root[data-theme='light'] .mp-field--has-output:focus,
+:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
+:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
+:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 1px rgb(220 38 38 / 25%), 0 0 8px rgb(220 38 38 / 28%) !important;
 }
 
 /* Compact corner radius for cards, controls, and bordered fields inside the workspace. */

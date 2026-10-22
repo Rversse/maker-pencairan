@@ -2072,7 +2072,7 @@ function App() {
                   <div className="grid min-w-0 items-end gap-2 sm:grid-cols-[145px_minmax(0,1fr)] lg:grid-cols-[145px_minmax(180px,260px)_auto] lg:justify-between">
                     <div className="min-w-0">
                       <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
-                      <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
+                      <div className={`relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25 ${activeDate ? 'mp-field--has-output' : ''}`}>
                         <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
                         <span className="ml-2 whitespace-nowrap text-xs font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
                         <input
@@ -2098,7 +2098,7 @@ function App() {
                         value={kitchenId}
                         title={selectedKitchen?.name ?? 'Pilih dapur'}
                         onChange={(event) => handleKitchenChange(event.target.value)}
-                        className="h-9 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                        className={`h-9 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(kitchenId) ? 'mp-field--has-output' : ''}`}
                       >
                         <option value="">Pilih dapur</option>
                         {masterData.kitchens.map((kitchen) => (
@@ -2115,7 +2115,7 @@ function App() {
                         onClick={restoreLastDraft}
                         className="h-9 min-w-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30"
                       >
-                        Pulihkan sebelum Reset
+                        Restore
                       </button>
                       <button
                         type="button"
@@ -2321,7 +2321,7 @@ function App() {
                                           )
                                         }
                                         placeholder={'Item ' + (fieldIndex + 1)}
-                                        className="h-8 w-[100px] rounded-md border border-slate-700 bg-slate-900 px-2 text-[11px] text-slate-100 placeholder:text-slate-500 outline-none focus:border-sky-500"
+                                        className={`h-8 w-[100px] rounded-md border border-slate-700 bg-slate-900 px-2 text-[11px] text-slate-100 placeholder:text-slate-500 outline-none focus:border-sky-500 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) && Boolean((customDraft[fieldIndex] ?? '').trim()) ? 'mp-field--has-output' : ''}`}
                                       />
                                     ))}
                                   </div>
@@ -2343,7 +2343,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                              className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
                             />
                           </div>
                         )
@@ -2414,7 +2414,7 @@ function App() {
                                 }
                                 placeholder="Jumlah"
                                 aria-label="Jumlah tabung gas"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) && Boolean(String(entry.gasQuantity ?? '').trim()) ? 'mp-field--has-output' : ''}`}
                               />
 
                               <select
@@ -2428,7 +2428,7 @@ function App() {
                                   )
                                 }
                                 aria-label="Jenis tabung gas"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) && Boolean(entry.gasSize) ? 'mp-field--has-output' : ''}`}
                               >
                                 <option value="">Ukuran</option>
                                 <option value="12kg">Gas 12kg</option>
@@ -2449,7 +2449,7 @@ function App() {
                                 }
                                 placeholder="Catatan (opsional)"
                                 aria-label="Catatan tambahan GAS"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) && Boolean((entry.need ?? '').trim()) ? 'mp-field--has-output' : ''}`}
                               />
 
                               <input
@@ -2469,7 +2469,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                                className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
                               />
                             </div>
                           )
@@ -2587,6 +2587,10 @@ function App() {
                                   })
                                 }
                                 placeholder="Pilih rentang tanggal"
+                                active={
+                                  hasOutputAmount('SEWA KENDARAAN MOBIL (', account?.accountNumber ?? '-', entry.mobilAmount) ||
+                                  hasOutputAmount('SEWA KENDARAAN MOTOR (', account?.accountNumber ?? '-', entry.motorAmount)
+                                }
                               />
                               <div className="min-w-0">
                                                                 <input
@@ -2600,7 +2604,7 @@ function App() {
                                   }
                                   placeholder="Nominal Mobil"
                                   aria-label="Nominal Kendaraan Mobil"
-                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('SEWA KENDARAAN MOBIL (', account?.accountNumber ?? '', entry.mobilAmount) ? 'mp-field--has-output' : ''}`}
+                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('SEWA KENDARAAN MOBIL (', account?.accountNumber ?? '-', entry.mobilAmount) ? 'mp-field--has-output' : ''}`}
                                 />
                               </div>
                               <div className="min-w-0">
@@ -2615,7 +2619,7 @@ function App() {
                                   }
                                   placeholder="Nominal Motor"
                                   aria-label="Nominal Kendaraan Motor"
-                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('SEWA KENDARAAN MOTOR (', account?.accountNumber ?? '', entry.motorAmount) ? 'mp-field--has-output' : ''}`}
+                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('SEWA KENDARAAN MOTOR (', account?.accountNumber ?? '-', entry.motorAmount) ? 'mp-field--has-output' : ''}`}
                                 />
                               </div>
                             </div>
@@ -2750,7 +2754,7 @@ function App() {
                                   )
                                 }
                                 aria-label="Bank rekening Lain-Lain"
-                                className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.accountId) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                               >
                                 <option value="">Pilih Bank</option>
                                 {LAIN_LAIN_BANKS.map((bank) => (
@@ -2773,7 +2777,7 @@ function App() {
                               }
                               placeholder="Nomor rekening"
                               aria-label="Nomor rekening Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                              className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.accountNumber.trim()) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                             />
                             <input
                               type="text"
@@ -2789,7 +2793,7 @@ function App() {
                               }
                               placeholder="Nama pemilik rekening"
                               aria-label="Nama pemilik rekening Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                              className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.ownerName.trim()) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                             />
                             <input
                               type="text"
@@ -2805,7 +2809,7 @@ function App() {
                               }
                               placeholder="Deskripsi / keperluan"
                               aria-label="Deskripsi Lain-Lain"
-                              className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                              className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.need.trim()) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                             />
                             <input
                               type="text"
