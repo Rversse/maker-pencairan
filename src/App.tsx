@@ -1806,6 +1806,19 @@ function App() {
       : ''
   const outputDetailLines = output ? output.split('\n').slice(1).filter((line) => line.trim()) : []
   const outputLineCount = outputDetailLines.length
+  const hasOutputAmount = (prefix: string, accountNumber: string, amount: string) => {
+    const normalizedAccount = (accountNumber ?? '').trim()
+    const formattedAmount = formatNumber(amount ?? '')
+    if (!normalizedAccount || !isCompleteAmount(amount ?? '') || !formattedAmount) return false
+    const accountMarker = ' / ' + normalizedAccount + ' ·'
+    const amountSuffix = ' · ' + formattedAmount
+    return outputDetailLines.some(
+      (line) =>
+        line.startsWith(prefix) &&
+        line.includes(accountMarker) &&
+        line.endsWith(amountSuffix)
+    )
+  }
   const getOutputAmount = (line: string) => {
     const separatorIndex = line.lastIndexOf(' · ')
     if (separatorIndex < 0) return 0
@@ -1905,14 +1918,13 @@ function App() {
     outputChecks.reduce((checks, { label, complete }) => {
       let displayLabels: string[] = []
       if (label === 'Insentif Fasilitas SPPG') displayLabels = ['Fasilitas SPPG']
-      if (
-        label === 'Gaji Relawan + Insentif PIC' ||
-        label === 'Insentif PIC Sekolah + Insentif PIC Posyandu'
-      ) {
-        displayLabels = ['PIC Kader', 'PIC Sekolah']
-      }
-      if (label === 'Insentif PIC Posyandu') displayLabels = ['PIC Kader']
-      if (label === 'Insentif PIC Sekolah') displayLabels = ['PIC Sekolah']
+      else if (label === 'Gaji Relawan + Insentif PIC') {
+        displayLabels = ['Gaji Relawan + PIC Kader + PIC Sekolah']
+      } else if (label === 'Insentif PIC Sekolah + Insentif PIC Posyandu') {
+        displayLabels = ['PIC Kader + PIC Sekolah']
+      } else if (label === 'Gaji Relawan') displayLabels = ['Gaji Relawan']
+      else if (label === 'Insentif PIC Posyandu') displayLabels = ['PIC Kader']
+      else if (label === 'Insentif PIC Sekolah') displayLabels = ['PIC Sekolah']
 
       for (const displayLabel of displayLabels) {
         checks.set(displayLabel, (checks.get(displayLabel) ?? false) || complete)
@@ -2153,10 +2165,8 @@ function App() {
                 </section>
 
                 {kitchenId && activeTransaction && (
-                  <aside className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5" aria-label="Ringkasan total nominal">
-                    <h2 className="text-center text-sm font-semibold">Ringkasan</h2>
-
-                    <div className="mt-2 space-y-2">
+                  <aside className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5" aria-label="Total nominal dan status pencairan">
+                    <div className="space-y-2">
                       <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-2.5 py-2 text-center">
                         <div className="text-[10px] text-slate-400">Total RAB</div>
                         <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalRab)) || '0'}</div>
@@ -2333,7 +2343,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.amount) && Boolean(rule.accounts) ? 'mp-field--has-output' : ''}`}
+                              className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                             />
                           </div>
                         )
@@ -2459,7 +2469,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.amount) && Boolean(rule?.accounts) ? 'mp-field--has-output' : ''}`}
+                                className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                               />
                             </div>
                           )
@@ -2499,7 +2509,7 @@ function App() {
                             }
                             placeholder="Nominal"
                             aria-label="Nominal Ops Harian"
-                            className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${isCompleteAmount(entry.amount) && Boolean(mapping?.bank && mapping?.accountNumber && mapping?.ownerName) ? 'mp-field--has-output' : ''}`}
+                            className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                           />
                         </div>
                       )
@@ -2543,7 +2553,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Insentif Fasilitas SPPG"
-                                    className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${isCompleteAmount(entry.amount) && Boolean(rental?.bank && rental?.accountNumber && rental?.ownerName) ? 'mp-field--has-output' : ''}`}
+                                    className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />
                               </div>
                             )
@@ -2590,7 +2600,7 @@ function App() {
                                   }
                                   placeholder="Nominal Mobil"
                                   aria-label="Nominal Kendaraan Mobil"
-                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.mobilAmount) && Boolean(account && entry.startDate && entry.endDate && entry.endDate >= entry.startDate) ? 'mp-field--has-output' : ''}`}
+                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('SEWA KENDARAAN MOBIL (', account?.accountNumber ?? '', entry.mobilAmount) ? 'mp-field--has-output' : ''}`}
                                 />
                               </div>
                               <div className="min-w-0">
@@ -2605,7 +2615,7 @@ function App() {
                                   }
                                   placeholder="Nominal Motor"
                                   aria-label="Nominal Kendaraan Motor"
-                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.motorAmount) && Boolean(account && entry.startDate && entry.endDate && entry.endDate >= entry.startDate) ? 'mp-field--has-output' : ''}`}
+                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('SEWA KENDARAAN MOTOR (', account?.accountNumber ?? '', entry.motorAmount) ? 'mp-field--has-output' : ''}`}
                                 />
                               </div>
                             </div>
@@ -2693,7 +2703,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${isCompleteAmount(entry.amount) && Boolean(mapping) && areDailyPaymentKindsCompatible(selectedKitchen?.name ?? '', entry.kinds, masterData) ? 'mp-field--has-output' : ''}`}
+                                    className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />
                                 </div>
                               </div>
@@ -2811,7 +2821,7 @@ function App() {
                               }
                               placeholder="Nominal"
                               aria-label="Nominal Lain-Lain"
-                              className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${entry.transactionType === 'lain_lain' && isCompleteAmount(entry.amount) && Boolean(getOutputBank(entry.accountId) && entry.accountNumber.trim() && entry.ownerName.trim()) ? 'mp-field--has-output' : ''}`}
+                              className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                             />
                           </div>
                         </div>
