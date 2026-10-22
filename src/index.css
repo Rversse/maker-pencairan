@@ -327,6 +327,27 @@ body {
   --mp-card-rim-b: #6fd6ae;
 }
 
+/* Cards that feed the generated output become green in light mode and white in dark mode. */
+:root:not([data-theme='light']) .mp-card.mp-card--has-output,
+:root:not([data-theme='light']) .mp-card.mp-card--has-output:hover {
+  --mp-card-rim-a: #f8fafc;
+  --mp-card-rim-b: #ffffff;
+}
+
+:root[data-theme='light'] .mp-card.mp-card--has-output,
+:root[data-theme='light'] .mp-card.mp-card--has-output:hover {
+  --mp-card-rim-a: #059669;
+  --mp-card-rim-b: #10b981;
+}
+
+:root:not([data-theme='light']) .mp-entry--has-output {
+  border-color: #f8fafc !important;
+}
+
+:root[data-theme='light'] .mp-entry--has-output {
+  border-color: #059669 !important;
+}
+
 .mp-card--sticky {
   backdrop-filter: blur(18px);
 }
@@ -517,8 +538,7 @@ button[data-option-button='true']:focus-visible {
   gap: 12px;
 }
 
-.mp-form-stack > .mp-card,
-.mp-form-stack > div > .mp-card {
+.mp-form-stack > .mp-card {
   margin-block: 0 !important;
 }
 
