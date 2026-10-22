@@ -1906,22 +1906,27 @@ function App() {
     }
   }
 
-  const outputDisplayLabels = Array.from(
-    new Set(
-      outputChecks.flatMap(({ label }) => {
-        if (label === 'Insentif Fasilitas SPPG') return ['Fasilitas SPPG']
-        if (
-          label === 'Gaji Relawan + Insentif PIC' ||
-          label === 'Insentif PIC Sekolah + Insentif PIC Posyandu'
-        ) {
-          return ['PIC Kader', 'PIC Sekolah']
-        }
-        if (label === 'Insentif PIC Posyandu') return ['PIC Kader']
-        if (label === 'Insentif PIC Sekolah') return ['PIC Sekolah']
-        return []
-      })
-    )
-  ).sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' }))
+  const outputDisplayChecks = Array.from(
+    outputChecks.reduce((checks, { label, complete }) => {
+      let displayLabels: string[] = []
+      if (label === 'Insentif Fasilitas SPPG') displayLabels = ['Fasilitas SPPG']
+      if (
+        label === 'Gaji Relawan + Insentif PIC' ||
+        label === 'Insentif PIC Sekolah + Insentif PIC Posyandu'
+      ) {
+        displayLabels = ['PIC Kader', 'PIC Sekolah']
+      }
+      if (label === 'Insentif PIC Posyandu') displayLabels = ['PIC Kader']
+      if (label === 'Insentif PIC Sekolah') displayLabels = ['PIC Sekolah']
+
+      for (const displayLabel of displayLabels) {
+        checks.set(displayLabel, (checks.get(displayLabel) ?? false) || complete)
+      }
+      return checks
+    }, new Map<string, boolean>())
+  )
+    .map(([label, complete]) => ({ label, complete }))
+    .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
 
   async function copyOutput() {
     if (!output) return
@@ -2116,7 +2121,7 @@ function App() {
                 {kitchenId && activeTransaction && (
                   <div className="mt-3 border-t border-slate-800/90 pt-3">
                     <div className="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.4fr)]">
-                      <section className="mp-card min-w-0 rounded-xl p-2.5 sm:p-3">
+                      <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5 sm:p-3">
                         <div className="flex min-w-0 items-center justify-between gap-3">
                           <div className="flex min-w-0 items-center gap-2">
                             <h2 className="text-sm font-semibold">Output</h2>
@@ -2138,16 +2143,20 @@ function App() {
                           </button>
                         </div>
 
-                        <pre className="mt-2 max-h-[14vh] min-h-[44px] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2.5 text-[11px] leading-[1.15rem] text-slate-200 shadow-inner shadow-black/20 2xl:max-h-[13vh]">
+                        <pre className="mt-2 min-h-[220px] flex-1 overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2.5 text-[11px] leading-[1.15rem] text-slate-200 shadow-inner shadow-black/20">
                           {output}
                         </pre>
 
                         {outputDisplayLabels.length > 0 && (
-                          <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-800/80 pt-2">
-                            {outputDisplayLabels.map((label) => (
+                          <div className="mt-2 flex w-full min-w-0 flex-wrap items-center justify-center gap-x-5 gap-y-1 border-t border-slate-800/80 pt-2 text-center">
+                            {outputDisplayChecks.map(({ label, complete }) => (
                               <span
                                 key={label}
-                                className="text-center text-[11px] font-medium leading-4 text-slate-300"
+                                title={complete ? 'Sudah diisi' : 'Belum diisi'}
+                                className={[
+                                  'text-center text-[11px] font-semibold leading-4 transition-colors',
+                                  complete ? 'text-emerald-400' : 'text-rose-400'
+                                ].join(' ')}
                               >
                                 {label}
                               </span>
