@@ -298,7 +298,7 @@ body {
   position: relative;
   isolation: isolate;
   border: 1px solid transparent !important;
-  border-radius: 16px !important;
+  border-radius: 12px !important;
   background:
     linear-gradient(145deg, var(--mp-card-top), var(--mp-card-bottom)) padding-box,
     linear-gradient(135deg, var(--mp-card-rim-a), var(--mp-card-rim-b)) border-box !important;
@@ -327,32 +327,36 @@ body {
   --mp-card-rim-b: #6fd6ae;
 }
 
-/* Cards that feed the generated output become green in light mode and white in dark mode. */
-:root:not([data-theme='light']) .mp-card.mp-card--has-output,
-:root:not([data-theme='light']) .mp-card.mp-card--has-output:hover {
-  --mp-card-rim-a: #f8fafc;
-  --mp-card-rim-b: #ffffff;
-}
-
-:root[data-theme='light'] .mp-card.mp-card--has-output,
-:root[data-theme='light'] .mp-card.mp-card--has-output:hover {
-  --mp-card-rim-a: #059669;
-  --mp-card-rim-b: #10b981;
-}
-
-:root:not([data-theme='light']) .mp-entry--has-output {
+/* Valid nominal inputs use theme-aware borders: white in dark mode, green in light mode. */
+:root:not([data-theme='light']) .mp-field--has-output,
+:root:not([data-theme='light']) .mp-field--has-output:hover,
+:root:not([data-theme='light']) .mp-field--has-output:focus {
   border-color: #f8fafc !important;
 }
 
-:root[data-theme='light'] .mp-entry--has-output {
+:root[data-theme='light'] .mp-field--has-output,
+:root[data-theme='light'] .mp-field--has-output:hover,
+:root[data-theme='light'] .mp-field--has-output:focus {
   border-color: #059669 !important;
+}
+
+/* Compact corner radius for cards, controls, and bordered fields inside the workspace. */
+.mp-card [class*='rounded-lg'][class*='border'],
+.mp-card [class*='rounded-md'][class*='border']:not([class*='rounded-full']) {
+  border-radius: 6px !important;
+}
+
+.mp-card input,
+.mp-card select,
+.mp-card textarea {
+  border-radius: 6px !important;
 }
 
 /* Theme-aware action buttons inspired by the linked Uiverse component:
    dark surfaces invert to light on hover; light surfaces invert to dark. */
 button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
   border: 1px solid var(--mp-action-border) !important;
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--mp-action-bg) !important;
   color: var(--mp-action-text) !important;
   box-shadow: 0 2px 7px rgb(0 0 0 / 10%), inset 0 1px 0 rgb(255 255 255 / 4%);

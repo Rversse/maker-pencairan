@@ -1813,16 +1813,11 @@ function App() {
   }
   const sumOutputLines = (matches: (line: string) => boolean) =>
     outputDetailLines.reduce((total, line) => total + (matches(line) ? getOutputAmount(line) : 0), 0)
-  const hasOutputPrefix = (prefix: string) =>
-    outputDetailLines.some((line) => line.startsWith(prefix))
   const totalRab = sumOutputLines((line) => line.startsWith('RAB : '))
   const totalOpsOnly = sumOutputLines((line) => line.startsWith('OPS HARIAN : '))
   const totalGas = sumOutputLines((line) => line.startsWith('GAS : '))
   const totalLainLain = sumOutputLines((line) => line.startsWith('LAIN-LAIN : '))
   const totalOpsHarian = totalOpsOnly + totalGas + totalLainLain
-  const hasPayrollOutput = outputDetailLines.some((line) =>
-    DAILY_PAYMENT_GAJI_OPTIONS.some((kind) => line.startsWith(kind.toLocaleUpperCase('id-ID')))
-  )
 
   const outputChecks: { label: string; complete: boolean }[] = []
   if (activeTransaction && selectedKitchen) {
@@ -2062,7 +2057,7 @@ function App() {
                 ].join(' ')}
               >
                 <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5">
-                  <div className="grid min-w-0 items-end gap-2 sm:grid-cols-[125px_minmax(0,1fr)] lg:grid-cols-[125px_minmax(0,1fr)_auto]">
+                  <div className="grid min-w-0 items-end gap-2 sm:grid-cols-[145px_minmax(0,1fr)] lg:grid-cols-[145px_minmax(180px,260px)_auto] lg:justify-between">
                     <div className="min-w-0">
                       <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
                       <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
@@ -2153,29 +2148,13 @@ function App() {
                         {output}
                       </pre>
 
-                      {outputDisplayChecks.length > 0 && (
-                        <div className="mt-1.5 flex w-full min-w-0 flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-slate-800/80 pt-1.5 text-center">
-                          {outputDisplayChecks.map(({ label, complete }) => (
-                            <span
-                              key={label}
-                              title={complete ? 'Sudah diisi' : 'Belum diisi'}
-                              className={[
-                                'text-center text-[10px] font-semibold leading-4 transition-colors',
-                                complete ? 'text-emerald-400' : 'text-rose-400'
-                              ].join(' ')}
-                            >
-                              {label}
-                            </span>
-                          ))}
-                        </div>
-                      )}
                     </>
                   )}
                 </section>
 
                 {kitchenId && activeTransaction && (
                   <aside className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5" aria-label="Ringkasan total nominal">
-                    <h2 className="text-center text-sm font-semibold">Ringkasan Total</h2>
+                    <h2 className="text-center text-sm font-semibold">Ringkasan</h2>
 
                     <div className="mt-2 space-y-2">
                       <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-2.5 py-2 text-center">
@@ -2201,6 +2180,22 @@ function App() {
                         </div>
                       </div>
                     </div>
+                    {outputDisplayChecks.length > 0 && (
+                      <div className="mt-auto flex w-full min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-slate-800/80 pt-2 text-center">
+                        {outputDisplayChecks.map(({ label, complete }) => (
+                          <span
+                            key={label}
+                            title={complete ? 'Sudah diisi' : 'Belum diisi'}
+                            className={[
+                              'text-center text-[10px] font-semibold leading-4 transition-colors',
+                              complete ? 'text-emerald-400' : 'text-rose-400'
+                            ].join(' ')}
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </aside>
                 )}
               </div>
@@ -2208,7 +2203,7 @@ function App() {
               <div className="mp-form-stack flex min-w-0 w-full max-w-[960px] flex-col gap-3">
                 {kitchenId && activeTransaction && (
                 <>
-                  <section className={`mp-card w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15 ${hasOutputPrefix('RAB : ') ? 'mp-card--has-output' : ''}`}>
+                  <section className="mp-card w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -2240,7 +2235,7 @@ function App() {
                         return (
                           <div
                             key={rule.account_id}
-                            className={`grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3 ${isCompleteAmount(entry.amount) && Boolean(rule.accounts) ? 'mp-entry--has-output' : ''}`}
+                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
                           >
                             <div className="min-w-0">
                               <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
@@ -2338,7 +2333,7 @@ function App() {
                                 )
                               }
                               placeholder="Nominal"
-                              className="h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                              className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.amount) && Boolean(rule.accounts) ? 'mp-field--has-output' : ''}`}
                             />
                           </div>
                         )
@@ -2356,7 +2351,7 @@ function App() {
 
 
                   {gasRules.length > 0 && (
-                    <section className={`mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('GAS : ') ? 'mp-card--has-output' : ''}`}>
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">GAS</h2>
 
                       <div className="mt-3 space-y-3">
@@ -2464,7 +2459,7 @@ function App() {
                                 }
                                 placeholder="Nominal"
                                 aria-label="Nominal GAS"
-                                className="h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                                className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.amount) && Boolean(rule?.accounts) ? 'mp-field--has-output' : ''}`}
                               />
                             </div>
                           )
@@ -2473,7 +2468,7 @@ function App() {
                     </section>
                   )}
 
-                  <section className={`mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('OPS HARIAN : ') ? 'mp-card--has-output' : ''}`}>
+                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
                     <h2 className="text-base font-semibold text-white">Ops Harian</h2>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
@@ -2504,7 +2499,7 @@ function App() {
                             }
                             placeholder="Nominal"
                             aria-label="Nominal Ops Harian"
-                            className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                            className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${isCompleteAmount(entry.amount) && Boolean(mapping?.bank && mapping?.accountNumber && mapping?.ownerName) ? 'mp-field--has-output' : ''}`}
                           />
                         </div>
                       )
@@ -2513,7 +2508,7 @@ function App() {
 
 
                   <div className="w-full min-w-0 space-y-3">
-                    <section className={`mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3 ${hasOutputPrefix('INSENTIF FASILITAS SPPG : ') ? 'mp-card--has-output' : ''}`}>
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
                       <div className="mt-3 space-y-3">
                         {activeTransaction.pencairan_harian
@@ -2548,7 +2543,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Insentif Fasilitas SPPG"
-                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${isCompleteAmount(entry.amount) && Boolean(rental?.bank && rental?.accountNumber && rental?.ownerName) ? 'mp-field--has-output' : ''}`}
                                   />
                               </div>
                             )
@@ -2556,7 +2551,7 @@ function App() {
                       </div>
                     </section>
 
-                    <section className={`mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('SEWA KENDARAAN ') ? 'mp-card--has-output' : ''}`}>
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
                         const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
@@ -2595,7 +2590,7 @@ function App() {
                                   }
                                   placeholder="Nominal Mobil"
                                   aria-label="Nominal Kendaraan Mobil"
-                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.mobilAmount) && Boolean(account && entry.startDate && entry.endDate && entry.endDate >= entry.startDate) ? 'mp-field--has-output' : ''}`}
                                 />
                               </div>
                               <div className="min-w-0">
@@ -2610,7 +2605,7 @@ function App() {
                                   }
                                   placeholder="Nominal Motor"
                                   aria-label="Nominal Kendaraan Motor"
-                                  className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.motorAmount) && Boolean(account && entry.startDate && entry.endDate && entry.endDate >= entry.startDate) ? 'mp-field--has-output' : ''}`}
                                 />
                               </div>
                             </div>
@@ -2635,7 +2630,7 @@ function App() {
                       })()}
                     </section>
 
-                    <section className={`mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3 ${hasPayrollOutput ? 'mp-card--has-output' : ''}`}>
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Gaji dan Insentif</h2>
 
                       {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
@@ -2698,7 +2693,7 @@ function App() {
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${isCompleteAmount(entry.amount) && Boolean(mapping) && areDailyPaymentKindsCompatible(selectedKitchen?.name ?? '', entry.kinds, masterData) ? 'mp-field--has-output' : ''}`}
                                   />
                                 </div>
                               </div>
@@ -2710,7 +2705,7 @@ function App() {
                     
                   </div>
 
-                  <section className={`mp-card w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3 ${hasOutputPrefix('LAIN-LAIN : ') ? 'mp-card--has-output' : ''}`}>
+                  <section className="mp-card w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
                       <button
@@ -2726,16 +2721,11 @@ function App() {
                       {activeTransaction.lain_lain.map((entry) => (
                         <div
                           key={entry.id}
-                          className={[
+                          className={
                             activeTransaction.lain_lain.length > 1
                               ? 'rounded-lg border border-slate-800 bg-slate-950 p-3'
-                              : '',
-                            entry.transactionType === 'lain_lain' &&
-                            isCompleteAmount(entry.amount) &&
-                            Boolean(getOutputBank(entry.accountId) && entry.accountNumber.trim() && entry.ownerName.trim())
-                              ? 'mp-entry--has-output'
                               : ''
-                          ].filter(Boolean).join(' ')}
+                          }
                         >
                           <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(90px,0.55fr)_minmax(130px,0.85fr)_minmax(180px,1.15fr)_minmax(180px,1.2fr)_140px] lg:items-end">
                             <div className="min-w-0">
@@ -2821,7 +2811,7 @@ function App() {
                               }
                               placeholder="Nominal"
                               aria-label="Nominal Lain-Lain"
-                              className="h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                              className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${entry.transactionType === 'lain_lain' && isCompleteAmount(entry.amount) && Boolean(getOutputBank(entry.accountId) && entry.accountNumber.trim() && entry.ownerName.trim()) ? 'mp-field--has-output' : ''}`}
                             />
                           </div>
                         </div>
