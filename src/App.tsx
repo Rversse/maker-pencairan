@@ -1827,10 +1827,47 @@ function App() {
   const sumOutputLines = (matches: (line: string) => boolean) =>
     outputDetailLines.reduce((total, line) => total + (matches(line) ? getOutputAmount(line) : 0), 0)
   const totalRab = sumOutputLines((line) => line.startsWith('RAB : '))
-  const totalOpsOnly = sumOutputLines((line) => line.startsWith('OPS HARIAN : '))
-  const totalGas = sumOutputLines((line) => line.startsWith('GAS : '))
-  const totalLainLain = sumOutputLines((line) => line.startsWith('LAIN-LAIN : '))
-  const totalOpsHarian = totalOpsOnly + totalGas + totalLainLain
+  const opsHarianBreakdown = outputDetailLines.reduce<Array<{ label: string; amount: number }>>(
+    (items, line) => {
+      const amount = getOutputAmount(line)
+      if (amount <= 0) return items
+
+      let label = ''
+      if (line.startsWith('INSENTIF FASILITAS SPPG : ')) {
+        label = 'Fasilitas SPPG'
+      } else if (line.startsWith('SEWA KENDARAAN ')) {
+        label = 'Sewa Kendaraan'
+      } else if (line.startsWith('OPS HARIAN : ')) {
+        label = 'Ops Harian'
+      } else if (line.startsWith('GAS : ')) {
+        label = 'GAS'
+      } else if (line.startsWith('LAIN-LAIN : ')) {
+        label = 'Lain-Lain'
+      } else {
+        const separatorIndex = line.indexOf(' : ')
+        if (separatorIndex < 0) return items
+        const category = line.slice(0, separatorIndex).trim().toLocaleUpperCase('id-ID')
+        const categoryLabels: Record<string, string> = {
+          'GAJI RELAWAN': 'Gaji Relawan',
+          'INSENTIF PIC SEKOLAH': 'PIC Sekolah',
+          'INSENTIF PIC POSYANDU': 'PIC Kader'
+        }
+        const parts = category
+          .split(',')
+          .map((part) => categoryLabels[part.trim()])
+          .filter((part): part is string => Boolean(part))
+        if (parts.length === 0) return items
+        label = parts.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' })).join(' + ')
+      }
+
+      const existing = items.find((item) => item.label === label)
+      if (existing) existing.amount += amount
+      else items.push({ label, amount })
+      return items
+    },
+    []
+  ).sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
+  const totalOpsHarian = opsHarianBreakdown.reduce((total, item) => total + item.amount, 0)
 
   const outputChecks: { label: string; complete: boolean }[] = []
   if (activeTransaction && selectedKitchen) {
@@ -2027,18 +2064,6 @@ function App() {
             </button>
           </header>
 
-          <div className="mt-3 w-full rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-950/25 to-slate-900/80 p-3 text-sm text-amber-100 shadow-sm shadow-black/20">
-            Kalo rekening tujuan gak ada atau mau ganti rekening bisa langsung ke{' '}
-            <a
-              href="https://wa.me/6285794323042"
-              target="_blank"
-              rel="noreferrer"
-              className="font-semibold underline underline-offset-2 hover:text-white"
-            >
-              Whatsapp
-            </a>{' '}aja.
-          </div>
-
           {masterLoading && (
             <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-400">
               Memuat master data...
@@ -2172,22 +2197,18 @@ function App() {
                         <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalRab)) || '0'}</div>
                       </div>
                       <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-2.5 py-2 text-center">
-                        <div className="text-[10px] text-slate-400">Ops Harian</div>
+                        <div className="text-[10px] text-slate-400">Total Ops Harian</div>
                         <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalOpsHarian)) || '0'}</div>
-                        <div className="mt-2 space-y-1 border-t border-slate-700/60 pt-2 text-[10px] text-slate-400">
-                          <div className="flex items-center justify-center gap-2">
-                            <span>Ops Harian</span>
-                            <span className="tabular-nums text-slate-300">Rp {formatNumber(String(totalOpsOnly)) || '0'}</span>
+                        {opsHarianBreakdown.length > 0 && (
+                          <div className="mt-2 space-y-1 border-t border-slate-700/60 pt-2 text-[10px] text-slate-400">
+                            {opsHarianBreakdown.map(({ label, amount }) => (
+                              <div key={label} className="flex items-center justify-center gap-2">
+                                <span>{label}</span>
+                                <span className="tabular-nums text-slate-300">Rp {formatNumber(String(amount))}</span>
+                              </div>
+                            ))}
                           </div>
-                          <div className="flex items-center justify-center gap-2">
-                            <span>GAS</span>
-                            <span className="tabular-nums text-slate-300">Rp {formatNumber(String(totalGas)) || '0'}</span>
-                          </div>
-                          <div className="flex items-center justify-center gap-2">
-                            <span>Lain-Lain</span>
-                            <span className="tabular-nums text-slate-300">Rp {formatNumber(String(totalLainLain)) || '0'}</span>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                     {outputDisplayChecks.length > 0 && (
