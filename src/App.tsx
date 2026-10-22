@@ -306,6 +306,13 @@ function formatRabSupplierName(value: string) {
   )
 }
 
+function formatSupplierAccountName(businessName: string, ownerName?: string | null) {
+  const formattedBusinessName = formatRabSupplierName(businessName)
+  const formattedOwnerName = capitalizeEachWord(ownerName ?? '')
+  return formattedOwnerName
+    ? formattedBusinessName + ' (' + formattedOwnerName + ')'
+    : formattedBusinessName
+}
 
 function sanitizeOwnerName(value: string) {
   return value.replace(/[^\p{L}\s]/gu, '')
@@ -1567,7 +1574,7 @@ function App() {
       if (!rule?.accounts) continue
 
       const rawAccountName = rule.supplier?.business_name || rule.accounts.name
-      const accountName = capitalizeEachWord(rawAccountName)
+      const accountName = formatSupplierAccountName(rawAccountName, rule.supplier?.owner_name)
       const gasQuantityInput = String(entry.gasQuantity ?? '').trim()
       const gasQuantity = gasQuantityInput.replace(/\D/g, '').replace(/^0+/, '')
       const gasSize = entry.gasSize ?? ''
@@ -1710,7 +1717,10 @@ function App() {
       if (!entry || !rule.accounts) continue
 
       const hasAmount = isCompleteAmount(entry.amount)
-      const supplierName = formatRabSupplierName(rule.supplier?.business_name ?? rule.accounts.name)
+      const supplierName = formatSupplierAccountName(
+        rule.supplier?.business_name ?? rule.accounts.name,
+        rule.supplier?.owner_name
+      )
       const catalogProducts = rule.supplier?.product_types ?? []
       const sortedProducts = sortStrings(entry.productTypes)
         .map((product) =>
