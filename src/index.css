@@ -348,10 +348,6 @@ body {
   border-color: #059669 !important;
 }
 
-.mp-card--sticky {
-  backdrop-filter: blur(18px);
-}
-
 /* Theme-aware action buttons inspired by the linked Uiverse component:
    dark surfaces invert to light on hover; light surfaces invert to dark. */
 button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
@@ -535,16 +531,10 @@ button[data-option-button='true']:focus-visible {
 
 /* One shared spacing rhythm for every form card. */
 .mp-form-stack {
-  gap: 12px;
+  gap: 8px;
 }
 
 .mp-form-stack > .mp-card {
   margin-block: 0 !important;
 }
 
-/* Restore sticky positioning after the premium-card base surface styling. */
-.mp-card--sticky {
-  position: sticky !important;
-  top: 8px;
-  z-index: 40;
-}

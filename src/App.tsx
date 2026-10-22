@@ -2053,155 +2053,157 @@ function App() {
 
           {masterData && !masterLoading && !masterError && (
             <>
-              <section className="mp-card mp-card--sticky sticky top-2 z-40 mt-3 mb-3 w-full rounded-2xl border border-emerald-700/50 bg-gradient-to-b from-slate-900/98 to-slate-950/98 p-3 shadow-xl shadow-black/25 ring-1 ring-white/[0.025] backdrop-blur-xl">
-                <div className="grid min-w-0 items-end gap-3 sm:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[200px_minmax(220px,1fr)_auto]">
-                  <div className="min-w-0">
-                    <label htmlFor="date" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Tanggal</label>
-                    <div className="relative flex h-10 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-3 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
-                      <span className="whitespace-nowrap text-xs font-semibold tracking-wide text-slate-500">TANGGAL</span>
-                      <span className="ml-3 whitespace-nowrap text-sm font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
-                      <input
-                        ref={dateInputRef}
-                        id="date"
-                        type="date"
-                        value={activeDate}
-                        onChange={(event) => changeActiveDate(event.target.value)}
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          openDatePicker()
-                        }}
-                        aria-label="Pilih tanggal transaksi"
-                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                      />
+              <div
+                className={[
+                  'mt-3 mb-2 grid min-w-0 grid-cols-1 items-stretch gap-2',
+                  kitchenId && activeTransaction
+                    ? 'lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.4fr)]'
+                    : ''
+                ].join(' ')}
+              >
+                <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5">
+                  <div className="grid min-w-0 items-end gap-2 sm:grid-cols-[125px_minmax(0,1fr)] lg:grid-cols-[125px_minmax(0,1fr)_auto]">
+                    <div className="min-w-0">
+                      <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
+                      <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/60 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
+                        <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
+                        <span className="ml-2 whitespace-nowrap text-xs font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
+                        <input
+                          ref={dateInputRef}
+                          id="date"
+                          type="date"
+                          value={activeDate}
+                          onChange={(event) => changeActiveDate(event.target.value)}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            openDatePicker()
+                          }}
+                          aria-label="Pilih tanggal transaksi"
+                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="min-w-0">
+                      <label htmlFor="kitchen" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Dapur</label>
+                      <select
+                        id="kitchen"
+                        value={kitchenId}
+                        title={selectedKitchen?.name ?? 'Pilih dapur'}
+                        onChange={(event) => handleKitchenChange(event.target.value)}
+                        className="h-9 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
+                      >
+                        <option value="">Pilih dapur</option>
+                        {masterData.kitchens.map((kitchen) => (
+                          <option key={kitchen.id} value={kitchen.id}>
+                            {kitchen.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex min-w-0 items-center gap-1.5 sm:col-span-2 lg:col-span-1">
+                      <button
+                        type="button"
+                        onClick={restoreLastDraft}
+                        className="h-9 min-w-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30"
+                      >
+                        Pulihkan sebelum Reset
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetWorkspace}
+                        className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/30"
+                      >
+                        Reset
+                      </button>
                     </div>
                   </div>
 
-                  <div className="min-w-0">
-                    <label htmlFor="kitchen" className="mb-1 block text-sm font-medium leading-5 text-slate-300">Dapur</label>
-                    <select
-                      id="kitchen"
-                      value={kitchenId}
-                      title={selectedKitchen?.name ?? 'Pilih dapur'}
-                      onChange={(event) => handleKitchenChange(event.target.value)}
-                      className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
-                    >
-                      <option value="">Pilih dapur</option>
-                      {masterData.kitchens.map((kitchen) => (
-                        <option key={kitchen.id} value={kitchen.id}>
-                          {kitchen.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {historyMessage && (
+                    <div className="mt-1.5 text-[10px] text-emerald-300">
+                      {historyMessage}
+                    </div>
+                  )}
 
-                  <div className="flex h-10 shrink-0 items-center gap-2 sm:col-span-2 xl:col-span-1">
-                    <button
-                      type="button"
-                      onClick={restoreLastDraft}
-                      className="h-10 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30"
-                    >
-                      Pulihkan sebelum Reset
-                    </button>
-                    <button
-                      type="button"
-                      onClick={resetWorkspace}
-                      className="h-10 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/30"
-                    >
-                      Reset
-                    </button>
-                  </div>
-                </div>
+                  {kitchenId && activeTransaction && (
+                    <>
+                      <div className="mt-2 flex min-w-0 items-center justify-between gap-3 border-t border-slate-800/90 pt-2">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <h2 className="text-sm font-semibold">Output</h2>
+                          <span
+                            aria-label={outputLineCount + ' baris output'}
+                            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-[10px] font-semibold tabular-nums text-emerald-200"
+                          >
+                            {outputLineCount}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          data-button-kind="primary"
+                          onClick={() => void copyOutput()}
+                          disabled={!output}
+                          className="shrink-0 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-[10px] font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {copyMessage || 'Copy'}
+                        </button>
+                      </div>
 
-                {historyMessage && (
-                  <div className="mt-2 text-[11px] text-emerald-300">
-                    {historyMessage}
-                  </div>
-                )}
+                      <pre className="mt-2 min-h-[135px] max-h-[30vh] flex-1 overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">
+                        {output}
+                      </pre>
+
+                      {outputDisplayChecks.length > 0 && (
+                        <div className="mt-1.5 flex w-full min-w-0 flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-slate-800/80 pt-1.5 text-center">
+                          {outputDisplayChecks.map(({ label, complete }) => (
+                            <span
+                              key={label}
+                              title={complete ? 'Sudah diisi' : 'Belum diisi'}
+                              className={[
+                                'text-center text-[10px] font-semibold leading-4 transition-colors',
+                                complete ? 'text-emerald-400' : 'text-rose-400'
+                              ].join(' ')}
+                            >
+                              {label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </section>
 
                 {kitchenId && activeTransaction && (
-                  <div className="mt-3 border-t border-slate-800/90 pt-3">
-                    <div className="grid min-w-0 grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.4fr)]">
-                      <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5 sm:p-3">
-                        <div className="flex min-w-0 items-center justify-between gap-3">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <h2 className="text-sm font-semibold">Output</h2>
-                            <span
-                              aria-label={outputLineCount + ' baris output'}
-                              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-[11px] font-semibold tabular-nums text-emerald-200"
-                            >
-                              {outputLineCount}
-                            </span>
+                  <aside className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5" aria-label="Ringkasan total nominal">
+                    <h2 className="text-center text-sm font-semibold">Ringkasan Total</h2>
+
+                    <div className="mt-2 space-y-2">
+                      <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-2.5 py-2 text-center">
+                        <div className="text-[10px] text-slate-400">Total RAB</div>
+                        <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalRab)) || '0'}</div>
+                      </div>
+                      <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-2.5 py-2 text-center">
+                        <div className="text-[10px] text-slate-400">Ops Harian</div>
+                        <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalOpsHarian)) || '0'}</div>
+                        <div className="mt-2 space-y-1 border-t border-slate-700/60 pt-2 text-[10px] text-slate-400">
+                          <div className="flex items-center justify-center gap-2">
+                            <span>Ops Harian</span>
+                            <span className="tabular-nums text-slate-300">Rp {formatNumber(String(totalOpsOnly)) || '0'}</span>
                           </div>
-                          <button
-                            type="button"
-                            data-button-kind="primary"
-                            onClick={() => void copyOutput()}
-                            disabled={!output}
-                            className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            {copyMessage || 'Copy'}
-                          </button>
-                        </div>
-
-                        <pre className="mt-2 min-h-[220px] flex-1 overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2.5 text-[11px] leading-[1.15rem] text-slate-200 shadow-inner shadow-black/20">
-                          {output}
-                        </pre>
-
-                        {outputDisplayChecks.length > 0 && (
-                          <div className="mt-2 flex w-full min-w-0 flex-wrap items-center justify-center gap-x-5 gap-y-1 border-t border-slate-800/80 pt-2 text-center">
-                            {outputDisplayChecks.map(({ label, complete }) => (
-                              <span
-                                key={label}
-                                title={complete ? 'Sudah diisi' : 'Belum diisi'}
-                                className={[
-                                  'text-center text-[11px] font-semibold leading-4 transition-colors',
-                                  complete ? 'text-emerald-400' : 'text-rose-400'
-                                ].join(' ')}
-                              >
-                                {label}
-                              </span>
-                            ))}
+                          <div className="flex items-center justify-center gap-2">
+                            <span>GAS</span>
+                            <span className="tabular-nums text-slate-300">Rp {formatNumber(String(totalGas)) || '0'}</span>
                           </div>
-                        )}
-                      </section>
-
-                      <aside className="mp-card min-w-0 rounded-xl p-3" aria-label="Ringkasan total nominal">
-                        <div className="flex min-w-0 items-start justify-between gap-2">
-                          <h2 className="text-sm font-semibold">Ringkasan Total</h2>
-                          <span className="shrink-0 rounded-md border border-slate-700/80 px-1.5 py-0.5 text-[10px] text-slate-400">Read-only</span>
-                        </div>
-                        <p className="mt-1 text-[10px] leading-4 text-slate-400">Tampilan saja · tidak ikut disalin</p>
-
-                        <div className="mt-3 space-y-2.5">
-                          <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-3 py-2">
-                            <div className="text-[11px] text-slate-400">Total RAB</div>
-                            <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalRab)) || '0'}</div>
-                          </div>
-                          <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-3 py-2">
-                            <div className="text-[11px] text-slate-400">Ops Harian</div>
-                            <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalOpsHarian)) || '0'}</div>
-                            <div className="mt-2 space-y-1 border-t border-slate-700/60 pt-2 text-[11px] text-slate-400">
-                              <div className="flex items-center justify-between gap-2">
-                                <span>Ops Harian</span>
-                                <span className="shrink-0 tabular-nums text-slate-300">Rp {formatNumber(String(totalOpsOnly)) || '0'}</span>
-                              </div>
-                              <div className="flex items-center justify-between gap-2">
-                                <span>GAS</span>
-                                <span className="shrink-0 tabular-nums text-slate-300">Rp {formatNumber(String(totalGas)) || '0'}</span>
-                              </div>
-                              <div className="flex items-center justify-between gap-2">
-                                <span>Lain-Lain</span>
-                                <span className="shrink-0 tabular-nums text-slate-300">Rp {formatNumber(String(totalLainLain)) || '0'}</span>
-                              </div>
-                            </div>
+                          <div className="flex items-center justify-center gap-2">
+                            <span>Lain-Lain</span>
+                            <span className="tabular-nums text-slate-300">Rp {formatNumber(String(totalLainLain)) || '0'}</span>
                           </div>
                         </div>
-                      </aside>
+                      </div>
                     </div>
-                  </div>
+                  </aside>
                 )}
-              </section>
-
+              </div>
 
               <div className="mp-form-stack flex min-w-0 w-full max-w-[960px] flex-col gap-3">
                 {kitchenId && activeTransaction && (
