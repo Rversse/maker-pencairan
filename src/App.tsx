@@ -2147,7 +2147,7 @@ function App() {
                           {output}
                         </pre>
 
-                        {outputDisplayLabels.length > 0 && (
+                        {outputDisplayChecks.length > 0 && (
                           <div className="mt-2 flex w-full min-w-0 flex-wrap items-center justify-center gap-x-5 gap-y-1 border-t border-slate-800/80 pt-2 text-center">
                             {outputDisplayChecks.map(({ label, complete }) => (
                               <span
