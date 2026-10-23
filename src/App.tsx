@@ -2605,15 +2605,15 @@ function App() {
                                     {custom ? (
                                       <input
                                         type="text"
-                                        value={entry.ownerName}
-                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })}
+                                        value={ownerName}
+                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })
                                         placeholder="Nama rekening"
                                         aria-label="Nama rekening Ops Harian"
                                         className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500"
                                       />
                                     ) : (
-                                      <div title={mapping?.ownerName ?? 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
-                                        <span className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
+                                      <div title={ownerName || 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
+                                        <span className="truncate">{ownerName || 'Mapping belum tersedia'}</span>
                                       </div>
                                     )}
                                   </div>
