@@ -670,7 +670,7 @@ function createOperationalEntry(id = 1): SimpleEntry {
     transactionType: 'operasional_harian',
     bank: '',
     customAccount: false,
-    need: ''
+    need: 'Ops Harian'
   }
 }
 
@@ -779,16 +779,12 @@ function normalizeTransaction(
           gasSize: entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : '',
           ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
           bank: entry.bank ?? '',
-          customAccount: index > 0 && entry.customAccount === true,
+          customAccount: index > 0,
           transactionType: entry.transactionType ?? ''
         }
         return {
           ...normalizedEntry,
-          need: index === 0
-            ? 'Gas'
-            : normalizedEntry.customAccount
-              ? (entry.need ?? '')
-              : 'Gas',
+          need: index === 0 ? 'Gas' : (entry.need ?? ''),
           gasQuantity: '',
           gasSize: ''
         }
@@ -819,16 +815,14 @@ function normalizeTransaction(
 
   const legacyOps = normalizedOthers.filter((entry) => entry.transactionType === 'operasional_harian')
   const existingOps = Array.isArray(transaction.operasional) ? transaction.operasional : []
-  const normalizeOpsEntry = (entry: SimpleEntry): SimpleEntry => ({
+  const normalizeOpsEntry = (entry: SimpleEntry, index: number): SimpleEntry => ({
     ...createOperationalEntry(entry.id),
     ...entry,
     accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
     ownerName: entry.ownerName ?? '',
     bank: entry.bank ?? '',
-    customAccount: entry.customAccount === true,
-    need: entry.need && entry.need.trim().toLocaleLowerCase('id-ID') !== 'ops harian'
-      ? entry.need
-      : '',
+    customAccount: index > 0,
+    need: index === 0 ? 'Ops Harian' : (entry.need ?? ''),
     transactionType: 'operasional_harian'
   })
   const oldOpsTotal = legacyOps.reduce(
@@ -836,7 +830,7 @@ function normalizeTransaction(
     0
   )
   const baseOperational: SimpleEntry[] = existingOps.length > 0
-    ? existingOps.map(normalizeOpsEntry)
+    ? existingOps.map((entry, index) => normalizeOpsEntry(entry, index))
     : legacyOps.length > 0
       ? [{
           ...createOperationalEntry(legacyOps[0].id),
@@ -1330,8 +1324,16 @@ function App() {
     const nextId = currentEntries.length === 0
       ? 1
       : Math.max(...currentEntries.map((entry) => entry.id)) + 1
+    const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
     updateTransaction(activeTransaction.id, {
-      operasional: [...currentEntries, createOperationalEntry(nextId)]
+      operasional: [...currentEntries, {
+        ...createOperationalEntry(nextId),
+        ownerName: mapping?.ownerName ?? '',
+        bank: mapping?.bank ?? '',
+        accountNumber: mapping?.accountNumber ?? '',
+        customAccount: true,
+        need: ''
+      }]
     })
   }
 
@@ -1373,39 +1375,11 @@ function App() {
     })
   }
 
-  function toggleGasCustomAccount(id: number) {
-    if (!activeTransaction) return
-    const entryIndex = activeTransaction.gas.findIndex((item) => item.id === id)
-    if (entryIndex <= 0) return
-    const entry = activeTransaction.gas[entryIndex]
-    const enableCustom = entry.customAccount !== true
-    updateSimpleEntry(activeTransaction.id, 'gas', id, {
-      customAccount: enableCustom,
-      need: enableCustom ? '' : 'Gas'
-    })
-  }
-
   function removeOperationalEntry(id: number) {
     if (!activeTransaction) return
     const remaining = (activeTransaction.operasional ?? []).filter((entry) => entry.id !== id)
     updateTransaction(activeTransaction.id, {
       operasional: remaining.length > 0 ? remaining : [createOperationalEntry(1)]
-    })
-  }
-
-  function toggleOperationalCustomAccount(id: number) {
-    if (!activeTransaction) return
-    const entry = activeTransaction.operasional.find((item) => item.id === id)
-    if (!entry) return
-    const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
-    const enableCustom = !entry.customAccount
-    updateSimpleEntry(activeTransaction.id, 'operasional', id, {
-      customAccount: enableCustom,
-      ...(enableCustom ? {
-        ownerName: entry.ownerName || mapping?.ownerName || '',
-        bank: entry.bank || mapping?.bank || '',
-        accountNumber: entry.accountNumber || mapping?.accountNumber || ''
-      } : {})
     })
   }
 
@@ -1612,15 +1586,16 @@ function App() {
     const kitchenName = selectedKitchen?.name ?? ''
 
     const mappedOperationalAccount = getOperationalAccount(kitchenName, masterData)
-    for (const operationalEntry of transaction.operasional ?? []) {
+    for (const [operationalIndex, operationalEntry] of (transaction.operasional ?? []).entries()) {
       if (!isCompleteAmount(operationalEntry.amount)) continue
-      const custom = operationalEntry.customAccount === true
-      const bank = getOutputBank(custom ? (operationalEntry.bank ?? '') : (mappedOperationalAccount?.bank ?? ''))
-      const accountNumber = (custom ? operationalEntry.accountNumber : mappedOperationalAccount?.accountNumber ?? '').trim()
-      const ownerName = (custom ? operationalEntry.ownerName : mappedOperationalAccount?.ownerName ?? '').trim()
+      const custom = operationalIndex > 0
+      const bank = getOutputBank(custom ? (operationalEntry.bank || mappedOperationalAccount?.bank || '') : (mappedOperationalAccount?.bank ?? ''))
+      const accountNumber = (custom ? (operationalEntry.accountNumber || mappedOperationalAccount?.accountNumber || '') : mappedOperationalAccount?.accountNumber ?? '').trim()
+      const ownerName = (custom ? (operationalEntry.ownerName || mappedOperationalAccount?.ownerName || '') : mappedOperationalAccount?.ownerName ?? '').trim()
       if (!bank || !accountNumber || !ownerName) continue
 
-      const note = (operationalEntry.need ?? '').trim()
+      const note = custom ? (operationalEntry.need ?? '').trim() : 'Ops Harian'
+      if (!note) continue
       outputs.push({
         bank,
         line:
@@ -2054,7 +2029,6 @@ function App() {
           gasEntries.every((entry, index) =>
             !isCompleteAmount(entry.amount) ||
             index === 0 ||
-            entry.customAccount !== true ||
             Boolean((entry.need ?? '').trim())
           )
       })
@@ -2064,13 +2038,14 @@ function App() {
     const operationalEntries = activeTransaction.operasional ?? []
     if (opsMapping || operationalEntries.some((entry) => entry.customAccount)) {
       outputChecks.push({
-        label: 'Ops Harian',
-        complete: operationalEntries.some((entry) =>
-          isCompleteAmount(entry.amount) &&
-          (entry.customAccount
-            ? Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim())
-            : Boolean(opsMapping))
-        )
+        label: 'Operasional Harian',
+        complete: Boolean(opsMapping) &&
+          operationalEntries.some((entry) => isCompleteAmount(entry.amount)) &&
+          operationalEntries.every((entry, index) =>
+            !isCompleteAmount(entry.amount) ||
+            index === 0 ||
+            Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim() && (entry.need ?? '').trim())
+          )
       })
     }
   }
@@ -2519,12 +2494,12 @@ function App() {
                         </button>
                       </div>
                       <div className="mt-3 space-y-2.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_82px_minmax(125px,0.9fr)_minmax(170px,1.1fr)_120px_30px]">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_82px_minmax(125px,0.9fr)_minmax(170px,1.1fr)_120px_30px]">
                           <span></span>
                           <span>Nama rekening</span>
                           <span>Bank</span>
                           <span>Nomor rekening</span>
-                          <span>Catatan wajib</span>
+                          <span>Catatan</span>
                           <span>Nominal</span>
                           <span></span>
                         </div>
@@ -2533,7 +2508,7 @@ function App() {
                           const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                           const bank = rule?.accounts?.bank ?? '-'
                           const accountNumber = rule?.accounts?.account_number ?? '-'
-                          const customNoteMode = index > 0 && entry.customAccount === true
+                          const customNoteMode = index > 0
                           const note = index === 0 || !customNoteMode ? 'Gas' : (entry.need ?? '')
                           return (
                             <div key={entry.id} className={activeTransaction.gas.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
@@ -2541,15 +2516,9 @@ function App() {
                                 {index === 0 ? (
                                   <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-[10px] font-semibold text-slate-200">GAS</div>
                                 ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleGasCustomAccount(entry.id)}
-                                    title={customNoteMode ? 'Jadikan transaksi GAS Koperasi Arutala' : 'Ubah catatan saja; rekening tetap Koperasi Arutala'}
-                                    aria-label={customNoteMode ? 'Gunakan catatan GAS' : 'Gunakan catatan custom'}
-                                    className={`h-10 w-full rounded-md border px-2 text-[10px] font-semibold transition ${customNoteMode ? 'border-amber-500/70 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40' : 'border-slate-700 bg-slate-800 text-slate-200 hover:border-cyan-500/70 hover:bg-slate-700'}`}
-                                  >
-                                    {customNoteMode ? 'Custom' : 'GAS'}
-                                  </button>
+                                  <div className="flex h-10 w-full items-center justify-center rounded-md border border-amber-500/50 bg-amber-950/20 px-2 text-[10px] font-semibold text-amber-200">
+                                    Custom
+                                  </div>
                                 )}
                                 <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
                                   <span className="truncate">{accountName}</span>
@@ -2615,32 +2584,27 @@ function App() {
                         : [createOperationalEntry()]
                       return (
                         <div className="mt-3 space-y-2.5">
-                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
+                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
                             <span></span>
                             <span>Nama rekening</span>
                             <span>Bank</span>
                             <span>Nomor rekening</span>
-                            <span>Catatan tambahan</span>
+                            <span>Catatan</span>
                             <span>Nominal</span>
                             <span></span>
                           </div>
-                          {entries.map((entry) => {
-                            const custom = entry.customAccount === true
-                            const ownerName = custom ? entry.ownerName : mapping?.ownerName ?? ''
-                            const bank = custom ? (entry.bank ?? '') : mapping?.bank ?? ''
-                            const accountNumber = custom ? entry.accountNumber : mapping?.accountNumber ?? ''
+                          {entries.map((entry, index) => {
+                            const custom = index > 0
+                            const ownerName = custom ? (entry.ownerName || mapping?.ownerName || '') : mapping?.ownerName ?? ''
+                            const bank = custom ? (entry.bank || mapping?.bank || '') : mapping?.bank ?? ''
+                            const accountNumber = custom ? (entry.accountNumber || mapping?.accountNumber || '') : mapping?.accountNumber ?? ''
+                            const note = custom ? (entry.need ?? '') : 'Ops Harian'
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
                                 <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
-                                  <button
-                                    type="button"
-                                    onClick={() => toggleOperationalCustomAccount(entry.id)}
-                                    title={custom ? 'Kembali ke rekening mapping dapur' : 'Input rekening custom untuk transaksi ini'}
-                                    aria-label={custom ? 'Gunakan rekening mapping Ops Harian' : 'Gunakan rekening custom Ops Harian'}
-                                    className={`h-10 w-full rounded-md border px-2 text-[10px] font-semibold transition ${custom ? 'border-amber-500/70 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40' : 'border-slate-700 bg-slate-800 text-slate-200 hover:border-teal-500/70 hover:bg-slate-700'}`}
-                                  >
-                                    {custom ? 'Custom' : 'Mapping'}
-                                  </button>
+                                  <div className={`flex h-10 w-full items-center justify-center rounded-md border px-2 text-[10px] font-semibold ${custom ? 'border-amber-500/50 bg-amber-950/20 text-amber-200' : 'border-slate-700 bg-slate-800 text-slate-200'}`}>
+                                    {custom ? 'Custom' : 'Ops Harian'}
+                                  </div>
                                   <div className="min-w-0">
                                     {custom ? (
                                       <input
@@ -2689,11 +2653,13 @@ function App() {
                                   </div>
                                   <input
                                     type="text"
-                                    value={entry.need ?? ''}
+                                    required={custom}
+                                    readOnly={!custom}
+                                    value={note}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value })}
-                                    placeholder="Catatan tambahan (opsional)"
-                                    aria-label="Catatan tambahan Ops Harian"
-                                    className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500"
+                                    placeholder="Catatan"
+                                    aria-label="Catatan Operasional Harian"
+                                    className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
                                   <input
                                     type="text"
@@ -2708,8 +2674,8 @@ function App() {
                                   <button
                                     type="button"
                                     onClick={() => removeOperationalEntry(entry.id)}
-                                    disabled={entries.length <= 1}
-                                    title="Hapus transaksi Ops Harian"
+                                    disabled={index === 0}
+                                    title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
                                     className="h-10 w-full rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
                                   >
@@ -2728,6 +2694,12 @@ function App() {
                     <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
                       <div className="mt-3 space-y-3">
+                        <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]">
+                          <span>Nama rekening</span>
+                          <span>Bank</span>
+                          <span>Nomor rekening</span>
+                          <span>Nominal</span>
+                        </div>
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa')
                           .map((entry) => {
@@ -2775,6 +2747,14 @@ function App() {
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
+                            <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[70px_88px_minmax(130px,0.9fr)_minmax(155px,1fr)_140px_140px]">
+                              <span>Nama rekening</span>
+                              <span>Bank</span>
+                              <span>Nomor rekening</span>
+                              <span>Periode sewa</span>
+                              <span>Nominal mobil</span>
+                              <span>Nominal motor</span>
+                            </div>
                             <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[70px_88px_minmax(130px,0.9fr)_minmax(155px,1fr)_140px_140px]">
                               <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
@@ -2866,6 +2846,13 @@ function App() {
                       )}
 
                       <div className="mt-3 space-y-3">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
+                          <span>Jenis pencairan</span>
+                          <span>Nama rekening</span>
+                          <span>Bank</span>
+                          <span>Nomor rekening</span>
+                          <span>Nominal</span>
+                        </div>
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'gaji')
                           .map((entry) => {
