@@ -785,8 +785,8 @@ function normalizeTransaction(
         return {
           ...normalizedEntry,
           need: index === 0 ? 'Gas' : (entry.need ?? ''),
-          gasQuantity: '',
-          gasSize: ''
+          gasQuantity: index === 0 ? normalizedEntry.gasQuantity : '',
+          gasSize: index === 0 ? normalizedEntry.gasSize : ''
         }
       })
     : [{
@@ -1353,6 +1353,8 @@ function App() {
         bank: rule?.accounts?.bank ?? '',
         accountNumber: rule?.accounts?.account_number ?? '',
         need: '',
+        gasQuantity: '',
+        gasSize: '',
         customAccount: true,
         transactionType: ''
       }]
@@ -1661,8 +1663,14 @@ function App() {
 
     for (const [entryIndex, entry] of (transaction.gas ?? []).entries()) {
       if (!isCompleteAmount(entry.amount)) continue
-      const customNoteMode = entryIndex > 0 && entry.customAccount === true
-      const note = customNoteMode ? (entry.need ?? '').trim() : 'Gas'
+      const customNoteMode = entryIndex > 0
+      const quantity = (entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
+      const size = entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : ''
+      const note = customNoteMode
+        ? (entry.need ?? '').trim()
+        : quantity && size
+          ? 'Gas ' + size + ' (' + quantity + ' tabung)'
+          : ''
       if (!note) continue
 
       const rule = gasRules[0]
@@ -1686,7 +1694,7 @@ function App() {
         items.push({
           kind: 'gas',
           bank,
-          line: 'GAS : ' + accountName + ' / Gas' +
+          line: 'GAS : ' + accountName + ' / ' + note +
             ' - ' + bank + ' / ' + accountNumber + ' · ' + formatNumber(entry.amount),
           index: items.length,
           modeRank: 0
@@ -2031,11 +2039,16 @@ function App() {
         label: 'Pencairan Koperasi Arutala',
         complete: Boolean(gasMapping.accounts) &&
           gasEntries.some((entry) => isCompleteAmount(entry.amount)) &&
-          gasEntries.every((entry, index) =>
-            !isCompleteAmount(entry.amount) ||
-            index === 0 ||
-            Boolean((entry.need ?? '').trim())
-          )
+          gasEntries.every((entry, index) => {
+            if (!isCompleteAmount(entry.amount)) return true
+            if (index === 0) {
+              return Boolean(
+                (entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '') &&
+                (entry.gasSize === '12kg' || entry.gasSize === '50kg')
+              )
+            }
+            return Boolean((entry.need ?? '').trim())
+          })
       })
     }
 
@@ -2499,12 +2512,14 @@ function App() {
                         </button>
                       </div>
                       <div className="mt-2 space-y-1.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(72px,0.5fr)_80px_105px_120px_30px]">
                           <span></span>
                           <span>Nama rekening</span>
                           <span>Bank</span>
                           <span>Nomor rekening</span>
                           <span>Catatan</span>
+                          <span>Jumlah Gas</span>
+                          <span>Ukuran Gas</span>
                           <span>Nominal</span>
                           <span></span>
                         </div>
@@ -2514,10 +2529,10 @@ function App() {
                           const bank = rule?.accounts?.bank ?? '-'
                           const accountNumber = rule?.accounts?.account_number ?? '-'
                           const customNoteMode = index > 0
-                          const note = index === 0 || !customNoteMode ? 'Gas' : (entry.need ?? '')
+                          const note = index === 0 ? 'Gas' : (entry.need ?? '')
                           return (
                             <div key={entry.id} className={activeTransaction.gas.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
-                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
+                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(72px,0.5fr)_80px_105px_120px_30px]">
                                 {index === 0 ? (
                                   <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-[10px] font-semibold text-slate-200">GAS</div>
                                 ) : (
@@ -2540,8 +2555,33 @@ function App() {
                                   onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { need: event.target.value })}
                                   placeholder="Wajib Isi Catatan"
                                   aria-label="Catatan pencairan Koperasi Arutala"
-                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${index === 0 || !customNoteMode ? 'bg-slate-800 text-slate-300' : 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-cyan-500 ${hasOutputAmount(customNoteMode ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean(note.trim()) ? 'mp-field--has-output' : ''}`}
+                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${index === 0 || !customNoteMode ? 'bg-slate-800 text-slate-300' : 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100'} ${customNoteMode ? 'lg:col-span-3' : ''} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-cyan-500 ${hasOutputAmount(customNoteMode ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean(note.trim()) ? 'mp-field--has-output' : ''}`}
                                 />
+                                {index === 0 && (
+                                  <>
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      required={isCompleteAmount(entry.amount)}
+                                      value={entry.gasQuantity ?? ''}
+                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })}
+                                      placeholder="Jumlah"
+                                      aria-label="Jumlah gas"
+                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500"
+                                    />
+                                    <select
+                                      required={isCompleteAmount(entry.amount)}
+                                      value={entry.gasSize ?? ''}
+                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })}
+                                      aria-label="Ukuran gas"
+                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition focus:border-cyan-500"
+                                    >
+                                      <option value="">Ukuran Gas</option>
+                                      <option value="12kg">12 kg</option>
+                                      <option value="50kg">50 kg</option>
+                                    </select>
+                                  </>
+                                )}
                                 <input
                                   type="text"
                                   inputMode="numeric"
