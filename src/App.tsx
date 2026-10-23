@@ -815,7 +815,7 @@ function normalizeTransaction(
     transactionType: 'operasional_harian'
   })
   const oldOpsTotal = legacyOps.reduce(
-    (total, entry) => total + Number((entry.amount ?? '').replace(/\\D/g, '')),
+    (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
     0
   )
   const operational = existingOps.length > 0
@@ -2575,6 +2575,15 @@ function App() {
                         : [createOperationalEntry()]
                       return (
                         <div className="mt-3 space-y-2.5">
+                          <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-400 sm:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
+                            <span></span>
+                            <span>Nama rekening</span>
+                            <span>Bank</span>
+                            <span>Nomor rekening</span>
+                            <span>Catatan tambahan</span>
+                            <span>Nominal</span>
+                            <span></span>
+                          </div>
                           {entries.map((entry) => {
                             const custom = entry.customAccount === true
                             const ownerName = custom ? entry.ownerName : mapping?.ownerName ?? ''
