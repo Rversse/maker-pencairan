@@ -1905,6 +1905,17 @@ function App() {
   const sumOutputLines = (matches: (line: string) => boolean) =>
     outputDetailLines.reduce((total, line) => total + (matches(line) ? getOutputAmount(line) : 0), 0)
   const totalRab = sumOutputLines((line) => line.startsWith('RAB : '))
+  const summaryBreakdownDefaults = [
+    'Fasilitas SPPG',
+    'Gaji Relawan',
+    'GAS',
+    'Lain-Lain',
+    'Ops Harian',
+    'PIC Kader',
+    'PIC Sekolah',
+    'Sewa Kendaraan'
+  ].map((label) => ({ label, amount: 0 }))
+
   const opsHarianBreakdown = outputDetailLines.reduce<Array<{ label: string; amount: number }>>(
     (items, line) => {
       const amount = getOutputAmount(line)
@@ -1916,7 +1927,14 @@ function App() {
       } else if (line.startsWith('SEWA KENDARAAN ')) {
         label = 'Sewa Kendaraan'
       } else if (line.startsWith('OPS HARIAN : ')) {
-        label = 'Ops Harian'
+        const firstSeparator = line.indexOf(' · ')
+        const amountSeparator = line.lastIndexOf(' · ')
+        const note = firstSeparator >= 0 && amountSeparator > firstSeparator
+          ? line.slice(firstSeparator + 3, amountSeparator).trim()
+          : ''
+        label = note && note.toLocaleLowerCase('id-ID') !== 'ops harian'
+          ? 'Ops: ' + note
+          : 'Ops Harian'
       } else if (line.startsWith('GAS : ')) {
         label = 'GAS'
       } else if (line.startsWith('LAIN-LAIN : ')) {
@@ -1943,7 +1961,7 @@ function App() {
       else items.push({ label, amount })
       return items
     },
-    []
+    summaryBreakdownDefaults
   ).sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
   const totalOpsHarian = opsHarianBreakdown.reduce((total, item) => total + item.amount, 0)
 
