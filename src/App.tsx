@@ -2572,7 +2572,7 @@ function App() {
                                     <select
                                       required={isCompleteAmount(entry.amount)}
                                       value={entry.gasSize ?? ''}
-                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value })}
+                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })}
                                       aria-label="Ukuran gas"
                                       className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition focus:border-cyan-500"
                                     >
