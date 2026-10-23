@@ -1905,17 +1905,6 @@ function App() {
   const sumOutputLines = (matches: (line: string) => boolean) =>
     outputDetailLines.reduce((total, line) => total + (matches(line) ? getOutputAmount(line) : 0), 0)
   const totalRab = sumOutputLines((line) => line.startsWith('RAB : '))
-  const summaryBreakdownDefaults = [
-    'Fasilitas SPPG',
-    'Gaji Relawan',
-    'GAS',
-    'Lain-Lain',
-    'Ops Harian',
-    'PIC Kader',
-    'PIC Sekolah',
-    'Sewa Kendaraan'
-  ].map((label) => ({ label, amount: 0 }))
-
   const opsHarianBreakdown = outputDetailLines.reduce<Array<{ label: string; amount: number }>>(
     (items, line) => {
       const amount = getOutputAmount(line)
@@ -1937,8 +1926,6 @@ function App() {
           : 'Ops Harian'
       } else if (line.startsWith('GAS : ')) {
         label = 'GAS'
-      } else if (line.startsWith('LAIN-LAIN : ')) {
-        label = 'Lain-Lain'
       } else {
         const separatorIndex = line.indexOf(' : ')
         if (separatorIndex < 0) return items
@@ -1961,7 +1948,7 @@ function App() {
       else items.push({ label, amount })
       return items
     },
-    summaryBreakdownDefaults
+    []
   ).sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
   const totalOpsHarian = opsHarianBreakdown.reduce((total, item) => total + item.amount, 0)
 
