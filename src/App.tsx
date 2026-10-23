@@ -2602,7 +2602,7 @@ function App() {
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
                                 <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
-                                  <div className={`flex h-10 w-full items-center justify-center rounded-md border px-2 text-[10px] font-semibold ${custom ? 'border-amber-500/50 bg-amber-950/20 text-amber-200' : 'border-slate-700 bg-slate-800 text-slate-200'}`}>
+                                  <div className={`flex h-10 w-full items-center justify-center rounded-md border px-2 text-center text-[10px] font-semibold ${custom ? 'border-amber-500/50 bg-amber-950/20 text-amber-200' : 'border-slate-700 bg-slate-800 text-slate-200'}`}>
                                     {custom ? 'Custom' : 'Ops Harian'}
                                   </div>
                                   <div className="min-w-0">
