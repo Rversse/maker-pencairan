@@ -1409,8 +1409,6 @@ function App() {
   }
 
   function removeOperationalEntry(id: number) {
-
-  function removeOperationalEntry(id: number) {
     if (!activeTransaction) return
     const remaining = (activeTransaction.operasional ?? []).filter((entry) => entry.id !== id)
     updateTransaction(activeTransaction.id, {
