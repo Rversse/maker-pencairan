@@ -470,18 +470,6 @@ function emptyOtherEntry(id = 1): SimpleEntry {
   return { ...emptySimpleEntry(id), transactionType: 'lain_lain' }
 }
 
-function getLegacyGasNote(entry: Pick<SimpleEntry, 'need' | 'gasQuantity' | 'gasSize'>): string {
-  const quantity = String(entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
-  const size = entry.gasSize ?? ''
-  const gasDescription = size || quantity
-    ? (size ? 'Gas ' + size : 'Gas') + (quantity ? ' (' + quantity + ' tabung)' : '')
-    : ''
-  const extra = (entry.need ?? '').trim()
-  const normalizedGasDescription = gasDescription.toLocaleLowerCase('id-ID')
-  const normalizedExtra = extra.toLocaleLowerCase('id-ID')
-  const parts = [gasDescription, normalizedExtra === normalizedGasDescription ? '' : extra].filter(Boolean)
-  return parts.join(', ') || extra || 'Gas'
-}
 
 function emptyDailyPaymentEntry(
   id = 1,
