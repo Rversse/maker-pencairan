@@ -2674,8 +2674,8 @@ function App() {
                                   <button
                                     type="button"
                                     onClick={() => removeOperationalEntry(entry.id)}
-                                    disabled={entries.length <= 1}
-                                    title="Hapus transaksi Ops Harian"
+                                    disabled={index === 0}
+                                    title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
                                     className="h-10 w-full rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
                                   >
