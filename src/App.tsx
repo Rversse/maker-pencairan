@@ -2493,8 +2493,8 @@ function App() {
                           + Transaksi
                         </button>
                       </div>
-                      <div className="mt-3 space-y-2.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
+                      <div className="mt-2 space-y-1.5">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
                           <span></span>
                           <span>Nama rekening</span>
                           <span>Bank</span>
@@ -2583,8 +2583,8 @@ function App() {
                         ? activeTransaction.operasional
                         : [createOperationalEntry()]
                       return (
-                        <div className="mt-3 space-y-2.5">
-                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
+                        <div className="mt-2 space-y-1.5">
+                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
                             <span></span>
                             <span>Nama rekening</span>
                             <span>Bank</span>
@@ -2693,8 +2693,8 @@ function App() {
                   <div className="w-full min-w-0 space-y-3">
                     <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
-                      <div className="mt-3 space-y-3">
-                        <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]">
+                      <div className="mt-2 space-y-1.5">
+                        <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]">
                           <span>Nama rekening</span>
                           <span>Bank</span>
                           <span>Nomor rekening</span>
@@ -2747,7 +2747,7 @@ function App() {
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
                           <>
-                            <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[70px_88px_minmax(130px,0.9fr)_minmax(155px,1fr)_140px_140px]">
+                            <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pt-2 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(125px,1fr)_88px_minmax(100px,0.7fr)_minmax(145px,1fr)_140px_140px]">
                               <span>Nama rekening</span>
                               <span>Bank</span>
                               <span>Nomor rekening</span>
@@ -2755,7 +2755,7 @@ function App() {
                               <span>Nominal mobil</span>
                               <span>Nominal motor</span>
                             </div>
-                            <div className="mt-3 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[70px_88px_minmax(130px,0.9fr)_minmax(155px,1fr)_140px_140px]">
+                            <div className="mt-1.5 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[minmax(125px,1fr)_88px_minmax(100px,0.7fr)_minmax(145px,1fr)_140px_140px]">
                               <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                 <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
                               </div>
@@ -2845,8 +2845,8 @@ function App() {
                         </div>
                       )}
 
-                      <div className="mt-3 space-y-3">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
+                      <div className="mt-2 space-y-1.5">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
                           <span>Jenis pencairan</span>
                           <span>Nama rekening</span>
                           <span>Bank</span>
