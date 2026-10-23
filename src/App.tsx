@@ -1670,7 +1670,7 @@ function App() {
         ? (entry.need ?? '').trim()
         : quantity && size
           ? 'Gas ' + size + ' (' + quantity + ' tabung)'
-          : ''
+          : 'Gas'
       if (!note) continue
 
       const rule = gasRules[0]
@@ -2041,12 +2041,9 @@ function App() {
           gasEntries.some((entry) => isCompleteAmount(entry.amount)) &&
           gasEntries.every((entry, index) => {
             if (!isCompleteAmount(entry.amount)) return true
-            if (index === 0) {
-              return Boolean(
-                (entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '') &&
-                (entry.gasSize === '12kg' || entry.gasSize === '50kg')
-              )
-            }
+            // Jumlah dan ukuran gas bersifat opsional; nominal tetap wajib.
+            // Entri custom tetap membutuhkan catatan agar output operasional jelas.
+            if (index === 0) return true
             return Boolean((entry.need ?? '').trim())
           })
       })
