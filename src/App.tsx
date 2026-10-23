@@ -106,8 +106,8 @@ const OPERATIONAL_BANKS = [
   'SEABANK'
 ]
 
-// Virtual-account options are specific to the Lain-Lain card.
-const LAIN_LAIN_BANKS = [...OPERATIONAL_BANKS, 'VA BNI', 'VA BRI']
+// Bank options shared by custom Ops Harian and Koperasi Arutala payouts.
+const CUSTOM_BANK_OPTIONS = [...OPERATIONAL_BANKS, 'VA BNI', 'VA BRI']
 
 const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = ['Sewa SPPG']
 
@@ -470,6 +470,19 @@ function emptyOtherEntry(id = 1): SimpleEntry {
   return { ...emptySimpleEntry(id), transactionType: 'lain_lain' }
 }
 
+function getLegacyGasNote(entry: Pick<SimpleEntry, 'need' | 'gasQuantity' | 'gasSize'>): string {
+  const quantity = String(entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
+  const size = entry.gasSize ?? ''
+  const gasDescription = size || quantity
+    ? (size ? 'Gas ' + size : 'Gas') + (quantity ? ' (' + quantity + ' tabung)' : '')
+    : ''
+  const extra = (entry.need ?? '').trim()
+  const normalizedGasDescription = gasDescription.toLocaleLowerCase('id-ID')
+  const normalizedExtra = extra.toLocaleLowerCase('id-ID')
+  const parts = [gasDescription, normalizedExtra === normalizedGasDescription ? '' : extra].filter(Boolean)
+  return parts.join(', ') || extra || 'Gas'
+}
+
 function emptyDailyPaymentEntry(
   id = 1,
   category: DailyPaymentCategory = 'sewa'
@@ -771,21 +784,35 @@ function normalizeTransaction(
   }]
 
   const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
-    ? transaction.gas.map((entry) => ({
-        ...entry,
-        need: entry.need ?? '',
-        gasQuantity: typeof entry.gasQuantity === 'string' ? entry.gasQuantity.replace(/\D/g, '') : '',
-        gasSize: entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : '',
-        ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
-        transactionType: entry.transactionType ?? ''
-      }))
+    ? transaction.gas.map((entry) => {
+        const normalizedEntry = {
+          ...entry,
+          gasQuantity: typeof entry.gasQuantity === 'string' ? entry.gasQuantity.replace(/\D/g, '') : '',
+          gasSize: entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : '',
+          ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
+          bank: entry.bank ?? '',
+          customAccount: entry.customAccount === true,
+          transactionType: entry.transactionType ?? ''
+        }
+        return {
+          ...normalizedEntry,
+          need: normalizedEntry.customAccount
+            ? (entry.need ?? '')
+            : getLegacyGasNote({ ...normalizedEntry, need: entry.need ?? '' }),
+          gasQuantity: '',
+          gasSize: ''
+        }
+      })
     : [{
         ...emptySimpleEntry(1),
         accountId: '',
         accountNumber: '',
         ownerName: '',
         amount: '',
-        need: '',
+        need: 'Gas',
+        gasQuantity: '',
+        gasSize: '',
+        customAccount: false,
         transactionType: '' as const
       }]
 
@@ -818,7 +845,7 @@ function normalizeTransaction(
     (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
     0
   )
-  const operational = existingOps.length > 0
+  const baseOperational: SimpleEntry[] = existingOps.length > 0
     ? existingOps.map(normalizeOpsEntry)
     : legacyOps.length > 0
       ? [{
@@ -826,7 +853,24 @@ function normalizeTransaction(
           amount: String(oldOpsTotal || legacyOps[0].amount || '')
         }]
       : [createOperationalEntry()]
-  const lain_lain = normalizedOthers.filter((entry) => entry.transactionType !== 'operasional_harian')
+  const lastOpsId = Math.max(0, ...baseOperational.map((entry) => entry.id))
+  const migratedLainLain: SimpleEntry[] = normalizedOthers
+    .filter((entry) =>
+      entry.transactionType !== 'operasional_harian' &&
+      isCompleteAmount(entry.amount) &&
+      Boolean(entry.ownerName.trim() && entry.accountNumber.trim() && entry.accountId.trim())
+    )
+    .map((entry, index) => ({
+      ...createOperationalEntry(lastOpsId + index + 1),
+      ownerName: entry.ownerName,
+      bank: getOutputBank(entry.accountId),
+      accountNumber: entry.accountNumber,
+      amount: entry.amount,
+      need: entry.need.trim() || 'Biaya Ops Harian',
+      customAccount: true
+    }))
+  const operational = baseOperational.concat(migratedLainLain)
+  const lain_lain = [emptySimpleEntry(1)]
   const legacyGaji = Array.isArray(transaction.legacy_gaji)
     ? transaction.legacy_gaji.map((entry) => ({
         ...entry,
@@ -882,9 +926,10 @@ function makeTransaction(
         amount: '',
         accountNumber: gasRule?.accounts?.account_number ?? '',
         ownerName: '',
-        need: '',
+        need: 'Gas',
         gasQuantity: '',
         gasSize: '',
+        customAccount: false,
         transactionType: ''
       }
     ],
@@ -1289,20 +1334,6 @@ function App() {
     )
   }
 
-  function addSimpleEntry(section: 'lain_lain') {
-    if (!activeTransaction) return
-
-    const currentEntries = activeTransaction[section]
-    const nextId =
-      currentEntries.length === 0
-        ? 1
-        : Math.max(...currentEntries.map((entry) => entry.id)) + 1
-
-    updateTransaction(activeTransaction.id, {
-      [section]: [...currentEntries, emptyOtherEntry(nextId)]
-    })
-  }
-
   function addOperationalEntry() {
     if (!activeTransaction) return
     const currentEntries = activeTransaction.operasional ?? []
@@ -1313,6 +1344,71 @@ function App() {
       operasional: [...currentEntries, createOperationalEntry(nextId)]
     })
   }
+
+  function addGasCustomEntry() {
+    if (!activeTransaction) return
+    const currentEntries = activeTransaction.gas ?? []
+    const nextId = currentEntries.length === 0
+      ? 1
+      : Math.max(...currentEntries.map((entry) => entry.id)) + 1
+    const rule = gasRules[0]
+    const accountName = rule?.supplier?.business_name || rule?.accounts?.name || ''
+    updateTransaction(activeTransaction.id, {
+      gas: [...currentEntries, {
+        ...emptySimpleEntry(nextId),
+        accountId: rule?.account_id ?? '',
+        ownerName: accountName,
+        bank: rule?.accounts?.bank ?? '',
+        accountNumber: rule?.accounts?.account_number ?? '',
+        need: '',
+        customAccount: true,
+        transactionType: ''
+      }]
+    })
+  }
+
+  function removeGasEntry(id: number) {
+    if (!activeTransaction) return
+    const remaining = (activeTransaction.gas ?? []).filter((entry) => entry.id !== id)
+    updateTransaction(activeTransaction.id, {
+      gas: remaining.length > 0 ? remaining : [{
+        ...emptySimpleEntry(1),
+        accountId: gasRules[0]?.account_id ?? '',
+        accountNumber: gasRules[0]?.accounts?.account_number ?? '',
+        need: 'Gas',
+        customAccount: false
+      }]
+    })
+  }
+
+  function toggleGasCustomAccount(id: number) {
+    if (!activeTransaction) return
+    const entry = activeTransaction.gas.find((item) => item.id === id)
+    if (!entry) return
+    const rule = gasRules.find((item) => item.account_id === entry.accountId) ?? gasRules[0]
+    const enableCustom = entry.customAccount !== true
+    const currentNote = getLegacyGasNote(entry)
+    const customNote = currentNote
+      .replace(/^Gas(?:\s+(?:12kg|50kg))?(?:\s*\(\d+\s*tabung\))?\s*[,;:]?\s*/i, '')
+      .trim()
+    updateSimpleEntry(activeTransaction.id, 'gas', id, {
+      customAccount: enableCustom,
+      ...(enableCustom ? {
+        ownerName: entry.ownerName || rule?.supplier?.business_name || rule?.accounts?.name || '',
+        bank: entry.bank || rule?.accounts?.bank || '',
+        accountNumber: entry.accountNumber || rule?.accounts?.account_number || '',
+        need: customNote
+      } : {
+        accountId: rule?.account_id ?? entry.accountId,
+        ownerName: '',
+        bank: rule?.accounts?.bank ?? '',
+        accountNumber: rule?.accounts?.account_number ?? entry.accountNumber,
+        need: entry.need.trim() || 'Gas'
+      })
+    })
+  }
+
+  function removeOperationalEntry(id: number) {
 
   function removeOperationalEntry(id: number) {
     if (!activeTransaction) return
@@ -1613,57 +1709,40 @@ function App() {
     const kitchenName = selectedKitchen?.name ?? ''
     const preferredBank = getPreferredBank(kitchenName)
 
-    for (const entry of [...transaction.gas].sort((a, b) => {
-      const aRule = gasRules.find((item) => item.account_id === a.accountId) ?? gasRules[0]
-      const bRule = gasRules.find((item) => item.account_id === b.accountId) ?? gasRules[0]
-      const aName = (aRule?.supplier?.business_name ?? aRule?.accounts?.name ?? '').trim()
-      const bName = (bRule?.supplier?.business_name ?? bRule?.accounts?.name ?? '').trim()
-      return aName.localeCompare(bName, 'id', { sensitivity: 'base' })
-    })) {
+    for (const entry of transaction.gas ?? []) {
       if (!isCompleteAmount(entry.amount)) continue
-      const rule =
-        gasRules.find((item) => item.account_id === entry.accountId) ??
-        gasRules[0]
-      if (!rule?.accounts) continue
+      const note = (entry.need ?? '').trim()
+      if (!note) continue
 
+      if (entry.customAccount === true) {
+        const bank = getOutputBank(entry.bank ?? '')
+        const accountNumber = (entry.accountNumber ?? '').trim()
+        const ownerName = (entry.ownerName ?? '').trim()
+        if (!bank || !accountNumber || !ownerName) continue
+        items.push({
+          kind: 'operasional_harian',
+          bank,
+          line: 'OPS HARIAN : ' + capitalizeEachWord(ownerName) +
+            ' - ' + bank + ' / ' + accountNumber +
+            ' · ' + note + ' · ' + formatNumber(entry.amount),
+          index: items.length,
+          modeRank: 0
+        })
+        continue
+      }
+
+      const rule = gasRules.find((item) => item.account_id === entry.accountId) ?? gasRules[0]
+      if (!rule?.accounts) continue
       const rawAccountName = rule.supplier?.business_name || rule.accounts.name
       const accountName = formatSupplierAccountName(rawAccountName, rule.supplier?.owner_name)
-      const gasQuantityInput = String(entry.gasQuantity ?? '').trim()
-      const gasQuantity = gasQuantityInput.replace(/\D/g, '').replace(/^0+/, '')
-      const gasSize = entry.gasSize ?? ''
-      const extraDescription = entry.need?.trim()
-        ? entry.need.split(',').map((item) => item.trim()).filter(Boolean).join(', ')
-        : ''
-      const hasGasDetails = Boolean(gasQuantityInput || gasSize || extraDescription)
-      const gasItemDescription = gasSize || gasQuantityInput
-        ? (gasSize ? 'Gas ' + gasSize : 'Gas') + (gasQuantity ? ' (' + gasQuantity + ' tabung)' : '')
-        : ''
-      const description = [gasItemDescription, extraDescription]
-        .filter(Boolean)
-        .join(', ')
-      const accountAndAmount = hasGasDetails
-        ? accountName +
-          ' / ' +
-          description +
-          ' - ' +
-          getOutputBank(rule.accounts.bank) +
-          ' / ' +
-          (rule.accounts.account_number ?? '-') +
-          ' · ' +
-          formatNumber(entry.amount)
-        : accountName +
-          ' - ' +
-          getOutputBank(rule.accounts.bank) +
-          ' / ' +
-          (rule.accounts.account_number ?? '-') +
-          ' · ' +
-          formatNumber(entry.amount)
-      const outputLine = 'GAS : ' + accountAndAmount
-
+      const bank = getOutputBank(rule.accounts.bank)
+      const accountNumber = (rule.accounts.account_number ?? '-').trim()
+      const description = note
       items.push({
         kind: 'gas',
-        bank: getOutputBank(rule.accounts.bank),
-        line: outputLine,
+        bank,
+        line: 'GAS : ' + accountName + ' / ' + description +
+          ' - ' + bank + ' / ' + accountNumber + ' · ' + formatNumber(entry.amount),
         index: items.length,
         modeRank: 0
       })
@@ -1992,6 +2071,23 @@ function App() {
           complete: Boolean(entry && isCompleteAmount(entry.amount))
         })
       }
+    }
+
+    const gasMapping = gasRules[0]
+    const gasEntries = activeTransaction.gas ?? []
+    if (gasMapping || gasEntries.some((entry) => entry.customAccount)) {
+      outputChecks.push({
+        label: 'Pencairan Koperasi Arutala',
+        complete: gasEntries.some((entry) => {
+          const custom = entry.customAccount === true
+          const note = (entry.need ?? '').trim()
+          return isCompleteAmount(entry.amount) && Boolean(note) && (
+            custom
+              ? Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim())
+              : Boolean(gasRules.find((rule) => rule.account_id === entry.accountId)?.accounts)
+          )
+        })
+      })
     }
 
     const opsMapping = getOperationalAccount(kitchenName, masterData)
@@ -2439,124 +2535,131 @@ function App() {
                   </section>
 
 
-                  {gasRules.length > 0 && (
+                  {activeTransaction.gas.length > 0 && (
                     <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
-                      <h2 className="text-base font-semibold text-white">GAS</h2>
-
-                      <div className="mt-3 space-y-3">
-                        {[...activeTransaction.gas]
-                          .sort((a, b) => {
-                            const aRule = gasRules.find((item) => item.account_id === a.accountId) ?? gasRules[0]
-                            const bRule = gasRules.find((item) => item.account_id === b.accountId) ?? gasRules[0]
-                            const aName = (aRule?.supplier?.business_name ?? aRule?.accounts?.name ?? '').trim()
-                            const bName = (bRule?.supplier?.business_name ?? bRule?.accounts?.name ?? '').trim()
-                            return aName.localeCompare(bName, 'id', { sensitivity: 'base' })
-                          })
-                          .map((entry) => {
-                          const rule =
-                            gasRules.find(
-                              (item) => item.account_id === entry.accountId
-                            ) ?? gasRules[0]
-
+                      <div className="flex items-center justify-between gap-3">
+                        <h2 className="text-base font-semibold text-white">Pencairan Koperasi Arutala</h2>
+                        <button
+                          type="button"
+                          onClick={addGasCustomEntry}
+                          className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-cyan-500/70 hover:bg-slate-700"
+                        >
+                          + Transaksi
+                        </button>
+                      </div>
+                      <div className="mt-3 space-y-2.5">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_82px_minmax(125px,0.9fr)_minmax(170px,1.1fr)_120px_30px]">
+                          <span></span>
+                          <span>Nama rekening</span>
+                          <span>Bank</span>
+                          <span>Nomor rekening</span>
+                          <span>Catatan wajib</span>
+                          <span>Nominal</span>
+                          <span></span>
+                        </div>
+                        {activeTransaction.gas.map((entry) => {
+                          const rule = gasRules.find((item) => item.account_id === entry.accountId) ?? gasRules[0]
+                          const custom = entry.customAccount === true
+                          const accountName = custom
+                            ? entry.ownerName
+                            : rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
+                          const bank = custom ? (entry.bank ?? '') : rule?.accounts?.bank ?? ''
+                          const accountNumber = custom ? entry.accountNumber : rule?.accounts?.account_number ?? ''
                           return (
-                            <div
-                              key={entry.id}
-                              className="grid min-w-0 gap-2.5 lg:grid-cols-[minmax(115px,0.8fr)_60px_minmax(78px,0.55fr)_64px_92px_minmax(120px,1fr)_120px] lg:items-center"
-                            >
-                              <div title={rule?.supplier?.business_name || rule?.accounts?.name || 'Tanpa nama'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
-                                <span className="truncate">
-                                  {(rule?.supplier?.business_name || rule?.accounts?.name || 'Tanpa nama')
-                                    .toLocaleLowerCase('id-ID')
-                                    .replace(/(^|[\s-])(\p{L})/gu, (_match, separator: string, letter: string) => separator + letter.toLocaleUpperCase('id-ID'))}
-                                </span>
+                            <div key={entry.id} className={activeTransaction.gas.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
+                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_82px_minmax(125px,0.9fr)_minmax(170px,1.1fr)_120px_30px]">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleGasCustomAccount(entry.id)}
+                                  title={custom ? 'Kembali ke pencairan GAS ter-mapping' : 'Ubah baris ini menjadi pencairan custom tanpa label GAS'}
+                                  aria-label={custom ? 'Gunakan mapping GAS Koperasi Arutala' : 'Gunakan rekening custom tanpa GAS'}
+                                  className={`h-10 w-full rounded-md border px-2 text-[10px] font-semibold transition ${custom ? 'border-amber-500/70 bg-amber-950/30 text-amber-200 hover:bg-amber-900/40' : 'border-slate-700 bg-slate-800 text-slate-200 hover:border-cyan-500/70 hover:bg-slate-700'}`}
+                                >
+                                  {custom ? 'Custom' : 'GAS'}
+                                </button>
+                                <div className="min-w-0">
+                                  {custom ? (
+                                    <input
+                                      type="text"
+                                      value={entry.ownerName}
+                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { ownerName: event.target.value })}
+                                      placeholder="Nama rekening"
+                                      aria-label="Nama rekening pencairan Koperasi Arutala"
+                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500"
+                                    />
+                                  ) : (
+                                    <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
+                                      <span className="truncate">{accountName}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  {custom ? (
+                                    <select
+                                      value={entry.bank ?? ''}
+                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { bank: event.target.value })}
+                                      aria-label="Bank pencairan Koperasi Arutala"
+                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition focus:border-cyan-500"
+                                    >
+                                      <option value="">Pilih bank</option>
+                                      {CUSTOM_BANK_OPTIONS.map((item) => <option key={item} value={item}>{item}</option>)}
+                                    </select>
+                                  ) : (
+                                    <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  {custom ? (
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      value={entry.accountNumber}
+                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })}
+                                      placeholder="Nomor rekening"
+                                      aria-label="Nomor rekening pencairan Koperasi Arutala"
+                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500"
+                                    />
+                                  ) : (
+                                    <div title={accountNumber || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
+                                  )}
+                                </div>
+                                <input
+                                  type="text"
+                                  required
+                                  value={entry.need ?? ''}
+                                  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { need: event.target.value, gasQuantity: '', gasSize: '' })}
+                                  placeholder="Catatan wajib, contoh: Gas 12kg (4 tabung)"
+                                  aria-label="Catatan wajib pencairan Koperasi Arutala"
+                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500 ${hasOutputAmount(custom ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean((entry.need ?? '').trim()) ? 'mp-field--has-output' : ''}`}
+                                />
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  required
+                                  value={formatNumber(entry.amount)}
+                                  disabled={!custom && !rule}
+                                  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
+                                  placeholder="Nominal"
+                                  aria-label="Nominal pencairan Koperasi Arutala"
+                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(custom ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean((entry.need ?? '').trim()) ? 'mp-field--has-output' : ''}`}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeGasEntry(entry.id)}
+                                  disabled={activeTransaction.gas.length <= 1}
+                                  title="Hapus transaksi"
+                                  aria-label="Hapus transaksi pencairan Koperasi Arutala"
+                                  className="h-10 w-full rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
+                                >
+                                  ×
+                                </button>
                               </div>
-
-                              <div title={rule?.accounts?.bank ?? '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
-                                {rule?.accounts?.bank ?? '-'}
-                              </div>
-
-                              <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
-                                <span title={rule?.accounts?.account_number ?? '-'} className="truncate">{rule?.accounts?.account_number ?? '-'}</span>
-                              </div>
-
-                              <input
-                                type="text"
-                                inputMode="numeric"
-                                value={entry.gasQuantity ?? ''}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'gas',
-                                    entry.id,
-                                    { gasQuantity: event.target.value.replace(/\D/g, '') }
-                                  )
-                                }
-                                placeholder="Jumlah"
-                                aria-label="Jumlah tabung gas"
-                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) && Boolean(String(entry.gasQuantity ?? '').trim()) ? 'mp-field--has-output' : ''}`}
-                              />
-
-                              <select
-                                value={entry.gasSize ?? ''}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'gas',
-                                    entry.id,
-                                    { gasSize: event.target.value as SimpleEntry['gasSize'] }
-                                  )
-                                }
-                                aria-label="Jenis tabung gas"
-                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) && Boolean(entry.gasSize) ? 'mp-field--has-output' : ''}`}
-                              >
-                                <option value="">Ukuran</option>
-                                <option value="12kg">Gas 12kg</option>
-                                <option value="50kg">Gas 50kg</option>
-                              </select>
-
-                              <input
-                                type="text"
-                                value={entry.need ?? ''}
-                                title={entry.need ?? ''}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'gas',
-                                    entry.id,
-                                    { need: event.target.value }
-                                  )
-                                }
-                                placeholder="Catatan (opsional)"
-                                aria-label="Catatan tambahan GAS"
-                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) && Boolean((entry.need ?? '').trim()) ? 'mp-field--has-output' : ''}`}
-                              />
-
-                              <input
-                                id={'gas-' + activeTransaction.id + '-' + entry.id}
-                                type="text"
-                                inputMode="numeric"
-                                value={formatNumber(entry.amount)}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'gas',
-                                    entry.id,
-                                    {
-                                      amount: event.target.value.replace(/\D/g, '')
-                                    }
-                                  )
-                                }
-                                placeholder="Nominal"
-                                aria-label="Nominal GAS"
-                                className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('GAS : ', rule?.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
-                              />
                             </div>
                           )
                         })}
                       </div>
                     </section>
                   )}
-
                   <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Ops Harian</h2>
@@ -2619,14 +2722,15 @@ function App() {
                                   </div>
                                   <div className="min-w-0">
                                     {custom ? (
-                                      <input
-                                        type="text"
+                                      <select
                                         value={entry.bank ?? ''}
-                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value.toLocaleUpperCase('id-ID') })}
-                                        placeholder="Bank"
+                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })}
                                         aria-label="Bank Ops Harian"
-                                        className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500"
-                                      />
+                                        className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition focus:border-teal-500"
+                                      >
+                                        <option value="">Pilih bank</option>
+                                        {CUSTOM_BANK_OPTIONS.map((bank) => <option key={bank} value={bank}>{bank}</option>)}
+                                      </select>
                                     ) : (
                                       <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                     )}
@@ -2885,119 +2989,7 @@ function App() {
                     
                   </div>
 
-                  <section className="mp-card w-full min-w-0 rounded-xl border border-rose-600/70 bg-slate-900/40 p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-base font-semibold text-white">Lain-Lain</h2>
-                      <button
-                        type="button"
-                        onClick={() => addSimpleEntry('lain_lain')}
-                        className="h-10 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-4 text-xs font-semibold text-slate-100 transition hover:border-stone-500 hover:bg-slate-700"
-                      >
-                        + Transaksi
-                      </button>
-                    </div>
 
-                    <div className="mt-3 space-y-3">
-                      {activeTransaction.lain_lain.map((entry) => (
-                        <div
-                          key={entry.id}
-                          className={
-                            activeTransaction.lain_lain.length > 1
-                              ? 'rounded-lg border border-slate-800 bg-slate-950 p-3'
-                              : ''
-                          }
-                        >
-                          <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(90px,0.55fr)_minmax(130px,0.85fr)_minmax(180px,1.15fr)_minmax(180px,1.2fr)_140px] lg:items-end">
-                            <div className="min-w-0">
-                              <select
-                                value={entry.accountId}
-                                onChange={(event) =>
-                                  updateSimpleEntry(
-                                    activeTransaction.id,
-                                    'lain_lain',
-                                    entry.id,
-                                    { accountId: event.target.value }
-                                  )
-                                }
-                                aria-label="Bank rekening Lain-Lain"
-                                className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-medium text-slate-100 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.accountId) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                              >
-                                <option value="">Pilih Bank</option>
-                                {LAIN_LAIN_BANKS.map((bank) => (
-                                  <option key={bank} value={bank}>{bank}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              value={entry.accountNumber}
-                              title={entry.accountNumber}
-                              onChange={(event) =>
-                                updateSimpleEntry(
-                                  activeTransaction.id,
-                                  'lain_lain',
-                                  entry.id,
-                                  { accountNumber: event.target.value.replace(/\D/g, '') }
-                                )
-                              }
-                              placeholder="Nomor rekening"
-                              aria-label="Nomor rekening Lain-Lain"
-                              className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.accountNumber.trim()) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                            />
-                            <input
-                              type="text"
-                              value={entry.ownerName}
-                              title={entry.ownerName}
-                              onChange={(event) =>
-                                updateSimpleEntry(
-                                  activeTransaction.id,
-                                  'lain_lain',
-                                  entry.id,
-                                  { ownerName: sanitizeOwnerName(event.target.value) }
-                                )
-                              }
-                              placeholder="Nama pemilik rekening"
-                              aria-label="Nama pemilik rekening Lain-Lain"
-                              className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.ownerName.trim()) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                            />
-                            <input
-                              type="text"
-                              value={entry.need}
-                              title={entry.need}
-                              onChange={(event) =>
-                                updateSimpleEntry(
-                                  activeTransaction.id,
-                                  'lain_lain',
-                                  entry.id,
-                                  { need: event.target.value }
-                                )
-                              }
-                              placeholder="Deskripsi / keperluan"
-                              aria-label="Deskripsi Lain-Lain"
-                              className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${Boolean(entry.need.trim()) && hasOutputAmount('LAIN-LAIN : ', entry.accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                            />
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              value={formatNumber(entry.amount)}
-                              onChange={(event) =>
-                                updateSimpleEntry(
-                                  activeTransaction.id,
-                                  'lain_lain',
-                                  entry.id,
-                                  { amount: event.target.value.replace(/\D/g, '') }
-                                )
-                              }
-                              placeholder="Nominal"
-                              aria-label="Nominal Lain-Lain"
-                              className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.amount) ? 'mp-field--has-output' : ''}`}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
 
 
                 </>
