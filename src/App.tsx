@@ -2606,7 +2606,7 @@ function App() {
                                       <input
                                         type="text"
                                         value={ownerName}
-                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })
+                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })}
                                         placeholder="Nama rekening"
                                         aria-label="Nama rekening Ops Harian"
                                         className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500"
