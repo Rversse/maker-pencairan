@@ -2494,7 +2494,7 @@ function App() {
                         </button>
                       </div>
                       <div className="mt-3 space-y-2.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_82px_minmax(125px,0.9fr)_minmax(170px,1.1fr)_120px_30px]">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
                           <span></span>
                           <span>Nama rekening</span>
                           <span>Bank</span>
@@ -2512,7 +2512,7 @@ function App() {
                           const note = index === 0 || !customNoteMode ? 'Gas' : (entry.need ?? '')
                           return (
                             <div key={entry.id} className={activeTransaction.gas.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
-                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_82px_minmax(125px,0.9fr)_minmax(170px,1.1fr)_120px_30px]">
+                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
                                 {index === 0 ? (
                                   <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-[10px] font-semibold text-slate-200">GAS</div>
                                 ) : (
@@ -2584,7 +2584,7 @@ function App() {
                         : [createOperationalEntry()]
                       return (
                         <div className="mt-3 space-y-2.5">
-                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
+                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-center text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
                             <span></span>
                             <span>Nama rekening</span>
                             <span>Bank</span>
@@ -2601,7 +2601,7 @@ function App() {
                             const note = custom ? (entry.need ?? '') : 'Ops Harian'
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
-                                <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
+                                <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
                                   <div className={`flex h-10 w-full items-center justify-center rounded-md border px-2 text-center text-[10px] font-semibold ${custom ? 'border-amber-500/50 bg-amber-950/20 text-amber-200' : 'border-slate-700 bg-slate-800 text-slate-200'}`}>
                                     {custom ? 'Custom' : 'Ops Harian'}
                                   </div>
