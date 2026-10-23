@@ -785,7 +785,7 @@ function normalizeTransaction(
 
   const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
     ? transaction.gas.map((entry) => {
-        const normalizedEntry = {
+        const normalizedEntry: SimpleEntry = {
           ...entry,
           gasQuantity: typeof entry.gasQuantity === 'string' ? entry.gasQuantity.replace(/\D/g, '') : '',
           gasSize: entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : '',
