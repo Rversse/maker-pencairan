@@ -2575,7 +2575,7 @@ function App() {
                         : [createOperationalEntry()]
                       return (
                         <div className="mt-3 space-y-2.5">
-                          <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-400 sm:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
+                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 text-[9px] font-semibold uppercase tracking-wide text-slate-400 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
                             <span></span>
                             <span>Nama rekening</span>
                             <span>Bank</span>
@@ -2591,7 +2591,7 @@ function App() {
                             const accountNumber = custom ? entry.accountNumber : mapping?.accountNumber ?? ''
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
-                                <div className="grid min-w-0 items-end gap-2 sm:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
+                                <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(115px,0.78fr)_76px_minmax(125px,0.9fr)_minmax(145px,1fr)_120px_30px]">
                                   <button
                                     type="button"
                                     onClick={() => toggleOperationalCustomAccount(entry.id)}
