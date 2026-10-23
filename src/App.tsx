@@ -2061,11 +2061,14 @@ function App() {
     if (gasMapping) {
       outputChecks.push({
         label: 'Pencairan Koperasi Arutala',
-        complete: gasEntries.some((entry, index) =>
-          isCompleteAmount(entry.amount) &&
-          (index === 0 || entry.customAccount !== true || Boolean((entry.need ?? '').trim())) &&
-          Boolean(gasMapping.accounts)
-        )
+        complete: Boolean(gasMapping.accounts) &&
+          gasEntries.some((entry) => isCompleteAmount(entry.amount)) &&
+          gasEntries.every((entry, index) =>
+            !isCompleteAmount(entry.amount) ||
+            index === 0 ||
+            entry.customAccount !== true ||
+            Boolean((entry.need ?? '').trim())
+          )
       })
     }
 
