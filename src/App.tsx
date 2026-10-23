@@ -2512,7 +2512,7 @@ function App() {
                         </button>
                       </div>
                       <div className="mt-2 space-y-1.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(72px,0.5fr)_80px_105px_120px_30px]">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(60px,0.4fr)_80px_105px_120px_30px]">
                           <span></span>
                           <span>Nama rekening</span>
                           <span>Bank</span>
@@ -2532,7 +2532,7 @@ function App() {
                           const note = index === 0 ? 'Gas' : (entry.need ?? '')
                           return (
                             <div key={entry.id} className={activeTransaction.gas.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
-                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(72px,0.5fr)_80px_105px_120px_30px]">
+                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(60px,0.4fr)_80px_105px_120px_30px]">
                                 {index === 0 ? (
                                   <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-[10px] font-semibold text-slate-200">GAS</div>
                                 ) : (
@@ -2555,7 +2555,7 @@ function App() {
                                   onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { need: event.target.value })}
                                   placeholder="Wajib Isi Catatan"
                                   aria-label="Catatan pencairan Koperasi Arutala"
-                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${index === 0 || !customNoteMode ? 'bg-slate-800 text-slate-300' : 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100'} ${customNoteMode ? 'lg:col-span-3' : ''} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-cyan-500 ${hasOutputAmount(customNoteMode ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean(note.trim()) ? 'mp-field--has-output' : ''}`}
+                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${index === 0 || !customNoteMode ? 'bg-slate-800 text-slate-300' : 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100'} ${customNoteMode ? 'lg:col-span-3 lg:min-w-[273px]' : ''} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-cyan-500 ${hasOutputAmount(customNoteMode ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean(note.trim()) ? 'mp-field--has-output' : ''}`}
                                 />
                                 {index === 0 && (
                                   <>
@@ -2565,7 +2565,7 @@ function App() {
                                       required={isCompleteAmount(entry.amount)}
                                       value={entry.gasQuantity ?? ''}
                                       onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })}
-                                      placeholder="Jumlah"
+                                      placeholder="Jumlah Gas"
                                       aria-label="Jumlah gas"
                                       className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500"
                                     />
