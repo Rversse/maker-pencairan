@@ -107,9 +107,6 @@ const OPERATIONAL_BANKS = [
   'SEABANK'
 ]
 
-// Bank options shared by custom Ops Harian and Koperasi Arutala payouts.
-const CUSTOM_BANK_OPTIONS = [...OPERATIONAL_BANKS, 'VA BNI', 'VA BRI']
-
 const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = ['Sewa SPPG']
 
 const DAILY_PAYMENT_GAJI_OPTIONS: DailyPaymentKind[] = [
