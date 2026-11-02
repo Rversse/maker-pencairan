@@ -97,6 +97,16 @@ const PREVIOUS_STORAGE_KEYS = [
   'maker-pencairan-workspace-v3'
 ]
 
+const OPERATIONAL_BANKS = [
+  'BCA',
+  'BJB',
+  'BNI',
+  'BRI',
+  'BSI',
+  'MANDIRI',
+  'SEABANK'
+]
+
 const DAILY_PAYMENT_SEWA_OPTIONS: DailyPaymentKind[] = ['Sewa SPPG']
 
 const DAILY_PAYMENT_GAJI_OPTIONS: DailyPaymentKind[] = [
