@@ -24,6 +24,7 @@ type SimpleEntry = {
   ownerName: string
   bank?: string
   customAccount?: boolean
+  operationalRuleType?: 'gaji_akuntan' | 'gaji_ahli_gizi' | ''
   need: string
   gasQuantity?: string
   gasSize?: '' | '12kg' | '50kg'
@@ -668,6 +669,7 @@ function createOperationalEntry(id = 1): SimpleEntry {
   return {
     ...emptySimpleEntry(id),
     transactionType: 'operasional_harian',
+    operationalRuleType: '',
     bank: '',
     customAccount: false,
     need: 'Ops Harian'
@@ -1332,6 +1334,7 @@ function App() {
         bank: mapping?.bank ?? '',
         accountNumber: mapping?.accountNumber ?? '',
         customAccount: true,
+        operationalRuleType: '',
         need: ''
       }]
     })
@@ -1591,9 +1594,12 @@ function App() {
     for (const [operationalIndex, operationalEntry] of (transaction.operasional ?? []).entries()) {
       if (!isCompleteAmount(operationalEntry.amount)) continue
       const custom = operationalIndex > 0
-      const bank = getOutputBank(custom ? (operationalEntry.bank || mappedOperationalAccount?.bank || '') : (mappedOperationalAccount?.bank ?? ''))
-      const accountNumber = (custom ? (operationalEntry.accountNumber || mappedOperationalAccount?.accountNumber || '') : mappedOperationalAccount?.accountNumber ?? '').trim()
-      const ownerName = (custom ? (operationalEntry.ownerName || mappedOperationalAccount?.ownerName || '') : mappedOperationalAccount?.ownerName ?? '').trim()
+      const selectedCustomMapping = custom && operationalEntry.operationalRuleType
+        ? getOperationalMapping(kitchenName, masterData, operationalEntry.operationalRuleType)
+        : null
+      const bank = getOutputBank(custom ? (selectedCustomMapping?.bank || operationalEntry.bank || '') : (mappedOperationalAccount?.bank ?? ''))
+      const accountNumber = (custom ? (selectedCustomMapping?.accountNumber || operationalEntry.accountNumber || '') : mappedOperationalAccount?.accountNumber ?? '').trim()
+      const ownerName = (custom ? (selectedCustomMapping?.ownerName || operationalEntry.ownerName || '') : mappedOperationalAccount?.ownerName ?? '').trim()
       if (!bank || !accountNumber || !ownerName) continue
 
       const note = custom ? (operationalEntry.need ?? '').trim() : 'Ops Harian'
@@ -2637,61 +2643,66 @@ function App() {
                           </div>
                           {entries.map((entry, index) => {
                             const custom = index > 0
-                            const ownerName = custom ? (entry.ownerName || mapping?.ownerName || '') : mapping?.ownerName ?? ''
-                            const bank = custom ? (entry.bank || mapping?.bank || '') : mapping?.bank ?? ''
-                            const accountNumber = custom ? (entry.accountNumber || mapping?.accountNumber || '') : mapping?.accountNumber ?? ''
+                            const selectedType = entry.operationalRuleType ?? ''
+                            const selectedRuleType = selectedType === 'gaji_akuntan'
+                              ? 'gaji_akuntan'
+                              : selectedType === 'gaji_ahli_gizi'
+                                ? 'gaji_ahli_gizi'
+                                : ''
+                            const selectedMapping = selectedRuleType
+                              ? getOperationalMapping(selectedKitchen?.name ?? '', masterData, selectedRuleType)
+                              : null
+                            const ownerName = custom
+                              ? selectedMapping?.ownerName ?? entry.ownerName ?? ''
+                              : mapping?.ownerName ?? ''
+                            const bank = custom
+                              ? selectedMapping?.bank ?? entry.bank ?? ''
+                              : mapping?.bank ?? ''
+                            const accountNumber = custom
+                              ? selectedMapping?.accountNumber ?? entry.accountNumber ?? ''
+                              : mapping?.accountNumber ?? ''
                             const note = custom ? (entry.need ?? '') : 'Ops Harian'
+                            const availableAccountant = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_akuntan')
+                            const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
                                 <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
-                                  <div className={`flex h-10 w-full items-center justify-center rounded-md border px-2 text-center text-[10px] font-semibold ${custom ? 'border-amber-500/50 bg-amber-950/20 text-amber-200' : 'border-slate-700 bg-slate-800 text-slate-200'}`}>
-                                    {custom ? 'Custom' : 'Ops Harian'}
+                                  {custom ? (
+                                    <select
+                                      value={selectedType}
+                                      onChange={(event) => {
+                                        const nextType = event.target.value as SimpleEntry['operationalRuleType']
+                                        const nextMapping = nextType
+                                          ? getOperationalMapping(selectedKitchen?.name ?? '', masterData, nextType)
+                                          : null
+                                        updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, {
+                                          operationalRuleType: nextType ?? '',
+                                          ownerName: nextMapping?.ownerName ?? '',
+                                          bank: nextMapping?.bank ?? '',
+                                          accountNumber: nextMapping?.accountNumber ?? '',
+                                          need: nextType === 'gaji_akuntan'
+                                            ? 'Gaji Pengawas Keuangan'
+                                            : nextType === 'gaji_ahli_gizi'
+                                              ? 'Gaji Pengawas Gizi'
+                                              : ''
+                                        })
+                                      }}
+                                      aria-label="Jenis mapping transaksi Ops Harian"
+                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-[10px] font-semibold text-slate-100 outline-none transition focus:border-teal-500"
+                                    >
+                                      <option value="">Pilih jenis</option>
+                                      {availableAccountant && <option value="gaji_akuntan">Gaji AK</option>}
+                                      {availableNutritionist && <option value="gaji_ahli_gizi">Gaji AG</option>}
+                                    </select>
+                                  ) : (
+                                    <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
+                                  )}
+                                  <div title={ownerName || 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
+                                    <span className="truncate">{ownerName || 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div className="min-w-0">
-                                    {custom ? (
-                                      <input
-                                        type="text"
-                                        value={ownerName}
-                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })}
-                                        placeholder="Nama rekening"
-                                        aria-label="Nama rekening Ops Harian"
-                                        className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500"
-                                      />
-                                    ) : (
-                                      <div title={ownerName || 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
-                                        <span className="truncate">{ownerName || 'Mapping belum tersedia'}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="min-w-0">
-                                    {custom ? (
-                                      <select
-                                        value={entry.bank ?? ''}
-                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })}
-                                        aria-label="Bank Ops Harian"
-                                        className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition focus:border-teal-500"
-                                      >
-                                        <option value="">Pilih bank</option>
-                                        {CUSTOM_BANK_OPTIONS.map((bank) => <option key={bank} value={bank}>{bank}</option>)}
-                                      </select>
-                                    ) : (
-                                      <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
-                                    )}
-                                  </div>
-                                  <div className="min-w-0">
-                                    {custom ? (
-                                      <input
-                                        type="text"
-                                        inputMode="numeric"
-                                        value={entry.accountNumber}
-                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })}
-                                        placeholder="Nomor rekening"
-                                        aria-label="Nomor rekening Ops Harian"
-                                        className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500"
-                                      />
-                                    ) : (
-                                      <div title={accountNumber || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
-                                    )}
+                                  <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
+                                  <div title={accountNumber || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
+                                    <span className="truncate">{accountNumber || '-'}</span>
                                   </div>
                                   <input
                                     type="text"
@@ -2707,7 +2718,7 @@ function App() {
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!custom && !mapping}
+                                    disabled={!custom ? !mapping : !selectedMapping}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
@@ -2720,9 +2731,7 @@ function App() {
                                     title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
                                     className="h-10 w-full rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
-                                  >
-                                    ×
-                                  </button>
+                                  >×</button>
                                 </div>
                               </div>
                             )
