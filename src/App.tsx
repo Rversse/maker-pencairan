@@ -1907,7 +1907,13 @@ function App() {
       return a.index - b.index
     })
 
-    const headerLine = kitchenName + ', ' + formatDate(transaction.date)
+    const normalizedKitchenName = kitchenName.trim().toLocaleLowerCase('id-ID')
+    const headerSuffix = normalizedKitchenName === 'cibaregbeg'
+      ? ' (29)'
+      : normalizedKitchenName === 'warungbitung'
+        ? ' (37)'
+        : ''
+    const headerLine = kitchenName + ', ' + formatDate(transaction.date) + headerSuffix
     const mainLines = items.length > 0
       ? [headerLine, ...items.map((item) => item.line)]
       : []
