@@ -509,6 +509,9 @@ function formatVehicleRentPeriod(startDate: string, endDate: string) {
   const startMonthName = monthNames[Number(startMonth) - 1]
   const endMonthName = monthNames[Number(endMonth) - 1]
   if (!startMonthName || !endMonthName) return ''
+  if (startYear === endYear && startMonth === endMonth) {
+    return `${startDay}-${endDay} ${startMonthName} ${endYear}`
+  }
   const start = startYear === endYear
     ? `${startDay}-${startMonthName}`
     : `${startDay}-${startMonthName}-${startYear}`
