@@ -2414,13 +2414,12 @@ function App() {
                             className="grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
                           >
                             <div className="min-w-0">
-                              <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
+                              <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'}`} className="truncate text-sm font-semibold text-white">
                                 {index + 1}.{' '}
                                 {rule.supplier?.business_name ??
                                   rule.accounts?.name ??
                                   'Tanpa nama'}{' '}
-                                - {rule.accounts?.bank ?? '-'} (
-                                {rule.accounts?.account_number ?? '-'})
+                                - {rule.accounts?.bank ?? '-'}
                               </div>
 
                               <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
