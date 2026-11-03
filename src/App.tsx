@@ -58,10 +58,14 @@ type LegacyVehicleRentAmount = {
 
 type VehicleRentEntry = {
   id: number
+  vehicleType?: 'Mobil' | 'Motor'
   startDate: string
   endDate: string
-  mobilAmount: string
-  motorAmount: string
+  unitCount?: string
+  amount?: string
+  // Legacy fields are read only to migrate drafts saved by earlier versions.
+  mobilAmount?: string
+  motorAmount?: string
   legacyAmounts?: LegacyVehicleRentAmount[]
 }
 
@@ -484,15 +488,28 @@ function emptyDailyPaymentEntry(
   }
 }
 
-function emptyVehicleRentEntry(id = 1): VehicleRentEntry {
+function emptyVehicleRentEntry(id = 1, vehicleType: 'Mobil' | 'Motor' = 'Mobil'): VehicleRentEntry {
   return {
     id,
+    vehicleType,
     startDate: '',
     endDate: '',
-    mobilAmount: '',
-    motorAmount: '',
+    unitCount: '1',
+    amount: '',
     legacyAmounts: []
   }
+}
+
+function formatVehicleRentPeriod(startDate: string, endDate: string) {
+  if (!startDate || !endDate) return ''
+  const [startYear, startMonth, startDay] = startDate.split('-')
+  const [endYear, endMonth, endDay] = endDate.split('-')
+  if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) return ''
+  const start = startYear === endYear
+    ? `${startDay}-${startMonth}`
+    : `${startDay}-${startMonth}-${startYear}`
+  const end = `${endDay}-${endMonth}-${endYear}`
+  return start + ' s.d. ' + end
 }
 
 function createPayrollEntry(
@@ -761,14 +778,34 @@ function normalizeTransaction(
     return legacy
     })
   ]
-  const normalizedVehicle: VehicleRentEntry[] = [{
-    id: firstVehicle?.id ?? 1,
-    startDate: firstVehicle?.startDate ?? legacyVehicleAmounts[0]?.startDate ?? '',
-    endDate: firstVehicle?.endDate ?? legacyVehicleAmounts[0]?.endDate ?? '',
-    mobilAmount: firstVehicle?.mobilAmount ?? '',
-    motorAmount: firstVehicle?.motorAmount ?? '',
-    legacyAmounts: legacyVehicleAmounts
-  }]
+  const vehicleStartDate = firstVehicle?.startDate ?? legacyVehicleAmounts[0]?.startDate ?? ''
+  const vehicleEndDate = firstVehicle?.endDate ?? legacyVehicleAmounts[0]?.endDate ?? ''
+  const normalizedVehicle: VehicleRentEntry[] = [
+    {
+      id: 1,
+      vehicleType: 'Mobil',
+      startDate: vehicleStartDate,
+      endDate: vehicleEndDate,
+      unitCount: (firstVehicle as VehicleRentEntry | undefined)?.vehicleType === 'Mobil'
+        ? (firstVehicle as VehicleRentEntry).unitCount ?? '1'
+        : '1',
+      amount: firstVehicle?.mobilAmount ?? (firstVehicle as VehicleRentEntry | undefined)?.amount ?? '',
+      legacyAmounts: legacyVehicleAmounts
+    },
+    {
+      id: 2,
+      vehicleType: 'Motor',
+      startDate: vehicleStartDate,
+      endDate: vehicleEndDate,
+      unitCount: (rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Motor') as VehicleRentEntry | undefined)?.unitCount ?? '1',
+      amount: firstVehicle?.motorAmount ?? '',
+      legacyAmounts: []
+    }
+  ]
+  const savedCar = rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Mobil') as VehicleRentEntry | undefined
+  const savedMotor = rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Motor') as VehicleRentEntry | undefined
+  if (savedCar) Object.assign(normalizedVehicle[0], savedCar)
+  if (savedMotor) Object.assign(normalizedVehicle[1], savedMotor)
 
   const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
     ? transaction.gas.map((entry, index) => {
@@ -921,7 +958,7 @@ function makeTransaction(
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
       ...createPayrollRowsForKitchen(kitchenName, masterData, 2)
     ],
-    sewa_kendaraan: [emptyVehicleRentEntry(1)],
+    sewa_kendaraan: [emptyVehicleRentEntry(1, 'Mobil'), emptyVehicleRentEntry(2, 'Motor')],
     lain_lain: [emptyOtherEntry(1)],
     opsRealAmount: '',
     legacy_gaji: []
@@ -1758,45 +1795,29 @@ function App() {
       })
     }
 
-    for (const entry of (transaction.sewa_kendaraan ?? []).slice(0, 1)) {
-      if (
-        !entry.startDate ||
-        !entry.endDate ||
-        entry.endDate < entry.startDate
-      ) {
-        continue
-      }
-
+    for (const entry of transaction.sewa_kendaraan ?? []) {
+      if (!entry.startDate || !entry.endDate || entry.endDate < entry.startDate) continue
       const account = getVehicleRentAccount(kitchenName, masterData)
       if (!account) continue
-      const period = formatDate(entry.startDate) + ' – ' + formatDate(entry.endDate)
-      const vehicleAmounts: Array<{ label: string; amount: string }> = [
-        { label: 'Mobil', amount: entry.mobilAmount },
-        { label: 'Motor', amount: entry.motorAmount }
-      ]
-
-      for (const vehicle of vehicleAmounts) {
-        if (!isCompleteAmount(vehicle.amount)) continue
-        items.push({
-          kind: 'sewa_kendaraan',
-          bank: getOutputBank(account.bank),
-          line:
-            ('SEWA KENDARAAN ' +
-            vehicle.label).toLocaleUpperCase('id-ID') +
-            ' (' +
-            period +
-            ') : ' +
-            capitalizeEachWord(account.ownerName) +
-            ' - ' +
-            getOutputBank(account.bank) +
-            ' / ' +
-            account.accountNumber +
-            ' · ' +
-            formatNumber(vehicle.amount),
-          index: items.length,
-          modeRank: 0
-        })
-      }
+      const vehicleType = entry.vehicleType ?? 'Mobil'
+      const amount = entry.amount ?? (vehicleType === 'Mobil' ? entry.mobilAmount : entry.motorAmount) ?? ''
+      const unitCount = String(entry.unitCount ?? '1').replace(/\D/g, '') || '1'
+      if (!isCompleteAmount(amount)) continue
+      const period = formatVehicleRentPeriod(entry.startDate, entry.endDate)
+      if (!period || period.length > 40) continue
+      items.push({
+        kind: 'sewa_kendaraan',
+        bank: getOutputBank(account.bank),
+        line:
+          ('SEWA KENDARAAN ' + unitCount + ' UNIT ' + vehicleType).toLocaleUpperCase('id-ID') +
+          ' (' + period + ') : ' +
+          capitalizeEachWord(account.ownerName) +
+          ' - ' + getOutputBank(account.bank) +
+          ' / ' + account.accountNumber +
+          ' · ' + formatNumber(amount),
+        index: items.length,
+        modeRank: 0
+      })
     }
 
     for (const rule of sortedRabRules) {
