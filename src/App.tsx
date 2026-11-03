@@ -2824,92 +2824,64 @@ function App() {
                     <section className="mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
                       {(() => {
-                        const entry = activeTransaction.sewa_kendaraan?.[0] ?? emptyVehicleRentEntry()
+                        const entries = activeTransaction.sewa_kendaraan ?? []
                         const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
                         return (
-                          <>
-                            <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pt-2 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(125px,1fr)_88px_minmax(100px,0.7fr)_minmax(145px,1fr)_140px_140px]">
-                              <span>Nama rekening</span>
-                              <span>Bank</span>
-                              <span>Nomor rekening</span>
-                              <span>Periode sewa</span>
-                              <span>Nominal mobil</span>
-                              <span>Nominal motor</span>
-                            </div>
-                            <div className="mt-1.5 grid min-w-0 grid-cols-2 items-stretch gap-2 sm:grid-cols-4 lg:grid-cols-[minmax(125px,1fr)_88px_minmax(100px,0.7fr)_minmax(145px,1fr)_140px_140px]">
-                              <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
-                                <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
-                              </div>
-                              <div title={account?.bank ?? '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
-                                {account?.bank ?? '-'}
-                              </div>
-                              <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
-                                <span title={account?.accountNumber ?? '-'} className="truncate">{account?.accountNumber ?? '-'} </span>
-                              </div>
-                              <DateRangePicker
-                                value={{ startDate: entry.startDate, endDate: entry.endDate }}
-                                onChange={(range) =>
-                                  updateVehicleRentEntry(activeTransaction.id, entry.id, {
-                                    startDate: range.startDate,
-                                    endDate: range.endDate
-                                  })
-                                }
-                                placeholder="Pilih rentang tanggal"
-                                active={
-                                  hasOutputAmount('SEWA KENDARAAN MOBIL (', account?.accountNumber ?? '-', entry.mobilAmount) ||
-                                  hasOutputAmount('SEWA KENDARAAN MOTOR (', account?.accountNumber ?? '-', entry.motorAmount)
-                                }
-                              />
-                              <div className="min-w-0">
-                                                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={formatNumber(entry.mobilAmount)}
-                                  onChange={(event) =>
-                                    updateVehicleRentEntry(activeTransaction.id, entry.id, {
-                                      mobilAmount: event.target.value.replace(/\D/g, '')
-                                    })
-                                  }
-                                  placeholder="Nominal Mobil"
-                                  aria-label="Nominal Kendaraan Mobil"
-                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.mobilAmount) ? 'mp-field--has-output' : ''}`}
-                                />
-                              </div>
-                              <div className="min-w-0">
-                                                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={formatNumber(entry.motorAmount)}
-                                  onChange={(event) =>
-                                    updateVehicleRentEntry(activeTransaction.id, entry.id, {
-                                      motorAmount: event.target.value.replace(/\D/g, '')
-                                    })
-                                  }
-                                  placeholder="Nominal Motor"
-                                  aria-label="Nominal Kendaraan Motor"
-                                  className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(entry.motorAmount) ? 'mp-field--has-output' : ''}`}
-                                />
-                              </div>
-                            </div>
-
-                            {entry.legacyAmounts && entry.legacyAmounts.length > 0 && (
-                              <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
-                                Ada nominal sewa kendaraan dari data lama yang jenisnya belum dipilih:
-                                {entry.legacyAmounts.map((legacy, index) => (
-                                  <div key={index} className="mt-1 font-semibold">
-                                    {legacy.startDate && legacy.endDate
-                                      ? formatDate(legacy.startDate) + ' – ' + formatDate(legacy.endDate) + ' · '
-                                      : ''}
-                                    {formatNumber(legacy.amount)}
+                          <div className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-2">
+                            {(['Mobil', 'Motor'] as const).map((vehicleType) => {
+                              const entry = entries.find((item) => item.vehicleType === vehicleType) ??
+                                emptyVehicleRentEntry(vehicleType === 'Mobil' ? 1 : 2, vehicleType)
+                              const amount = entry.amount ?? ''
+                              const prefix = 'SEWA KENDARAAN ' + vehicleType.toLocaleUpperCase('id-ID')
+                              return (
+                                <div key={vehicleType} className="min-w-0 rounded-lg border border-slate-700/80 bg-slate-950/35 p-3">
+                                  <h3 className="mb-2 text-sm font-bold text-slate-100">Sewa {vehicleType}</h3>
+                                  <div className="grid min-w-0 grid-cols-3 gap-2">
+                                    <div className="min-w-0">
+                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nama rekening</label>
+                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
+                                        <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
+                                      </div>
+                                    </div>
+                                    <div className="min-w-0">
+                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Bank</label>
+                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{account?.bank ?? '-'}</div>
+                                    </div>
+                                    <div className="min-w-0">
+                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nomor rekening</label>
+                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span title={account?.accountNumber ?? '-'} className="truncate">{account?.accountNumber ?? '-'}</span></div>
+                                    </div>
                                   </div>
-                                ))}
-                                Pindahkan nominal ke Mobil atau Motor yang sesuai. Nominal lama belum masuk ke output supaya tidak salah kategori.
-                              </div>
-                            )}
-
-                          </>
+                                  <div className="mt-2 grid min-w-0 grid-cols-[minmax(0,1fr)_100px] gap-2">
+                                    <div className="min-w-0">
+                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Periode sewa</label>
+                                      <DateRangePicker
+                                        value={{ startDate: entry.startDate, endDate: entry.endDate }}
+                                        onChange={(range) => updateVehicleRentEntry(activeTransaction.id, entry.id, { startDate: range.startDate, endDate: range.endDate })}
+                                        placeholder="Pilih rentang tanggal"
+                                        active={hasOutputAmount(prefix, account?.accountNumber ?? '-', amount)}
+                                      />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Jumlah unit</label>
+                                      <input type="text" inputMode="numeric" value={entry.unitCount ?? '1'} onChange={(event) => updateVehicleRentEntry(activeTransaction.id, entry.id, { unitCount: event.target.value.replace(/\D/g, '').slice(0, 3) })} placeholder="1" aria-label={'Jumlah unit ' + vehicleType} className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25" />
+                                    </div>
+                                  </div>
+                                  <div className="mt-2">
+                                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nominal {vehicleType}</label>
+                                    <input type="text" inputMode="numeric" value={formatNumber(amount)} onChange={(event) => updateVehicleRentEntry(activeTransaction.id, entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={'Nominal ' + vehicleType} aria-label={'Nominal sewa ' + vehicleType} className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(amount) ? 'mp-field--has-output' : ''}`} />
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
                         )
                       })()}
+                      {activeTransaction.sewa_kendaraan?.some((entry) => entry.legacyAmounts?.length) && (
+                        <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
+                          Ada nominal sewa kendaraan dari data lama yang belum dipetakan ke jenis kendaraan. Periksa draft lama sebelum menggunakannya.
+                        </div>
+                      )}
                     </section>
 
                     <section className="mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
