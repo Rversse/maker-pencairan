@@ -2832,7 +2832,7 @@ function App() {
                               const entry = entries.find((item) => item.vehicleType === vehicleType) ??
                                 emptyVehicleRentEntry(vehicleType === 'Mobil' ? 1 : 2, vehicleType)
                               const amount = entry.amount ?? ''
-                              const prefix = 'SEWA KENDARAAN ' + vehicleType.toLocaleUpperCase('id-ID')
+                              const prefix = 'SEWA KENDARAAN '
                               return (
                                 <div key={vehicleType} className="min-w-0 rounded-lg border border-slate-700/80 bg-slate-950/35 p-3">
                                   <h3 className="mb-2 text-sm font-bold text-slate-100">Sewa {vehicleType}</h3>
