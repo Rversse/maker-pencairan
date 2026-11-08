@@ -2761,7 +2761,7 @@ function App() {
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!custom ? !mapping : !selectedMapping}
+                                    disabled={!custom ? !mapping : isMappedSalary && !selectedMapping}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
