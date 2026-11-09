@@ -913,6 +913,20 @@ aside [title='Belum diisi']::before {
   box-shadow: 0 24px 56px -18px rgb(31 48 72 / 35%), 0 0 0 1px rgb(15 23 42 / 6%);
 }
 
+/* Date field column: Inter is wider than the old font, so the fixed 145px
+   column made "TANGGAL 09-Nov-2026" spill out of its box. */
+@media (min-width: 640px) {
+  .mp-card div[class*='grid-cols-[145px_minmax(0,1fr)]'] {
+    grid-template-columns: 176px minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mp-card div[class*='grid-cols-[145px_minmax(180px,260px)_auto]'] {
+    grid-template-columns: 176px minmax(180px, 260px) auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
