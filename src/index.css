@@ -550,3 +550,380 @@ button[data-option-button='true']:focus-visible {
   margin-block: 0 !important;
 }
 
+/* ==========================================================================
+   Premium polish layer (CSS-only). Appended last so it wins the cascade.
+   Covers: ambient background, typography, glass-style cards with per-section
+   accent, refined fields/chips/buttons, terminal-style output, status pills.
+   ========================================================================== */
+
+:root {
+  --mp-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mp-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --mp-page-bg: #060a14;
+  --mp-ambient-a: rgb(16 185 129 / 15%);
+  --mp-ambient-b: rgb(56 189 248 / 9%);
+  --mp-ambient-c: rgb(139 92 246 / 8%);
+  --mp-grid: rgb(148 163 184 / 5%);
+  --mp-inset-shadow: rgb(0 0 0 / 38%);
+  --mp-title-from: #ffffff;
+  --mp-title-to: #9ae9cb;
+  --mp-amount-from: #ffffff;
+  --mp-amount-to: #a7f3d0;
+  --mp-pre-bg: linear-gradient(180deg, #050a14, #070e1a);
+  --mp-pre-border: rgb(16 185 129 / 20%);
+  --mp-card-top: #101b2d;
+  --mp-card-bottom: #0a1220;
+  --mp-card-shadow: 0 22px 44px -20px rgb(0 0 0 / 70%), 0 2px 8px rgb(0 0 0 / 22%);
+  --mp-card-shadow-hover: 0 26px 50px -20px rgb(0 0 0 / 75%), 0 4px 14px rgb(0 0 0 / 26%);
+  --mp-light-page: #eef3f9;
+}
+
+:root[data-theme='light'] {
+  --mp-page-bg: #eef3f9;
+  --mp-ambient-a: rgb(16 185 129 / 12%);
+  --mp-ambient-b: rgb(56 189 248 / 12%);
+  --mp-ambient-c: rgb(139 92 246 / 7%);
+  --mp-grid: rgb(15 23 42 / 4.5%);
+  --mp-inset-shadow: rgb(15 23 42 / 7%);
+  --mp-title-from: #0b1f2e;
+  --mp-title-to: #047857;
+  --mp-amount-from: #0b1f2e;
+  --mp-amount-to: #047857;
+  --mp-pre-border: rgb(5 150 105 / 22%);
+  --mp-card-shadow: 0 18px 40px -22px rgb(31 48 72 / 30%), 0 2px 6px rgb(31 48 72 / 6%);
+  --mp-card-shadow-hover: 0 22px 44px -22px rgb(31 48 72 / 36%), 0 4px 10px rgb(31 48 72 / 9%);
+}
+
+/* Typography ------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  font-family: var(--mp-font-sans);
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(16 185 129 / 32%);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(100 116 139 / 50%) transparent;
+}
+
+/* Ambient background: soft colour glows + faint fading grid -------------- */
+body {
+  background-color: var(--mp-page-bg);
+}
+
+main {
+  background: transparent;
+}
+
+:root[data-theme='light'] main {
+  background: transparent !important;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::before {
+  background:
+    radial-gradient(1000px 560px at 8% -8%, var(--mp-ambient-a), transparent 62%),
+    radial-gradient(860px 520px at 104% 2%, var(--mp-ambient-b), transparent 58%),
+    radial-gradient(900px 620px at 50% 112%, var(--mp-ambient-c), transparent 62%);
+}
+
+body::after {
+  background-image:
+    linear-gradient(var(--mp-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mp-grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
+}
+
+/* Header ------------------------------------------------------------------ */
+main header h1 {
+  font-size: 1.7rem;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(180deg, var(--mp-title-from) 20%, var(--mp-title-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+main header > div > span:first-child {
+  border-radius: 16px;
+  border-color: rgb(16 185 129 / 40%);
+  background: radial-gradient(circle at 30% 20%, rgb(16 185 129 / 28%), rgb(6 78 59 / 45%) 70%);
+  box-shadow:
+    0 0 0 4px rgb(16 185 129 / 7%),
+    0 10px 26px -8px rgb(16 185 129 / 55%),
+    inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+
+/* Cards: per-section accent, accent line, glow, entrance ------------------ */
+.mp-card {
+  --mp-accent: 16 185 129;
+  --mp-card-rim-b: rgb(var(--mp-accent) / 36%);
+  animation: mp-rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.mp-card[class*='border-amber-500'] { --mp-accent: 245 158 11; }
+.mp-card[class*='border-cyan-600'] { --mp-accent: 34 211 238; }
+.mp-card[class*='border-teal-600'] { --mp-accent: 45 212 191; }
+.mp-card[class*='border-sky-600'] { --mp-accent: 56 189 248; }
+.mp-card[class*='border-orange-600'] { --mp-accent: 251 146 60; }
+.mp-card[class*='border-violet-600'] { --mp-accent: 167 139 250; }
+
+:root[data-theme='light'] .mp-card {
+  --mp-card-rim-b: rgb(var(--mp-accent) / 30%);
+}
+
+.mp-card:hover {
+  --mp-card-rim-b: rgb(var(--mp-accent) / 62%);
+}
+
+:root[data-theme='light'] .mp-card:hover {
+  --mp-card-rim-b: rgb(var(--mp-accent) / 50%);
+}
+
+.mp-card::before {
+  background: radial-gradient(ellipse at 0% 0%, rgb(var(--mp-accent) / 10%), transparent 60%);
+}
+
+.mp-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 2px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, rgb(var(--mp-accent) / 90%), transparent);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.mp-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.01em;
+}
+
+.mp-card h2::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(var(--mp-accent));
+  box-shadow: 0 0 0 3px rgb(var(--mp-accent) / 16%), 0 0 12px rgb(var(--mp-accent) / 70%);
+}
+
+@keyframes mp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.mp-form-stack > .mp-card:nth-child(1) { animation-delay: 40ms; }
+.mp-form-stack > .mp-card:nth-child(2) { animation-delay: 90ms; }
+.mp-form-stack > .mp-card:nth-child(3) { animation-delay: 140ms; }
+.mp-form-stack > .mp-card:nth-child(4) { animation-delay: 190ms; }
+.mp-form-stack > .mp-card:nth-child(5) { animation-delay: 240ms; }
+.mp-form-stack > .mp-card:nth-child(n + 6) { animation-delay: 290ms; }
+
+/* Rows inside cards ------------------------------------------------------- */
+.mp-card div[class*='rounded-lg'][class*='border-slate-800'] {
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.mp-card div[class*='rounded-lg'][class*='border-slate-800']:hover {
+  border-color: rgb(var(--mp-accent) / 32%);
+}
+
+:root[data-theme='light'] .mp-card div[class*='rounded-lg'][class*='border-slate-800']:hover {
+  border-color: rgb(var(--mp-accent) / 45%) !important;
+}
+
+/* Fields ------------------------------------------------------------------ */
+.mp-card input[class*='bg-gradient-to-b'] {
+  background-image: linear-gradient(180deg, #0b1424, #081020);
+}
+
+:root[data-theme='light'] .mp-card input[class*='bg-gradient-to-'] {
+  background-color: #fbfcfe !important;
+}
+
+.mp-card input:not([type='checkbox']):not([type='radio']),
+.mp-card select {
+  box-shadow: inset 0 1px 2px var(--mp-inset-shadow);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.mp-card input:not([type='checkbox']):not([type='radio']):focus,
+.mp-card select:focus {
+  border-color: rgb(var(--mp-accent) / 85%);
+  box-shadow: inset 0 1px 2px var(--mp-inset-shadow), 0 0 0 3px rgb(var(--mp-accent) / 20%);
+}
+
+:root[data-theme='light'] .mp-card input:not([type='checkbox']):not([type='radio']):not(.mp-field--has-output):focus,
+:root[data-theme='light'] .mp-card select:focus {
+  border-color: rgb(var(--mp-accent) / 85%) !important;
+}
+
+/* Product chips ----------------------------------------------------------- */
+.mp-card button[data-option-button='true'] {
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+.mp-card button[data-option-button='true'][data-selected='true'] {
+  box-shadow:
+    0 0 0 1px rgb(16 185 129 / 35%),
+    0 8px 18px -6px rgb(16 185 129 / 55%),
+    inset 0 1px 0 rgb(255 255 255 / 22%);
+}
+
+/* Primary button: light sweep on hover ----------------------------------- */
+button[data-button-kind='primary'] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+button[data-button-kind='primary']::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -80%;
+  width: 60%;
+  background: linear-gradient(100deg, transparent, rgb(255 255 255 / 34%), transparent);
+  transform: skewX(-18deg);
+  transition: left 600ms ease;
+  pointer-events: none;
+}
+
+button[data-button-kind='primary']:hover:not(:disabled)::after {
+  left: 130%;
+}
+
+/* Output panel: terminal-style mono -------------------------------------- */
+.mp-card pre {
+  font-family: var(--mp-font-mono);
+  font-size: 11px;
+  line-height: 1.65;
+  letter-spacing: -0.005em;
+  background: var(--mp-pre-bg);
+  border-color: var(--mp-pre-border);
+  box-shadow: inset 0 8px 28px rgb(0 0 0 / 28%), inset 0 0 0 1px rgb(255 255 255 / 2%);
+}
+
+:root[data-theme='light'] .mp-card pre {
+  background-color: #f6f9fc !important;
+  box-shadow: inset 0 2px 8px rgb(15 23 42 / 6%);
+}
+
+/* Totals sidebar ---------------------------------------------------------- */
+aside.mp-card .rounded-lg {
+  background-image: linear-gradient(160deg, rgb(var(--mp-accent) / 9%), transparent 60%);
+}
+
+aside.mp-card .rounded-lg > div:first-child {
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+aside.mp-card .text-lg {
+  font-size: 1.4rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(180deg, var(--mp-amount-from), var(--mp-amount-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Filled / unfilled status pills ----------------------------------------- */
+aside [title='Sudah diisi'],
+aside [title='Belum diisi'] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 11%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+}
+
+aside [title='Sudah diisi']::before,
+aside [title='Belum diisi']::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* The 400-level tints are too faint on a white page; darken them in light. */
+:root[data-theme='light'] aside [title='Sudah diisi'] {
+  color: #047857;
+}
+
+:root[data-theme='light'] aside [title='Belum diisi'] {
+  color: #be123c;
+}
+
+/* Date range popover ------------------------------------------------------ */
+[role='dialog'][aria-label*='rentang'] {
+  border-radius: 14px;
+  box-shadow: 0 28px 64px -16px rgb(0 0 0 / 60%), 0 0 0 1px rgb(255 255 255 / 5%);
+  backdrop-filter: blur(14px);
+}
+
+:root[data-theme='light'] [role='dialog'][aria-label*='rentang'] {
+  box-shadow: 0 24px 56px -18px rgb(31 48 72 / 35%), 0 0 0 1px rgb(15 23 42 / 6%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .mp-card {
+    animation: none !important;
+  }
+
+  button[data-button-kind='primary']::after {
+    display: none;
+  }
+}
+
