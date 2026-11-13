@@ -69,6 +69,11 @@ type VehicleRentEntry = {
   legacyAmounts?: LegacyVehicleRentAmount[]
 }
 
+type ArutalaDateBucket = {
+  gas: SimpleEntry[]
+  lain_lain: SimpleEntry[]
+}
+
 type TransactionGroup = {
   id: number
   date: string
@@ -80,6 +85,7 @@ type TransactionGroup = {
   sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
   arutala_lain_lain: SimpleEntry[]
+  arutala_by_date?: Record<string, ArutalaDateBucket>
   opsRealAmount: string
 }
 
@@ -920,6 +926,10 @@ function normalizeTransaction(
     sewa_kendaraan: normalizedVehicle,
     lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
     arutala_lain_lain: arutalaLainLain,
+    arutala_by_date: {
+      ...(transaction.arutala_by_date ?? {}),
+      [transaction.date || fallbackDate]: { gas: normalizedGas, lain_lain: arutalaLainLain }
+    },
     opsRealAmount: typeof transaction.opsRealAmount === 'string' ? transaction.opsRealAmount : '',
     legacy_gaji: legacyGaji
   }
@@ -955,6 +965,7 @@ function makeTransaction(
     sewa_kendaraan: [emptyVehicleRentEntry(1, 'Mobil'), emptyVehicleRentEntry(2, 'Motor')],
     lain_lain: [emptyOtherEntry(1)],
     arutala_lain_lain: [],
+    arutala_by_date: { [date]: { gas: [], lain_lain: [] } },
     opsRealAmount: '',
     legacy_gaji: []
   }
@@ -1260,7 +1271,19 @@ function App() {
     setTransactions((current) =>
       current.map((transaction) =>
         transaction.id === transactionId
-          ? { ...transaction, ...update }
+          ? (() => {
+              const nextTransaction = { ...transaction, ...update }
+              if (!('arutala_by_date' in update) && ('gas' in update || 'arutala_lain_lain' in update)) {
+                nextTransaction.arutala_by_date = {
+                  ...(transaction.arutala_by_date ?? {}),
+                  [nextTransaction.date]: {
+                    gas: nextTransaction.gas ?? [],
+                    lain_lain: nextTransaction.arutala_lain_lain ?? []
+                  }
+                }
+              }
+              return nextTransaction
+            })()
           : transaction
       )
     )
@@ -1302,12 +1325,20 @@ function App() {
       current.map((transaction) => {
         if (transaction.id !== transactionId) return transaction
         const entries = transaction[section] ?? []
-        return {
-          ...transaction,
-          [section]: entries.map((entry) =>
-            entry.id === id ? { ...entry, ...update } : entry
-          )
+        const nextEntries = entries.map((entry) =>
+          entry.id === id ? { ...entry, ...update } : entry
+        )
+        const nextTransaction = { ...transaction, [section]: nextEntries }
+        if (section === 'gas' || section === 'arutala_lain_lain') {
+          nextTransaction.arutala_by_date = {
+            ...(transaction.arutala_by_date ?? {}),
+            [transaction.date]: {
+              gas: section === 'gas' ? nextEntries as SimpleEntry[] : transaction.gas ?? [],
+              lain_lain: section === 'arutala_lain_lain' ? nextEntries as SimpleEntry[] : transaction.arutala_lain_lain ?? []
+            }
+          }
         }
+        return nextTransaction
       })
     )
   }
@@ -1578,8 +1609,19 @@ function App() {
   }
 
   function changeActiveDate(nextDate: string) {
-    if (!activeTransaction || !nextDate) return
-    updateTransaction(activeTransaction.id, { date: nextDate })
+    if (!activeTransaction || !nextDate || nextDate === activeTransaction.date) return
+    const dateBuckets = activeTransaction.arutala_by_date ?? {}
+    const currentBucket: ArutalaDateBucket = {
+      gas: activeTransaction.gas ?? [],
+      lain_lain: activeTransaction.arutala_lain_lain ?? []
+    }
+    const nextBucket = dateBuckets[nextDate] ?? { gas: [], lain_lain: [] }
+    updateTransaction(activeTransaction.id, {
+      date: nextDate,
+      arutala_by_date: { ...dateBuckets, [activeTransaction.date]: currentBucket },
+      gas: nextBucket.gas,
+      arutala_lain_lain: nextBucket.lain_lain
+    })
     setCopyMessage('')
   }
 
