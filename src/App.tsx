@@ -825,7 +825,9 @@ function normalizeTransaction(
           ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
           bank: entry.bank ?? '',
           customAccount: !isGasEntry,
-          transactionType: entry.transactionType ?? ''
+          transactionType: entry.transactionType === 'gas'
+            ? 'gas'
+            : isGasEntry ? '' : 'operasional_harian'
         }
         return {
           ...normalizedEntry,
@@ -893,7 +895,7 @@ function normalizeTransaction(
   const operational = baseOperational.concat(migratedLainLain)
   const lain_lain = [emptySimpleEntry(1)]
   const arutalaLainLain = Array.isArray(transaction.arutala_lain_lain)
-    ? transaction.arutala_lain_lain.map((entry) => ({ ...entry, transactionType: 'lain_lain' as const, accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''), ownerName: entry.ownerName ?? '' }))
+    ? transaction.arutala_lain_lain.map((entry) => ({ ...entry, transactionType: 'lain_lain' as const, accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''), ownerName: entry.ownerName ?? '' }))
     : []
   const legacyGaji = Array.isArray(transaction.legacy_gaji)
     ? transaction.legacy_gaji.map((entry) => ({
@@ -2065,13 +2067,16 @@ function App() {
         label: 'Pencairan Koperasi Arutala',
         complete: Boolean(gasMapping.accounts) &&
           gasEntries.filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length <= 2 &&
-          gasEntries.every((entry, index) => {
-            if (!isCompleteAmount(entry.amount)) return true
-            const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
-            // Jumlah dan ukuran gas bersifat opsional; nominal tetap wajib.
-            if (isGasEntry) return true
-            return Boolean((entry.need ?? '').trim())
-          })
+          (gasEntries.length === 0 || (
+            gasEntries.some((entry) => isCompleteAmount(entry.amount)) &&
+            gasEntries.every((entry, index) => {
+              if (!isCompleteAmount(entry.amount)) return true
+              const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
+              // Jumlah dan ukuran gas bersifat opsional; nominal tetap wajib.
+              if (isGasEntry) return true
+              return Boolean((entry.need ?? '').trim())
+            })
+          ))
       })
     }
 
