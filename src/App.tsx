@@ -817,34 +817,27 @@ function normalizeTransaction(
 
   const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
     ? transaction.gas.map((entry, index) => {
+        const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
         const normalizedEntry: SimpleEntry = {
           ...entry,
           gasQuantity: typeof entry.gasQuantity === 'string' ? entry.gasQuantity.replace(/\D/g, '') : '',
           gasSize: entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : '',
           ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
           bank: entry.bank ?? '',
-          customAccount: index > 0,
+          customAccount: !isGasEntry,
           transactionType: entry.transactionType ?? ''
         }
         return {
           ...normalizedEntry,
-          need: index === 0 ? 'Gas' : (entry.need ?? ''),
-          gasQuantity: index === 0 ? normalizedEntry.gasQuantity : '',
-          gasSize: index === 0 ? normalizedEntry.gasSize : ''
+          need: isGasEntry ? 'Gas' : (entry.need ?? ''),
+          gasQuantity: isGasEntry ? normalizedEntry.gasQuantity : '',
+          gasSize: isGasEntry ? normalizedEntry.gasSize : ''
         }
-      })
-    : [{
-        ...emptySimpleEntry(1),
-        accountId: '',
-        accountNumber: '',
-        ownerName: '',
-        amount: '',
-        need: 'Gas',
-        gasQuantity: '',
-        gasSize: '',
-        customAccount: false,
-        transactionType: '' as const
-      }]
+      }).filter((entry, index) =>
+        index !== 0 || isCompleteAmount(entry.amount) ||
+        Boolean(entry.gasQuantity || entry.gasSize) || entry.transactionType === 'gas'
+      )
+    : []
 
   const normalizedOthers = Array.isArray(transaction.lain_lain)
     ? transaction.lain_lain.map((entry) => ({
@@ -941,7 +934,7 @@ function makeTransaction(
   kitchenName = '',
   masterData: MakerMasterData | null = null
 ): TransactionGroup {
-  const gasRule = gasRules[0]
+  void gasRules
 
   return {
     id,
