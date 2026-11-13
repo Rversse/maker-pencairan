@@ -14,7 +14,7 @@ type RabEntry = {
   amount: string
 }
 
-type OtherTransactionType = '' | 'operasional_harian' | 'lain_lain'
+type OtherTransactionType = '' | 'operasional_harian' | 'lain_lain' | 'gas'
 
 type SimpleEntry = {
   id: number
@@ -79,6 +79,7 @@ type TransactionGroup = {
   pencairan_harian: DailyPaymentEntry[]
   sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
+  arutala_lain_lain: SimpleEntry[]
   opsRealAmount: string
 }
 
@@ -898,6 +899,9 @@ function normalizeTransaction(
     }))
   const operational = baseOperational.concat(migratedLainLain)
   const lain_lain = [emptySimpleEntry(1)]
+  const arutalaLainLain = Array.isArray(transaction.arutala_lain_lain)
+    ? transaction.arutala_lain_lain.map((entry) => ({ ...entry, transactionType: 'lain_lain' as const, accountNumber: (entry.accountNumber ?? '').replace(/\\D/g, ''), ownerName: entry.ownerName ?? '' }))
+    : []
   const legacyGaji = Array.isArray(transaction.legacy_gaji)
     ? transaction.legacy_gaji.map((entry) => ({
         ...entry,
@@ -920,6 +924,7 @@ function normalizeTransaction(
     ),
     sewa_kendaraan: normalizedVehicle,
     lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
+    arutala_lain_lain: arutalaLainLain,
     opsRealAmount: typeof transaction.opsRealAmount === 'string' ? transaction.opsRealAmount : '',
     legacy_gaji: legacyGaji
   }
@@ -946,20 +951,7 @@ function makeTransaction(
       productTypes: [],
       amount: ''
     })),
-    gas: [
-      {
-        id: 1,
-        accountId: gasRule?.account_id ?? '',
-        amount: '',
-        accountNumber: gasRule?.accounts?.account_number ?? '',
-        ownerName: '',
-        need: 'Gas',
-        gasQuantity: '',
-        gasSize: '',
-        customAccount: false,
-        transactionType: ''
-      }
-    ],
+    gas: [],
     operasional: [createOperationalEntry(1)],
     pencairan_harian: [
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
@@ -967,6 +959,7 @@ function makeTransaction(
     ],
     sewa_kendaraan: [emptyVehicleRentEntry(1, 'Mobil'), emptyVehicleRentEntry(2, 'Motor')],
     lain_lain: [emptyOtherEntry(1)],
+    arutala_lain_lain: [],
     opsRealAmount: '',
     legacy_gaji: []
   }
@@ -1002,6 +995,7 @@ function App() {
   )
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
+  const [arutalaAddMenuOpen, setArutalaAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
   const [customRabDrafts, setCustomRabDrafts] = useState<Record<string, string[]>>({})
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -1305,7 +1299,7 @@ function App() {
 
   function updateSimpleEntry(
     transactionId: number,
-    section: 'gas' | 'operasional' | 'lain_lain',
+    section: 'gas' | 'operasional' | 'lain_lain' | 'arutala_lain_lain',
     id: number,
     update: Partial<SimpleEntry>
   ) {
@@ -1381,44 +1375,45 @@ function App() {
     })
   }
 
-  function addGasCustomEntry() {
+  function addGasEntry() {
     if (!activeTransaction) return
     const currentEntries = activeTransaction.gas ?? []
-    const nextId = currentEntries.length === 0
-      ? 1
-      : Math.max(...currentEntries.map((entry) => entry.id)) + 1
+    const gasCount = currentEntries.filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length
+    if (gasCount >= 2) {
+      setHistoryMessage('Maksimal 2 transaksi GAS untuk tanggal ini.')
+      window.setTimeout(() => setHistoryMessage(''), 2200)
+      return
+    }
     const rule = gasRules[0]
-    const accountName = rule?.supplier?.business_name || rule?.accounts?.name || ''
+    if (!rule?.accounts) {
+      setHistoryMessage('Mapping rekening GAS belum tersedia.')
+      window.setTimeout(() => setHistoryMessage(''), 2200)
+      return
+    }
+    const nextId = Math.max(0, ...currentEntries.map((entry) => entry.id)) + 1
+    const accountName = rule.supplier?.business_name || rule.accounts.name || ''
     updateTransaction(activeTransaction.id, {
-      gas: [...currentEntries, {
-        ...emptySimpleEntry(nextId),
-        accountId: rule?.account_id ?? '',
-        ownerName: accountName,
-        bank: rule?.accounts?.bank ?? '',
-        accountNumber: rule?.accounts?.account_number ?? '',
-        need: '',
-        gasQuantity: '',
-        gasSize: '',
-        customAccount: true,
-        transactionType: ''
-      }]
+      gas: [...currentEntries, { ...emptySimpleEntry(nextId), accountId: rule.account_id, ownerName: accountName, bank: rule.accounts.bank ?? '', accountNumber: rule.accounts.account_number ?? '', need: 'Gas', gasQuantity: '', gasSize: '', customAccount: false, transactionType: 'gas' }]
     })
+    setArutalaAddMenuOpen(false)
   }
 
   function removeGasEntry(id: number) {
     if (!activeTransaction) return
-    const currentEntries = activeTransaction.gas ?? []
-    if (currentEntries[0]?.id === id) return
-    const remaining = currentEntries.filter((entry) => entry.id !== id)
-    updateTransaction(activeTransaction.id, {
-      gas: remaining.length > 0 ? remaining : [{
-        ...emptySimpleEntry(1),
-        accountId: gasRules[0]?.account_id ?? '',
-        accountNumber: gasRules[0]?.accounts?.account_number ?? '',
-        need: 'Gas',
-        customAccount: false
-      }]
-    })
+    updateTransaction(activeTransaction.id, { gas: (activeTransaction.gas ?? []).filter((entry) => entry.id !== id) })
+  }
+
+  function addArutalaOtherEntry() {
+    if (!activeTransaction) return
+    const entries = activeTransaction.arutala_lain_lain ?? []
+    const nextId = Math.max(0, ...entries.map((entry) => entry.id)) + 1
+    updateTransaction(activeTransaction.id, { arutala_lain_lain: [...entries, emptyOtherEntry(nextId)] })
+    setArutalaAddMenuOpen(false)
+  }
+
+  function removeArutalaOtherEntry(id: number) {
+    if (!activeTransaction) return
+    updateTransaction(activeTransaction.id, { arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).filter((entry) => entry.id !== id) })
   }
 
   function removeOperationalEntry(id: number) {
@@ -1661,7 +1656,7 @@ function App() {
       })
     }
 
-    for (const entry of transaction.lain_lain) {
+    for (const entry of transaction.arutala_lain_lain ?? []) {
       if (entry.transactionType !== 'lain_lain' || !isCompleteAmount(entry.amount)) continue
 
       const bank = getOutputBank(entry.accountId)
@@ -1710,7 +1705,8 @@ function App() {
 
     for (const [entryIndex, entry] of (transaction.gas ?? []).entries()) {
       if (!isCompleteAmount(entry.amount)) continue
-      const customNoteMode = entryIndex > 0
+      const isGasEntry = entry.transactionType === 'gas' || (entryIndex === 0 && !entry.transactionType)
+      const customNoteMode = !isGasEntry
       const quantity = (entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
       const size = entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : ''
       const note = customNoteMode
@@ -2075,12 +2071,12 @@ function App() {
       outputChecks.push({
         label: 'Pencairan Koperasi Arutala',
         complete: Boolean(gasMapping.accounts) &&
-          gasEntries.some((entry) => isCompleteAmount(entry.amount)) &&
+          gasEntries.filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length <= 2 &&
           gasEntries.every((entry, index) => {
             if (!isCompleteAmount(entry.amount)) return true
+            const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
             // Jumlah dan ukuran gas bersifat opsional; nominal tetap wajib.
-            // Entri custom tetap membutuhkan catatan agar output operasional jelas.
-            if (index === 0) return true
+            if (isGasEntry) return true
             return Boolean((entry.need ?? '').trim())
           })
       })
@@ -2533,115 +2529,75 @@ function App() {
 
 
 
-                  {activeTransaction.gas.length > 0 && (
+                  {gasRules[0]?.accounts && (
                     <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-base font-semibold text-white">Pencairan Koperasi Arutala</h2>
-                        <button
-                          type="button"
-                          onClick={addGasCustomEntry}
-                          className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-cyan-500/70 hover:bg-slate-700"
-                        >
-                          + Transaksi
-                        </button>
-                      </div>
-                      <div className="mt-2 space-y-1.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(60px,0.4fr)_80px_105px_120px_30px]">
-                          <span></span>
-                          <span>Nama rekening</span>
-                          <span>Bank</span>
-                          <span>Nomor rekening</span>
-                          <span>Catatan</span>
-                          <span>Jumlah Gas</span>
-                          <span>Ukuran Gas</span>
-                          <span>Nominal</span>
-                          <span></span>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <h2 className="text-base font-semibold text-white">Pencairan Koperasi Arutala</h2>
+                          <p className="mt-0.5 text-[11px] text-slate-400">Maksimal 2 transaksi GAS per tanggal. Transaksi lain tidak dibatasi.</p>
                         </div>
-                        {activeTransaction.gas.map((entry, index) => {
-                          const rule = gasRules[0]
-                          const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
-                          const bank = rule?.accounts?.bank ?? '-'
-                          const accountNumber = rule?.accounts?.account_number ?? '-'
-                          const customNoteMode = index > 0
-                          const note = index === 0 ? 'Gas' : (entry.need ?? '')
-                          return (
-                            <div key={entry.id} className={activeTransaction.gas.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
-                              <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(60px,0.4fr)_80px_105px_120px_30px]">
-                                {index === 0 ? (
-                                  <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-[10px] font-semibold text-slate-200">GAS</div>
-                                ) : (
-                                  <div className="flex h-10 w-full items-center justify-center rounded-md border border-amber-500/50 bg-amber-950/20 px-2 text-[10px] font-semibold text-amber-200">
-                                    Custom
-                                  </div>
-                                )}
-                                <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
-                                  <span className="truncate">{accountName}</span>
+                        <div className="relative">
+                          <button type="button" aria-expanded={arutalaAddMenuOpen} onClick={() => setArutalaAddMenuOpen((open) => !open)} className="h-10 rounded-lg border border-cyan-700/70 bg-cyan-950/60 px-3 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-900/70">+ Tambah Transaksi</button>
+                          {arutalaAddMenuOpen && (
+                            <div className="absolute right-0 z-20 mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-xl">
+                              <button type="button" onClick={addGasEntry} disabled={(activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Tambah GAS (maks. 2)</button>
+                              <button type="button" onClick={addArutalaOtherEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Tambah Transaksi Lain</button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {(activeTransaction.gas ?? []).length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi GAS</div>
+                          {(activeTransaction.gas ?? []).map((entry, index) => {
+                            const rule = gasRules[0]
+                            const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
+                            const bank = rule?.accounts?.bank ?? '-'
+                            const accountNumber = rule?.accounts?.account_number ?? '-'
+                            const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
+                            return (
+                              <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/40 p-2">
+                                <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_85px_minmax(110px,0.8fr)_minmax(120px,1fr)_90px_100px_110px_34px]">
+                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{isGasEntry ? 'GAS' : 'OPS HARIAN'}</div>
+                                  <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
+                                  <div className="flex h-10 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-xs font-semibold text-slate-100">{bank}</div>
+                                  <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
+                                  {isGasEntry ? (
+                                    <>
+                                      <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
+                                      <select value={entry.gasSize ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
+                                    </>
+                                  ) : (
+                                    <input type="text" required value={entry.need ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { need: event.target.value })} placeholder="Catatan transaksi" aria-label="Catatan transaksi operasional" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white lg:col-span-2" />
+                                  )}
+                                  <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
+                                  <button type="button" onClick={() => removeGasEntry(entry.id)} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                 </div>
-                                <div title={bank} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank}</div>
-                                <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
-                                  <span className="truncate">{accountNumber}</span>
-                                </div>
-                                <input
-                                  type="text"
-                                  required
-                                  readOnly={index === 0 || !customNoteMode}
-                                  value={note}
-                                  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { need: event.target.value })}
-                                  placeholder="Wajib Isi Catatan"
-                                  aria-label="Catatan pencairan Koperasi Arutala"
-                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${index === 0 || !customNoteMode ? 'bg-slate-800 text-slate-300' : 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100'} ${customNoteMode ? 'lg:col-span-3 lg:min-w-[273px]' : ''} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-cyan-500 ${hasOutputAmount(customNoteMode ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean(note.trim()) ? 'mp-field--has-output' : ''}`}
-                                />
-                                {index === 0 && (
-                                  <>
-                                    <input
-                                      type="text"
-                                      inputMode="numeric"
-                                      required={isCompleteAmount(entry.amount)}
-                                      value={entry.gasQuantity ?? ''}
-                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })}
-                                      placeholder="Jumlah Gas"
-                                      aria-label="Jumlah gas"
-                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500"
-                                    />
-                                    <select
-                                      required={isCompleteAmount(entry.amount)}
-                                      value={entry.gasSize ?? ''}
-                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })}
-                                      aria-label="Ukuran gas"
-                                      className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-slate-950 px-2 text-xs text-slate-100 outline-none transition focus:border-cyan-500"
-                                    >
-                                      <option value="">Ukuran Gas</option>
-                                      <option value="12kg">12 kg</option>
-                                      <option value="50kg">50 kg</option>
-                                    </select>
-                                  </>
-                                )}
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  required
-                                  value={formatNumber(entry.amount)}
-                                  disabled={!rule?.accounts}
-                                  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
-                                  placeholder="Nominal"
-                                  aria-label="Nominal pencairan Koperasi Arutala"
-                                  className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-cyan-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(customNoteMode ? 'OPS HARIAN : ' : 'GAS : ', accountNumber, entry.amount) && Boolean(note.trim()) ? 'mp-field--has-output' : ''}`}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => removeGasEntry(entry.id)}
-                                  disabled={index === 0}
-                                  title="Hapus transaksi tambahan"
-                                  aria-label="Hapus transaksi tambahan"
-                                  className="h-10 w-full rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
-                                >
-                                  ×
-                                </button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+                      {(activeTransaction.arutala_lain_lain ?? []).length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi Lain</div>
+                          {(activeTransaction.arutala_lain_lain ?? []).map((entry) => (
+                            <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/40 p-2">
+                              <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_100px_minmax(130px,1fr)_minmax(110px,0.8fr)_120px_34px]">
+                                <input type="text" required value={entry.need} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'arutala_lain_lain', entry.id, { need: event.target.value })} placeholder="Jenis / catatan transaksi" aria-label="Jenis transaksi lain" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2.5 text-xs text-white" />
+                                <select required value={entry.accountId} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'arutala_lain_lain', entry.id, { accountId: event.target.value })} aria-label="Bank transaksi lain" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Pilih bank</option>{OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}</select>
+                                <input type="text" required value={entry.ownerName} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'arutala_lain_lain', entry.id, { ownerName: sanitizeOwnerName(event.target.value) })} placeholder="Nama pemilik rekening" aria-label="Nama pemilik rekening transaksi lain" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2.5 text-xs text-white" />
+                                <input type="text" required inputMode="numeric" value={entry.accountNumber} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'arutala_lain_lain', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening transaksi lain" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2.5 text-xs text-white" />
+                                <input type="text" required inputMode="numeric" value={formatNumber(entry.amount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'arutala_lain_lain', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal transaksi lain" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
+                                <button type="button" onClick={() => removeArutalaOtherEntry(entry.id)} aria-label="Hapus transaksi lain" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                               </div>
                             </div>
-                          )
-                        })}
-                      </div>
+                          ))}
+                        </div>
+                      )}
+                      {(activeTransaction.gas ?? []).length === 0 && (activeTransaction.arutala_lain_lain ?? []).length === 0 && (
+                        <p className="mt-3 rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-400">Belum ada transaksi. Tekan Tambah Transaksi untuk memulai.</p>
+                      )}
                     </section>
                   )}
 
