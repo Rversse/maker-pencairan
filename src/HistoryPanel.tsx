@@ -114,7 +114,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     } catch (err) { setError(err instanceof Error ? err.message : 'Gagal menyimpan perubahan.') }
     finally { setBusy(false) }
   }
-  const currentOutput = String(currentSnapshot.output ?? '')
   const selectedEvent = useMemo(() => detail?.events ?? [], [detail])
 
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
