@@ -941,3 +941,18 @@ aside [title='Belum diisi']::before {
   }
 }
 
+
+/* PIN rejection feedback mirrors the SIM-SPPG interaction. */
+@keyframes maker-pin-shake {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-6px); }
+  30%, 60%, 90% { transform: translateX(6px); }
+}
+.maker-pin-shake {
+  animation: maker-pin-shake 420ms ease-in-out;
+  border-color: #f43f5e !important;
+  box-shadow: 0 0 0 1px rgb(244 63 94 / 45%), 0 0 12px rgb(244 63 94 / 18%) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .maker-pin-shake { animation: none !important; }
+}
