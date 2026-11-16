@@ -2549,7 +2549,6 @@ function App() {
                             const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                             const bank = rule?.accounts?.bank ?? '-'
                             const accountNumber = rule?.accounts?.account_number ?? '-'
-                            const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
                             return (
                               <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/40 p-2">
                                 <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_85px_minmax(110px,0.8fr)_minmax(120px,1fr)_90px_100px_110px_34px]">
