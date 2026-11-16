@@ -6,6 +6,7 @@ import {
   type MakerAccountRule
 } from './services/master-data'
 import { supabase } from './lib/supabase'
+import HistoryPanel from './HistoryPanel'
 
 type RabEntry = {
   accountId: string
@@ -860,7 +861,7 @@ function makeTransaction(
   }
 }
 
-function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
+function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixedKitchen?: boolean; token: string; role: 'admin' | 'accountant' }) {
   const saved = useMemo(() => readSavedWorkspace(), [])
   const today = useMemo(() => toIsoDate(new Date()), [])
   const savedTransaction = useMemo(() => {
@@ -890,6 +891,7 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
   )
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
+  const [historyOpen, setHistoryOpen] = useState(false)
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
   const [customRabDrafts, setCustomRabDrafts] = useState<Record<string, string[]>>({})
@@ -2120,6 +2122,7 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
               )}
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
+                  <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-emerald-700/70 bg-emerald-950/50 px-3 text-[10px] font-semibold text-emerald-200 shadow-sm transition hover:border-emerald-500">HISTORY</button>
                   <button type="button" onClick={restoreLastDraft} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800">Restore</button>
                   <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800">Reset</button>
                 </div>
@@ -2729,6 +2732,26 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
           )}
         </>
       </div>
+      {historyOpen && selectedKitchen && activeTransaction && (
+        <HistoryPanel
+          token={token}
+          role={role}
+          kitchenId={kitchenId}
+          kitchenName={selectedKitchen.name}
+          transactionDate={activeDate}
+          currentSnapshot={{
+            kitchenId,
+            kitchenName: selectedKitchen.name,
+            transactionDate: activeDate,
+            transaction: activeTransaction,
+            output,
+            totalRab,
+            totalOpsHarian,
+            totalOverall: sumOutputLines(() => true)
+          }}
+          onClose={() => setHistoryOpen(false)}
+        />
+      )}
     </main>
   )
 }

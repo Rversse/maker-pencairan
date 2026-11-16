@@ -288,7 +288,7 @@ export default function AuthApp() {
       </div>
       {auth.user.role === 'admin' && view === 'admin'
         ? <div className="px-3 pb-8 sm:px-5"><AdminPanel token={auth.token} /></div>
-        : <MakerWorkspace fixedKitchen={auth.user.role === 'accountant'} />}
+        : <MakerWorkspace fixedKitchen={auth.user.role === 'accountant'} token={auth.token} role={auth.user.role} />}
     </div>
   )
 }
