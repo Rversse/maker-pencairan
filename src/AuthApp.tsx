@@ -32,6 +32,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -66,7 +67,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
             </label>
           )}
           <label className="block text-sm font-medium text-slate-300">{role === 'admin' ? 'PIN Admin' : 'Password'}
-            <input type="password" autoComplete="current-password" required minLength={role === 'admin' ? 8 : 1} maxLength={256} inputMode={role === 'admin' ? 'numeric' : undefined} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={role === 'admin' ? 'Masukkan PIN Admin' : 'Masukkan password'} className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500" />
+            <input type="password" autoComplete="current-password" required minLength={role === 'admin' ? 8 : 1} maxLength={role === 'admin' ? 12 : 256} pattern={role === 'admin' ? '[0-9]{8,12}' : undefined} inputMode={role === 'admin' ? 'numeric' : undefined} value={password} onChange={(event) => setPassword(event.target.value)} placeholder={role === 'admin' ? 'Masukkan PIN Admin' : 'Masukkan password'} className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500" />
           </label>
           {error && <p role="alert" className="rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
           <button type="submit" data-button-kind="primary" disabled={busy || !password || (role === 'accountant' && !identifier.trim())} className="h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Memeriksa...' : 'Masuk'}</button>
@@ -83,7 +84,7 @@ function ChangePasswordScreen({ onSave, user }: { onSave: (password: string) => 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (password.length < 12) { setError('Password minimal 12 karakter.'); return }
     if (password !== confirm) { setError('Konfirmasi password belum sama.'); return }
@@ -124,7 +125,6 @@ export default function AuthApp() {
   const [auth, setAuth] = useState<AuthState | null>(null)
   const [checking, setChecking] = useState(true)
   const [view, setView] = useState<'workspace' | 'admin'>('workspace')
-  const [error, setError] = useState('')
 
   useEffect(() => {
     let active = true
