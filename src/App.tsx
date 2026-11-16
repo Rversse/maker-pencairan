@@ -860,7 +860,7 @@ function makeTransaction(
   }
 }
 
-function MakerWorkspace() {
+function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
   const saved = useMemo(() => readSavedWorkspace(), [])
   const today = useMemo(() => toIsoDate(new Date()), [])
   const savedTransaction = useMemo(() => {
@@ -1047,6 +1047,12 @@ function MakerWorkspace() {
       void supabase.removeChannel(channel)
     }
   }, [loadMasterData])
+
+  useEffect(() => {
+    if (!fixedKitchen || !masterData || masterData.kitchens.length !== 1) return
+    const assignedKitchen = masterData.kitchens[0]
+    if (kitchenId !== assignedKitchen.id) handleKitchenChange(assignedKitchen.id)
+  }, [fixedKitchen, masterData, kitchenId])
 
   const selectedKitchen = masterData?.kitchens.find(
     (kitchen) => kitchen.id === kitchenId
@@ -2126,7 +2132,27 @@ function MakerWorkspace() {
             </button>
           </header>
 
-          {masterLoading && (
+          {masterData && !masterLoading && !masterError && (
+            <div className="mt-3 mb-2 flex w-fit max-w-full flex-wrap items-end gap-2">
+              <div className="w-[145px] shrink-0">
+                <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
+                <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
+                  <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
+                  <span className="ml-2 whitespace-nowrap text-xs font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
+                  <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                </div>
+              </div>
+              {kitchenId && activeTransaction && (
+                <div className="flex items-end gap-1.5">
+                  <button type="button" onClick={restoreLastDraft} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800">Restore</button>
+                  <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800">Reset</button>
+                </div>
+              )}
+              {historyMessage && <span className="pb-2 text-[10px] text-emerald-300">{historyMessage}</span>}
+            </div>
+          )}
+
+{masterLoading && (
             <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-400">
               Memuat master data...
             </div>
@@ -2156,64 +2182,6 @@ function MakerWorkspace() {
                 ].join(' ')}
               >
                 <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5">
-                  <div className="grid min-w-0 items-end gap-2 sm:grid-cols-[145px_minmax(0,1fr)] lg:grid-cols-[145px_minmax(180px,260px)_auto] lg:justify-between">
-                    <div className="min-w-0">
-                      <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
-                      <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
-                        <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
-                        <span className="ml-2 whitespace-nowrap text-xs font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
-                        <input
-                          ref={dateInputRef}
-                          id="date"
-                          type="date"
-                          value={activeDate}
-                          onChange={(event) => changeActiveDate(event.target.value)}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            openDatePicker()
-                          }}
-                          aria-label="Pilih tanggal transaksi"
-                          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="min-w-0">
-                      <label htmlFor="kitchen" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Dapur</label>
-                      <select
-                        id="kitchen"
-                        value={kitchenId}
-                        title={selectedKitchen?.name ?? 'Pilih dapur'}
-                        onChange={(event) => handleKitchenChange(event.target.value)}
-                        className="h-9 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white outline-none transition hover:border-emerald-500/60 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25"
-                      >
-                        <option value="">Pilih dapur</option>
-                        {masterData.kitchens.map((kitchen) => (
-                          <option key={kitchen.id} value={kitchen.id}>
-                            {kitchen.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="flex min-w-0 items-center gap-1.5 sm:col-span-2 lg:col-span-1">
-                      <button
-                        type="button"
-                        onClick={restoreLastDraft}
-                        className="h-9 min-w-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/30"
-                      >
-                        Restore
-                      </button>
-                      <button
-                        type="button"
-                        onClick={resetWorkspace}
-                        className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500/30"
-                      >
-                        Reset
-                      </button>
-                    </div>
-                  </div>
-
                   {historyMessage && (
                     <div className="mt-1.5 text-[10px] text-emerald-300">
                       {historyMessage}
