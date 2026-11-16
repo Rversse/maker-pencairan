@@ -10,6 +10,7 @@ type Accountant = {
   must_change_credential: boolean
   credential_updated_at: string | null
   kitchen: Kitchen | null
+  login_lock: { failed_attempts: number; locked_at: string | null; last_failed_at: string | null } | null
 }
 type AdminList = {
   accountants: Accountant[]
@@ -124,6 +125,22 @@ export default function AdminPanel({ token }: { token: string }) {
     }
   }
 
+  async function unlockKitchenLogin(account: Accountant) {
+    if (!account.kitchen) return
+    setBusy(account.user_id)
+    setError('')
+    setMessage('')
+    try {
+      await adminRequest(token, { action: 'unlock_kitchen_login', kitchen_id: account.kitchen.id })
+      setMessage('Blokir login dapur ' + account.kitchen.name + ' berhasil dibuka.')
+      await load()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal membuka blokir login.')
+    } finally {
+      setBusy('')
+    }
+  }
+
   async function setAccountStatus(account: Accountant, isActive: boolean) {
     setBusy(account.user_id)
     setError('')
@@ -226,11 +243,14 @@ export default function AdminPanel({ token }: { token: string }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={account.is_active ? 'rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 text-[11px] text-emerald-300' : 'rounded-full border border-rose-700/60 bg-rose-950/40 px-2.5 py-1 text-[11px] text-rose-300'}>{account.is_active ? 'Aktif' : 'Nonaktif'}</span>
                     {account.must_change_credential && <span className="rounded-full border border-amber-700/60 bg-amber-950/30 px-2.5 py-1 text-[11px] text-amber-200">Ganti password</span>}
+                    {account.login_lock?.locked_at && <span className="rounded-full border border-rose-700/70 bg-rose-950/40 px-2.5 py-1 text-[11px] font-semibold text-rose-200">Login diblokir · 5/5</span>}
+                    {!account.login_lock?.locked_at && Boolean(account.login_lock?.failed_attempts) && <span className="rounded-full border border-amber-700/60 bg-amber-950/30 px-2.5 py-1 text-[11px] text-amber-200">Percobaan gagal · {account.login_lock?.failed_attempts}/5</span>}
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_auto_auto]">
                   <div className="flex min-w-0 gap-1.5"><div className="relative min-w-0 flex-1"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.replace(/\s/g, '').slice(0, 16) }))} placeholder="Password baru" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-12 text-xs text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} aria-label={showResetPasswords[account.user_id] ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-9 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={Boolean(showResetPasswords[account.user_id])} /></button></div><button type="button" onClick={() => setResetPasswords((current) => ({ ...current, [account.user_id]: generatePassword(true) }))} className="rounded-lg border border-emerald-700/70 px-2.5 text-[11px] font-semibold text-emerald-200">Acak</button></div>
                   <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset'}</button>
+                  {account.login_lock?.locked_at && <button type="button" disabled={Boolean(busy)} onClick={() => void unlockKitchenLogin(account)} className="rounded-lg border border-rose-700/70 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Buka blokir login'}</button>}
                   <button type="button" disabled={Boolean(busy)} onClick={() => void setAccountStatus(account, !account.is_active)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">{account.is_active ? 'Nonaktifkan' : 'Aktifkan'}</button>
                 </div>
               </article>
