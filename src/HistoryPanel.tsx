@@ -50,6 +50,8 @@ function changedFields(before: Record<string, unknown>, after: Record<string, un
   for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
     if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) delta[key] = after[key] ?? null
   }
+  const oldLines = new Set(String(before.output ?? '').split('\\n').filter(Boolean))
+  delta.incremental_output = String(after.output ?? '').split('\\n').filter(line => line.trim() && !oldLines.has(line)).join('\\n')
   return delta
 }
 
@@ -82,6 +84,14 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       setDetail(result)
     } catch (err) { setError(err instanceof Error ? err.message : 'Detail HISTORY gagal dimuat.') }
     finally { setBusy(false) }
+  }
+  async function copyEventOutput(event: HistoryEvent) {
+    const text = event.event_type === 'NORMAL'
+      ? String(event.snapshot.payload?.output ?? '')
+      : String(event.snapshot.delta?.incremental_output ?? '')
+    if (!text) { setError('Tidak ada baris output baru pada perubahan ini.'); return }
+    try { await navigator.clipboard.writeText(text); setNotice('Output incremental berhasil disalin.') }
+    catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
   async function createHistory() {
     setBusy(true); setError(''); setNotice('')
@@ -126,7 +136,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       {notice && <p role="status" className="mt-3 rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-xs text-emerald-200">{notice}</p>}
       {!detail ? <div className="mt-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Daftar pencairan tanggal ini</h3>
-          {!rows.length && <button disabled={busy || !kitchenId} onClick={() => void createHistory()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">Simpan HISTORY awal</button>}
+          <button disabled={busy || !kitchenId} onClick={() => void createHistory()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">+ Simpan permintaan baru</button>
         </div>
         {busy && <p className="text-xs text-slate-400">Memuat...</p>}
         {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada HISTORY untuk dapur dan tanggal ini.</p>}
@@ -144,7 +154,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">Total Keseluruhan</p><p className="mt-1 text-lg font-semibold">Rp {money(detail.history.payload.totalOverall)}</p></div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3"><h4 className="mb-2 text-xs font-semibold">Output snapshot</h4><pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{String(detail.history.payload.output ?? '')}</pre></div>
-        <div><h4 className="mb-2 text-xs font-semibold">Riwayat versi</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p></div>)}</div></div>
+        <div><h4 className="mb-2 text-xs font-semibold">Riwayat versi</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><button onClick={() => void copyEventOutput(event)} className="mt-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin {event.event_type === 'NORMAL' ? 'output awal' : 'output incremental'}</button></div>)}</div></div>
         {canEdit && <div className="rounded-xl border border-slate-700 bg-slate-900/70 p-3"><h4 className="text-xs font-semibold">Simpan perubahan incremental</h4><div className="mt-2 flex flex-wrap gap-2"><select value={eventType} onChange={e => setEventType(e.target.value as typeof eventType)} className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs">{EVENT_TYPES.map(type => <option key={type}>{type}</option>)}</select><input value={summary} onChange={e => setSummary(e.target.value)} placeholder="Catatan perubahan (opsional)" className="min-w-[180px] flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs" /><button disabled={busy} onClick={() => void saveChange()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">Simpan versi {detail.history.version + 1}</button></div><p className="mt-2 text-[10px] text-slate-500">Hanya field yang berubah dicatat sebagai delta. Batas kunci: {dateTime(detail.lock_at)}.</p></div>}
         {!canEdit && <p className="rounded-lg border border-amber-800/60 bg-amber-950/20 p-3 text-xs text-amber-200">HISTORY terkunci. Hanya Admin yang dapat mengubahnya.</p>}
       </div>}
