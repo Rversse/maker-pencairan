@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import MakerWorkspace from './App'
 import AdminPanel from './AdminPanel'
 import { supabase } from './lib/supabase'
@@ -85,7 +85,6 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
       <div className="w-full max-w-md rounded-2xl border border-slate-700/80 bg-slate-900/90 p-6 shadow-2xl sm:p-8">
         <div className="mb-7 text-center">
-          <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-emerald-700/60 bg-emerald-950/50 text-xl font-black text-emerald-300">M</div>
           <p className="text-lg font-bold tracking-tight text-white">Maker Pencairan</p>
           <h1 className="mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
         </div>
