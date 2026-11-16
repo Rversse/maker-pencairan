@@ -2182,12 +2182,6 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
                 ].join(' ')}
               >
                 <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5">
-                  {historyMessage && (
-                    <div className="mt-1.5 text-[10px] text-emerald-300">
-                      {historyMessage}
-                    </div>
-                  )}
-
                   {kitchenId && activeTransaction && (
                     <>
                       <div className="mt-2 flex min-w-0 items-center justify-between gap-3 border-t border-slate-800/90 pt-2">
