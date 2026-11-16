@@ -98,7 +98,7 @@ Deno.serve(async (request: Request) => {
         return json(request, { error: "Dapur tidak valid" }, 400);
       }
       let query = db.from("maker_drafts")
-        .select("id,kitchen_id,created_by,title,status,transaction_date,version,last_event_at,created_at,updated_at")
+        .select("id,kitchen_id,created_by,title,status,transaction_date,version,payload,last_event_at,created_at,updated_at")
         .order("transaction_date", { ascending: false }).order("created_at", { ascending: false });
       query = query.is("deleted_at", null);
       if (profile.role === "accountant") {
