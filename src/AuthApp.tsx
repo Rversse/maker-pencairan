@@ -32,7 +32,6 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -193,7 +192,6 @@ export default function AuthApp() {
           <button type="button" onClick={() => void logout()} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300">Keluar</button>
         </div>
       </div>
-      {error && <p className="mx-auto max-w-6xl px-4 text-sm text-rose-300">{error}</p>}
       {auth.user.role === 'admin' && view === 'admin'
         ? <div className="px-3 pb-8 sm:px-5"><AdminPanel token={auth.token} /></div>
         : <MakerWorkspace />}
