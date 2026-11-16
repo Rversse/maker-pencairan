@@ -2766,10 +2766,6 @@ function App() {
                                     <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
                                     <span>VA</span>
                                   </label>
-                                  <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
-                                    <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
-                                    <span>VA</span>
-                                  </label>
                                   <input
                                     type="text"
                                     inputMode="numeric"
