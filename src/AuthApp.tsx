@@ -23,8 +23,18 @@ async function authRequest(body: Record<string, unknown>, token?: string): Promi
     headers: token ? { Authorization: `Bearer ${token}` } : undefined
   })
   if (error || data?.error) {
-    const authError = new Error(data?.error ?? error?.message ?? 'Permintaan autentikasi gagal.') as Error & { status?: number }
-    authError.status = (error as unknown as { context?: { status?: number } } | null)?.context?.status
+    const context = (error as unknown as { context?: Response } | null)?.context
+    let serverMessage = data?.error
+    if (!serverMessage && context instanceof Response) {
+      try {
+        const payload = await context.clone().json() as { error?: string; message?: string }
+        serverMessage = payload.error ?? payload.message
+      } catch {
+        // Keep the SDK message when the response body is not JSON.
+      }
+    }
+    const authError = new Error(serverMessage ?? error?.message ?? 'Permintaan autentikasi gagal.') as Error & { status?: number }
+    authError.status = (error as unknown as { context?: Response } | null)?.context?.status
     throw authError
   }
   return data as AuthResponse
