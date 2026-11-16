@@ -150,20 +150,15 @@ Deno.serve(async (request: Request) => {
         return json(request, { error: "Data HISTORY awal tidak lengkap" }, 400);
       }
       if (!(await canAccessKitchen(kitchenId))) return json(request, { error: "Akses dapur ditolak" }, 403);
-      const { data: draft, error } = await db.from("maker_drafts").insert({
-        kitchen_id: kitchenId, created_by: profile.user_id, title: String(body?.title ?? "").slice(0, 160) || null,
-        status: "ready", payload, transaction_date: transactionDate, version: 1, last_event_at: new Date().toISOString(),
-      }).select("*").single();
-      if (error) return json(request, { error: "HISTORY gagal disimpan" }, 503);
-      const { error: eventError } = await db.from("maker_history").insert({
-        kitchen_id: kitchenId, actor_user_id: profile.user_id, draft_id: draft.id,
-        event_type: "NORMAL", summary: "Pencairan awal", snapshot: { version: 1, payload },
+      const { data: result, error } = await db.rpc("maker_history_create_atomic", {
+        p_kitchen_id: kitchenId,
+        p_actor_user_id: profile.user_id,
+        p_title: String(body?.title ?? "").slice(0, 160) || null,
+        p_transaction_date: transactionDate,
+        p_payload: payload,
       });
-      if (eventError) {
-        await db.from("maker_drafts").delete().eq("id", draft.id);
-        return json(request, { error: "HISTORY gagal mencatat riwayat awal" }, 503);
-      }
-      return json(request, { ok: true, history: draft });
+      if (error || !result?.ok) return json(request, { error: "HISTORY gagal disimpan secara utuh" }, 503);
+      return json(request, { ok: true, history: result.history });
     }
 
     if (action === "delete") {
@@ -204,25 +199,22 @@ Deno.serve(async (request: Request) => {
       if (locked && profile.role !== "admin") return json(request, { error: "HISTORY sudah terkunci setelah 24 jam" }, 423);
       if (draft.version !== expectedVersion) return json(request, { error: "HISTORY sudah berubah. Muat ulang sebelum menyimpan.", current_version: draft.version }, 409);
 
-      const nextVersion = draft.version + 1;
-      const event = {
-        kitchen_id: draft.kitchen_id, actor_user_id: profile.user_id, draft_id: draft.id,
-        event_type: eventType, summary: String(body?.summary ?? "").slice(0, 240) || null,
-        snapshot: { version: nextVersion, delta, payload: nextSnapshot },
-      };
-      const { data: insertedEvent, error: eventError } = await db.from("maker_history")
-        .insert(event).select("id").single();
-      if (eventError) return json(request, { error: "Riwayat perubahan gagal disimpan" }, 503);
-
-      const { data: updated, error: updateError } = await db.from("maker_drafts").update({
-        payload: nextSnapshot, version: nextVersion, last_event_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }).eq("id", draft.id).eq("version", expectedVersion).is("deleted_at", null).select("*").maybeSingle();
-      if (updateError || !updated) {
-        await db.from("maker_history").delete().eq("id", insertedEvent.id);
-        return json(request, { error: "HISTORY berubah bersamaan. Muat ulang dan coba lagi." }, 409);
-      }
-      return json(request, { ok: true, history: updated });
+      const { data: result, error: atomicError } = await db.rpc("maker_history_change_atomic", {
+        p_draft_id: draft.id,
+        p_actor_user_id: profile.user_id,
+        p_expected_version: expectedVersion,
+        p_event_type: eventType,
+        p_summary: String(body?.summary ?? "").slice(0, 240) || null,
+        p_delta: delta,
+        p_next_snapshot: nextSnapshot,
+        p_is_admin: profile.role === "admin",
+      });
+      if (atomicError) return json(request, { error: "Perubahan HISTORY gagal disimpan" }, 503);
+      if (result?.reason === "locked") return json(request, { error: "HISTORY sudah terkunci setelah 24 jam" }, 423);
+      if (result?.reason === "version_conflict") return json(request, { error: "HISTORY berubah bersamaan. Muat ulang dan coba lagi.", current_version: result.current_version }, 409);
+      if (result?.reason === "not_found") return json(request, { error: "HISTORY tidak ditemukan" }, 404);
+      if (!result?.ok) return json(request, { error: "Data perubahan HISTORY tidak valid" }, 400);
+      return json(request, { ok: true, history: result.history });
     }
 
     return json(request, { error: "Action tidak dikenal" }, 400);
