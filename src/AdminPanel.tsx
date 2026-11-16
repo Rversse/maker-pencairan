@@ -27,6 +27,25 @@ async function adminRequest<T>(token: string, body: Record<string, unknown>): Pr
   return data as T
 }
 
+function generatePassword(includeSymbols: boolean) {
+  const letters = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
+  const numbers = '23456789'
+  const symbols = '!@#$%^&*()-_=+[]{}?'
+  const pool = letters + numbers + (includeSymbols ? symbols : '')
+  const randomIndex = (max: number) => {
+    const buffer = new Uint32Array(1)
+    crypto.getRandomValues(buffer)
+    return buffer[0] % max
+  }
+  const chars = [letters[randomIndex(letters.length)], numbers[randomIndex(numbers.length)]]
+  while (chars.length < 16) chars.push(pool[randomIndex(pool.length)])
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = randomIndex(i + 1)
+    ;[chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+  return chars.join('')
+}
+
 function EyeIcon({ visible }: { visible: boolean }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />{visible && <path d="m4 4 16 16" />}</svg>
 }
@@ -46,6 +65,7 @@ export default function AdminPanel({ token }: { token: string }) {
   const [kitchenId, setKitchenId] = useState('')
   const [initialPassword, setInitialPassword] = useState('')
   const [showInitialPassword, setShowInitialPassword] = useState(false)
+  const [includeSymbols, setIncludeSymbols] = useState(false)
   const [showResetPasswords, setShowResetPasswords] = useState<Record<string, boolean>>({})
   const [resetPasswords, setResetPasswords] = useState<Record<string, string>>({})
   const [notice, setNotice] = useState<CredentialNotice | null>(null)
@@ -184,9 +204,9 @@ export default function AdminPanel({ token }: { token: string }) {
               </select>
             </label>
             <label className="block text-xs font-medium text-slate-300">Password
-              <div className="relative mt-1.5"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.replace(/\s/g, '').slice(0, 16))} placeholder="Password" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} aria-label={showInitialPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showInitialPassword} /></button></div>
+              <div className="mt-1.5 flex gap-2"><div className="relative min-w-0 flex-1"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.replace(/\s/g, '').slice(0, 16))} placeholder="Password (16 karakter)" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} aria-label={showInitialPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showInitialPassword} /></button></div><button type="button" onClick={() => setInitialPassword(generatePassword(includeSymbols))} className="h-11 shrink-0 rounded-lg border border-emerald-700/70 px-3 text-xs font-semibold text-emerald-200">Acak</button></div>
             </label>
-            <div className="md:col-span-2"><PasswordGuidance value={initialPassword} /></div>
+            <div className="md:col-span-2"><label className="inline-flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={includeSymbols} onChange={(e) => setIncludeSymbols(e.target.checked)} className="accent-emerald-500" />Sertakan simbol saat generate</label><PasswordGuidance value={initialPassword} /></div>
             <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Submit'}</button>
           </div>
         )}
@@ -218,7 +238,7 @@ export default function AdminPanel({ token }: { token: string }) {
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_auto_auto]">
-                  <div className="relative"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.replace(/\s/g, '').slice(0, 16) }))} placeholder="Password baru" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-12 text-xs text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} aria-label={showResetPasswords[account.user_id] ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-9 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={Boolean(showResetPasswords[account.user_id])} /></button></div>
+                  <div className="flex min-w-0 gap-1.5"><div className="relative min-w-0 flex-1"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.replace(/\s/g, '').slice(0, 16) }))} placeholder="Password baru" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-12 text-xs text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} aria-label={showResetPasswords[account.user_id] ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-9 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={Boolean(showResetPasswords[account.user_id])} /></button></div><button type="button" onClick={() => setResetPasswords((current) => ({ ...current, [account.user_id]: generatePassword(includeSymbols) }))} className="rounded-lg border border-emerald-700/70 px-2.5 text-[11px] font-semibold text-emerald-200">Acak</button></div>
                   <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset'}</button>
                   <button type="button" disabled={Boolean(busy)} onClick={() => void setAccountStatus(account, !account.is_active)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">{account.is_active ? 'Nonaktifkan' : 'Aktifkan'}</button>
                 </div>
