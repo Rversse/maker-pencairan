@@ -173,15 +173,6 @@ export default function AdminPanel({ token }: { token: string }) {
   return (
     <section className="mx-auto w-full max-w-5xl space-y-4">
       {toast && <div role="status" className="fixed bottom-5 right-5 z-50 rounded-xl border border-emerald-600/60 bg-slate-900 px-4 py-3 text-sm text-emerald-100 shadow-2xl">{toast}</div>}
-      <div className="rounded-2xl border border-slate-700/80 bg-slate-900/80 p-4 shadow-xl sm:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">Manajemen Akuntan</p>
-          </div>
-          <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} aria-label="Muat ulang daftar akun" title="Muat ulang" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-600 bg-slate-800/70 text-slate-200 transition hover:border-emerald-500 hover:text-emerald-300 disabled:opacity-40"><svg viewBox="0 0 24 24" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5" /><path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3" /></svg></button>
-        </div>
-      </div>
-
       {error && <div role="alert" className="rounded-xl border border-rose-700/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</div>}
       {message && <div role="status" className="rounded-xl border border-emerald-700/50 bg-emerald-950/30 p-3 text-sm text-emerald-200">{message}</div>}
 
