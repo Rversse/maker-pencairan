@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import MakerWorkspace from './App'
 import AdminPanel from './AdminPanel'
 import { supabase } from './lib/supabase'
@@ -34,7 +34,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setBusy(true)
     setError('')
