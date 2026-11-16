@@ -107,6 +107,20 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     } catch (err) { setError(err instanceof Error ? err.message : 'Gagal menyimpan HISTORY.') }
     finally { setBusy(false) }
   }
+  async function deleteHistory() {
+    if (!detail || role !== "admin") return
+    const confirmed = window.confirm("Hapus transaksi HISTORY ini? Transaksi tidak akan tampil lagi di daftar. Tindakan ini berlaku untuk status terkunci maupun belum terkunci.")
+    if (!confirmed) return
+    setBusy(true); setError(''); setNotice('')
+    try {
+      await historyRequest(token, { action: 'delete', draft_id: detail.history.id })
+      setDetail(null)
+      setNotice('Transaksi berhasil dihapus dari HISTORY.')
+      await load()
+    } catch (err) { setError(err instanceof Error ? err.message : 'Transaksi gagal dihapus.') }
+    finally { setBusy(false) }
+  }
+
   async function saveChange() {
     if (!detail) return
     const before = detail.history.payload
@@ -148,7 +162,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         {rows.length > 0 && <div className="flex flex-wrap justify-end gap-x-5 gap-y-1 rounded-xl border border-slate-700 bg-slate-900 p-3 text-right text-xs"><span>Total RAB <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalRab ?? 0), 0))}</strong></span><span>Total OPS <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOpsHarian ?? 0), 0))}</strong></span><span>Total keseluruhan <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOverall ?? 0), 0))}</strong></span></div>}
       </div> : <div className="mt-4 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{detail.history.title || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">Versi {detail.history.version} · {detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'}</p></div>
+          <div className="flex flex-wrap gap-2">
+            {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali ke daftar</button>
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">Total RAB</p><p className="mt-1 text-lg font-semibold">Rp {money(detail.history.payload.totalRab)}</p></div>
