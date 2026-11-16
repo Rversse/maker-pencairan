@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 
 type Kitchen = { id: string; name: string; is_active: boolean }
-type Accountant = {
+type Akuntan = {
   user_id: string
   display_name: string
   is_active: boolean
@@ -12,7 +12,7 @@ type Accountant = {
   kitchen: Kitchen | null
 }
 type AdminList = {
-  accountants: Accountant[]
+  akuntans: Accountant[]
   available_kitchens: Kitchen[]
 }
 type CredentialNotice = { title: string; email: string; password: string }
@@ -28,13 +28,15 @@ async function adminRequest<T>(token: string, body: Record<string, unknown>): Pr
 }
 
 export default function AdminPanel({ token }: { token: string }) {
-  const [data, setData] = useState<AdminList>({ accountants: [], available_kitchens: [] })
+  const [data, setData] = useState<AdminList>({ akuntans: [], available_kitchens: [] })
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   const [kitchenId, setKitchenId] = useState('')
   const [initialPassword, setInitialPassword] = useState('')
+  const [showInitialPassword, setShowInitialPassword] = useState(false)
+  const [showResetPasswords, setShowResetPasswords] = useState<Record<string, boolean>>({})
   const [resetPasswords, setResetPasswords] = useState<Record<string, string>>({})
   const [notice, setNotice] = useState<CredentialNotice | null>(null)
 
@@ -172,7 +174,7 @@ export default function AdminPanel({ token }: { token: string }) {
               </select>
             </label>
             <label className="block text-xs font-medium text-slate-300">Password awal dari Bitwarden
-              <input type="password" autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.slice(0, 16))} placeholder="8–16 karakter, tanpa spasi" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white placeholder:text-slate-500" />
+              <div className="relative mt-1.5"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.slice(0, 16))} placeholder="8–16 karakter, tanpa spasi" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white placeholder:text-slate-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-xs text-slate-300 shadow-none">{showInitialPassword ? 'Sembunyikan' : 'Tampilkan'}</button></div>
             </label>
             <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Buat akun'}</button>
           </div>
@@ -205,7 +207,7 @@ export default function AdminPanel({ token }: { token: string }) {
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_auto_auto]">
-                  <input type="password" autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.slice(0, 16) }))} placeholder="Password baru dari Bitwarden" className="h-10 min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs text-white placeholder:text-slate-500" />
+                  <div className="relative"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.slice(0, 16) }))} placeholder="Password baru dari Bitwarden" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-20 text-xs text-white placeholder:text-slate-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-[10px] text-slate-300 shadow-none">{showResetPasswords[account.user_id] ? 'Sembunyikan' : 'Tampilkan'}</button></div>
                   <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset password'}</button>
                   <button type="button" disabled={Boolean(busy)} onClick={() => void setAccountStatus(account, !account.is_active)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">{account.is_active ? 'Nonaktifkan' : 'Aktifkan'}</button>
                 </div>
