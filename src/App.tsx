@@ -2122,7 +2122,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               )}
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
-                  <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-emerald-700/70 bg-emerald-950/50 px-3 text-[10px] font-semibold text-emerald-200 shadow-sm transition hover:border-emerald-500">HISTORY</button>
+                  <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-emerald-700/70 bg-emerald-950/50 px-3 text-[10px] font-semibold text-emerald-200 shadow-sm transition hover:border-emerald-500">Riwayat</button>
                   <button type="button" onClick={restoreLastDraft} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800">Restore</button>
                   <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800">Reset</button>
                 </div>
