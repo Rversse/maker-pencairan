@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 
 type Kitchen = { id: string; name: string; is_active: boolean }
-type Akuntan = {
+type Accountant = {
   user_id: string
   display_name: string
   is_active: boolean
