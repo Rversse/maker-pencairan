@@ -1711,7 +1711,6 @@ function App() {
       kind:
         | 'rab'
         | 'pencairan_harian'
-        | 'sewa_kendaraan'
         | 'gas'
         | 'operasional_harian'
         | 'lain_lain'
@@ -2639,7 +2638,9 @@ function App() {
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
                                 <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]">
-                                  {custom ? (
+                                  {custom ? (isArutala ? (
+                                    <div className="flex h-10 w-full items-center justify-center rounded-md border border-cyan-700/60 bg-cyan-950/40 px-2 text-center text-[10px] font-semibold text-cyan-100">Koperasi Arutala</div>
+                                  ) : (
                                     <select
                                       value={selectedType}
                                       onChange={(event) => {
@@ -2649,6 +2650,7 @@ function App() {
                                           : getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                                         updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, {
                                           operationalRuleType: nextType ?? '',
+                                          useArutalaAccount: false,
                                           ownerName: nextMapping?.ownerName ?? '',
                                           bank: nextMapping?.bank ?? '',
                                           accountNumber: nextMapping?.accountNumber ?? '',
@@ -2666,15 +2668,15 @@ function App() {
                                       {availableAccountant && <option value="gaji_akuntan">Gaji AK</option>}
                                       {availableNutritionist && <option value="gaji_ahli_gizi">Gaji AG</option>}
                                     </select>
-                                  ) : (
+                                  )) : (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
                                   )}
-                                  {custom && !isMappedSalary ? (
+                                  {custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" value={ownerName} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{ownerName || 'Mapping belum tersedia'}</span></div>
                                   )}
-                                  {custom && !isMappedSalary ? (
+                                  {custom && !isMappedSalary && !isArutala ? (
                                     <select value={entry.bank ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-md border border-slate-700/90 bg-slate-950 px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
                                       <option value="">Pilih bank</option>
                                       {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
@@ -2682,7 +2684,7 @@ function App() {
                                   ) : (
                                     <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                   )}
-                                  {custom && !isMappedSalary ? (
+                                  {custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" inputMode="numeric" value={entry.accountNumber} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={accountNumber || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
@@ -2697,15 +2699,17 @@ function App() {
                                     aria-label="Catatan Operasional Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
+                                  {custom ? (
                                   <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
                                     <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
                                     <span>VA</span>
                                   </label>
+                                  ) : <span aria-hidden="true" className="h-10" />}
                                   <input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!custom ? !mapping : isMappedSalary && !selectedMapping}
+                                    disabled={!custom ? !mapping : isArutala ? !arutalaAccount : isMappedSalary && !selectedMapping}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
