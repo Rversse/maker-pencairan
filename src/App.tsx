@@ -860,7 +860,7 @@ function makeTransaction(
   }
 }
 
-function App() {
+function MakerWorkspace() {
   const saved = useMemo(() => readSavedWorkspace(), [])
   const today = useMemo(() => toIsoDate(new Date()), [])
   const savedTransaction = useMemo(() => {
@@ -2803,4 +2803,4 @@ function App() {
   )
 }
 
-export default App
+export default MakerWorkspace
