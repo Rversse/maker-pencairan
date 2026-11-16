@@ -890,7 +890,7 @@ function App() {
   )
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
-  const [arutalaAddMenuOpen, setArutalaAddMenuOpen] = useState(false)
+  const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
   const [customRabDrafts, setCustomRabDrafts] = useState<Record<string, string[]>>({})
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -1275,7 +1275,7 @@ function App() {
         need: ''
       }]
     })
-    setArutalaAddMenuOpen(false)
+    setOperationalAddMenuOpen(false)
   }
 
   function addGasEntry() {
@@ -1298,7 +1298,7 @@ function App() {
     updateTransaction(activeTransaction.id, {
       gas: [...currentEntries, { ...emptySimpleEntry(nextId), accountId: rule.account_id, ownerName: accountName, bank: rule.accounts.bank ?? '', accountNumber: rule.accounts.account_number ?? '', need: 'Gas', gasQuantity: '', gasSize: '', customAccount: false, transactionType: 'gas' }]
     })
-    setArutalaAddMenuOpen(false)
+    setOperationalAddMenuOpen(false)
   }
 
   function removeGasEntry(id: number) {
@@ -1326,7 +1326,7 @@ function App() {
         need: ''
       }]
     })
-    setArutalaAddMenuOpen(false)
+    setOperationalAddMenuOpen(false)
   }
 
   function removeOperationalEntry(id: number) {
@@ -1980,7 +1980,7 @@ function App() {
     const gasEntries = activeTransaction.gas ?? []
     if (gasMapping) {
       outputChecks.push({
-        label: 'Pencairan Koperasi Arutala',
+        label: 'Pencairan Gas',
         complete: Boolean(gasMapping.accounts) &&
           gasEntries.filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length <= 2 &&
           (gasEntries.length === 0 || gasEntries.some((entry) => isCompleteAmount(entry.amount)))
@@ -2442,7 +2442,7 @@ function App() {
                     <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
-                          <h2 className="text-base font-semibold text-white">Pencairan Koperasi Arutala</h2>
+                          <h2 className="text-base font-semibold text-white">Pencairan Gas</h2>
                           <p className="mt-0.5 text-[11px] text-slate-400">Khusus transaksi GAS. Maksimal 2 transaksi per tanggal.</p>
                         </div>
                         <button
@@ -2484,15 +2484,15 @@ function App() {
                     </section>
                   )}
 
-                  <section className={`mp-card relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${arutalaAddMenuOpen ? 'z-40' : 'z-0'}`}>
+                  <section className={`mp-card relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
                     <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-base font-semibold text-white">Operasional Harian</h2>
+                      <h2 className="text-base font-semibold text-white">Pencairan Operasional Harian</h2>
                       <div className="relative">
-                        <button type="button" aria-expanded={arutalaAddMenuOpen} onClick={() => setArutalaAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
-                        {arutalaAddMenuOpen && (
+                        <button type="button" aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
+                        {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
-                            <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Transaksi Lain</button>
-                            <button type="button" onClick={addArutalaOtherEntry} disabled={!gasRules[0]?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Tambah Transaksi Arutala</button>
+                            <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
+                            <button type="button" onClick={addArutalaOtherEntry} disabled={!gasRules[0]?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
                           </div>
                         )}
                       </div>
