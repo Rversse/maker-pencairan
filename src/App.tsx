@@ -822,6 +822,9 @@ function normalizeTransaction(
       )
     : []
 
+  const normalizedGasEntries = normalizedGas.filter((entry) => entry.transactionType !== 'operasional_harian')
+  const legacyArutalaOpsFromGas = normalizedGas.filter((entry) => entry.transactionType === 'operasional_harian')
+
   const normalizedOthers = Array.isArray(transaction.lain_lain)
     ? transaction.lain_lain.map((entry) => ({
         ...entry,
@@ -877,7 +880,7 @@ function normalizeTransaction(
   const arutalaLainLain = Array.isArray(transaction.arutala_lain_lain)
     ? transaction.arutala_lain_lain.map((entry) => ({ ...entry, transactionType: 'lain_lain' as const, accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''), ownerName: entry.ownerName ?? '' }))
     : []
-  const migratedArutala: SimpleEntry[] = arutalaLainLain.map((entry, index) => ({
+  const migratedArutala: SimpleEntry[] = [...legacyArutalaOpsFromGas, ...arutalaLainLain].map((entry, index) => ({
     ...createOperationalEntry(lastOpsId + migratedLainLain.length + index + 1),
     ...entry,
     useArutalaAccount: true,
@@ -901,7 +904,7 @@ function normalizeTransaction(
     ...transaction,
     date: transaction.date || fallbackDate,
     rab: Array.isArray(transaction.rab) ? transaction.rab : [],
-    gas: normalizedGas,
+    gas: normalizedGasEntries,
     operasional: operational,
     pencairan_harian: normalizedSewa.concat(
       rawDailyPayments.filter((entry) => entry.category === 'gaji')
@@ -911,7 +914,7 @@ function normalizeTransaction(
     arutala_lain_lain: [],
     arutala_by_date: {
       ...(transaction.arutala_by_date ?? {}),
-      [transaction.date || fallbackDate]: { gas: normalizedGas, lain_lain: migratedArutala }
+      [transaction.date || fallbackDate]: { gas: normalizedGasEntries, lain_lain: migratedArutala }
     },
     opsRealAmount: typeof transaction.opsRealAmount === 'string' ? transaction.opsRealAmount : '',
     legacy_gaji: legacyGaji
@@ -1597,8 +1600,10 @@ function App() {
       lain_lain: (activeTransaction.operasional ?? []).filter((entry) => entry.useArutalaAccount)
     }
     const nextBucket = dateBuckets[nextDate] ?? { gas: [], lain_lain: [] }
+    const nextLegacyArutalaOpsFromGas = nextBucket.gas.filter((entry) => entry.transactionType === 'operasional_harian')
+    const nextGasEntries = nextBucket.gas.filter((entry) => entry.transactionType !== 'operasional_harian')
     const baseOperational = (activeTransaction.operasional ?? []).filter((entry) => !entry.useArutalaAccount)
-    const nextArutalaEntries = nextBucket.lain_lain.map((entry, index) => ({
+    const nextArutalaEntries = [...nextLegacyArutalaOpsFromGas, ...nextBucket.lain_lain].map((entry, index) => ({
       ...createOperationalEntry(Math.max(0, ...baseOperational.map((item) => item.id)) + index + 1),
       ...entry,
       useArutalaAccount: true,
@@ -1609,7 +1614,7 @@ function App() {
     updateTransaction(activeTransaction.id, {
       date: nextDate,
       arutala_by_date: { ...dateBuckets, [activeTransaction.date]: currentBucket },
-      gas: nextBucket.gas,
+      gas: nextGasEntries,
       arutala_lain_lain: [],
       operasional: baseOperational.concat(nextArutalaEntries)
     })
