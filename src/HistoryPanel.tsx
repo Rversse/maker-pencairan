@@ -8,6 +8,7 @@ type HistoryRow = {
   status: string
   transaction_date: string
   version: number
+  payload?: Record<string, unknown>
   created_at: string
   updated_at: string
 }
@@ -140,10 +141,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </div>
         {busy && <p className="text-xs text-slate-400">Memuat...</p>}
         {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada HISTORY untuk dapur dan tanggal ini.</p>}
-        {rows.map(row => <button key={row.id} onClick={() => void openDetail(row.id)} className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-left hover:border-emerald-700">
+        {rows.map(row => <button key={row.id} onClick={() => void openDetail(row.id)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-left hover:border-emerald-700">
           <span><span className="block text-sm font-semibold">{row.title || 'Pencairan'}</span><span className="mt-1 block text-[11px] text-slate-400">Versi {row.version} · Dibuat {dateTime(row.created_at)}</span></span>
-          <span className="text-xs text-emerald-300">Buka</span>
+          <span className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300"><span>RAB Rp {money(row.payload?.totalRab)}</span><span>OPS Rp {money(row.payload?.totalOpsHarian)}</span><span>Total Rp {money(row.payload?.totalOverall)}</span><span className="font-semibold text-emerald-300">Buka</span></span>
         </button>)}
+        {rows.length > 0 && <div className="flex flex-wrap justify-end gap-x-5 gap-y-1 rounded-xl border border-slate-700 bg-slate-900 p-3 text-right text-xs"><span>Total RAB <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalRab ?? 0), 0))}</strong></span><span>Total OPS <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOpsHarian ?? 0), 0))}</strong></span><span>Total keseluruhan <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOverall ?? 0), 0))}</strong></span></div>}
       </div> : <div className="mt-4 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{detail.history.title || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">Versi {detail.history.version} · {detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'}</p></div>
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali ke daftar</button>
