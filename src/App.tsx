@@ -1700,7 +1700,7 @@ function App() {
 
       // All entries in this section are paid through the same Arutala cooperative account.
       const bank = getOutputBank(arutalaAccount?.bank ?? '')
-      const accountNumber = (arutalaAccount?.account_number ?? '').trim()
+      const accountNumber = (arutalaAccount?.account_number ?? '-').trim() || '-'
       const ownerName = (arutalaAccount?.name ?? '').trim()
       if (!bank || !accountNumber || !ownerName) continue
 
