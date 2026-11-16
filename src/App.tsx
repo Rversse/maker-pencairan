@@ -842,7 +842,7 @@ function normalizeTransaction(
     ownerName: entry.ownerName ?? '',
     bank: entry.bank ?? '',
     customAccount: index > 0,
-    need: index === 0 ? 'Ops Harian' : (entry.need ?? ''),
+    need: index === 0 && !entry.useArutalaAccount ? 'Ops Harian' : (entry.need ?? ''),
     transactionType: 'operasional_harian'
   })
   const oldOpsTotal = legacyOps.reduce(
@@ -873,11 +873,19 @@ function normalizeTransaction(
       need: entry.need.trim() || 'Biaya Ops Harian',
       customAccount: true
     }))
-  const operational = baseOperational.concat(migratedLainLain)
   const lain_lain = [emptySimpleEntry(1)]
   const arutalaLainLain = Array.isArray(transaction.arutala_lain_lain)
     ? transaction.arutala_lain_lain.map((entry) => ({ ...entry, transactionType: 'lain_lain' as const, accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''), ownerName: entry.ownerName ?? '' }))
     : []
+  const migratedArutala: SimpleEntry[] = arutalaLainLain.map((entry, index) => ({
+    ...createOperationalEntry(lastOpsId + migratedLainLain.length + index + 1),
+    ...entry,
+    useArutalaAccount: true,
+    customAccount: true,
+    operationalRuleType: '',
+    transactionType: 'operasional_harian'
+  }))
+  const operational = baseOperational.concat(migratedLainLain, migratedArutala)
   const legacyGaji = Array.isArray(transaction.legacy_gaji)
     ? transaction.legacy_gaji.map((entry) => ({
         ...entry,
@@ -900,10 +908,10 @@ function normalizeTransaction(
     ),
     sewa_kendaraan: normalizedVehicle,
     lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
-    arutala_lain_lain: arutalaLainLain,
+    arutala_lain_lain: [],
     arutala_by_date: {
       ...(transaction.arutala_by_date ?? {}),
-      [transaction.date || fallbackDate]: { gas: normalizedGas, lain_lain: arutalaLainLain }
+      [transaction.date || fallbackDate]: { gas: normalizedGas, lain_lain: migratedArutala }
     },
     opsRealAmount: typeof transaction.opsRealAmount === 'string' ? transaction.opsRealAmount : '',
     legacy_gaji: legacyGaji
@@ -1248,12 +1256,12 @@ function App() {
         transaction.id === transactionId
           ? (() => {
               const nextTransaction = { ...transaction, ...update }
-              if (!('arutala_by_date' in update) && ('gas' in update || 'arutala_lain_lain' in update)) {
+              if (!('arutala_by_date' in update) && ('gas' in update || 'operasional' in update || 'arutala_lain_lain' in update)) {
                 nextTransaction.arutala_by_date = {
                   ...(transaction.arutala_by_date ?? {}),
                   [nextTransaction.date]: {
                     gas: nextTransaction.gas ?? [],
-                    lain_lain: nextTransaction.arutala_lain_lain ?? []
+                    lain_lain: (nextTransaction.operasional ?? []).filter((entry) => entry.useArutalaAccount)
                   }
                 }
               }
@@ -1304,12 +1312,16 @@ function App() {
           entry.id === id ? { ...entry, ...update } : entry
         )
         const nextTransaction = { ...transaction, [section]: nextEntries }
-        if (section === 'gas' || section === 'arutala_lain_lain') {
+        if (section === 'gas' || section === 'operasional' || section === 'arutala_lain_lain') {
           nextTransaction.arutala_by_date = {
             ...(transaction.arutala_by_date ?? {}),
             [transaction.date]: {
               gas: section === 'gas' ? nextEntries as SimpleEntry[] : transaction.gas ?? [],
-              lain_lain: section === 'arutala_lain_lain' ? nextEntries as SimpleEntry[] : transaction.arutala_lain_lain ?? []
+              lain_lain: section === 'operasional'
+                ? (nextEntries as SimpleEntry[]).filter((entry) => entry.useArutalaAccount)
+                : section === 'arutala_lain_lain'
+                  ? nextEntries as SimpleEntry[]
+                  : (transaction.operasional ?? []).filter((entry) => entry.useArutalaAccount)
             }
           }
         }
@@ -1352,9 +1364,12 @@ function App() {
         accountNumber: mapping?.accountNumber ?? '',
         customAccount: true,
         operationalRuleType: '',
+        useArutalaAccount: false,
+        isVirtualAccount: false,
         need: ''
       }]
     })
+    setArutalaAddMenuOpen(false)
   }
 
   function addGasEntry() {
@@ -1387,15 +1402,25 @@ function App() {
 
   function addArutalaOtherEntry() {
     if (!activeTransaction) return
-    const entries = activeTransaction.arutala_lain_lain ?? []
+    const entries = activeTransaction.operasional ?? []
     const nextId = Math.max(0, ...entries.map((entry) => entry.id)) + 1
-    updateTransaction(activeTransaction.id, { arutala_lain_lain: [...entries, emptyOtherEntry(nextId)] })
+    const account = gasRules[0]?.accounts
+    const ownerName = gasRules[0]?.supplier?.business_name || account?.name || 'Koperasi Arutala'
+    updateTransaction(activeTransaction.id, {
+      operasional: [...entries, {
+        ...createOperationalEntry(nextId),
+        accountId: gasRules[0]?.account_id ?? '',
+        ownerName,
+        bank: account?.bank ?? '',
+        accountNumber: account?.account_number ?? '',
+        customAccount: true,
+        operationalRuleType: '',
+        useArutalaAccount: true,
+        isVirtualAccount: false,
+        need: ''
+      }]
+    })
     setArutalaAddMenuOpen(false)
-  }
-
-  function removeArutalaOtherEntry(id: number) {
-    if (!activeTransaction) return
-    updateTransaction(activeTransaction.id, { arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).filter((entry) => entry.id !== id) })
   }
 
   function removeOperationalEntry(id: number) {
@@ -1569,14 +1594,24 @@ function App() {
     const dateBuckets = activeTransaction.arutala_by_date ?? {}
     const currentBucket: ArutalaDateBucket = {
       gas: activeTransaction.gas ?? [],
-      lain_lain: activeTransaction.arutala_lain_lain ?? []
+      lain_lain: (activeTransaction.operasional ?? []).filter((entry) => entry.useArutalaAccount)
     }
     const nextBucket = dateBuckets[nextDate] ?? { gas: [], lain_lain: [] }
+    const baseOperational = (activeTransaction.operasional ?? []).filter((entry) => !entry.useArutalaAccount)
+    const nextArutalaEntries = nextBucket.lain_lain.map((entry, index) => ({
+      ...createOperationalEntry(Math.max(0, ...baseOperational.map((item) => item.id)) + index + 1),
+      ...entry,
+      useArutalaAccount: true,
+      customAccount: true,
+      operationalRuleType: '',
+      transactionType: 'operasional_harian' as const
+    }))
     updateTransaction(activeTransaction.id, {
       date: nextDate,
       arutala_by_date: { ...dateBuckets, [activeTransaction.date]: currentBucket },
       gas: nextBucket.gas,
-      arutala_lain_lain: nextBucket.lain_lain
+      arutala_lain_lain: [],
+      operasional: baseOperational.concat(nextArutalaEntries)
     })
     setCopyMessage('')
   }
