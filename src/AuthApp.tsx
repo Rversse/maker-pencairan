@@ -81,7 +81,8 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
       await onLogin(selectedRole === 'admin' ? 'admin@internal.com' : nextIdentifier.trim().toLowerCase(), nextPassword)
     } catch (err) {
       const status = (err as Error & { status?: number })?.status
-      const message = err instanceof Error ? err.message : 'Login gagal. Periksa kembali kredensial.'
+      const rawMessage = err instanceof Error ? err.message : 'Login gagal.'
+      const message = selectedRole === 'accountant' && status === 401 ? 'Email atau Password salah' : rawMessage
       if (selectedRole === 'admin' && status === 401) {
         setPassword('')
         setPinError(true)
