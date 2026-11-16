@@ -84,10 +84,14 @@ Deno.serve(async (request: Request) => {
     const action = String(body?.action ?? "");
     const canAccessKitchen = async (kitchenId: string): Promise<boolean> => {
       if (profile.role === "admin") return true;
-      const { data, error } = await db.from("maker_assignments")
+      const { data: assignment, error: assignmentError } = await db.from("maker_assignments")
         .select("id").eq("maker_user_id", profile.user_id).eq("kitchen_id", kitchenId).maybeSingle();
-      if (error) throw new Error("Assignment service unavailable");
-      return Boolean(data);
+      if (assignmentError) throw new Error("Assignment service unavailable");
+      if (!assignment) return false;
+      const { data: kitchen, error: kitchenError } = await db.from("kitchens")
+        .select("id").eq("id", kitchenId).eq("is_active", true).maybeSingle();
+      if (kitchenError) throw new Error("Kitchen service unavailable");
+      return Boolean(kitchen);
     };
 
     if (action === "list") {
@@ -102,12 +106,17 @@ Deno.serve(async (request: Request) => {
         .order("transaction_date", { ascending: false }).order("created_at", { ascending: false });
       query = query.is("deleted_at", null);
       if (profile.role === "accountant") {
-        const { data: assignments, error } = await db.from("maker_assignments")
+        const { data: assignments, error: assignmentError } = await db.from("maker_assignments")
           .select("kitchen_id").eq("maker_user_id", profile.user_id);
-        if (error) return json(request, { error: "Assignment service unavailable" }, 503);
-        const ids = (assignments ?? []).map((row) => row.kitchen_id);
-        if (!ids.length) return json(request, { ok: true, histories: [] });
-        query = query.in("kitchen_id", ids);
+        if (assignmentError) return json(request, { error: "Assignment service unavailable" }, 503);
+        const assignedIds = (assignments ?? []).map((row) => row.kitchen_id);
+        if (!assignedIds.length) return json(request, { ok: true, histories: [] });
+        const { data: activeKitchens, error: kitchenError } = await db.from("kitchens")
+          .select("id").in("id", assignedIds).eq("is_active", true);
+        if (kitchenError) return json(request, { error: "Kitchen service unavailable" }, 503);
+        const activeIds = (activeKitchens ?? []).map((row) => row.id);
+        if (!activeIds.length) return json(request, { ok: true, histories: [] });
+        query = query.in("kitchen_id", activeIds);
       }
       if (kitchenId) query = query.eq("kitchen_id", kitchenId);
       if (dateFrom) {
