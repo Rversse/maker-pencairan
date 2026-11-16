@@ -195,7 +195,8 @@ Deno.serve(async (request: Request) => {
           !nextSnapshot || typeof nextSnapshot !== "object" || Array.isArray(nextSnapshot)) {
         return json(request, { error: "Data perubahan HISTORY tidak valid" }, 400);
       }
-      const { data: draft, error } = await db.from("maker_drafts").select("*").eq("id", draftId).maybeSingle();
+      const { data: draft, error } = await db.from("maker_drafts").select("*")
+        .eq("id", draftId).is("deleted_at", null).maybeSingle();
       if (error) return json(request, { error: "HISTORY tidak dapat diperiksa" }, 503);
       if (!draft) return json(request, { error: "HISTORY tidak ditemukan" }, 404);
       if (!(await canAccessKitchen(draft.kitchen_id))) return json(request, { error: "Akses dapur ditolak" }, 403);
@@ -216,7 +217,7 @@ Deno.serve(async (request: Request) => {
       const { data: updated, error: updateError } = await db.from("maker_drafts").update({
         payload: nextSnapshot, version: nextVersion, last_event_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }).eq("id", draft.id).eq("version", expectedVersion).select("*").maybeSingle();
+      }).eq("id", draft.id).eq("version", expectedVersion).is("deleted_at", null).select("*").maybeSingle();
       if (updateError || !updated) {
         await db.from("maker_history").delete().eq("id", insertedEvent.id);
         return json(request, { error: "HISTORY berubah bersamaan. Muat ulang dan coba lagi." }, 409);
