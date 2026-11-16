@@ -53,7 +53,8 @@ Deno.serve(async (request: Request) => {
     if(rulesResult.error||suppliersResult.error||operationalRulesResult.error||operationalAccountsResult.error) return respond(request,{error:"Unable to load master data"},500);
     const supplierMap=new Map((suppliersResult.data??[]).map((supplier)=>[supplier.id,supplier]));
     const resolvedRules=(rulesResult.data??[]).map((rule)=>{
-      const account=rule.accounts as {id:string;name:string;bank:string|null;account_number:string|null;supplier_id:string|null;account_category:string|null}|null;
+      const accountRow = Array.isArray(rule.accounts) ? rule.accounts[0] ?? null : rule.accounts;
+      const account = accountRow as {id:string;name:string;bank:string|null;account_number:string|null;supplier_id:string|null;account_category:string|null}|null;
       const supplier=account?.supplier_id?supplierMap.get(account.supplier_id)??null:null;
       return {kitchen_id:rule.kitchen_id,account_id:rule.account_id,flow_type:rule.flow_type,accounts:account,supplier:supplier?{id:supplier.id,business_name:supplier.business_name,owner_name:supplier.owner_name,product_type:supplier.product_type,product_types:splitProductTypes(supplier.product_type)}:null};
     });
