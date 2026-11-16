@@ -1093,6 +1093,12 @@ function App() {
       })
   }, [masterData, kitchenId])
 
+  const arutalaGasRule = gasRules.find((rule) =>
+    (rule.accounts?.name ?? '').trim().toLocaleLowerCase('id-ID') === 'koperasi arutala' &&
+    (rule.accounts?.bank ?? '').trim().toUpperCase() === 'BNI' &&
+    (rule.accounts?.account_number ?? '').replace(/\D/g, '') === '1985322260'
+  )
+
   const activeTransaction =
     transactions.find(
       (transaction) => transaction.id === activeTransactionId
@@ -1287,7 +1293,7 @@ function App() {
       window.setTimeout(() => setHistoryMessage(''), 2200)
       return
     }
-    const rule = gasRules[0]
+    const rule = arutalaGasRule
     if (!rule?.accounts) {
       setHistoryMessage('Mapping rekening GAS belum tersedia.')
       window.setTimeout(() => setHistoryMessage(''), 2200)
@@ -1310,12 +1316,12 @@ function App() {
     if (!activeTransaction) return
     const entries = activeTransaction.operasional ?? []
     const nextId = Math.max(0, ...entries.map((entry) => entry.id)) + 1
-    const account = gasRules[0]?.accounts
-    const ownerName = gasRules[0]?.supplier?.business_name || account?.name || 'Koperasi Arutala'
+    const account = arutalaGasRule?.accounts
+    const ownerName = arutalaGasRule?.supplier?.business_name || account?.name || 'Koperasi Arutala'
     updateTransaction(activeTransaction.id, {
       operasional: [...entries, {
         ...createOperationalEntry(nextId),
-        accountId: gasRules[0]?.account_id ?? '',
+        accountId: arutalaGasRule?.account_id ?? '',
         ownerName,
         bank: account?.bank ?? '',
         accountNumber: account?.account_number ?? '',
@@ -1568,7 +1574,7 @@ function App() {
     const kitchenName = selectedKitchen?.name ?? ''
 
     const mappedOperationalAccount = getOperationalAccount(kitchenName, masterData)
-    const arutalaRule = gasRules[0]
+    const arutalaRule = arutalaGasRule
     const arutalaAccount = arutalaRule?.accounts
     const arutalaOwnerName = arutalaRule?.supplier?.business_name || arutalaAccount?.name || ''
 
@@ -1650,7 +1656,7 @@ function App() {
           : 'Gas'
       if (!note) continue
 
-      const rule = gasRules[0]
+      const rule = arutalaGasRule
       if (!rule?.accounts) continue
       const rawAccountName = rule.supplier?.business_name || rule.accounts.name
       const accountName = formatSupplierAccountName(rawAccountName, rule.supplier?.owner_name)
@@ -1976,7 +1982,7 @@ function App() {
       }
     }
 
-    const gasMapping = gasRules[0]
+    const gasMapping = arutalaGasRule
     const gasEntries = activeTransaction.gas ?? []
     if (gasMapping) {
       outputChecks.push({
@@ -1990,7 +1996,7 @@ function App() {
     const opsMapping = getOperationalAccount(kitchenName, masterData)
     const operationalEntries = activeTransaction.operasional ?? []
     const hasArutalaOperationalEntry = operationalEntries.some((entry) => entry.useArutalaAccount)
-    const hasArutalaMapping = Boolean(gasRules[0]?.accounts)
+    const hasArutalaMapping = Boolean(arutalaGasRule?.accounts)
     if (opsMapping || operationalEntries.some((entry) => entry.customAccount)) {
       outputChecks.push({
         label: 'Operasional Harian',
@@ -2438,7 +2444,7 @@ function App() {
 
 
 
-                  {gasRules[0]?.accounts && (
+                  {arutalaGasRule?.accounts && (
                     <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
@@ -2458,7 +2464,7 @@ function App() {
                         <div className="mt-3 space-y-2">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi GAS</div>
                           {(activeTransaction.gas ?? []).map((entry) => {
-                            const rule = gasRules[0]
+                            const rule = arutalaGasRule
                             const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                             const bank = rule?.accounts?.bank ?? '-'
                             const accountNumber = rule?.accounts?.account_number ?? '-'
@@ -2492,7 +2498,7 @@ function App() {
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
                             <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
-                            <button type="button" onClick={addArutalaOtherEntry} disabled={!gasRules[0]?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
+                            <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
                           </div>
                         )}
                       </div>
@@ -2517,8 +2523,8 @@ function App() {
                           {entries.map((entry, index) => {
                             const custom = index > 0
                             const isArutala = Boolean(entry.useArutalaAccount)
-                            const arutalaAccount = gasRules[0]?.accounts
-                            const arutalaOwnerName = gasRules[0]?.supplier?.business_name || arutalaAccount?.name || 'Koperasi Arutala'
+                            const arutalaAccount = arutalaGasRule?.accounts
+                            const arutalaOwnerName = arutalaGasRule?.supplier?.business_name || arutalaAccount?.name || 'Koperasi Arutala'
                             const selectedType = entry.operationalRuleType ?? ''
                             const selectedRuleType = selectedType === 'gaji_akuntan'
                               ? 'gaji_akuntan'
