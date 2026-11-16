@@ -21,8 +21,19 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Check Maker Edge Functions
+        run: |
+          deno check --node-modules-dir=auto supabase/functions/maker-auth/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-admin-accounts/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-history/index.ts
 
       - name: Build
         run: npm run build
