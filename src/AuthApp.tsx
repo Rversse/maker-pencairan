@@ -43,7 +43,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
   const busyRef = useRef(false)
 
   async function submit(nextPassword = password, nextIdentifier = identifier, selectedRole = role) {
-    if (role === 'admin' && !/^\d{8}$/.test(password)) {
+    if (selectedRole === 'admin' && !/^\d{8}$/.test(nextPassword)) {
       setPinError(true)
       setError('PIN Admin harus tepat 8 digit.')
       pinRef.current?.focus()
