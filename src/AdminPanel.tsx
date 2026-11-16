@@ -119,7 +119,7 @@ export default function AdminPanel({ token }: { token: string }) {
     setMessage('')
     try {
       await adminRequest(token, { action: 'reset_password', user_id: account.user_id, password })
-      setNotice({ title: 'Password sementara berhasil dibuat', email: account.email ?? '', password })
+      setNotice({ title: 'Password berhasil dibuat', email: account.email ?? '', password })
       setResetPasswords((current) => ({ ...current, [account.user_id]: '' }))
       setMessage(`Password akun ${account.display_name} berhasil direset. Sesi lama sudah dicabut.`)
       await load()
@@ -206,7 +206,7 @@ export default function AdminPanel({ token }: { token: string }) {
             <label className="block text-xs font-medium text-slate-300">Password
               <div className="mt-1.5 flex gap-2"><div className="relative min-w-0 flex-1"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.replace(/\s/g, '').slice(0, 16))} placeholder="Password (16 karakter)" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} aria-label={showInitialPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showInitialPassword} /></button></div><button type="button" onClick={() => setInitialPassword(generatePassword(includeSymbols))} className="h-11 shrink-0 rounded-lg border border-emerald-700/70 px-3 text-xs font-semibold text-emerald-200">Acak</button></div>
             </label>
-            <div className="md:col-span-2"><label className="inline-flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={includeSymbols} onChange={(e) => setIncludeSymbols(e.target.checked)} className="accent-emerald-500" />Sertakan simbol saat generate</label><PasswordGuidance value={initialPassword} /></div>
+            <div><label className="inline-flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={includeSymbols} onChange={(e) => setIncludeSymbols(e.target.checked)} className="accent-emerald-500" />Sertakan simbol saat generate</label><PasswordGuidance value={initialPassword} /></div>
             <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Submit'}</button>
           </div>
         )}
