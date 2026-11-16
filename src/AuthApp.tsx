@@ -155,7 +155,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
   )
 }
 
-function ChangePasswordScreen({ onSave, user }: { onSave: (password: string) => Promise<void>; user: MakerUser }) {
+function ChangePasswordScreen({ onSave }: { onSave: (password: string) => Promise<void> }) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -258,7 +258,7 @@ export default function AuthApp() {
     return <main className="flex min-h-screen items-center justify-center bg-slate-950 text-sm text-slate-400">Memeriksa sesi...</main>
   }
   if (!auth) return <LoginScreen onLogin={login} />
-  if (auth.mustChange) return <ChangePasswordScreen user={auth.user} onSave={changePassword} />
+  if (auth.mustChange) return <ChangePasswordScreen onSave={changePassword} />
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
