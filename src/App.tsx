@@ -1655,15 +1655,32 @@ function App() {
     const kitchenName = selectedKitchen?.name ?? ''
 
     const mappedOperationalAccount = getOperationalAccount(kitchenName, masterData)
+    const arutalaRule = gasRules[0]
+    const arutalaAccount = arutalaRule?.accounts
+    const arutalaOwnerName = arutalaRule?.supplier?.business_name || arutalaAccount?.name || ''
+
     for (const [operationalIndex, operationalEntry] of (transaction.operasional ?? []).entries()) {
       if (!isCompleteAmount(operationalEntry.amount)) continue
       const custom = operationalIndex > 0
-      const selectedCustomMapping = custom && operationalEntry.operationalRuleType
+      const isArutala = Boolean(operationalEntry.useArutalaAccount)
+      const selectedCustomMapping = custom && !isArutala && operationalEntry.operationalRuleType
         ? getOperationalMapping(kitchenName, masterData, operationalEntry.operationalRuleType)
         : null
-      const bank = getOutputBank(custom ? (selectedCustomMapping?.bank || operationalEntry.bank || '') : (mappedOperationalAccount?.bank ?? ''))
-      const accountNumber = (custom ? (selectedCustomMapping?.accountNumber || operationalEntry.accountNumber || '') : mappedOperationalAccount?.accountNumber ?? '').trim()
-      const ownerName = (custom ? (selectedCustomMapping?.ownerName || operationalEntry.ownerName || '') : mappedOperationalAccount?.ownerName ?? '').trim()
+      const bank = getOutputBank(isArutala
+        ? arutalaAccount?.bank ?? ''
+        : custom
+          ? selectedCustomMapping?.bank || operationalEntry.bank || ''
+          : mappedOperationalAccount?.bank ?? '')
+      const accountNumber = (isArutala
+        ? arutalaAccount?.account_number ?? ''
+        : custom
+          ? selectedCustomMapping?.accountNumber || operationalEntry.accountNumber || ''
+          : mappedOperationalAccount?.accountNumber ?? '').trim()
+      const ownerName = (isArutala
+        ? arutalaOwnerName
+        : custom
+          ? selectedCustomMapping?.ownerName || operationalEntry.ownerName || ''
+          : mappedOperationalAccount?.ownerName ?? '').trim()
       if (!bank || !accountNumber || !ownerName) continue
 
       const note = custom ? (operationalEntry.need ?? '').trim() : 'Ops Harian'
@@ -1677,38 +1694,12 @@ function App() {
           bank +
           ' / ' +
           accountNumber +
-          (note ? ' · ' + note : '') +
-          (operationalEntry.isVirtualAccount ? ' · VA' : '') +
+          ' · ' +
+          note +
+          (custom && operationalEntry.isVirtualAccount ? ' · VA' : '') +
           ' · ' +
           formatNumber(operationalEntry.amount),
         kind: 'operasional_harian'
-      })
-    }
-
-    const arutalaAccount = gasRules[0]?.accounts
-    for (const entry of transaction.arutala_lain_lain ?? []) {
-      if (entry.transactionType !== 'lain_lain' || !isCompleteAmount(entry.amount)) continue
-
-      // All entries in this section are paid through the same Arutala cooperative account.
-      const bank = getOutputBank(arutalaAccount?.bank ?? '')
-      const accountNumber = (arutalaAccount?.account_number ?? '-').trim() || '-'
-      const ownerName = (arutalaAccount?.name ?? '').trim()
-      if (!bank || !accountNumber || !ownerName) continue
-
-      outputs.push({
-        bank,
-        line:
-          'LAIN-LAIN : ' +
-          (entry.need.trim() || 'Biaya Ops Harian') +
-          ' - ' +
-          capitalizeEachWord(ownerName) +
-          ' - ' +
-          bank +
-          ' / ' +
-          accountNumber +
-          ' · ' +
-          formatNumber(entry.amount),
-        kind: 'lain_lain'
       })
     }
 
@@ -2075,37 +2066,30 @@ function App() {
 
     const gasMapping = gasRules[0]
     const gasEntries = activeTransaction.gas ?? []
-    const arutalaOtherEntries = activeTransaction.arutala_lain_lain ?? []
-    const arutalaEntries = [...gasEntries, ...arutalaOtherEntries]
     if (gasMapping) {
       outputChecks.push({
         label: 'Pencairan Koperasi Arutala',
         complete: Boolean(gasMapping.accounts) &&
           gasEntries.filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length <= 2 &&
-          (arutalaEntries.length === 0 || (
-            arutalaEntries.some((entry) => isCompleteAmount(entry.amount)) &&
-            arutalaEntries.every((entry, index) => {
-              if (!isCompleteAmount(entry.amount)) return true
-              const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
-              // GAS quantity and size are optional; other Arutala entries require a note and nominal.
-              if (isGasEntry) return true
-              return Boolean((entry.need ?? '').trim())
-            })
-          ))
+          (gasEntries.length === 0 || gasEntries.some((entry) => isCompleteAmount(entry.amount)))
       })
     }
 
     const opsMapping = getOperationalAccount(kitchenName, masterData)
     const operationalEntries = activeTransaction.operasional ?? []
+    const hasArutalaOperationalEntry = operationalEntries.some((entry) => entry.useArutalaAccount)
+    const hasArutalaMapping = Boolean(gasRules[0]?.accounts)
     if (opsMapping || operationalEntries.some((entry) => entry.customAccount)) {
       outputChecks.push({
         label: 'Operasional Harian',
-        complete: Boolean(opsMapping) &&
+        complete: Boolean(opsMapping || (hasArutalaOperationalEntry && hasArutalaMapping)) &&
           operationalEntries.some((entry) => isCompleteAmount(entry.amount)) &&
           operationalEntries.every((entry, index) =>
             !isCompleteAmount(entry.amount) ||
             index === 0 ||
-            Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim() && (entry.need ?? '').trim())
+            (entry.useArutalaAccount
+              ? Boolean(hasArutalaMapping && (entry.need ?? '').trim())
+              : Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim() && (entry.need ?? '').trim()))
           )
       })
     }
