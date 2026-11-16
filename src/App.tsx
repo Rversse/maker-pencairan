@@ -6,7 +6,6 @@ import {
   type MakerAccountRule
 } from './services/master-data'
 import { supabase } from './lib/supabase'
-import { DateRangePicker } from './DateRangePicker'
 
 type RabEntry = {
   accountId: string
@@ -35,7 +34,6 @@ type SimpleEntry = {
 
 type DailyPaymentKind =
   | 'Sewa SPPG'
-  | 'Sewa Kendaraan'
   | 'Gaji Relawan'
   | 'Insentif PIC Sekolah'
   | 'Insentif PIC Posyandu'
@@ -52,25 +50,6 @@ type DailyPaymentEntry = {
   amount: string
 }
 
-type LegacyVehicleRentAmount = {
-  startDate: string
-  endDate: string
-  amount: string
-}
-
-type VehicleRentEntry = {
-  id: number
-  vehicleType?: 'Mobil' | 'Motor'
-  startDate: string
-  endDate: string
-  unitCount?: string
-  amount?: string
-  // Legacy fields are read only to migrate drafts saved by earlier versions.
-  mobilAmount?: string
-  motorAmount?: string
-  legacyAmounts?: LegacyVehicleRentAmount[]
-}
-
 type ArutalaDateBucket = {
   gas: SimpleEntry[]
   lain_lain: SimpleEntry[]
@@ -84,7 +63,6 @@ type TransactionGroup = {
   operasional: SimpleEntry[]
   legacy_gaji?: DailyPaymentEntry[]
   pencairan_harian: DailyPaymentEntry[]
-  sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
   arutala_lain_lain: SimpleEntry[]
   arutala_by_date?: Record<string, ArutalaDateBucket>
@@ -148,8 +126,7 @@ const DAILY_PAYMENT_RULE_TYPE: Record<DailyPaymentKind, string> = {
   'Sewa SPPG': 'sppg_rent',
   'Gaji Relawan': 'gaji_relawan',
   'Insentif PIC Sekolah': 'pic_incentive_school',
-  'Insentif PIC Posyandu': 'pic_incentive_posyandu',
-  'Sewa Kendaraan': 'vehicle_rent'
+  'Insentif PIC Posyandu': 'pic_incentive_posyandu'
 }
 
 function getOperationalMapping(
@@ -232,13 +209,6 @@ function getSppgRental(
   masterData: MakerMasterData | null
 ): BankAccountMapping | null {
   return getOperationalMapping(kitchenName, masterData, 'sppg_rent')
-}
-
-function getVehicleRentAccount(
-  kitchenName: string,
-  masterData: MakerMasterData | null
-): BankAccountMapping | null {
-  return getOperationalMapping(kitchenName, masterData, 'vehicle_rent')
 }
 
 function toIsoDate(date: Date) {
@@ -356,13 +326,12 @@ function getOutputCategoryRank(
     | 'rab'
     | 'operasional_harian'
     | 'pencairan_harian'
-    | 'sewa_kendaraan'
     | 'gas'
     | 'lain_lain'
 ) {
   if (kind === 'rab') return 0
   if (kind === 'operasional_harian') return 1
-  if (kind === 'pencairan_harian' || kind === 'sewa_kendaraan') return 2
+  if (kind === 'pencairan_harian') return 2
   if (kind === 'gas') return 3
   return 4
 }
@@ -495,37 +464,6 @@ function emptyDailyPaymentEntry(
     ownerName: '',
     amount: ''
   }
-}
-
-function emptyVehicleRentEntry(id = 1, vehicleType: 'Mobil' | 'Motor' = 'Mobil'): VehicleRentEntry {
-  return {
-    id,
-    vehicleType,
-    startDate: '',
-    endDate: '',
-    unitCount: '1',
-    amount: '',
-    legacyAmounts: []
-  }
-}
-
-function formatVehicleRentPeriod(startDate: string, endDate: string) {
-  if (!startDate || !endDate) return ''
-  const [startYear, startMonth, startDay] = startDate.split('-')
-  const [endYear, endMonth, endDay] = endDate.split('-')
-  if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) return ''
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
-  const startMonthName = monthNames[Number(startMonth) - 1]
-  const endMonthName = monthNames[Number(endMonth) - 1]
-  if (!startMonthName || !endMonthName) return ''
-  if (startYear === endYear && startMonth === endMonth) {
-    return `${startDay}-${endDay} ${startMonthName} ${endYear}`
-  }
-  const start = startYear === endYear
-    ? `${startDay}-${startMonthName}`
-    : `${startDay}-${startMonthName}-${startYear}`
-  const end = `${endDay}-${endMonthName}-${endYear}`
-  return start + ' s.d. ' + end
 }
 
 function createPayrollEntry(
@@ -711,7 +649,11 @@ function normalizeTransaction(
   fallbackDate: string
 ): TransactionGroup {
   const rawDailyPayments = Array.isArray(transaction.pencairan_harian)
-    ? transaction.pencairan_harian.map((entry) => {
+    ? transaction.pencairan_harian.filter((entry) => {
+        const legacyEntry = entry as DailyPaymentEntry & { kind?: string }
+        const storedKinds = Array.isArray(entry.kinds) ? entry.kinds : legacyEntry.kind ? [legacyEntry.kind] : []
+        return !storedKinds.some((kind) => String(kind) === 'Sewa Kendaraan')
+      }).map((entry) => {
         const legacyEntry = entry as DailyPaymentEntry & { kind?: DailyPaymentKind }
         const storedKinds = Array.isArray(entry.kinds)
           ? entry.kinds
@@ -741,23 +683,7 @@ function normalizeTransaction(
       })
     : [emptyDailyPaymentEntry(1, 'sewa')]
 
-  const legacyVehicleFromDaily: LegacyVehicleRentAmount[] = rawDailyPayments
-    .filter(
-      (entry) =>
-        entry.category === 'sewa' &&
-        entry.kinds.includes('Sewa Kendaraan') &&
-        isCompleteAmount(entry.amount)
-    )
-    .map((entry) => ({
-      startDate: '',
-      endDate: '',
-      amount: entry.amount
-    }))
-  const sewaRows = rawDailyPayments.filter(
-    (entry) =>
-      entry.category === 'sewa' &&
-      !entry.kinds.includes('Sewa Kendaraan')
-  )
+  const sewaRows = rawDailyPayments.filter((entry) => entry.category === 'sewa')
   const sewaTemplate = sewaRows[0] ?? emptyDailyPaymentEntry(1, 'sewa')
   const sewaTotal = sewaRows.reduce(
     (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
@@ -769,59 +695,6 @@ function normalizeTransaction(
     kinds: ['Sewa SPPG'],
     amount: String(sewaTotal || '')
   }]
-
-  const rawVehicleEntries = Array.isArray(transaction.sewa_kendaraan)
-    ? (transaction.sewa_kendaraan as unknown as Array<VehicleRentEntry & { amount?: string }>)
-    : []
-  const firstVehicle = rawVehicleEntries[0]
-  const legacyVehicleAmounts: LegacyVehicleRentAmount[] = [
-    ...legacyVehicleFromDaily,
-    ...rawVehicleEntries.flatMap((entry) => {
-    const legacy = [...(entry.legacyAmounts ?? [])]
-    const oldAmount = entry.amount
-    if (
-      typeof oldAmount === 'string' &&
-      isCompleteAmount(oldAmount) &&
-      !entry.mobilAmount &&
-      !entry.motorAmount
-    ) {
-      legacy.push({
-        startDate: entry.startDate ?? '',
-        endDate: entry.endDate ?? '',
-        amount: oldAmount
-      })
-    }
-    return legacy
-    })
-  ]
-  const vehicleStartDate = firstVehicle?.startDate ?? legacyVehicleAmounts[0]?.startDate ?? ''
-  const vehicleEndDate = firstVehicle?.endDate ?? legacyVehicleAmounts[0]?.endDate ?? ''
-  const normalizedVehicle: VehicleRentEntry[] = [
-    {
-      id: 1,
-      vehicleType: 'Mobil',
-      startDate: vehicleStartDate,
-      endDate: vehicleEndDate,
-      unitCount: (firstVehicle as VehicleRentEntry | undefined)?.vehicleType === 'Mobil'
-        ? (firstVehicle as VehicleRentEntry).unitCount ?? '1'
-        : '1',
-      amount: firstVehicle?.mobilAmount ?? (firstVehicle as VehicleRentEntry | undefined)?.amount ?? '',
-      legacyAmounts: legacyVehicleAmounts
-    },
-    {
-      id: 2,
-      vehicleType: 'Motor',
-      startDate: vehicleStartDate,
-      endDate: vehicleEndDate,
-      unitCount: (rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Motor') as VehicleRentEntry | undefined)?.unitCount ?? '1',
-      amount: firstVehicle?.motorAmount ?? '',
-      legacyAmounts: []
-    }
-  ]
-  const savedCar = rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Mobil') as VehicleRentEntry | undefined
-  const savedMotor = rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Motor') as VehicleRentEntry | undefined
-  if (savedCar) Object.assign(normalizedVehicle[0], savedCar)
-  if (savedMotor) Object.assign(normalizedVehicle[1], savedMotor)
 
   const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
     ? transaction.gas.map((entry, index) => {
@@ -849,6 +722,9 @@ function normalizeTransaction(
       )
     : []
 
+  const normalizedGasEntries = normalizedGas.filter((entry) => entry.transactionType !== 'operasional_harian')
+  const legacyArutalaOpsFromGas = normalizedGas.filter((entry) => entry.transactionType === 'operasional_harian')
+
   const normalizedOthers = Array.isArray(transaction.lain_lain)
     ? transaction.lain_lain.map((entry) => ({
         ...entry,
@@ -869,7 +745,7 @@ function normalizeTransaction(
     ownerName: entry.ownerName ?? '',
     bank: entry.bank ?? '',
     customAccount: index > 0,
-    need: index === 0 ? 'Ops Harian' : (entry.need ?? ''),
+    need: index === 0 && !entry.useArutalaAccount ? 'Ops Harian' : (entry.need ?? ''),
     transactionType: 'operasional_harian'
   })
   const oldOpsTotal = legacyOps.reduce(
@@ -900,11 +776,24 @@ function normalizeTransaction(
       need: entry.need.trim() || 'Biaya Ops Harian',
       customAccount: true
     }))
-  const operational = baseOperational.concat(migratedLainLain)
   const lain_lain = [emptySimpleEntry(1)]
   const arutalaLainLain = Array.isArray(transaction.arutala_lain_lain)
     ? transaction.arutala_lain_lain.map((entry) => ({ ...entry, transactionType: 'lain_lain' as const, accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''), ownerName: entry.ownerName ?? '' }))
     : []
+  const migratedArutala: SimpleEntry[] = [...legacyArutalaOpsFromGas, ...arutalaLainLain].map((entry, index) => {
+    const id = lastOpsId + migratedLainLain.length + index + 1
+    return {
+      ...entry,
+      ...createOperationalEntry(id),
+      id,
+      useArutalaAccount: true,
+      customAccount: true,
+      operationalRuleType: '',
+      transactionType: 'operasional_harian',
+      need: entry.need ?? ''
+    }
+  })
+  const operational = baseOperational.concat(migratedLainLain, migratedArutala)
   const legacyGaji = Array.isArray(transaction.legacy_gaji)
     ? transaction.legacy_gaji.map((entry) => ({
         ...entry,
@@ -920,17 +809,16 @@ function normalizeTransaction(
     ...transaction,
     date: transaction.date || fallbackDate,
     rab: Array.isArray(transaction.rab) ? transaction.rab : [],
-    gas: normalizedGas,
+    gas: normalizedGasEntries,
     operasional: operational,
     pencairan_harian: normalizedSewa.concat(
       rawDailyPayments.filter((entry) => entry.category === 'gaji')
     ),
-    sewa_kendaraan: normalizedVehicle,
     lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
-    arutala_lain_lain: arutalaLainLain,
+    arutala_lain_lain: [],
     arutala_by_date: {
       ...(transaction.arutala_by_date ?? {}),
-      [transaction.date || fallbackDate]: { gas: normalizedGas, lain_lain: arutalaLainLain }
+      [transaction.date || fallbackDate]: { gas: normalizedGasEntries, lain_lain: migratedArutala }
     },
     opsRealAmount: typeof transaction.opsRealAmount === 'string' ? transaction.opsRealAmount : '',
     legacy_gaji: legacyGaji
@@ -964,7 +852,6 @@ function makeTransaction(
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
       ...createPayrollRowsForKitchen(kitchenName, masterData, 2)
     ],
-    sewa_kendaraan: [emptyVehicleRentEntry(1, 'Mobil'), emptyVehicleRentEntry(2, 'Motor')],
     lain_lain: [emptyOtherEntry(1)],
     arutala_lain_lain: [],
     arutala_by_date: { [date]: { gas: [], lain_lain: [] } },
@@ -1275,12 +1162,12 @@ function App() {
         transaction.id === transactionId
           ? (() => {
               const nextTransaction = { ...transaction, ...update }
-              if (!('arutala_by_date' in update) && ('gas' in update || 'arutala_lain_lain' in update)) {
+              if (!('arutala_by_date' in update) && ('gas' in update || 'operasional' in update || 'arutala_lain_lain' in update)) {
                 nextTransaction.arutala_by_date = {
                   ...(transaction.arutala_by_date ?? {}),
                   [nextTransaction.date]: {
                     gas: nextTransaction.gas ?? [],
-                    lain_lain: nextTransaction.arutala_lain_lain ?? []
+                    lain_lain: (nextTransaction.operasional ?? []).filter((entry) => entry.useArutalaAccount)
                   }
                 }
               }
@@ -1331,12 +1218,16 @@ function App() {
           entry.id === id ? { ...entry, ...update } : entry
         )
         const nextTransaction = { ...transaction, [section]: nextEntries }
-        if (section === 'gas' || section === 'arutala_lain_lain') {
+        if (section === 'gas' || section === 'operasional' || section === 'arutala_lain_lain') {
           nextTransaction.arutala_by_date = {
             ...(transaction.arutala_by_date ?? {}),
             [transaction.date]: {
               gas: section === 'gas' ? nextEntries as SimpleEntry[] : transaction.gas ?? [],
-              lain_lain: section === 'arutala_lain_lain' ? nextEntries as SimpleEntry[] : transaction.arutala_lain_lain ?? []
+              lain_lain: section === 'operasional'
+                ? (nextEntries as SimpleEntry[]).filter((entry) => entry.useArutalaAccount)
+                : section === 'arutala_lain_lain'
+                  ? nextEntries as SimpleEntry[]
+                  : (transaction.operasional ?? []).filter((entry) => entry.useArutalaAccount)
             }
           }
         }
@@ -1364,25 +1255,6 @@ function App() {
     )
   }
 
-  function updateVehicleRentEntry(
-    transactionId: number,
-    id: number,
-    update: Partial<VehicleRentEntry>
-  ) {
-    setTransactions((current) =>
-      current.map((transaction) =>
-        transaction.id === transactionId
-          ? {
-              ...transaction,
-              sewa_kendaraan: (transaction.sewa_kendaraan ?? []).map((entry) =>
-                entry.id === id ? { ...entry, ...update } : entry
-              )
-            }
-          : transaction
-      )
-    )
-  }
-
   function addOperationalEntry() {
     if (!activeTransaction) return
     const currentEntries = activeTransaction.operasional ?? []
@@ -1398,9 +1270,12 @@ function App() {
         accountNumber: mapping?.accountNumber ?? '',
         customAccount: true,
         operationalRuleType: '',
+        useArutalaAccount: false,
+        isVirtualAccount: false,
         need: ''
       }]
     })
+    setArutalaAddMenuOpen(false)
   }
 
   function addGasEntry() {
@@ -1433,15 +1308,25 @@ function App() {
 
   function addArutalaOtherEntry() {
     if (!activeTransaction) return
-    const entries = activeTransaction.arutala_lain_lain ?? []
+    const entries = activeTransaction.operasional ?? []
     const nextId = Math.max(0, ...entries.map((entry) => entry.id)) + 1
-    updateTransaction(activeTransaction.id, { arutala_lain_lain: [...entries, emptyOtherEntry(nextId)] })
+    const account = gasRules[0]?.accounts
+    const ownerName = gasRules[0]?.supplier?.business_name || account?.name || 'Koperasi Arutala'
+    updateTransaction(activeTransaction.id, {
+      operasional: [...entries, {
+        ...createOperationalEntry(nextId),
+        accountId: gasRules[0]?.account_id ?? '',
+        ownerName,
+        bank: account?.bank ?? '',
+        accountNumber: account?.account_number ?? '',
+        customAccount: true,
+        operationalRuleType: '',
+        useArutalaAccount: true,
+        isVirtualAccount: false,
+        need: ''
+      }]
+    })
     setArutalaAddMenuOpen(false)
-  }
-
-  function removeArutalaOtherEntry(id: number) {
-    if (!activeTransaction) return
-    updateTransaction(activeTransaction.id, { arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).filter((entry) => entry.id !== id) })
   }
 
   function removeOperationalEntry(id: number) {
@@ -1615,14 +1500,31 @@ function App() {
     const dateBuckets = activeTransaction.arutala_by_date ?? {}
     const currentBucket: ArutalaDateBucket = {
       gas: activeTransaction.gas ?? [],
-      lain_lain: activeTransaction.arutala_lain_lain ?? []
+      lain_lain: (activeTransaction.operasional ?? []).filter((entry) => entry.useArutalaAccount)
     }
     const nextBucket = dateBuckets[nextDate] ?? { gas: [], lain_lain: [] }
+    const nextLegacyArutalaOpsFromGas = nextBucket.gas.filter((entry) => entry.transactionType === 'operasional_harian')
+    const nextGasEntries = nextBucket.gas.filter((entry) => entry.transactionType !== 'operasional_harian')
+    const baseOperational = (activeTransaction.operasional ?? []).filter((entry) => !entry.useArutalaAccount)
+    const nextArutalaEntries = [...nextLegacyArutalaOpsFromGas, ...nextBucket.lain_lain].map((entry, index) => {
+      const id = Math.max(0, ...baseOperational.map((item) => item.id)) + index + 1
+      return {
+        ...entry,
+        ...createOperationalEntry(id),
+        id,
+        useArutalaAccount: true,
+        customAccount: true,
+        operationalRuleType: '' as const,
+        transactionType: 'operasional_harian' as const,
+        need: entry.need ?? ''
+      }
+    })
     updateTransaction(activeTransaction.id, {
       date: nextDate,
       arutala_by_date: { ...dateBuckets, [activeTransaction.date]: currentBucket },
-      gas: nextBucket.gas,
-      arutala_lain_lain: nextBucket.lain_lain
+      gas: nextGasEntries,
+      arutala_lain_lain: [],
+      operasional: baseOperational.concat(nextArutalaEntries)
     })
     setCopyMessage('')
   }
@@ -1666,15 +1568,32 @@ function App() {
     const kitchenName = selectedKitchen?.name ?? ''
 
     const mappedOperationalAccount = getOperationalAccount(kitchenName, masterData)
+    const arutalaRule = gasRules[0]
+    const arutalaAccount = arutalaRule?.accounts
+    const arutalaOwnerName = arutalaRule?.supplier?.business_name || arutalaAccount?.name || ''
+
     for (const [operationalIndex, operationalEntry] of (transaction.operasional ?? []).entries()) {
       if (!isCompleteAmount(operationalEntry.amount)) continue
       const custom = operationalIndex > 0
-      const selectedCustomMapping = custom && operationalEntry.operationalRuleType
+      const isArutala = Boolean(operationalEntry.useArutalaAccount)
+      const selectedCustomMapping = custom && !isArutala && operationalEntry.operationalRuleType
         ? getOperationalMapping(kitchenName, masterData, operationalEntry.operationalRuleType)
         : null
-      const bank = getOutputBank(custom ? (selectedCustomMapping?.bank || operationalEntry.bank || '') : (mappedOperationalAccount?.bank ?? ''))
-      const accountNumber = (custom ? (selectedCustomMapping?.accountNumber || operationalEntry.accountNumber || '') : mappedOperationalAccount?.accountNumber ?? '').trim()
-      const ownerName = (custom ? (selectedCustomMapping?.ownerName || operationalEntry.ownerName || '') : mappedOperationalAccount?.ownerName ?? '').trim()
+      const bank = getOutputBank(isArutala
+        ? arutalaAccount?.bank ?? ''
+        : custom
+          ? selectedCustomMapping?.bank || operationalEntry.bank || ''
+          : mappedOperationalAccount?.bank ?? '')
+      const accountNumber = (isArutala
+        ? arutalaAccount?.account_number ?? ''
+        : custom
+          ? selectedCustomMapping?.accountNumber || operationalEntry.accountNumber || ''
+          : mappedOperationalAccount?.accountNumber ?? '').trim()
+      const ownerName = (isArutala
+        ? arutalaOwnerName
+        : custom
+          ? selectedCustomMapping?.ownerName || operationalEntry.ownerName || ''
+          : mappedOperationalAccount?.ownerName ?? '').trim()
       if (!bank || !accountNumber || !ownerName) continue
 
       const note = custom ? (operationalEntry.need ?? '').trim() : 'Ops Harian'
@@ -1688,38 +1607,12 @@ function App() {
           bank +
           ' / ' +
           accountNumber +
-          (note ? ' · ' + note : '') +
-          (operationalEntry.isVirtualAccount ? ' · VA' : '') +
+          ' · ' +
+          note +
+          (custom && !isArutala && operationalEntry.isVirtualAccount ? ' · VA' : '') +
           ' · ' +
           formatNumber(operationalEntry.amount),
         kind: 'operasional_harian'
-      })
-    }
-
-    const arutalaAccount = gasRules[0]?.accounts
-    for (const entry of transaction.arutala_lain_lain ?? []) {
-      if (entry.transactionType !== 'lain_lain' || !isCompleteAmount(entry.amount)) continue
-
-      // All entries in this section are paid through the same Arutala cooperative account.
-      const bank = getOutputBank(arutalaAccount?.bank ?? '')
-      const accountNumber = (arutalaAccount?.account_number ?? '-').trim() || '-'
-      const ownerName = (arutalaAccount?.name ?? '').trim()
-      if (!bank || !accountNumber || !ownerName) continue
-
-      outputs.push({
-        bank,
-        line:
-          'LAIN-LAIN : ' +
-          (entry.need.trim() || 'Biaya Ops Harian') +
-          ' - ' +
-          capitalizeEachWord(ownerName) +
-          ' - ' +
-          bank +
-          ' / ' +
-          accountNumber +
-          ' · ' +
-          formatNumber(entry.amount),
-        kind: 'lain_lain'
       })
     }
 
@@ -1731,7 +1624,6 @@ function App() {
       kind:
         | 'rab'
         | 'pencairan_harian'
-        | 'sewa_kendaraan'
         | 'gas'
         | 'operasional_harian'
         | 'lain_lain'
@@ -1837,31 +1729,6 @@ function App() {
           formatNumber(entry.amount),
         index: items.length,
         modeRank: 1
-      })
-    }
-
-    for (const entry of transaction.sewa_kendaraan ?? []) {
-      if (!entry.startDate || !entry.endDate || entry.endDate < entry.startDate) continue
-      const account = getVehicleRentAccount(kitchenName, masterData)
-      if (!account) continue
-      const vehicleType = entry.vehicleType ?? 'Mobil'
-      const amount = entry.amount ?? (vehicleType === 'Mobil' ? entry.mobilAmount : entry.motorAmount) ?? ''
-      const unitCount = String(entry.unitCount ?? '1').replace(/\D/g, '') || '1'
-      if (!isCompleteAmount(amount)) continue
-      const period = formatVehicleRentPeriod(entry.startDate, entry.endDate)
-      if (!period || period.length > 40) continue
-      items.push({
-        kind: 'sewa_kendaraan',
-        bank: getOutputBank(account.bank),
-        line:
-          ('SEWA KENDARAAN ' + unitCount + ' UNIT ' + vehicleType).toLocaleUpperCase('id-ID') +
-          ' (' + period + ') : ' +
-          capitalizeEachWord(account.ownerName) +
-          ' - ' + getOutputBank(account.bank) +
-          ' / ' + account.accountNumber +
-          ' · ' + formatNumber(amount),
-        index: items.length,
-        modeRank: 0
       })
     }
 
@@ -1996,8 +1863,6 @@ function App() {
       let label = ''
       if (line.startsWith('INSENTIF FASILITAS SPPG : ')) {
         label = 'Fasilitas SPPG'
-      } else if (line.startsWith('SEWA KENDARAAN ')) {
-        label = 'Sewa Kendaraan'
       } else if (line.startsWith('OPS HARIAN : ')) {
         const firstSeparator = line.indexOf(' · ')
         const amountSeparator = line.lastIndexOf(' · ')
@@ -2113,37 +1978,30 @@ function App() {
 
     const gasMapping = gasRules[0]
     const gasEntries = activeTransaction.gas ?? []
-    const arutalaOtherEntries = activeTransaction.arutala_lain_lain ?? []
-    const arutalaEntries = [...gasEntries, ...arutalaOtherEntries]
     if (gasMapping) {
       outputChecks.push({
         label: 'Pencairan Koperasi Arutala',
         complete: Boolean(gasMapping.accounts) &&
           gasEntries.filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length <= 2 &&
-          (arutalaEntries.length === 0 || (
-            arutalaEntries.some((entry) => isCompleteAmount(entry.amount)) &&
-            arutalaEntries.every((entry, index) => {
-              if (!isCompleteAmount(entry.amount)) return true
-              const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
-              // GAS quantity and size are optional; other Arutala entries require a note and nominal.
-              if (isGasEntry) return true
-              return Boolean((entry.need ?? '').trim())
-            })
-          ))
+          (gasEntries.length === 0 || gasEntries.some((entry) => isCompleteAmount(entry.amount)))
       })
     }
 
     const opsMapping = getOperationalAccount(kitchenName, masterData)
     const operationalEntries = activeTransaction.operasional ?? []
+    const hasArutalaOperationalEntry = operationalEntries.some((entry) => entry.useArutalaAccount)
+    const hasArutalaMapping = Boolean(gasRules[0]?.accounts)
     if (opsMapping || operationalEntries.some((entry) => entry.customAccount)) {
       outputChecks.push({
         label: 'Operasional Harian',
-        complete: Boolean(opsMapping) &&
+        complete: Boolean(opsMapping || (hasArutalaOperationalEntry && hasArutalaMapping)) &&
           operationalEntries.some((entry) => isCompleteAmount(entry.amount)) &&
           operationalEntries.every((entry, index) =>
             !isCompleteAmount(entry.amount) ||
             index === 0 ||
-            Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim() && (entry.need ?? '').trim())
+            (entry.useArutalaAccount
+              ? Boolean(hasArutalaMapping && (entry.need ?? '').trim())
+              : Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim() && (entry.need ?? '').trim()))
           )
       })
     }
@@ -2581,46 +2439,38 @@ function App() {
 
 
                   {gasRules[0]?.accounts && (
-                    <section className={`mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3 ${arutalaAddMenuOpen ? 'relative z-40' : 'relative z-0'}`}>
+                    <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
                           <h2 className="text-base font-semibold text-white">Pencairan Koperasi Arutala</h2>
-                          <p className="mt-0.5 text-[11px] text-slate-400">Maksimal 2 transaksi GAS per tanggal. Transaksi lain tidak dibatasi.</p>
+                          <p className="mt-0.5 text-[11px] text-slate-400">Khusus transaksi GAS. Maksimal 2 transaksi per tanggal.</p>
                         </div>
-                        <div className="relative">
-                          <button type="button" aria-expanded={arutalaAddMenuOpen} onClick={() => setArutalaAddMenuOpen((open) => !open)} className="h-10 rounded-lg border border-cyan-700/70 bg-cyan-950/60 px-3 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-900/70">+ Tambah Transaksi</button>
-                          {arutalaAddMenuOpen && (
-                            <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
-                              <button type="button" onClick={addGasEntry} disabled={(activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Tambah GAS (maks. 2)</button>
-                              <button type="button" onClick={addArutalaOtherEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Tambah Transaksi Lain</button>
-                            </div>
-                          )}
-                        </div>
+                        <button
+                          type="button"
+                          onClick={addGasEntry}
+                          disabled={(activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2}
+                          className="h-10 rounded-lg border border-cyan-700/70 bg-cyan-950/60 px-3 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-900/70 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          + Tambah GAS
+                        </button>
                       </div>
-                      {(activeTransaction.gas ?? []).length > 0 && (
+                      {(activeTransaction.gas ?? []).length > 0 ? (
                         <div className="mt-3 space-y-2">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi GAS</div>
-                          {(activeTransaction.gas ?? []).map((entry, index) => {
+                          {(activeTransaction.gas ?? []).map((entry) => {
                             const rule = gasRules[0]
                             const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                             const bank = rule?.accounts?.bank ?? '-'
                             const accountNumber = rule?.accounts?.account_number ?? '-'
-                            const isGasEntry = entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)
                             return (
                               <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/40 p-2">
                                 <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_85px_minmax(110px,0.8fr)_minmax(120px,1fr)_90px_100px_110px_34px]">
-                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{isGasEntry ? 'GAS' : 'OPS HARIAN'}</div>
+                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">GAS</div>
                                   <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                   <div className="flex h-10 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-xs font-semibold text-slate-100">{bank}</div>
                                   <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
-                                  {isGasEntry ? (
-                                    <>
-                                      <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
-                                      <select value={entry.gasSize ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                    </>
-                                  ) : (
-                                    <input type="text" required value={entry.need ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { need: event.target.value })} placeholder="Catatan transaksi" aria-label="Catatan transaksi operasional" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white lg:col-span-2" />
-                                  )}
+                                  <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
+                                  <select value={entry.gasSize ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
                                   <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
                                   <button type="button" onClick={() => removeGasEntry(entry.id)} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                 </div>
@@ -2628,37 +2478,24 @@ function App() {
                             )
                           })}
                         </div>
-                      )}
-                      {(activeTransaction.arutala_lain_lain ?? []).length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi Lain</div>
-                          {(activeTransaction.arutala_lain_lain ?? []).map((entry) => (
-                            <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/40 p-2">
-                              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(110px,180px)_34px] gap-2">
-                                <input type="text" required value={entry.need} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'arutala_lain_lain', entry.id, { need: event.target.value })} placeholder="Catatan transaksi" aria-label="Catatan transaksi lain Arutala" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2.5 text-xs text-white" />
-                                <input type="text" required inputMode="numeric" value={formatNumber(entry.amount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'arutala_lain_lain', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal transaksi lain Arutala" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
-                                <button type="button" onClick={() => removeArutalaOtherEntry(entry.id)} aria-label="Hapus transaksi lain" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {(activeTransaction.gas ?? []).length === 0 && (activeTransaction.arutala_lain_lain ?? []).length === 0 && (
-                        <p className="mt-3 rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-400">Belum ada transaksi. Tekan Tambah Transaksi untuk memulai.</p>
+                      ) : (
+                        <p className="mt-3 rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-400">Belum ada transaksi GAS. Tekan Tambah GAS untuk memulai.</p>
                       )}
                     </section>
                   )}
 
-                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3">
+                  <section className={`mp-card relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${arutalaAddMenuOpen ? 'z-40' : 'z-0'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Operasional Harian</h2>
-                      <button
-                        type="button"
-                        onClick={addOperationalEntry}
-                        className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700"
-                      >
-                        + Transaksi
-                      </button>
+                      <div className="relative">
+                        <button type="button" aria-expanded={arutalaAddMenuOpen} onClick={() => setArutalaAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
+                        {arutalaAddMenuOpen && (
+                          <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
+                            <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Transaksi Lain</button>
+                            <button type="button" onClick={addArutalaOtherEntry} disabled={!gasRules[0]?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Tambah Transaksi Arutala</button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
@@ -2679,6 +2516,9 @@ function App() {
                           </div>
                           {entries.map((entry, index) => {
                             const custom = index > 0
+                            const isArutala = Boolean(entry.useArutalaAccount)
+                            const arutalaAccount = gasRules[0]?.accounts
+                            const arutalaOwnerName = gasRules[0]?.supplier?.business_name || arutalaAccount?.name || 'Koperasi Arutala'
                             const selectedType = entry.operationalRuleType ?? ''
                             const selectedRuleType = selectedType === 'gaji_akuntan'
                               ? 'gaji_akuntan'
@@ -2689,22 +2529,30 @@ function App() {
                               ? getOperationalMapping(selectedKitchen?.name ?? '', masterData, selectedRuleType)
                               : null
                             const isMappedSalary = selectedType === 'gaji_akuntan' || selectedType === 'gaji_ahli_gizi'
-                            const ownerName = custom
-                              ? (isMappedSalary ? selectedMapping?.ownerName : entry.ownerName) ?? ''
-                              : mapping?.ownerName ?? ''
-                            const bank = custom
-                              ? (isMappedSalary ? selectedMapping?.bank : entry.bank) ?? ''
-                              : mapping?.bank ?? ''
-                            const accountNumber = custom
-                              ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
-                              : mapping?.accountNumber ?? ''
+                            const ownerName = isArutala
+                              ? arutalaOwnerName
+                              : custom
+                                ? (isMappedSalary ? selectedMapping?.ownerName : entry.ownerName) ?? ''
+                                : mapping?.ownerName ?? ''
+                            const bank = isArutala
+                              ? arutalaAccount?.bank ?? ''
+                              : custom
+                                ? (isMappedSalary ? selectedMapping?.bank : entry.bank) ?? ''
+                                : mapping?.bank ?? ''
+                            const accountNumber = isArutala
+                              ? arutalaAccount?.account_number ?? ''
+                              : custom
+                                ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
+                                : mapping?.accountNumber ?? ''
                             const note = custom ? (entry.need ?? '') : 'Ops Harian'
                             const availableAccountant = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_akuntan')
                             const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
                                 <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]">
-                                  {custom ? (
+                                  {custom ? (isArutala ? (
+                                    <div className="flex h-10 w-full items-center justify-center rounded-md border border-cyan-700/60 bg-cyan-950/40 px-2 text-center text-[10px] font-semibold text-cyan-100">Koperasi Arutala</div>
+                                  ) : (
                                     <select
                                       value={selectedType}
                                       onChange={(event) => {
@@ -2714,6 +2562,7 @@ function App() {
                                           : getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                                         updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, {
                                           operationalRuleType: nextType ?? '',
+                                          useArutalaAccount: false,
                                           ownerName: nextMapping?.ownerName ?? '',
                                           bank: nextMapping?.bank ?? '',
                                           accountNumber: nextMapping?.accountNumber ?? '',
@@ -2731,15 +2580,15 @@ function App() {
                                       {availableAccountant && <option value="gaji_akuntan">Gaji AK</option>}
                                       {availableNutritionist && <option value="gaji_ahli_gizi">Gaji AG</option>}
                                     </select>
-                                  ) : (
+                                  )) : (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
                                   )}
-                                  {custom && !isMappedSalary ? (
+                                  {custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" value={ownerName} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{ownerName || 'Mapping belum tersedia'}</span></div>
                                   )}
-                                  {custom && !isMappedSalary ? (
+                                  {custom && !isMappedSalary && !isArutala ? (
                                     <select value={entry.bank ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-md border border-slate-700/90 bg-slate-950 px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
                                       <option value="">Pilih bank</option>
                                       {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
@@ -2747,7 +2596,7 @@ function App() {
                                   ) : (
                                     <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                   )}
-                                  {custom && !isMappedSalary ? (
+                                  {custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" inputMode="numeric" value={entry.accountNumber} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={accountNumber || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
@@ -2762,15 +2611,17 @@ function App() {
                                     aria-label="Catatan Operasional Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
+                                  {custom && !isArutala ? (
                                   <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
                                     <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
                                     <span>VA</span>
                                   </label>
+                                  ) : <span aria-hidden="true" className="h-10" />}
                                   <input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!custom ? !mapping : isMappedSalary && !selectedMapping}
+                                    disabled={!custom ? !mapping : isArutala ? !arutalaAccount : isMappedSalary && !selectedMapping}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
@@ -2841,69 +2692,6 @@ function App() {
                             )
                           })}
                       </div>
-                    </section>
-
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
-                      <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
-                      {(() => {
-                        const entries = activeTransaction.sewa_kendaraan ?? []
-                        const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
-                        return (
-                          <div className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-2">
-                            {(['Mobil', 'Motor'] as const).map((vehicleType) => {
-                              const entry = entries.find((item) => item.vehicleType === vehicleType) ??
-                                emptyVehicleRentEntry(vehicleType === 'Mobil' ? 1 : 2, vehicleType)
-                              const amount = entry.amount ?? ''
-                              const prefix = 'SEWA KENDARAAN '
-                              return (
-                                <div key={vehicleType} className="min-w-0 rounded-lg border border-slate-700/80 bg-slate-950/35 p-3">
-                                  <h3 className="mb-2 text-sm font-bold text-slate-100">Sewa {vehicleType}</h3>
-                                  <div className="grid min-w-0 grid-cols-3 gap-2">
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nama rekening</label>
-                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
-                                        <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
-                                      </div>
-                                    </div>
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Bank</label>
-                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{account?.bank ?? '-'}</div>
-                                    </div>
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nomor rekening</label>
-                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span title={account?.accountNumber ?? '-'} className="truncate">{account?.accountNumber ?? '-'}</span></div>
-                                    </div>
-                                  </div>
-                                  <div className="mt-2 grid min-w-0 grid-cols-[minmax(0,1fr)_100px] gap-2">
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Periode sewa</label>
-                                      <DateRangePicker
-                                        value={{ startDate: entry.startDate, endDate: entry.endDate }}
-                                        onChange={(range) => updateVehicleRentEntry(activeTransaction.id, entry.id, { startDate: range.startDate, endDate: range.endDate })}
-                                        placeholder="Pilih rentang tanggal"
-                                        active={hasOutputAmount(prefix, account?.accountNumber ?? '-', amount)}
-                                      />
-                                    </div>
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Jumlah unit</label>
-                                      <input type="text" inputMode="numeric" value={entry.unitCount ?? '1'} onChange={(event) => updateVehicleRentEntry(activeTransaction.id, entry.id, { unitCount: event.target.value.replace(/\D/g, '').slice(0, 3) })} placeholder="1" aria-label={'Jumlah unit ' + vehicleType} className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25" />
-                                    </div>
-                                  </div>
-                                  <div className="mt-2">
-                                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nominal {vehicleType}</label>
-                                    <input type="text" inputMode="numeric" value={formatNumber(amount)} onChange={(event) => updateVehicleRentEntry(activeTransaction.id, entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={'Nominal ' + vehicleType} aria-label={'Nominal sewa ' + vehicleType} className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(amount) ? 'mp-field--has-output' : ''}`} />
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )
-                      })()}
-                      {activeTransaction.sewa_kendaraan?.some((entry) => entry.legacyAmounts?.length) && (
-                        <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
-                          Ada nominal sewa kendaraan dari data lama yang belum dipetakan ke jenis kendaraan. Periksa draft lama sebelum menggunakannya.
-                        </div>
-                      )}
                     </section>
 
                     <section className="mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
