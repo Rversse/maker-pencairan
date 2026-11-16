@@ -131,7 +131,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
                 inputMode={isAdmin ? 'numeric' : 'text'}
                 value={password}
                 onChange={(event) => {
-                  const value = isAdmin ? event.target.value.replace(/\D/g, '').slice(0, 8) : event.target.value.slice(0, 16)
+                  const value = isAdmin ? event.target.value.replace(/\D/g, '').slice(0, 8) : event.target.value.replace(/\s/g, '').slice(0, 16)
                   setPassword(value)
                   setPinError(false)
                   setError('')
@@ -142,7 +142,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
                 placeholder={isAdmin ? 'Masukkan 8 digit PIN' : 'Masukkan password'}
                 className={`h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${pinError ? 'border-rose-500 ring-1 ring-rose-500/50' : 'border-slate-700 focus:border-emerald-500'} ${shake ? 'maker-pin-shake' : ''}`}
               />
-              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none" aria-label={showPassword ? 'Sembunyikan PIN atau password' : 'Tampilkan PIN atau password'}><EyeIcon visible={showPassword} /></button>
+              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none" <EyeIcon visible={showPassword} /></button>
             </div>
             {isAdmin && <span className="mt-1 block text-[11px] text-slate-500">{password.length}/8 digit</span>}
           </label>
