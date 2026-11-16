@@ -244,7 +244,11 @@ Deno.serve(async (request: Request) => {
 
     if (action === "change_password") {
       const newPassword = String(body?.new_password ?? "");
+      const confirmPassword = String(body?.confirm_password ?? "");
       const oldPassword = String(body?.old_password ?? "");
+      if (newPassword !== confirmPassword) {
+        return json(request, { error: "Konfirmasi password baru tidak sama" }, 400);
+      }
       if (!/^(?=.*[A-Za-z])(?=.*\d)[\x21-\x7E]{8,16}$/.test(newPassword)) {
         return json(request, { error: "Password harus 8–16 karakter tanpa spasi" }, 400);
       }

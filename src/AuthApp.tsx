@@ -164,7 +164,7 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
   )
 }
 
-function ChangePasswordScreen({ onSave }: { onSave: (password: string) => Promise<void> }) {
+function ChangePasswordScreen({ onSave }: { onSave: (password: string, confirmPassword: string) => Promise<void> }) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -179,7 +179,7 @@ function ChangePasswordScreen({ onSave }: { onSave: (password: string) => Promis
     setBusy(true)
     setError('')
     try {
-      await onSave(password)
+      await onSave(password, confirm)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Password belum berhasil diganti.')
     } finally {
@@ -249,9 +249,9 @@ export default function AuthApp() {
     setView('workspace')
   }, [])
 
-  async function changePassword(password: string) {
+  async function changePassword(password: string, confirmPassword: string) {
     if (!auth) return
-    await authRequest({ action: 'change_password', new_password: password }, auth.token)
+    await authRequest({ action: 'change_password', new_password: password, confirm_password: confirmPassword }, auth.token)
     setAuth((current) => current ? { ...current, mustChange: false } : current)
   }
 
