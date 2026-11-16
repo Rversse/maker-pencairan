@@ -2101,7 +2101,7 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
 
           {masterData && !masterLoading && !masterError && (
             <div className="mt-3 mb-2 flex w-fit max-w-full flex-wrap items-end gap-2">
-              <div className="w-[180px] shrink-0">
+              <div className="w-[220px] shrink-0">
                 <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
                 <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
                   <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
