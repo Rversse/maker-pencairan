@@ -116,7 +116,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
         <div className="space-y-4">
           {!isAdmin && (
             <label className="block text-sm font-medium text-slate-300">Email
-              <input type="email" autoComplete="username" required value={identifier} onChange={(event) => { const value = event.target.value; setIdentifier(value); if (PASSWORD_PATTERN.test(password)) void submit(password, value, 'accountant') }} placeholder="akuntan.namadapur@internal.com" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500" />
+              <input type="email" autoComplete="username" required value={identifier} onChange={(event) => { setIdentifier(event.target.value); setError('') }} placeholder="akuntan.namadapur@internal.com" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500" />
             </label>
           )}
           <label className="block text-sm font-medium text-slate-300">{isAdmin ? 'PIN Admin' : 'Password'}
@@ -137,7 +137,20 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
                   setPinError(false)
                   setError('')
                   if (isAdmin && value.length === 8) void submit(value, '', 'admin')
-                  if (!isAdmin && PASSWORD_PATTERN.test(value)) void submit(value, identifier, 'accountant')
+                }}
+                onPaste={(event) => {
+                  if (isAdmin) return
+                  const input = event.currentTarget
+                  requestAnimationFrame(() => {
+                    const pasted = input.value
+                    if (PASSWORD_PATTERN.test(pasted)) void submit(pasted, identifier, 'accountant')
+                  })
+                }}
+                onKeyDown={(event) => {
+                  if (!isAdmin && event.key === 'Enter') {
+                    event.preventDefault()
+                    void submit(password, identifier, 'accountant')
+                  }
                 }}
                 onAnimationEnd={() => setShake(false)}
                 placeholder={isAdmin ? 'Masukkan 8 digit PIN' : 'Masukkan password'}
