@@ -50,27 +50,47 @@ function PasswordGuidance({ value }: { value: string }) {
   const strength = !value ? 'Belum diisi' : score <= 1 ? 'Lemah' : score === 2 ? 'Cukup' : score === 3 ? 'Baik' : 'Kuat'
   return <div className="mt-2 space-y-2"><div className="flex h-1.5 gap-1 overflow-hidden rounded-full bg-slate-800">{[1,2,3,4].map((n) => <span key={n} className={`flex-1 rounded-full ${score >= n ? 'bg-emerald-400' : 'bg-slate-800'}`} />)}</div><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[11px] text-slate-500">Kekuatan: {strength}</span><div className="flex flex-wrap gap-x-3">{checks.map((item) => <span key={item.label} className={`text-[11px] ${item.valid ? 'text-emerald-400' : 'text-slate-500'}`}>{item.valid ? '✓' : '○'} {item.label}</span>)}</div></div><p className="text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p></div>
 }
-function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: string) => Promise<void> }) {
-  const [role, setRole] = useState<'admin' | 'accountant'>('admin')
-  const [identifier, setIdentifier] = useState('')
+type KitchenOption = { id: string; name: string }
+
+function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitchenId: string, password: string) => Promise<void> }) {
+  const [role, setRole] = useState<'admin' | 'accountant' | null>(null)
+  const [kitchens, setKitchens] = useState<KitchenOption[]>([])
+  const [kitchenId, setKitchenId] = useState('')
+  const [loadingKitchens, setLoadingKitchens] = useState(false)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [pinError, setPinError] = useState(false)
   const [shake, setShake] = useState(false)
-  const pinRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
   const busyRef = useRef(false)
 
-  async function submit(nextPassword = password, nextIdentifier = identifier, selectedRole = role) {
-    if (selectedRole === 'admin' && !/^\d{8}$/.test(nextPassword)) {
-      setPinError(true)
-      setError('PIN Admin harus tepat 8 digit.')
-      pinRef.current?.focus()
+  useEffect(() => {
+    if (role !== 'accountant' || kitchens.length) return
+    let active = true
+    setLoadingKitchens(true)
+    void authRequest({ action: 'list_kitchens' }).then((result) => {
+      if (!active) return
+      const items = (result as AuthResponse & { kitchens?: KitchenOption[] }).kitchens ?? []
+      setKitchens(items)
+      setKitchenId(items[0]?.id ?? '')
+      if (!items.length) setError('Belum ada akun dapur aktif yang dapat digunakan.')
+    }).catch((err) => {
+      if (active) setError(err instanceof Error ? err.message : 'Daftar dapur gagal dimuat.')
+    }).finally(() => { if (active) setLoadingKitchens(false) })
+    return () => { active = false }
+  }, [role, kitchens.length])
+
+  async function submit() {
+    if (!role) return
+    const migrationPin = role === 'admin' && /^\d{8}$/.test(password)
+    if (!migrationPin && !PASSWORD_PATTERN.test(password)) {
+      setError('Password harus 8–16 karakter, minimal huruf dan angka, tanpa spasi.')
+      passwordRef.current?.focus()
       return
     }
-    if (selectedRole === 'accountant' && (!PASSWORD_PATTERN.test(nextPassword) || !nextIdentifier.trim())) {
-      setError('Password harus 8–16 karakter tanpa spasi.')
+    if (role === 'accountant' && !kitchenId) {
+      setError('Pilih dapur terlebih dahulu.')
       return
     }
     if (busyRef.current) return
@@ -78,22 +98,18 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
     setBusy(true)
     setError('')
     try {
-      await onLogin(selectedRole === 'admin' ? 'admin@internal.com' : nextIdentifier.trim().toLowerCase(), nextPassword)
+      await onLogin(role, role === 'accountant' ? kitchenId : '', password)
     } catch (err) {
       const status = (err as Error & { status?: number })?.status
       const rawMessage = err instanceof Error ? err.message : 'Login gagal.'
-      const message = selectedRole === 'accountant' && status === 401 ? 'Email atau Password salah' : status === 423 ? 'Akses login dapur ini diblokir setelah 5 kali percobaan gagal. Silakan hubungi Admin untuk membuka blokir.' : rawMessage
-      if (selectedRole === 'admin' && status === 401) {
+      const message = status === 401
+        ? role === 'admin' ? 'Password Admin salah.' : 'Password salah.'
+        : status === 423 ? 'Akses login dapur ini diblokir setelah 5 kali percobaan gagal. Silakan hubungi Admin untuk membuka blokir.' : rawMessage
+      setError(message)
+      if (role === 'admin' && status === 401) {
         setPassword('')
-        setPinError(true)
-        setError('PIN salah. Silakan coba lagi.')
         setShake(false)
-        requestAnimationFrame(() => {
-          setShake(true)
-          pinRef.current?.focus()
-        })
-      } else {
-        setError(message)
+        requestAnimationFrame(() => { setShake(true); passwordRef.current?.focus() })
       }
     } finally {
       busyRef.current = false
@@ -101,7 +117,6 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
     }
   }
 
-  const isAdmin = role === 'admin'
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
       <div className="w-full max-w-md rounded-2xl border border-slate-700/80 bg-slate-900/90 p-6 shadow-2xl sm:p-8">
@@ -109,61 +124,41 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
           <p className="text-lg font-bold tracking-tight text-white">Maker Pencairan</p>
           <h1 className="mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
         </div>
-        <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-1">
-          <button type="button" data-option-button="true" data-selected={isAdmin} onClick={() => { setRole('admin'); setError(''); setPinError(false); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Admin</button>
-          <button type="button" data-option-button="true" data-selected={!isAdmin} onClick={() => { setRole('accountant'); setError(''); setPinError(false); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Akuntan</button>
+        <div className="grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-1">
+          <button type="button" data-option-button="true" data-selected={role === 'admin'} onClick={() => { setRole('admin'); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Admin</button>
+          <button type="button" data-option-button="true" data-selected={role === 'accountant'} onClick={() => { setRole('accountant'); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Akuntan</button>
         </div>
-        <div className="space-y-4">
-          {!isAdmin && (
-            <label className="block text-sm font-medium text-slate-300">Email
-              <input type="email" autoComplete="username" required value={identifier} onChange={(event) => { setIdentifier(event.target.value); setError('') }} placeholder="akuntan.namadapur@internal.com" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500" />
-            </label>
+        <div className={`overflow-hidden transition-all duration-300 ease-out ${role ? 'mt-5 max-h-[420px] translate-y-0 opacity-100' : 'max-h-0 translate-y-2 opacity-0'}`}>
+          {role && (
+            <form onSubmit={(event) => { event.preventDefault(); void submit() }} className="space-y-4">
+              {role === 'accountant' && (
+                <label className="block text-sm font-medium text-slate-300">Pilih dapur
+                  <select value={kitchenId} onChange={(event) => { setKitchenId(event.target.value); setError('') }} disabled={loadingKitchens || kitchens.length === 0} className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500">
+                    {loadingKitchens && <option value="">Memuat dapur...</option>}
+                    {!loadingKitchens && !kitchens.length && <option value="">Tidak ada akun dapur aktif</option>}
+                    {kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
+                  </select>
+                </label>
+              )}
+              <label className="block text-sm font-medium text-slate-300">{role === 'admin' ? 'Password Admin' : 'Password'}
+                <div className="relative mt-1.5">
+                  <input ref={passwordRef} type={showPassword ? 'text' : 'password'} autoComplete="current-password" required minLength={8} maxLength={16} value={password}
+                    onChange={(event) => { setPassword(event.target.value.slice(0, 16)); setError('') }}
+                    onAnimationEnd={() => setShake(false)}
+                    placeholder="Masukkan password"
+                    className={`h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${error ? 'border-rose-500' : 'border-slate-700 focus:border-emerald-500'} ${shake ? 'maker-pin-shake' : ''}`} />
+                  <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
+                </div>
+              </label>
+              <p className="text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p>
+              {error && <p role="alert" className="rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
+              {busy && <p className="text-center text-xs text-emerald-400">Memverifikasi...</p>}
+              <button type="submit" data-button-kind="primary" disabled={busy || (role === 'accountant' && (!kitchenId || loadingKitchens)) || (!PASSWORD_PATTERN.test(password) && !(role === 'admin' && /^\d{8}$/.test(password)))} className="h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Memverifikasi...' : 'Masuk'}</button>
+              {role === 'admin' && <p className="text-[11px] text-amber-300">Transisi satu kali: PIN lama masih dapat digunakan untuk masuk dan langsung membuat password baru.</p>}
+            </form>
           )}
-          <label className="block text-sm font-medium text-slate-300">{isAdmin ? 'PIN Admin' : 'Password'}
-            <div className="relative mt-1.5">
-              <input
-                ref={isAdmin ? pinRef : undefined}
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="current-password"
-                required
-                minLength={8}
-                maxLength={isAdmin ? 8 : 16}
-                pattern={isAdmin ? '[0-9]{8}' : undefined}
-                inputMode={isAdmin ? 'numeric' : 'text'}
-                value={password}
-                onChange={(event) => {
-                  const value = isAdmin ? event.target.value.replace(/\D/g, '').slice(0, 8) : event.target.value.replace(/\s/g, '').slice(0, 16)
-                  setPassword(value)
-                  setPinError(false)
-                  setError('')
-                  if (isAdmin && value.length === 8) void submit(value, '', 'admin')
-                }}
-                onPaste={(event) => {
-                  if (isAdmin) return
-                  const input = event.currentTarget
-                  requestAnimationFrame(() => {
-                    const pasted = input.value
-                    if (PASSWORD_PATTERN.test(pasted)) void submit(pasted, identifier, 'accountant')
-                  })
-                }}
-                onKeyDown={(event) => {
-                  if (!isAdmin && event.key === 'Enter') {
-                    event.preventDefault()
-                    void submit(password, identifier, 'accountant')
-                  }
-                }}
-                onAnimationEnd={() => setShake(false)}
-                placeholder={isAdmin ? 'Masukkan 8 digit PIN' : 'Masukkan password'}
-                className={`h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${pinError ? 'border-rose-500 ring-1 ring-rose-500/50' : 'border-slate-700 focus:border-emerald-500'} ${shake ? 'maker-pin-shake' : ''}`}
-              />
-              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
-            </div>
-            {isAdmin && <span className="mt-1 block text-[11px] text-slate-500">{password.length}/8 digit</span>}
-          </label>
-          {!isAdmin && <p className="text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p>}
-          {error && <p role="alert" className="rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
-          {busy && <p className="text-center text-xs text-emerald-400">Memverifikasi...</p>}
         </div>
+        {!role && <p className="mt-4 text-center text-xs text-slate-500">Pilih jenis akun untuk melanjutkan.</p>}
       </div>
     </main>
   )
@@ -246,8 +241,8 @@ export default function AuthApp() {
     return () => { active = false }
   }, [])
 
-  const login = useCallback(async (identifier: string, password: string) => {
-    const result = await authRequest({ action: 'login', identifier, password })
+  const login = useCallback(async (role: 'admin' | 'accountant', kitchenId: string, password: string) => {
+    const result = await authRequest({ action: 'login', role, kitchen_id: kitchenId || undefined, password })
     if (!result.access_token || !result.user) throw new Error('Respons login tidak lengkap.')
     window.sessionStorage.setItem(SESSION_KEY, result.access_token)
     setAuth({ token: result.access_token, user: result.user, mustChange: Boolean(result.must_change_credential) })
