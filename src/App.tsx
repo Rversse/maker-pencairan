@@ -6,7 +6,6 @@ import {
   type MakerAccountRule
 } from './services/master-data'
 import { supabase } from './lib/supabase'
-import { DateRangePicker } from './DateRangePicker'
 
 type RabEntry = {
   accountId: string
@@ -1608,7 +1607,7 @@ function App() {
       ...entry,
       useArutalaAccount: true,
       customAccount: true,
-      operationalRuleType: '',
+      operationalRuleType: '' as const,
       transactionType: 'operasional_harian' as const
     }))
     updateTransaction(activeTransaction.id, {
@@ -2549,7 +2548,7 @@ function App() {
                       {(activeTransaction.gas ?? []).length > 0 ? (
                         <div className="mt-3 space-y-2">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi GAS</div>
-                          {(activeTransaction.gas ?? []).map((entry, index) => {
+                          {(activeTransaction.gas ?? []).map((entry) => {
                             const rule = gasRules[0]
                             const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                             const bank = rule?.accounts?.bank ?? '-'
