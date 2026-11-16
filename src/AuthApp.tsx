@@ -249,9 +249,9 @@ export default function AuthApp() {
     setView('workspace')
   }, [])
 
-  async function changePassword(password: string) {
+  async function changePassword(password: string, confirmPassword: string) {
     if (!auth) return
-    await authRequest({ action: 'change_password', new_password: password }, auth.token)
+    await authRequest({ action: 'change_password', new_password: password, confirm_password: confirmPassword }, auth.token)
     setAuth((current) => current ? { ...current, mustChange: false } : current)
   }
 
