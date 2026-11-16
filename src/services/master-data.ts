@@ -55,10 +55,15 @@ export type MakerMasterData = {
 }
 
 export async function getMakerMasterData(): Promise<MakerMasterData> {
-  const { data, error } = await supabase.functions.invoke('maker-master-data')
+  const token = window.sessionStorage.getItem('maker-session-token')
+  if (!token) throw new Error('Sesi login tidak ditemukan. Silakan login kembali.')
+
+  const { data, error } = await supabase.functions.invoke('maker-master-data-secure', {
+    headers: { Authorization: `Bearer ${token}` }
+  })
 
   if (error) {
-    throw error
+    throw new Error(data?.error ?? error.message ?? 'Gagal memuat master data.')
   }
 
   return data as MakerMasterData
