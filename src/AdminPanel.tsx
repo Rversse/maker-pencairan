@@ -158,7 +158,7 @@ export default function AdminPanel({ token }: { token: string }) {
             <h3 className="font-semibold text-emerald-100">{notice.title}</h3>
             <button type="button" onClick={() => setNotice(null)} className="rounded-lg border border-emerald-700/60 px-2.5 py-1.5 text-xs text-emerald-100">Tutup</button>
           </div>
-          <p className="mt-2 text-xs text-emerald-200/80"></p>
+          
           <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
             <div className="min-w-0 rounded-lg bg-slate-950/80 p-3">
               <p className="text-[10px] uppercase tracking-wider text-slate-500">Email</p>
@@ -166,7 +166,7 @@ export default function AdminPanel({ token }: { token: string }) {
               <p className="mt-3 text-[10px] uppercase tracking-wider text-slate-500">Password</p>
               <p className="break-all font-mono text-sm text-white">{notice.password}</p>
             </div>
-            <button type="button" onClick={() => void copy(`Email: ${notice.email}\nPassword sementara: ${notice.password}`)} className="rounded-lg border border-emerald-700/70 px-3 py-2 text-xs font-semibold text-emerald-100">Salin</button>
+            <button type="button" onClick={() => void copy(`Email: ${notice.email}\nPassword: ${notice.password}`)} className="rounded-lg border border-emerald-700/70 px-3 py-2 text-xs font-semibold text-emerald-100">Salin</button>
           </div>
           <p className="mt-2 text-xs text-amber-200">Hanya ditampilkan sekali, simpan dan kirim data ke Akuntan.</p>
         </div>
@@ -222,7 +222,7 @@ export default function AdminPanel({ token }: { token: string }) {
                   <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset'}</button>
                   <button type="button" disabled={Boolean(busy)} onClick={() => void setAccountStatus(account, !account.is_active)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">{account.is_active ? 'Nonaktifkan' : 'Aktifkan'}</button>
                 </div>
-                
+                <PasswordGuidance value={resetPasswords[account.user_id] ?? ''} />
               </article>
             ))}
           </div>
