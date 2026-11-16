@@ -3,14 +3,7 @@
 
 :root {
   color-scheme: dark;
-  --mp-light-page: #f3f6fb;
-  --mp-light-surface: #ffffff;
-  --mp-light-surface-muted: #f7f9fc;
-  --mp-light-field: #e9eff7;
-  --mp-light-border: #d9e2ef;
-  --mp-light-text: #162338;
-  --mp-light-text-muted: #526177;
-}
+              }
 
 html,
 body,
@@ -21,140 +14,6 @@ body,
 body {
   background: #080d19;
   transition: background-color 220ms ease, color 220ms ease;
-}
-
-:root[data-theme='light'] {
-  color-scheme: light;
-}
-
-:root[data-theme='light'] body {
-  background: var(--mp-light-page);
-  color: var(--mp-light-text);
-}
-
-:root[data-theme='light'] main {
-  background: var(--mp-light-page) !important;
-  color: var(--mp-light-text) !important;
-}
-
-/* Light theme surfaces. Attribute selectors cover both ordinary Tailwind
-   utilities and their opacity variants, including the date-picker portal. */
-:root[data-theme='light'] [class*='bg-slate-950'] {
-  background-color: var(--mp-light-surface) !important;
-}
-
-:root[data-theme='light'] [class*='bg-slate-900'] {
-  background-color: var(--mp-light-surface-muted) !important;
-}
-
-:root[data-theme='light'] [class*='bg-slate-800'] {
-  background-color: var(--mp-light-field) !important;
-}
-
-:root[data-theme='light'] [class*='from-slate-900'],
-:root[data-theme='light'] [class*='to-slate-900'],
-:root[data-theme='light'] [class*='from-slate-950'],
-:root[data-theme='light'] [class*='to-slate-950'],
-:root[data-theme='light'] [class*='bg-gradient-to-'] {
-  background-image: none !important;
-}
-
-:root[data-theme='light'] [class*='to-slate-950'] {
-  background-color: var(--mp-light-surface) !important;
-}
-
-:root[data-theme='light'] [class*='bg-amber-950'] {
-  background-color: #fff7e6 !important;
-}
-
-:root[data-theme='light'] [class*='bg-emerald-950'] {
-  background-color: #eafaf2 !important;
-}
-
-:root[data-theme='light'] [class*='bg-teal-950'],
-:root[data-theme='light'] [class*='bg-cyan-950'],
-:root[data-theme='light'] [class*='bg-sky-950'] {
-  background-color: #eef8fb !important;
-}
-
-:root[data-theme='light'] [class*='bg-violet-950'] {
-  background-color: #f5f2ff !important;
-}
-
-:root[data-theme='light'] [class*='bg-rose-950'] {
-  background-color: #fff1f2 !important;
-}
-
-:root[data-theme='light'] [class*='border-slate-700'],
-:root[data-theme='light'] [class*='border-slate-800'] {
-  border-color: var(--mp-light-border) !important;
-}
-
-:root[data-theme='light'] section[class*='border-amber-500'],
-:root[data-theme='light'] section[class*='border-cyan-600'],
-:root[data-theme='light'] section[class*='border-teal-600'],
-:root[data-theme='light'] section[class*='border-sky-600'],
-:root[data-theme='light'] section[class*='border-orange-600'],
-:root[data-theme='light'] section[class*='border-violet-600'],
-:root[data-theme='light'] section[class*='border-rose-600'],
-:root[data-theme='light'] section[class*='border-emerald-800'],
-:root[data-theme='light'] section[class*='border-emerald-700'] {
-  border-color: var(--mp-light-border) !important;
-}
-
-:root[data-theme='light'] [class~='text-white'],
-:root[data-theme='light'] [class~='text-slate-50'],
-:root[data-theme='light'] [class~='text-slate-100'],
-:root[data-theme='light'] [class~='text-slate-200'] {
-  color: var(--mp-light-text) !important;
-}
-
-:root[data-theme='light'] [class~='text-slate-300'],
-:root[data-theme='light'] [class~='text-slate-400'] {
-  color: var(--mp-light-text-muted) !important;
-}
-
-:root[data-theme='light'] [class~='text-slate-500'] {
-  color: #65758b !important;
-}
-
-:root[data-theme='light'] [class~='text-amber-100'] {
-  color: #8a4b08 !important;
-}
-
-:root[data-theme='light'] [class~='text-emerald-200'],
-:root[data-theme='light'] [class~='text-emerald-300'] {
-  color: #047857 !important;
-}
-
-:root[data-theme='light'] [class~='text-rose-300'] {
-  color: #be123c !important;
-}
-
-:root[data-theme='light'] [class~='text-sky-300'] {
-  color: #0369a1 !important;
-}
-
-:root[data-theme='light'] input,
-:root[data-theme='light'] textarea,
-:root[data-theme='light'] select {
-  color: var(--mp-light-text);
-}
-
-:root[data-theme='light'] input::placeholder,
-:root[data-theme='light'] textarea::placeholder {
-  color: #718096 !important;
-  opacity: 1;
-}
-
-:root[data-theme='light'] [class~='bg-emerald-600'] {
-  background-color: #059669 !important;
-  color: #ffffff !important;
-}
-
-:root[data-theme='light'] [class~='bg-emerald-500'] {
-  background-color: #10b981 !important;
-  color: #ffffff !important;
 }
 
 /* Uiverse-inspired animated day/night switch, adapted for Maker Pencairan. */
@@ -180,83 +39,7 @@ body {
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 220ms ease;
 }
 
-.theme-switch:hover {
-  transform: translateY(-1px);
-  border-color: #10b981;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), 0 7px 17px rgb(0 0 0 / 20%);
-}
-
-.theme-switch:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.theme-switch:focus-visible {
-  outline: 2px solid #10b981;
-  outline-offset: 3px;
-}
-
-.theme-switch__track {
-  position: relative;
-  display: inline-flex;
-  flex: 0 0 56px;
-  width: 56px;
-  height: 30px;
-  align-items: center;
-  border: 1px solid rgb(148 163 184 / 18%);
-  border-radius: 999px;
-  background: var(--switch-track);
-  box-shadow: inset 0 2px 5px rgb(0 0 0 / 28%);
-}
-
-.theme-switch__thumb {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  display: grid;
-  width: 24px;
-  height: 24px;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #6ee7b7, #059669);
-  color: #052e24;
-  box-shadow: 0 2px 7px rgb(0 0 0 / 28%);
-  transform: translateX(26px);
-  transition: transform 360ms cubic-bezier(0.2, 1.5, 0.4, 1), background 220ms ease, color 220ms ease;
-}
-
-.theme-switch__thumb svg {
-  width: 15px;
-  height: 15px;
-}
-
-.theme-switch[data-theme='light'] {
-  --switch-surface: linear-gradient(180deg, #ffffff, #edf3fa);
-  --switch-border: #d4dfed;
-  --switch-text: #27364b;
-  --switch-track: #dce6f1;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 4px 12px rgb(31 48 72 / 9%);
-}
-
-.theme-switch[data-theme='light'] .theme-switch__thumb {
-  background: linear-gradient(145deg, #fff8c5, #fbbf24);
-  color: #92400e;
-  transform: translateX(0);
-}
-
-.theme-switch__label {
-  min-width: 27px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.015em;
-  text-align: left;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .theme-switch,
-  .theme-switch__thumb,
-  body {
-    transition: none !important;
-  }
 }
 
 
@@ -276,22 +59,6 @@ body {
   --mp-action-hover-bg: #f8fafc;
   --mp-action-hover-text: #101827;
   --mp-action-hover-border: #f8fafc;
-}
-
-:root[data-theme='light'] {
-  --mp-card-top: #ffffff;
-  --mp-card-bottom: #f8fafc;
-  --mp-card-rim-a: #dbe5f0;
-  --mp-card-rim-b: #b7e8d3;
-  --mp-card-glow: rgb(16 185 129 / 5%);
-  --mp-card-shadow: 0 10px 28px rgb(31 48 72 / 7%);
-  --mp-card-shadow-hover: 0 14px 32px rgb(31 48 72 / 12%);
-  --mp-action-bg: linear-gradient(145deg, #ffffff, #edf2f8);
-  --mp-action-text: #1e293b;
-  --mp-action-border: #d0dbea;
-  --mp-action-hover-bg: #111827;
-  --mp-action-hover-text: #f8fafc;
-  --mp-action-hover-border: #111827;
 }
 
 .mp-card {
@@ -322,11 +89,6 @@ body {
   box-shadow: var(--mp-card-shadow-hover), inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
-:root[data-theme='light'] .mp-card:hover {
-  --mp-card-rim-a: #b8c9dc;
-  --mp-card-rim-b: #6fd6ae;
-}
-
 /* Every completed/valid data field uses a shared active border. */
 :root:not([data-theme='light']) .mp-field--has-output,
 :root:not([data-theme='light']) .mp-field--has-output:hover,
@@ -336,16 +98,6 @@ body {
 :root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
   border-color: #f8fafc !important;
   box-shadow: 0 0 0 1px rgb(248 250 252 / 18%), 0 0 6px rgb(248 250 252 / 18%) !important;
-}
-
-:root[data-theme='light'] .mp-field--has-output,
-:root[data-theme='light'] .mp-field--has-output:hover,
-:root[data-theme='light'] .mp-field--has-output:focus,
-:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
-:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
-:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
-  border-color: #dc2626 !important;
-  box-shadow: 0 0 0 1px rgb(220 38 38 / 25%), 0 0 8px rgb(220 38 38 / 28%) !important;
 }
 
 /* Compact corner radius for cards, controls, and bordered fields inside the workspace. */
@@ -379,14 +131,6 @@ button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
   transform: translateY(-1px);
 }
 
-:root[data-theme='light'] button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
-  border-color: var(--mp-action-hover-border) !important;
-  background: var(--mp-action-hover-bg) !important;
-  color: var(--mp-action-hover-text) !important;
-  box-shadow: 0 5px 14px rgb(31 48 72 / 13%);
-  transform: translateY(-1px);
-}
-
 button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):focus-visible {
   outline: 2px solid #10b981;
   outline-offset: 3px;
@@ -416,12 +160,6 @@ button[data-button-kind='primary'] {
   color: #101827 !important;
 }
 
-:root[data-theme='light'] button[data-button-kind='primary']:hover:not(:disabled) {
-  border-color: #111827 !important;
-  background: #111827 !important;
-  color: #f8fafc !important;
-}
-
 /* Product buttons are persistent choices, so keep their selected state visible.
    Unselected choices still invert on hover to match the theme's action buttons. */
 button[data-option-button='true'] {
@@ -436,23 +174,10 @@ button[data-option-button='true'] {
   color: #dbe5f1 !important;
 }
 
-:root[data-theme='light'] button[data-option-button='true'][data-selected='false'] {
-  border-color: #d0dbea !important;
-  background: linear-gradient(145deg, #ffffff, #edf2f8) !important;
-  color: #243247 !important;
-}
-
 :root:not([data-theme='light']) button[data-option-button='true'][data-selected='false']:hover {
   border-color: #f8fafc !important;
   background: #f8fafc !important;
   color: #101827 !important;
-  transform: translateY(-1px);
-}
-
-:root[data-theme='light'] button[data-option-button='true'][data-selected='false']:hover {
-  border-color: #111827 !important;
-  background: #111827 !important;
-  color: #f8fafc !important;
   transform: translateY(-1px);
 }
 
@@ -483,19 +208,6 @@ button[data-option-button='true']:focus-visible {
   gap: 0;
 }
 
-.theme-switch__track {
-  width: 54px;
-  flex-basis: 54px;
-}
-
-.theme-switch__thumb {
-  transform: translateX(24px);
-}
-
-.theme-switch[data-theme='light'] .theme-switch__thumb {
-  transform: translateX(0);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mp-card,
   button:not(.theme-switch),
@@ -521,23 +233,6 @@ button[data-option-button='true']:focus-visible {
 :root:not([data-theme='light']) select option:checked {
   color: #f0fdf4 !important;
   background: #1f3a36 !important;
-}
-
-:root[data-theme='light'] select {
-  color: #162338 !important;
-  background-color: #ffffff !important;
-  color-scheme: light;
-}
-
-:root[data-theme='light'] select option,
-:root[data-theme='light'] select optgroup {
-  color: #162338 !important;
-  background: #ffffff !important;
-}
-
-:root[data-theme='light'] select option:checked {
-  color: #065f46 !important;
-  background: #d1fae5 !important;
 }
 
 
@@ -575,24 +270,7 @@ button[data-option-button='true']:focus-visible {
   --mp-card-bottom: #0a1220;
   --mp-card-shadow: 0 22px 44px -20px rgb(0 0 0 / 70%), 0 2px 8px rgb(0 0 0 / 22%);
   --mp-card-shadow-hover: 0 26px 50px -20px rgb(0 0 0 / 75%), 0 4px 14px rgb(0 0 0 / 26%);
-  --mp-light-page: #eef3f9;
-}
-
-:root[data-theme='light'] {
-  --mp-page-bg: #eef3f9;
-  --mp-ambient-a: rgb(16 185 129 / 12%);
-  --mp-ambient-b: rgb(56 189 248 / 12%);
-  --mp-ambient-c: rgb(139 92 246 / 7%);
-  --mp-grid: rgb(15 23 42 / 4.5%);
-  --mp-inset-shadow: rgb(15 23 42 / 7%);
-  --mp-title-from: #0b1f2e;
-  --mp-title-to: #047857;
-  --mp-amount-from: #0b1f2e;
-  --mp-amount-to: #047857;
-  --mp-pre-border: rgb(5 150 105 / 22%);
-  --mp-card-shadow: 0 18px 40px -22px rgb(31 48 72 / 30%), 0 2px 6px rgb(31 48 72 / 6%);
-  --mp-card-shadow-hover: 0 22px 44px -22px rgb(31 48 72 / 36%), 0 4px 10px rgb(31 48 72 / 9%);
-}
+  }
 
 /* Typography ------------------------------------------------------------- */
 html {
@@ -625,10 +303,6 @@ body {
 
 main {
   background: transparent;
-}
-
-:root[data-theme='light'] main {
-  background: transparent !important;
 }
 
 body::before,
@@ -692,16 +366,8 @@ main header > div > span:first-child {
 .mp-card[class*='border-orange-600'] { --mp-accent: 251 146 60; }
 .mp-card[class*='border-violet-600'] { --mp-accent: 167 139 250; }
 
-:root[data-theme='light'] .mp-card {
-  --mp-card-rim-b: rgb(var(--mp-accent) / 30%);
-}
-
 .mp-card:hover {
   --mp-card-rim-b: rgb(var(--mp-accent) / 62%);
-}
-
-:root[data-theme='light'] .mp-card:hover {
-  --mp-card-rim-b: rgb(var(--mp-accent) / 50%);
 }
 
 .mp-card::before {
@@ -765,17 +431,9 @@ main header > div > span:first-child {
   border-color: rgb(var(--mp-accent) / 32%);
 }
 
-:root[data-theme='light'] .mp-card div[class*='rounded-lg'][class*='border-slate-800']:hover {
-  border-color: rgb(var(--mp-accent) / 45%) !important;
-}
-
 /* Fields ------------------------------------------------------------------ */
 .mp-card input[class*='bg-gradient-to-b'] {
   background-image: linear-gradient(180deg, #0b1424, #081020);
-}
-
-:root[data-theme='light'] .mp-card input[class*='bg-gradient-to-'] {
-  background-color: #fbfcfe !important;
 }
 
 .mp-card input:not([type='checkbox']):not([type='radio']),
@@ -788,11 +446,6 @@ main header > div > span:first-child {
 .mp-card select:focus {
   border-color: rgb(var(--mp-accent) / 85%);
   box-shadow: inset 0 1px 2px var(--mp-inset-shadow), 0 0 0 3px rgb(var(--mp-accent) / 20%);
-}
-
-:root[data-theme='light'] .mp-card input:not([type='checkbox']):not([type='radio']):not(.mp-field--has-output):focus,
-:root[data-theme='light'] .mp-card select:focus {
-  border-color: rgb(var(--mp-accent) / 85%) !important;
 }
 
 /* Product chips ----------------------------------------------------------- */
@@ -843,11 +496,6 @@ button[data-button-kind='primary']:hover:not(:disabled)::after {
   box-shadow: inset 0 8px 28px rgb(0 0 0 / 28%), inset 0 0 0 1px rgb(255 255 255 / 2%);
 }
 
-:root[data-theme='light'] .mp-card pre {
-  background-color: #f6f9fc !important;
-  box-shadow: inset 0 2px 8px rgb(15 23 42 / 6%);
-}
-
 /* Totals sidebar ---------------------------------------------------------- */
 aside.mp-card .rounded-lg {
   background-image: linear-gradient(160deg, rgb(var(--mp-accent) / 9%), transparent 60%);
@@ -893,24 +541,11 @@ aside [title='Belum diisi']::before {
   box-shadow: 0 0 8px currentColor;
 }
 
-/* The 400-level tints are too faint on a white page; darken them in light. */
-:root[data-theme='light'] aside [title='Sudah diisi'] {
-  color: #047857;
-}
-
-:root[data-theme='light'] aside [title='Belum diisi'] {
-  color: #be123c;
-}
-
 /* Date range popover ------------------------------------------------------ */
 [role='dialog'][aria-label*='rentang'] {
   border-radius: 14px;
   box-shadow: 0 28px 64px -16px rgb(0 0 0 / 60%), 0 0 0 1px rgb(255 255 255 / 5%);
   backdrop-filter: blur(14px);
-}
-
-:root[data-theme='light'] [role='dialog'][aria-label*='rentang'] {
-  box-shadow: 0 24px 56px -18px rgb(31 48 72 / 35%), 0 0 0 1px rgb(15 23 42 / 6%);
 }
 
 /* Date field column: Inter is wider than the old font, so the fixed 145px
