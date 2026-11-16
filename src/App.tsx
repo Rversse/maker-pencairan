@@ -234,13 +234,6 @@ function getSppgRental(
   return getOperationalMapping(kitchenName, masterData, 'sppg_rent')
 }
 
-function getVehicleRentAccount(
-  kitchenName: string,
-  masterData: MakerMasterData | null
-): BankAccountMapping | null {
-  return getOperationalMapping(kitchenName, masterData, 'vehicle_rent')
-}
-
 function toIsoDate(date: Date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -356,13 +349,12 @@ function getOutputCategoryRank(
     | 'rab'
     | 'operasional_harian'
     | 'pencairan_harian'
-    | 'sewa_kendaraan'
     | 'gas'
     | 'lain_lain'
 ) {
   if (kind === 'rab') return 0
   if (kind === 'operasional_harian') return 1
-  if (kind === 'pencairan_harian' || kind === 'sewa_kendaraan') return 2
+  if (kind === 'pencairan_harian') return 2
   if (kind === 'gas') return 3
   return 4
 }
@@ -507,25 +499,6 @@ function emptyVehicleRentEntry(id = 1, vehicleType: 'Mobil' | 'Motor' = 'Mobil')
     amount: '',
     legacyAmounts: []
   }
-}
-
-function formatVehicleRentPeriod(startDate: string, endDate: string) {
-  if (!startDate || !endDate) return ''
-  const [startYear, startMonth, startDay] = startDate.split('-')
-  const [endYear, endMonth, endDay] = endDate.split('-')
-  if (!startYear || !startMonth || !startDay || !endYear || !endMonth || !endDay) return ''
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
-  const startMonthName = monthNames[Number(startMonth) - 1]
-  const endMonthName = monthNames[Number(endMonth) - 1]
-  if (!startMonthName || !endMonthName) return ''
-  if (startYear === endYear && startMonth === endMonth) {
-    return `${startDay}-${endDay} ${startMonthName} ${endYear}`
-  }
-  const start = startYear === endYear
-    ? `${startDay}-${startMonthName}`
-    : `${startDay}-${startMonthName}-${startYear}`
-  const end = `${endDay}-${endMonthName}-${endYear}`
-  return start + ' s.d. ' + end
 }
 
 function createPayrollEntry(
@@ -1364,25 +1337,6 @@ function App() {
     )
   }
 
-  function updateVehicleRentEntry(
-    transactionId: number,
-    id: number,
-    update: Partial<VehicleRentEntry>
-  ) {
-    setTransactions((current) =>
-      current.map((transaction) =>
-        transaction.id === transactionId
-          ? {
-              ...transaction,
-              sewa_kendaraan: (transaction.sewa_kendaraan ?? []).map((entry) =>
-                entry.id === id ? { ...entry, ...update } : entry
-              )
-            }
-          : transaction
-      )
-    )
-  }
-
   function addOperationalEntry() {
     if (!activeTransaction) return
     const currentEntries = activeTransaction.operasional ?? []
@@ -1840,31 +1794,6 @@ function App() {
       })
     }
 
-    for (const entry of transaction.sewa_kendaraan ?? []) {
-      if (!entry.startDate || !entry.endDate || entry.endDate < entry.startDate) continue
-      const account = getVehicleRentAccount(kitchenName, masterData)
-      if (!account) continue
-      const vehicleType = entry.vehicleType ?? 'Mobil'
-      const amount = entry.amount ?? (vehicleType === 'Mobil' ? entry.mobilAmount : entry.motorAmount) ?? ''
-      const unitCount = String(entry.unitCount ?? '1').replace(/\D/g, '') || '1'
-      if (!isCompleteAmount(amount)) continue
-      const period = formatVehicleRentPeriod(entry.startDate, entry.endDate)
-      if (!period || period.length > 40) continue
-      items.push({
-        kind: 'sewa_kendaraan',
-        bank: getOutputBank(account.bank),
-        line:
-          ('SEWA KENDARAAN ' + unitCount + ' UNIT ' + vehicleType).toLocaleUpperCase('id-ID') +
-          ' (' + period + ') : ' +
-          capitalizeEachWord(account.ownerName) +
-          ' - ' + getOutputBank(account.bank) +
-          ' / ' + account.accountNumber +
-          ' · ' + formatNumber(amount),
-        index: items.length,
-        modeRank: 0
-      })
-    }
-
     for (const rule of sortedRabRules) {
       const entry = transaction.rab.find(
         (item) => item.accountId === rule.account_id
@@ -1996,8 +1925,6 @@ function App() {
       let label = ''
       if (line.startsWith('INSENTIF FASILITAS SPPG : ')) {
         label = 'Fasilitas SPPG'
-      } else if (line.startsWith('SEWA KENDARAAN ')) {
-        label = 'Sewa Kendaraan'
       } else if (line.startsWith('OPS HARIAN : ')) {
         const firstSeparator = line.indexOf(' · ')
         const amountSeparator = line.lastIndexOf(' · ')
@@ -2841,69 +2768,6 @@ function App() {
                             )
                           })}
                       </div>
-                    </section>
-
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-orange-600/70 bg-slate-900/40 p-3">
-                      <h2 className="text-base font-semibold text-white">Pencairan Sewa Kendaraan</h2>
-                      {(() => {
-                        const entries = activeTransaction.sewa_kendaraan ?? []
-                        const account = getVehicleRentAccount(selectedKitchen?.name ?? '', masterData)
-                        return (
-                          <div className="mt-3 grid grid-cols-1 gap-3 xl:grid-cols-2">
-                            {(['Mobil', 'Motor'] as const).map((vehicleType) => {
-                              const entry = entries.find((item) => item.vehicleType === vehicleType) ??
-                                emptyVehicleRentEntry(vehicleType === 'Mobil' ? 1 : 2, vehicleType)
-                              const amount = entry.amount ?? ''
-                              const prefix = 'SEWA KENDARAAN '
-                              return (
-                                <div key={vehicleType} className="min-w-0 rounded-lg border border-slate-700/80 bg-slate-950/35 p-3">
-                                  <h3 className="mb-2 text-sm font-bold text-slate-100">Sewa {vehicleType}</h3>
-                                  <div className="grid min-w-0 grid-cols-3 gap-2">
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nama rekening</label>
-                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">
-                                        <span title={account?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{(account?.ownerName ?? '').trim().toLocaleLowerCase('id-ID') === 'berkah mandiri putra' ? 'BMP' : account?.ownerName ?? 'Mapping belum tersedia'}</span>
-                                      </div>
-                                    </div>
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Bank</label>
-                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{account?.bank ?? '-'}</div>
-                                    </div>
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nomor rekening</label>
-                                      <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span title={account?.accountNumber ?? '-'} className="truncate">{account?.accountNumber ?? '-'}</span></div>
-                                    </div>
-                                  </div>
-                                  <div className="mt-2 grid min-w-0 grid-cols-[minmax(0,1fr)_100px] gap-2">
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Periode sewa</label>
-                                      <DateRangePicker
-                                        value={{ startDate: entry.startDate, endDate: entry.endDate }}
-                                        onChange={(range) => updateVehicleRentEntry(activeTransaction.id, entry.id, { startDate: range.startDate, endDate: range.endDate })}
-                                        placeholder="Pilih rentang tanggal"
-                                        active={hasOutputAmount(prefix, account?.accountNumber ?? '-', amount)}
-                                      />
-                                    </div>
-                                    <div className="min-w-0">
-                                      <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Jumlah unit</label>
-                                      <input type="text" inputMode="numeric" value={entry.unitCount ?? '1'} onChange={(event) => updateVehicleRentEntry(activeTransaction.id, entry.id, { unitCount: event.target.value.replace(/\D/g, '').slice(0, 3) })} placeholder="1" aria-label={'Jumlah unit ' + vehicleType} className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25" />
-                                    </div>
-                                  </div>
-                                  <div className="mt-2">
-                                    <label className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-slate-400">Nominal {vehicleType}</label>
-                                    <input type="text" inputMode="numeric" value={formatNumber(amount)} onChange={(event) => updateVehicleRentEntry(activeTransaction.id, entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={'Nominal ' + vehicleType} aria-label={'Nominal sewa ' + vehicleType} className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${isCompleteAmount(amount) ? 'mp-field--has-output' : ''}`} />
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )
-                      })()}
-                      {activeTransaction.sewa_kendaraan?.some((entry) => entry.legacyAmounts?.length) && (
-                        <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
-                          Ada nominal sewa kendaraan dari data lama yang belum dipetakan ke jenis kendaraan. Periksa draft lama sebelum menggunakannya.
-                        </div>
-                      )}
                     </section>
 
                     <section className="mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
