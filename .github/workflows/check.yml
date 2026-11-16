@@ -31,9 +31,9 @@ jobs:
 
       - name: Check Maker Edge Functions
         run: |
-          deno check supabase/functions/maker-auth/index.ts
-          deno check supabase/functions/maker-admin-accounts/index.ts
-          deno check supabase/functions/maker-history/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-auth/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-admin-accounts/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-history/index.ts
 
       - name: Build
         run: npm run build
