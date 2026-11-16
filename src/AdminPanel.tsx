@@ -156,10 +156,8 @@ export default function AdminPanel({ token }: { token: string }) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">Manajemen Akuntan</p>
-            <h2 className="mt-1 text-xl font-bold text-white">Akuntan</h2>
-            
           </div>
-          <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200">Muat ulang</button>
+          <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} aria-label="Muat ulang daftar akun" title="Muat ulang" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-600 bg-slate-800/70 text-slate-200 transition hover:border-emerald-500 hover:text-emerald-300 disabled:opacity-40"><svg viewBox="0 0 24 24" className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5" /><path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3" /></svg></button>
         </div>
       </div>
 
@@ -191,7 +189,7 @@ export default function AdminPanel({ token }: { token: string }) {
         {loading ? <p className="mt-3 text-sm text-slate-400">Memuat daftar dapur...</p> : data.available_kitchens.length === 0 ? (
           <p className="mt-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Semua dapur aktif sudah memiliki akun Akuntan.</p>
         ) : (
-          <div className="mt-3 grid gap-3 md:grid-cols-[minmax(180px,0.8fr)_minmax(240px,1.2fr)_auto] md:items-end">
+          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-[minmax(180px,0.8fr)_minmax(240px,1.2fr)_auto_auto] md:items-end">
             <label className="block text-xs font-medium text-slate-300">Dapur
               <select value={kitchenId} onChange={(e) => setKitchenId(e.target.value)} className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white">
                 {data.available_kitchens.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
@@ -200,8 +198,8 @@ export default function AdminPanel({ token }: { token: string }) {
             <label className="block text-xs font-medium text-slate-300">Password
               <div className="mt-1.5 flex gap-2"><div className="relative min-w-0 flex-1"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.replace(/\s/g, '').slice(0, 16))} placeholder="Password (16 karakter)" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} aria-label={showInitialPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showInitialPassword} /></button></div><button type="button" onClick={() => setInitialPassword(generatePassword(includeSymbols))} className="h-11 shrink-0 rounded-lg border border-emerald-700/70 px-3 text-xs font-semibold text-emerald-200">Acak</button></div>
             </label>
-            <label className="inline-flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={includeSymbols} onChange={(e) => setIncludeSymbols(e.target.checked)} className="accent-emerald-500" />Sertakan simbol saat generate</label>
-            <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Submit'}</button>
+            <button type="button" aria-pressed={includeSymbols} onClick={() => setIncludeSymbols((value) => !value)} className={`h-11 rounded-lg border px-3 text-xs font-semibold transition ${includeSymbols ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200 shadow-[0_0_0_1px_rgba(16,185,129,0.18)]' : 'border-slate-600 bg-slate-800/70 text-slate-300 hover:border-emerald-600 hover:text-white'}`}><span className="mr-1.5">{includeSymbols ? '✓' : '＋'}</span>Tambah Simbol</button>
+            <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 min-w-24 rounded-lg px-5 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Submit'}</button>
           </div>
         )}
         
@@ -224,7 +222,6 @@ export default function AdminPanel({ token }: { token: string }) {
                   <div className="min-w-0">
                     <h4 className="font-semibold text-white">{account.display_name}</h4>
                     <p className="mt-0.5 break-all font-mono text-xs text-slate-400">{account.email ?? 'Email tidak ditemukan'}</p>
-                    <p className="mt-1 text-xs text-slate-400">Dapur: {account.kitchen?.name ?? 'Belum ada assignment'}{account.kitchen && !account.kitchen.is_active ? ' · Nonaktif' : ''}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={account.is_active ? 'rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 text-[11px] text-emerald-300' : 'rounded-full border border-rose-700/60 bg-rose-950/40 px-2.5 py-1 text-[11px] text-rose-300'}>{account.is_active ? 'Aktif' : 'Nonaktif'}</span>
