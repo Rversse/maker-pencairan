@@ -149,11 +149,6 @@ Deno.serve(async (request: Request) => {
         return json(request, { error: "Data HISTORY awal tidak lengkap" }, 400);
       }
       if (!(await canAccessKitchen(kitchenId))) return json(request, { error: "Akses dapur ditolak" }, 403);
-      const { data: existing, error: existingError } = await db.from("maker_drafts").select("id")
-        .eq("kitchen_id", kitchenId).eq("transaction_date", transactionDate).maybeSingle();
-      if (existingError) return json(request, { error: "HISTORY tidak dapat diperiksa" }, 503);
-      if (existing) return json(request, { error: "HISTORY untuk dapur dan tanggal ini sudah ada" }, 409);
-
       const { data: draft, error } = await db.from("maker_drafts").insert({
         kitchen_id: kitchenId, created_by: profile.user_id, title: String(body?.title ?? "").slice(0, 160) || null,
         status: "ready", payload, transaction_date: transactionDate, version: 1, last_event_at: new Date().toISOString(),
