@@ -27,6 +27,16 @@ async function adminRequest<T>(token: string, body: Record<string, unknown>): Pr
   return data as T
 }
 
+function EyeIcon({ visible }: { visible: boolean }) {
+  return <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" />{visible && <path d="m4 4 16 16" />}</svg>
+}
+
+function PasswordGuidance({ value }: { value: string }) {
+  const checks = [{ label: '8 karakter', valid: value.length >= 8 }, { label: 'Huruf', valid: /[A-Za-z]/.test(value) }, { label: 'Angka', valid: /\d/.test(value) }]
+  const score = checks.filter((item) => item.valid).length + (/[\W_]/.test(value) ? 1 : 0)
+  const strength = !value ? 'Belum diisi' : score <= 1 ? 'Lemah' : score === 2 ? 'Cukup' : score === 3 ? 'Baik' : 'Kuat'
+  return <div className="mt-2 space-y-2"><div className="flex h-1.5 gap-1 overflow-hidden rounded-full bg-slate-800">{[1,2,3,4].map((n) => <span key={n} className={`flex-1 rounded-full ${score >= n ? 'bg-emerald-400' : 'bg-slate-800'}`} />)}</div><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[11px] text-slate-500">Kekuatan: {strength}</span><div className="flex flex-wrap gap-x-3">{checks.map((item) => <span key={item.label} className={`text-[11px] ${item.valid ? 'text-emerald-400' : 'text-slate-500'}`}>{item.valid ? '✓' : '○'} {item.label}</span>)}</div></div><p className="text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p></div>
+}
 export default function AdminPanel({ token }: { token: string }) {
   const [data, setData] = useState<AdminList>({ accountants: [], available_kitchens: [] })
   const [loading, setLoading] = useState(true)
@@ -174,8 +184,9 @@ export default function AdminPanel({ token }: { token: string }) {
               </select>
             </label>
             <label className="block text-xs font-medium text-slate-300">Password
-              <div className="relative mt-1.5"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.replace(/\s/g, '').slice(0, 16))} placeholder="Password" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-xs text-slate-300 shadow-none">{showInitialPassword ? 'Sembunyikan' : 'Tampilkan'}</button></div>
+              <div className="relative mt-1.5"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.replace(/\s/g, '').slice(0, 16))} placeholder="Password" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} aria-label={showInitialPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showInitialPassword} /></button></div>
             </label>
+            <div className="md:col-span-2"><PasswordGuidance value={initialPassword} /></div>
             <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Submit'}</button>
           </div>
         )}
@@ -207,7 +218,7 @@ export default function AdminPanel({ token }: { token: string }) {
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_auto_auto]">
-                  <div className="relative"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.replace(/\s/g, '').slice(0, 16) }))} placeholder="Password baru" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-12 text-xs text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-[10px] text-slate-300 shadow-none">{showResetPasswords[account.user_id] ? 'Sembunyikan' : 'Tampilkan'}</button></div>
+                  <div className="relative"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.replace(/\s/g, '').slice(0, 16) }))} placeholder="Password baru" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-12 text-xs text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} aria-label={showResetPasswords[account.user_id] ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-9 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={Boolean(showResetPasswords[account.user_id])} /></button></div>
                   <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset'}</button>
                   <button type="button" disabled={Boolean(busy)} onClick={() => void setAccountStatus(account, !account.is_active)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">{account.is_active ? 'Nonaktifkan' : 'Aktifkan'}</button>
                 </div>
