@@ -61,7 +61,7 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
     if (salt.length < 16 || expected.length < 32 || expected.length > 64) return false;
     const material = await crypto.subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
     const bits = await crypto.subtle.deriveBits(
-      { name: "PBKDF2", hash: "SHA-256", salt, iterations },
+      { name: "PBKDF2", hash: "SHA-256", salt: salt as BufferSource, iterations },
       material,
       expected.length * 8,
     );
@@ -199,9 +199,10 @@ Deno.serve(async (request: Request) => {
 
       if (!valid) {
         if (role === "accountant" && kitchenId && credential) {
-          const { data: lockResult, error: rateError } = await db.rpc("maker_register_kitchen_login_failure", {
+          const { data: lockResultRaw, error: rateError } = await db.rpc("maker_register_kitchen_login_failure", {
             p_kitchen_id: kitchenId,
           }).maybeSingle();
+          const lockResult = lockResultRaw as { is_locked: boolean; attempts: number } | null;
           if (rateError || !lockResult) return json(request, { error: "Login protection service unavailable" }, 503);
           if (lockResult.is_locked) return json(request, {
             error: "Akses login dapur ini dikunci setelah 5 kali percobaan gagal. Silakan hubungi Admin untuk membuka blokir.",
@@ -216,6 +217,8 @@ Deno.serve(async (request: Request) => {
         const { error: clearKitchenError } = await db.rpc("maker_clear_kitchen_login_failures", { p_kitchen_id: kitchenId });
         if (clearKitchenError) return json(request, { error: "Login protection service unavailable" }, 503);
       }
+
+      if (!profile || !credential) return json(request, { error: "Akun tidak valid atau tidak aktif" }, 401);
 
       const rawToken = new Uint8Array(32);
       crypto.getRandomValues(rawToken);
