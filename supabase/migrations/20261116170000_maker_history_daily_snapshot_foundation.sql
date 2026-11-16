@@ -7,8 +7,8 @@ alter table public.maker_drafts
   add column if not exists version integer not null default 1,
   add column if not exists last_event_at timestamptz;
 
-create unique index if not exists maker_drafts_kitchen_transaction_date_uidx
-  on public.maker_drafts (kitchen_id, transaction_date)
+create index if not exists maker_drafts_kitchen_transaction_date_idx
+  on public.maker_drafts (kitchen_id, transaction_date, created_at desc)
   where transaction_date is not null;
 
 create index if not exists maker_drafts_kitchen_created_at_idx
