@@ -52,9 +52,9 @@ function changedFields(before: Record<string, unknown>, after: Record<string, un
     if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) delta[key] = after[key] ?? null
   }
   if (Object.prototype.hasOwnProperty.call(delta, 'output')) {
-    const oldLines = new Set(String(before.output ?? '').split(/\\r?\\n/).filter(Boolean))
-    delta.incremental_output = String(after.output ?? '').split(/\\r?\\n/)
-      .filter(line => line.trim() && !oldLines.has(line)).join('\\n')
+    const oldLines = new Set(String(before.output ?? '').split(/\r?\n/).filter(Boolean))
+    delta.incremental_output = String(after.output ?? '').split(/\r?\n/)
+      .filter(line => line.trim() && !oldLines.has(line)).join('\n')
   }
   return delta
 }
