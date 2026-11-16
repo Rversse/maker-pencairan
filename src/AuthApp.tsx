@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import MakerWorkspace from './App'
 import AdminPanel from './AdminPanel'
 import { supabase } from './lib/supabase'
@@ -40,27 +40,29 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
   const [pinError, setPinError] = useState(false)
   const [shake, setShake] = useState(false)
   const pinRef = useRef<HTMLInputElement>(null)
+  const busyRef = useRef(false)
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  async function submit(nextPassword = password, nextIdentifier = identifier, selectedRole = role) {
     if (role === 'admin' && !/^\d{8}$/.test(password)) {
       setPinError(true)
       setError('PIN Admin harus tepat 8 digit.')
       pinRef.current?.focus()
       return
     }
-    if (role === 'accountant' && !PASSWORD_PATTERN.test(password)) {
+    if (selectedRole === 'accountant' && (!PASSWORD_PATTERN.test(nextPassword) || !nextIdentifier.trim())) {
       setError('Password harus 8–16 karakter tanpa spasi.')
       return
     }
+    if (busyRef.current) return
+    busyRef.current = true
     setBusy(true)
     setError('')
     try {
-      await onLogin(role === 'admin' ? 'admin@internal.com' : identifier.trim().toLowerCase(), password)
+      await onLogin(selectedRole === 'admin' ? 'admin@internal.com' : nextIdentifier.trim().toLowerCase(), nextPassword)
     } catch (err) {
       const status = (err as Error & { status?: number })?.status
       const message = err instanceof Error ? err.message : 'Login gagal. Periksa kembali kredensial.'
-      if (role === 'admin' && status === 401) {
+      if (selectedRole === 'admin' && status === 401) {
         setPassword('')
         setPinError(true)
         setError('PIN salah. Silakan coba lagi.')
@@ -73,6 +75,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
         setError(message)
       }
     } finally {
+      busyRef.current = false
       setBusy(false)
     }
   }
@@ -83,18 +86,17 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
       <div className="w-full max-w-md rounded-2xl border border-slate-700/80 bg-slate-900/90 p-6 shadow-2xl sm:p-8">
         <div className="mb-7 text-center">
           <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-emerald-700/60 bg-emerald-950/50 text-xl font-black text-emerald-300">M</div>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">Maker Pencairan</p>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight">Masuk ke akun</h1>
-          <p className="mt-2 text-sm text-slate-400">Gunakan kredensial yang diberikan oleh Admin.</p>
+          <p className="text-lg font-bold tracking-tight text-white">Maker Pencairan</p>
+          <h1 className="mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
         </div>
         <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-1">
           <button type="button" data-option-button="true" data-selected={isAdmin} onClick={() => { setRole('admin'); setError(''); setPinError(false); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Admin</button>
           <button type="button" data-option-button="true" data-selected={!isAdmin} onClick={() => { setRole('accountant'); setError(''); setPinError(false); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Akuntan</button>
         </div>
-        <form onSubmit={(event) => void submit(event)} className="space-y-4">
+        <div className="space-y-4">
           {!isAdmin && (
             <label className="block text-sm font-medium text-slate-300">Email login
-              <input type="email" autoComplete="username" required value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="akuntan.namadapur@internal.com" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500" />
+              <input type="email" autoComplete="username" required value={identifier} onChange={(event) => { const value = event.target.value; setIdentifier(value); if (PASSWORD_PATTERN.test(password)) void submit(password, value, 'accountant') }} placeholder="akuntan.namadapur@internal.com" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500" />
             </label>
           )}
           <label className="block text-sm font-medium text-slate-300">{isAdmin ? 'PIN Admin' : 'Password'}
@@ -114,6 +116,8 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
                   setPassword(value)
                   setPinError(false)
                   setError('')
+                  if (isAdmin && value.length === 8) void submit(value, '', 'admin')
+                  if (!isAdmin && PASSWORD_PATTERN.test(value)) void submit(value, identifier, 'accountant')
                 }}
                 onAnimationEnd={() => setShake(false)}
                 placeholder={isAdmin ? 'Masukkan 8 digit PIN' : 'Masukkan password'}
@@ -124,9 +128,8 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
             {isAdmin && <span className="mt-1 block text-[11px] text-slate-500">{password.length}/8 digit</span>}
           </label>
           {error && <p role="alert" className="rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
-          <button type="submit" data-button-kind="primary" disabled={busy || (isAdmin ? password.length !== 8 : !PASSWORD_PATTERN.test(password) || !identifier.trim())} className="h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Memeriksa...' : 'Masuk'}</button>
-        </form>
-        <p className="mt-5 text-center text-xs leading-5 text-slate-500">Jika lupa password, hubungi Admin untuk reset akses. Sistem tidak mengirim notifikasi otomatis.</p>
+          {busy && <p className="text-center text-xs text-emerald-400">Memverifikasi...</p>}
+        </div>
       </div>
     </main>
   )
@@ -223,13 +226,12 @@ export default function AuthApp() {
     setAuth((current) => current ? { ...current, mustChange: false } : current)
   }
 
-  async function logout() {
-    if (auth) {
-      try { await authRequest({ action: 'logout' }, auth.token) } catch { /* Clear local session even if network is unavailable. */ }
-    }
+  function logout() {
+    const token = auth?.token
     window.sessionStorage.removeItem(SESSION_KEY)
     setAuth(null)
     setView('workspace')
+    if (token) void authRequest({ action: 'logout' }, token).catch(() => undefined)
   }
 
   if (checking) {
