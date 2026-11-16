@@ -23,6 +23,7 @@ type SimpleEntry = {
   accountNumber: string
   ownerName: string
   bank?: string
+  isVirtualAccount?: boolean
   customAccount?: boolean
   operationalRuleType?: 'gaji_akuntan' | 'gaji_ahli_gizi' | ''
   need: string
@@ -1688,6 +1689,7 @@ function App() {
           ' / ' +
           accountNumber +
           (note ? ' · ' + note : '') +
+          (operationalEntry.isVirtualAccount ? ' · VA' : '') +
           ' · ' +
           formatNumber(operationalEntry.amount),
         kind: 'operasional_harian'
@@ -2665,12 +2667,13 @@ function App() {
                         : [createOperationalEntry()]
                       return (
                         <div className="mt-2 space-y-1.5">
-                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
+                          <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]">
                             <span></span>
                             <span>Nama rekening</span>
                             <span>Bank</span>
                             <span>Nomor rekening</span>
                             <span>Catatan</span>
+                            <span>Transfer</span>
                             <span>Nominal</span>
                             <span></span>
                           </div>
@@ -2700,7 +2703,7 @@ function App() {
                             const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
-                                <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]">
+                                <div className="grid min-w-0 items-end gap-2 lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]">
                                   {custom ? (
                                     <select
                                       value={selectedType}
@@ -2759,6 +2762,10 @@ function App() {
                                     aria-label="Catatan Operasional Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
+                                  <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
+                                    <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
+                                    <span>VA</span>
+                                  </label>
                                   <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
                                     <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
                                     <span>VA</span>
