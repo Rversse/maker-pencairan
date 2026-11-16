@@ -34,6 +34,9 @@ jobs:
           deno check --node-modules-dir=auto supabase/functions/maker-auth/index.ts
           deno check --node-modules-dir=auto supabase/functions/maker-admin-accounts/index.ts
           deno check --node-modules-dir=auto supabase/functions/maker-history/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-master-data-secure/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-master-data/index.ts
+          deno check --node-modules-dir=auto supabase/functions/maker-bootstrap-admin/index.ts
 
       - name: Build
         run: npm run build
