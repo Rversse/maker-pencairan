@@ -16,7 +16,7 @@ type AdminList = {
   available_kitchens: Kitchen[]
 }
 type CredentialNotice = { title: string; email: string; password: string }
-const PASSWORD_PATTERN = /^[\x21-\x7E]{8,16}$/
+const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[\x21-\x7E]{8,16}$/
 
 async function adminRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke('maker-admin-accounts', {
@@ -131,9 +131,9 @@ export default function AdminPanel({ token }: { token: string }) {
       <div className="rounded-2xl border border-slate-700/80 bg-slate-900/80 p-4 shadow-xl sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">Administrasi akses</p>
-            <h2 className="mt-1 text-xl font-bold text-white">Akun Akuntan per Dapur</h2>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">Satu dapur memiliki satu identitas login tetap. Nama dan email dibuat otomatis dari nama dapur.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">Manajemen Akuntan</p>
+            <h2 className="mt-1 text-xl font-bold text-white">Akuntan</h2>
+            
           </div>
           <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200">Muat ulang</button>
         </div>
@@ -148,22 +148,22 @@ export default function AdminPanel({ token }: { token: string }) {
             <h3 className="font-semibold text-emerald-100">{notice.title}</h3>
             <button type="button" onClick={() => setNotice(null)} className="rounded-lg border border-emerald-700/60 px-2.5 py-1.5 text-xs text-emerald-100">Tutup</button>
           </div>
-          <p className="mt-2 text-xs text-emerald-200/80">Sampaikan kredensial sementara ini langsung kepada petugas dapur. Tidak ada email atau notifikasi otomatis yang dikirim.</p>
+          <p className="mt-2 text-xs text-emerald-200/80"></p>
           <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
             <div className="min-w-0 rounded-lg bg-slate-950/80 p-3">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">Email login</p>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500">Email</p>
               <p className="break-all font-mono text-sm text-white">{notice.email}</p>
-              <p className="mt-3 text-[10px] uppercase tracking-wider text-slate-500">Password sementara</p>
+              <p className="mt-3 text-[10px] uppercase tracking-wider text-slate-500">Password</p>
               <p className="break-all font-mono text-sm text-white">{notice.password}</p>
             </div>
-            <button type="button" onClick={() => void copy(`Email: ${notice.email}\nPassword sementara: ${notice.password}`)} className="rounded-lg border border-emerald-700/70 px-3 py-2 text-xs font-semibold text-emerald-100">Salin kredensial</button>
+            <button type="button" onClick={() => void copy(`Email: ${notice.email}\nPassword sementara: ${notice.password}`)} className="rounded-lg border border-emerald-700/70 px-3 py-2 text-xs font-semibold text-emerald-100">Salin</button>
           </div>
-          <p className="mt-2 text-xs text-amber-200">Password hanya ditampilkan pada konfirmasi ini. Simpan di Bitwarden atau sampaikan ke petugas, lalu tutup panel ini.</p>
+          <p className="mt-2 text-xs text-amber-200">Hanya ditampilkan sekali, simpan dan kirim data ke Akuntan.</p>
         </div>
       )}
 
       <div className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 sm:p-5">
-        <h3 className="font-semibold text-white">Buat akun untuk dapur aktif</h3>
+        <h3 className="font-semibold text-white">Buat Akun</h3>
         {loading ? <p className="mt-3 text-sm text-slate-400">Memuat daftar dapur...</p> : data.available_kitchens.length === 0 ? (
           <p className="mt-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Semua dapur aktif sudah memiliki akun Akuntan.</p>
         ) : (
@@ -173,19 +173,19 @@ export default function AdminPanel({ token }: { token: string }) {
                 {data.available_kitchens.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
               </select>
             </label>
-            <label className="block text-xs font-medium text-slate-300">Password awal dari Bitwarden
-              <div className="relative mt-1.5"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.slice(0, 16))} placeholder="8–16 karakter, tanpa spasi" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white placeholder:text-slate-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-xs text-slate-300 shadow-none">{showInitialPassword ? 'Sembunyikan' : 'Tampilkan'}</button></div>
+            <label className="block text-xs font-medium text-slate-300">Password
+              <div className="relative mt-1.5"><input type={showInitialPassword ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.replace(/\s/g, '').slice(0, 16))} placeholder="Password" className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-12 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowInitialPassword((value) => !value)} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-xs text-slate-300 shadow-none">{showInitialPassword ? 'Sembunyikan' : 'Tampilkan'}</button></div>
             </label>
-            <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Buat akun'}</button>
+            <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Submit'}</button>
           </div>
         )}
-        <p className="mt-3 text-xs leading-5 text-slate-500">Format otomatis: Akuntan [Nama Dapur] · akuntan.[namadapur]@internal.com. Dapur nonaktif tidak tersedia sebagai pilihan.</p>
+        
       </div>
 
       <div className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-white">Daftar akun Akuntan</h3>
+            <h3 className="font-semibold text-white">Daftar Akun</h3>
             <p className="mt-1 text-xs text-slate-400">{data.accountants.length} akun terdaftar</p>
           </div>
         </div>
@@ -203,15 +203,15 @@ export default function AdminPanel({ token }: { token: string }) {
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={account.is_active ? 'rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 text-[11px] text-emerald-300' : 'rounded-full border border-rose-700/60 bg-rose-950/40 px-2.5 py-1 text-[11px] text-rose-300'}>{account.is_active ? 'Aktif' : 'Nonaktif'}</span>
-                    {account.must_change_credential && <span className="rounded-full border border-amber-700/60 bg-amber-950/30 px-2.5 py-1 text-[11px] text-amber-200">Menunggu ganti password</span>}
+                    {account.must_change_credential && <span className="rounded-full border border-amber-700/60 bg-amber-950/30 px-2.5 py-1 text-[11px] text-amber-200">Ganti password</span>}
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_auto_auto]">
-                  <div className="relative"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.slice(0, 16) }))} placeholder="Password baru dari Bitwarden" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-20 text-xs text-white placeholder:text-slate-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-[10px] text-slate-300 shadow-none">{showResetPasswords[account.user_id] ? 'Sembunyikan' : 'Tampilkan'}</button></div>
-                  <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset password'}</button>
+                  <div className="relative"><input type={showResetPasswords[account.user_id] ? 'text' : 'password'} autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.replace(/\s/g, '').slice(0, 16) }))} placeholder="Password baru" className="h-10 w-full min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 pr-12 text-xs text-white placeholder:text-slate-500 outline-none focus:border-emerald-500" /><button type="button" onClick={() => setShowResetPasswords((current) => ({ ...current, [account.user_id]: !current[account.user_id] }))} className="absolute inset-y-1 right-1 rounded-md border-0 px-2 text-[10px] text-slate-300 shadow-none">{showResetPasswords[account.user_id] ? 'Sembunyikan' : 'Tampilkan'}</button></div>
+                  <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset'}</button>
                   <button type="button" disabled={Boolean(busy)} onClick={() => void setAccountStatus(account, !account.is_active)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">{account.is_active ? 'Nonaktifkan' : 'Aktifkan'}</button>
                 </div>
-                <p className="mt-2 text-[11px] leading-5 text-slate-500">Reset password mencabut session yang sedang aktif dan mewajibkan password baru diganti saat login berikutnya.</p>
+                
               </article>
             ))}
           </div>
