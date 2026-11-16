@@ -142,7 +142,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
                 placeholder={isAdmin ? 'Masukkan 8 digit PIN' : 'Masukkan password'}
                 className={`h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${pinError ? 'border-rose-500 ring-1 ring-rose-500/50' : 'border-slate-700 focus:border-emerald-500'} ${shake ? 'maker-pin-shake' : ''}`}
               />
-              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none" <EyeIcon visible={showPassword} /></button>
+              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
             </div>
             {isAdmin && <span className="mt-1 block text-[11px] text-slate-500">{password.length}/8 digit</span>}
           </label>
@@ -264,14 +264,14 @@ export default function AuthApp() {
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-white">{auth.user.display_name}</p>
+          <p className="text-sm font-semibold text-white">{auth.user.role === 'accountant' ? auth.user.display_name.replace(/^Akuntan\\s+/i, '') : auth.user.display_name}</p>
           <p className="text-[11px] uppercase tracking-wider text-slate-500">{auth.user.role === 'admin' ? 'Administrator' : 'Akuntan'}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {auth.user.role === 'admin' && (
             <>
               <button type="button" data-option-button="true" data-selected={view === 'workspace'} onClick={() => setView('workspace')} className="rounded-lg px-3 py-2 text-xs font-semibold">Workspace</button>
-              <button type="button" data-option-button="true" data-selected={view === 'admin'} onClick={() => setView('admin')} className="rounded-lg px-3 py-2 text-xs font-semibold">Panel Admin</button>
+              <button type="button" data-option-button="true" data-selected={view === 'admin'} onClick={() => setView('admin')} className="rounded-lg px-3 py-2 text-xs font-semibold">Admin Panel</button>
             </>
           )}
           <button type="button" onClick={() => void logout()} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300">Keluar</button>
@@ -279,7 +279,7 @@ export default function AuthApp() {
       </div>
       {auth.user.role === 'admin' && view === 'admin'
         ? <div className="px-3 pb-8 sm:px-5"><AdminPanel token={auth.token} /></div>
-        : <MakerWorkspace />}
+        : <MakerWorkspace fixedKitchen={auth.user.role === 'accountant'} />}
     </div>
   )
 }
