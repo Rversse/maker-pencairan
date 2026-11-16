@@ -16,6 +16,7 @@ type AdminList = {
   available_kitchens: Kitchen[]
 }
 type CredentialNotice = { title: string; email: string; password: string }
+const PASSWORD_PATTERN = /^[\x21-\x7E]{8,16}$/
 
 async function adminRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke('maker-admin-accounts', {
@@ -57,7 +58,7 @@ export default function AdminPanel({ token }: { token: string }) {
 
   async function createAccount() {
     const kitchen = data.available_kitchens.find((item) => item.id === kitchenId)
-    if (!kitchen || initialPassword.length < 12) return
+    if (!kitchen || !PASSWORD_PATTERN.test(initialPassword)) return
     setBusy('create')
     setError('')
     setMessage('')
@@ -80,7 +81,7 @@ export default function AdminPanel({ token }: { token: string }) {
 
   async function resetPassword(account: Accountant) {
     const password = resetPasswords[account.user_id] ?? ''
-    if (password.length < 12) return
+    if (!PASSWORD_PATTERN.test(password)) return
     setBusy(account.user_id)
     setError('')
     setMessage('')
@@ -129,7 +130,7 @@ export default function AdminPanel({ token }: { token: string }) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">Administrasi akses</p>
-            <h2 className="mt-1 text-xl font-bold text-white">Akun Accountant per Dapur</h2>
+            <h2 className="mt-1 text-xl font-bold text-white">Akun Akuntan per Dapur</h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">Satu dapur memiliki satu identitas login tetap. Nama dan email dibuat otomatis dari nama dapur.</p>
           </div>
           <button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200">Muat ulang</button>
@@ -162,7 +163,7 @@ export default function AdminPanel({ token }: { token: string }) {
       <div className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 sm:p-5">
         <h3 className="font-semibold text-white">Buat akun untuk dapur aktif</h3>
         {loading ? <p className="mt-3 text-sm text-slate-400">Memuat daftar dapur...</p> : data.available_kitchens.length === 0 ? (
-          <p className="mt-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Semua dapur aktif sudah memiliki akun Accountant.</p>
+          <p className="mt-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Semua dapur aktif sudah memiliki akun Akuntan.</p>
         ) : (
           <div className="mt-3 grid gap-3 md:grid-cols-[minmax(180px,0.8fr)_minmax(240px,1.2fr)_auto] md:items-end">
             <label className="block text-xs font-medium text-slate-300">Dapur
@@ -171,9 +172,9 @@ export default function AdminPanel({ token }: { token: string }) {
               </select>
             </label>
             <label className="block text-xs font-medium text-slate-300">Password awal dari Bitwarden
-              <input type="password" autoComplete="new-password" value={initialPassword} onChange={(e) => setInitialPassword(e.target.value)} placeholder="Tempel password acak, minimal 12 karakter" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white placeholder:text-slate-500" />
+              <input type="password" autoComplete="new-password" maxLength={16} value={initialPassword} onChange={(e) => setInitialPassword(e.target.value.slice(0, 16))} placeholder="8–16 karakter, tanpa spasi" className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white placeholder:text-slate-500" />
             </label>
-            <button type="button" data-button-kind="primary" disabled={!kitchenId || initialPassword.length < 12 || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Buat akun'}</button>
+            <button type="button" data-button-kind="primary" disabled={!kitchenId || !PASSWORD_PATTERN.test(initialPassword) || Boolean(busy)} onClick={() => void createAccount()} className="h-11 rounded-lg px-4 text-sm font-semibold disabled:opacity-40">{busy === 'create' ? 'Membuat...' : 'Buat akun'}</button>
           </div>
         )}
         <p className="mt-3 text-xs leading-5 text-slate-500">Format otomatis: Akuntan [Nama Dapur] · akuntan.[namadapur]@internal.com. Dapur nonaktif tidak tersedia sebagai pilihan.</p>
@@ -204,8 +205,8 @@ export default function AdminPanel({ token }: { token: string }) {
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_auto_auto]">
-                  <input type="password" autoComplete="new-password" value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value }))} placeholder="Password baru dari Bitwarden" className="h-10 min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs text-white placeholder:text-slate-500" />
-                  <button type="button" disabled={(resetPasswords[account.user_id] ?? '').length < 12 || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset password'}</button>
+                  <input type="password" autoComplete="new-password" maxLength={16} value={resetPasswords[account.user_id] ?? ''} onChange={(e) => setResetPasswords((current) => ({ ...current, [account.user_id]: e.target.value.slice(0, 16) }))} placeholder="Password baru dari Bitwarden" className="h-10 min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-3 text-xs text-white placeholder:text-slate-500" />
+                  <button type="button" disabled={!PASSWORD_PATTERN.test(resetPasswords[account.user_id] ?? '') || Boolean(busy)} onClick={() => void resetPassword(account)} className="rounded-lg border border-amber-700/70 px-3 py-2 text-xs font-semibold text-amber-200 disabled:opacity-40">{busy === account.user_id ? 'Memproses...' : 'Reset password'}</button>
                   <button type="button" disabled={Boolean(busy)} onClick={() => void setAccountStatus(account, !account.is_active)} className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">{account.is_active ? 'Nonaktifkan' : 'Aktifkan'}</button>
                 </div>
                 <p className="mt-2 text-[11px] leading-5 text-slate-500">Reset password mencabut session yang sedang aktif dan mewajibkan password baru diganti saat login berikutnya.</p>
