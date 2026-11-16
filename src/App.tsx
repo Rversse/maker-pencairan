@@ -34,7 +34,6 @@ type SimpleEntry = {
 
 type DailyPaymentKind =
   | 'Sewa SPPG'
-  | 'Sewa Kendaraan'
   | 'Gaji Relawan'
   | 'Insentif PIC Sekolah'
   | 'Insentif PIC Posyandu'
@@ -51,25 +50,6 @@ type DailyPaymentEntry = {
   amount: string
 }
 
-type LegacyVehicleRentAmount = {
-  startDate: string
-  endDate: string
-  amount: string
-}
-
-type VehicleRentEntry = {
-  id: number
-  vehicleType?: 'Mobil' | 'Motor'
-  startDate: string
-  endDate: string
-  unitCount?: string
-  amount?: string
-  // Legacy fields are read only to migrate drafts saved by earlier versions.
-  mobilAmount?: string
-  motorAmount?: string
-  legacyAmounts?: LegacyVehicleRentAmount[]
-}
-
 type ArutalaDateBucket = {
   gas: SimpleEntry[]
   lain_lain: SimpleEntry[]
@@ -83,7 +63,6 @@ type TransactionGroup = {
   operasional: SimpleEntry[]
   legacy_gaji?: DailyPaymentEntry[]
   pencairan_harian: DailyPaymentEntry[]
-  sewa_kendaraan: VehicleRentEntry[]
   lain_lain: SimpleEntry[]
   arutala_lain_lain: SimpleEntry[]
   arutala_by_date?: Record<string, ArutalaDateBucket>
@@ -147,8 +126,7 @@ const DAILY_PAYMENT_RULE_TYPE: Record<DailyPaymentKind, string> = {
   'Sewa SPPG': 'sppg_rent',
   'Gaji Relawan': 'gaji_relawan',
   'Insentif PIC Sekolah': 'pic_incentive_school',
-  'Insentif PIC Posyandu': 'pic_incentive_posyandu',
-  'Sewa Kendaraan': 'vehicle_rent'
+  'Insentif PIC Posyandu': 'pic_incentive_posyandu'
 }
 
 function getOperationalMapping(
@@ -488,18 +466,6 @@ function emptyDailyPaymentEntry(
   }
 }
 
-function emptyVehicleRentEntry(id = 1, vehicleType: 'Mobil' | 'Motor' = 'Mobil'): VehicleRentEntry {
-  return {
-    id,
-    vehicleType,
-    startDate: '',
-    endDate: '',
-    unitCount: '1',
-    amount: '',
-    legacyAmounts: []
-  }
-}
-
 function createPayrollEntry(
   id: number,
   kitchenName: string,
@@ -683,7 +649,11 @@ function normalizeTransaction(
   fallbackDate: string
 ): TransactionGroup {
   const rawDailyPayments = Array.isArray(transaction.pencairan_harian)
-    ? transaction.pencairan_harian.map((entry) => {
+    ? transaction.pencairan_harian.filter((entry) => {
+        const legacyEntry = entry as DailyPaymentEntry & { kind?: string }
+        const storedKinds = Array.isArray(entry.kinds) ? entry.kinds : legacyEntry.kind ? [legacyEntry.kind] : []
+        return !storedKinds.some((kind) => String(kind) === 'Sewa Kendaraan')
+      }).map((entry) => {
         const legacyEntry = entry as DailyPaymentEntry & { kind?: DailyPaymentKind }
         const storedKinds = Array.isArray(entry.kinds)
           ? entry.kinds
@@ -713,23 +683,7 @@ function normalizeTransaction(
       })
     : [emptyDailyPaymentEntry(1, 'sewa')]
 
-  const legacyVehicleFromDaily: LegacyVehicleRentAmount[] = rawDailyPayments
-    .filter(
-      (entry) =>
-        entry.category === 'sewa' &&
-        entry.kinds.includes('Sewa Kendaraan') &&
-        isCompleteAmount(entry.amount)
-    )
-    .map((entry) => ({
-      startDate: '',
-      endDate: '',
-      amount: entry.amount
-    }))
-  const sewaRows = rawDailyPayments.filter(
-    (entry) =>
-      entry.category === 'sewa' &&
-      !entry.kinds.includes('Sewa Kendaraan')
-  )
+  const sewaRows = rawDailyPayments.filter((entry) => entry.category === 'sewa')
   const sewaTemplate = sewaRows[0] ?? emptyDailyPaymentEntry(1, 'sewa')
   const sewaTotal = sewaRows.reduce(
     (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
@@ -741,59 +695,6 @@ function normalizeTransaction(
     kinds: ['Sewa SPPG'],
     amount: String(sewaTotal || '')
   }]
-
-  const rawVehicleEntries = Array.isArray(transaction.sewa_kendaraan)
-    ? (transaction.sewa_kendaraan as unknown as Array<VehicleRentEntry & { amount?: string }>)
-    : []
-  const firstVehicle = rawVehicleEntries[0]
-  const legacyVehicleAmounts: LegacyVehicleRentAmount[] = [
-    ...legacyVehicleFromDaily,
-    ...rawVehicleEntries.flatMap((entry) => {
-    const legacy = [...(entry.legacyAmounts ?? [])]
-    const oldAmount = entry.amount
-    if (
-      typeof oldAmount === 'string' &&
-      isCompleteAmount(oldAmount) &&
-      !entry.mobilAmount &&
-      !entry.motorAmount
-    ) {
-      legacy.push({
-        startDate: entry.startDate ?? '',
-        endDate: entry.endDate ?? '',
-        amount: oldAmount
-      })
-    }
-    return legacy
-    })
-  ]
-  const vehicleStartDate = firstVehicle?.startDate ?? legacyVehicleAmounts[0]?.startDate ?? ''
-  const vehicleEndDate = firstVehicle?.endDate ?? legacyVehicleAmounts[0]?.endDate ?? ''
-  const normalizedVehicle: VehicleRentEntry[] = [
-    {
-      id: 1,
-      vehicleType: 'Mobil',
-      startDate: vehicleStartDate,
-      endDate: vehicleEndDate,
-      unitCount: (firstVehicle as VehicleRentEntry | undefined)?.vehicleType === 'Mobil'
-        ? (firstVehicle as VehicleRentEntry).unitCount ?? '1'
-        : '1',
-      amount: firstVehicle?.mobilAmount ?? (firstVehicle as VehicleRentEntry | undefined)?.amount ?? '',
-      legacyAmounts: legacyVehicleAmounts
-    },
-    {
-      id: 2,
-      vehicleType: 'Motor',
-      startDate: vehicleStartDate,
-      endDate: vehicleEndDate,
-      unitCount: (rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Motor') as VehicleRentEntry | undefined)?.unitCount ?? '1',
-      amount: firstVehicle?.motorAmount ?? '',
-      legacyAmounts: []
-    }
-  ]
-  const savedCar = rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Mobil') as VehicleRentEntry | undefined
-  const savedMotor = rawVehicleEntries.find((entry) => (entry as VehicleRentEntry).vehicleType === 'Motor') as VehicleRentEntry | undefined
-  if (savedCar) Object.assign(normalizedVehicle[0], savedCar)
-  if (savedMotor) Object.assign(normalizedVehicle[1], savedMotor)
 
   const normalizedGas: SimpleEntry[] = Array.isArray(transaction.gas)
     ? transaction.gas.map((entry, index) => {
@@ -913,7 +814,6 @@ function normalizeTransaction(
     pencairan_harian: normalizedSewa.concat(
       rawDailyPayments.filter((entry) => entry.category === 'gaji')
     ),
-    sewa_kendaraan: normalizedVehicle,
     lain_lain: lain_lain.length > 0 ? lain_lain : [emptySimpleEntry(1)],
     arutala_lain_lain: [],
     arutala_by_date: {
@@ -952,7 +852,6 @@ function makeTransaction(
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
       ...createPayrollRowsForKitchen(kitchenName, masterData, 2)
     ],
-    sewa_kendaraan: [emptyVehicleRentEntry(1, 'Mobil'), emptyVehicleRentEntry(2, 'Motor')],
     lain_lain: [emptyOtherEntry(1)],
     arutala_lain_lain: [],
     arutala_by_date: { [date]: { gas: [], lain_lain: [] } },
