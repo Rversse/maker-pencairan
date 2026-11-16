@@ -893,14 +893,6 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
   const [customRabDrafts, setCustomRabDrafts] = useState<Record<string, string[]>>({})
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    if (typeof window === 'undefined') return 'dark'
-    try {
-      return window.localStorage.getItem('maker-pencairan-theme') === 'light' ? 'light' : 'dark'
-    } catch {
-      return 'dark'
-    }
-  })
   const dateInputRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef({
     kitchenId: saved?.kitchenId ?? '',
@@ -909,14 +901,9 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
   })
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    document.documentElement.style.colorScheme = theme
-    try {
-      window.localStorage.setItem('maker-pencairan-theme', theme)
-    } catch {
-      // Theme still works for the current session when storage is unavailable.
-    }
-  }, [theme])
+    document.documentElement.dataset.theme = 'dark'
+    document.documentElement.style.colorScheme = 'dark'
+  }, [])
 
   useEffect(() => {
     if (masterData) return
@@ -2042,10 +2029,14 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
 
   async function copyOutput() {
     if (!output) return
-
-    await navigator.clipboard.writeText(output)
-    setCopyMessage('Berhasil disalin.')
-    window.setTimeout(() => setCopyMessage(''), 2000)
+    try {
+      await navigator.clipboard.writeText(output)
+      setCopyMessage('Copied')
+      window.setTimeout(() => setCopyMessage(''), 1600)
+    } catch {
+      setCopyMessage('Clipboard tidak tersedia')
+      window.setTimeout(() => setCopyMessage(''), 1800)
+    }
   }
 
   function restoreLastDraft() {
@@ -2105,36 +2096,12 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
                 <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
               </div>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={theme === 'dark'}
-              aria-label={theme === 'dark' ? 'Beralih ke tema terang' : 'Beralih ke tema gelap'}
-              title={theme === 'dark' ? 'Ganti ke Light Mode' : 'Ganti ke Dark Mode'}
-              data-theme={theme}
-              onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
-              className="theme-switch"
-            >
-              <span className="theme-switch__track" aria-hidden="true">
-                <span className="theme-switch__thumb">
-                  {theme === 'dark' ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20.2 15.4A8.4 8.4 0 0 1 8.6 3.8 8.5 8.5 0 1 0 20.2 15.4Z" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="4" />
-                      <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
-                    </svg>
-                  )}
-                </span>
-              </span>
-            </button>
+
           </header>
 
           {masterData && !masterLoading && !masterError && (
             <div className="mt-3 mb-2 flex w-fit max-w-full flex-wrap items-end gap-2">
-              <div className="w-[145px] shrink-0">
+              <div className="w-[180px] shrink-0">
                 <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
                 <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
                   <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
@@ -2142,6 +2109,15 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
                   <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
                 </div>
               </div>
+              {!fixedKitchen && (
+                <div className="w-[190px] shrink-0">
+                  <label htmlFor="workspace-kitchen" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Dapur</label>
+                  <select id="workspace-kitchen" value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} className="h-9 w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white">
+                    <option value="">Pilih dapur</option>
+                    {masterData?.kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
+                  </select>
+                </div>
+              )}
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
                   <button type="button" onClick={restoreLastDraft} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800">Restore</button>
@@ -2194,18 +2170,10 @@ function MakerWorkspace({ fixedKitchen = false }: { fixedKitchen?: boolean }) {
                             {outputLineCount}
                           </span>
                         </div>
-                        <button
-                          type="button"
-                          data-button-kind="primary"
-                          onClick={() => void copyOutput()}
-                          disabled={!output}
-                          className="shrink-0 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-[10px] font-semibold shadow-sm shadow-emerald-950/40 transition hover:bg-emerald-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/40 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          {copyMessage || 'Copy'}
-                        </button>
+                        {copyMessage && <span role="status" className="text-[10px] font-semibold text-emerald-300">{copyMessage}</span>}
                       </div>
 
-                      <pre className="mt-2 min-h-[135px] max-h-[30vh] flex-1 overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">
+                      <pre onClick={() => void copyOutput()} onMouseUp={() => { if (window.getSelection()?.toString()) void copyOutput() }} title="Klik untuk menyalin output" className="mt-2 min-h-[135px] max-h-[30vh] flex-1 cursor-copy overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">
                         {output}
                       </pre>
 
