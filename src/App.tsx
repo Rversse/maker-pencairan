@@ -879,14 +879,19 @@ function normalizeTransaction(
   const arutalaLainLain = Array.isArray(transaction.arutala_lain_lain)
     ? transaction.arutala_lain_lain.map((entry) => ({ ...entry, transactionType: 'lain_lain' as const, accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''), ownerName: entry.ownerName ?? '' }))
     : []
-  const migratedArutala: SimpleEntry[] = [...legacyArutalaOpsFromGas, ...arutalaLainLain].map((entry, index) => ({
-    ...createOperationalEntry(lastOpsId + migratedLainLain.length + index + 1),
-    ...entry,
-    useArutalaAccount: true,
-    customAccount: true,
-    operationalRuleType: '',
-    transactionType: 'operasional_harian'
-  }))
+  const migratedArutala: SimpleEntry[] = [...legacyArutalaOpsFromGas, ...arutalaLainLain].map((entry, index) => {
+    const id = lastOpsId + migratedLainLain.length + index + 1
+    return {
+      ...entry,
+      ...createOperationalEntry(id),
+      id,
+      useArutalaAccount: true,
+      customAccount: true,
+      operationalRuleType: '',
+      transactionType: 'operasional_harian',
+      need: entry.need ?? ''
+    }
+  })
   const operational = baseOperational.concat(migratedLainLain, migratedArutala)
   const legacyGaji = Array.isArray(transaction.legacy_gaji)
     ? transaction.legacy_gaji.map((entry) => ({
@@ -1602,14 +1607,19 @@ function App() {
     const nextLegacyArutalaOpsFromGas = nextBucket.gas.filter((entry) => entry.transactionType === 'operasional_harian')
     const nextGasEntries = nextBucket.gas.filter((entry) => entry.transactionType !== 'operasional_harian')
     const baseOperational = (activeTransaction.operasional ?? []).filter((entry) => !entry.useArutalaAccount)
-    const nextArutalaEntries = [...nextLegacyArutalaOpsFromGas, ...nextBucket.lain_lain].map((entry, index) => ({
-      ...createOperationalEntry(Math.max(0, ...baseOperational.map((item) => item.id)) + index + 1),
-      ...entry,
-      useArutalaAccount: true,
-      customAccount: true,
-      operationalRuleType: '' as const,
-      transactionType: 'operasional_harian' as const
-    }))
+    const nextArutalaEntries = [...nextLegacyArutalaOpsFromGas, ...nextBucket.lain_lain].map((entry, index) => {
+      const id = Math.max(0, ...baseOperational.map((item) => item.id)) + index + 1
+      return {
+        ...entry,
+        ...createOperationalEntry(id),
+        id,
+        useArutalaAccount: true,
+        customAccount: true,
+        operationalRuleType: '' as const,
+        transactionType: 'operasional_harian' as const,
+        need: entry.need ?? ''
+      }
+    })
     updateTransaction(activeTransaction.id, {
       date: nextDate,
       arutala_by_date: { ...dateBuckets, [activeTransaction.date]: currentBucket },
