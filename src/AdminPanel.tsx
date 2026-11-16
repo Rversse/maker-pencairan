@@ -16,7 +16,7 @@ type AdminList = {
   accountants: Accountant[]
   available_kitchens: Kitchen[]
 }
-type CredentialNotice = { title: string; email: string; password: string }
+type CredentialNotice = { title: string; kitchen: string; password: string }
 const PASSWORD_PATTERN = /^(?=.*[A-Za-z])(?=.*\d)[\x21-\x7E]{8,16}$/
 
 async function adminRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
@@ -64,6 +64,7 @@ export default function AdminPanel({ token }: { token: string }) {
   const [showResetPasswords, setShowResetPasswords] = useState<Record<string, boolean>>({})
   const [resetPasswords, setResetPasswords] = useState<Record<string, string>>({})
   const [notice, setNotice] = useState<CredentialNotice | null>(null)
+  const [toast, setToast] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -95,7 +96,7 @@ export default function AdminPanel({ token }: { token: string }) {
         kitchen_id: kitchen.id,
         password: initialPassword
       })
-      setNotice({ title: 'Akun berhasil dibuat', email: result.email, password: initialPassword })
+      setNotice({ title: 'Akun berhasil dibuat', kitchen: result.kitchen.name, password: initialPassword })
       setInitialPassword('')
       setMessage(`Akun Akuntan ${kitchen.name} berhasil dibuat.`)
       await load()
@@ -114,7 +115,7 @@ export default function AdminPanel({ token }: { token: string }) {
     setMessage('')
     try {
       await adminRequest(token, { action: 'reset_password', user_id: account.user_id, password })
-      setNotice({ title: 'Password berhasil dibuat', email: account.email ?? '', password })
+      setNotice({ title: 'Password berhasil dibuat', kitchen: account.kitchen?.name ?? account.display_name, password })
       setResetPasswords((current) => ({ ...current, [account.user_id]: '' }))
       setMessage(`Password akun ${account.display_name} berhasil direset. Sesi lama sudah dicabut.`)
       await load()
@@ -161,14 +162,17 @@ export default function AdminPanel({ token }: { token: string }) {
   async function copy(value: string) {
     try {
       await navigator.clipboard.writeText(value)
-      setMessage('Disalin ke clipboard.')
+      setToast('Disalin ke clipboard.')
+      window.setTimeout(() => setToast(''), 2400)
     } catch {
-      setMessage('Clipboard tidak tersedia. Salin teks secara manual.')
+      setToast('Clipboard tidak tersedia. Salin teks secara manual.')
+      window.setTimeout(() => setToast(''), 3000)
     }
   }
 
   return (
     <section className="mx-auto w-full max-w-5xl space-y-4">
+      {toast && <div role="status" className="fixed bottom-5 right-5 z-50 rounded-xl border border-emerald-600/60 bg-slate-900 px-4 py-3 text-sm text-emerald-100 shadow-2xl">{toast}</div>}
       <div className="rounded-2xl border border-slate-700/80 bg-slate-900/80 p-4 shadow-xl sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -190,18 +194,19 @@ export default function AdminPanel({ token }: { token: string }) {
           
           <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
             <div className="min-w-0 rounded-lg bg-slate-950/80 p-3">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">Email</p>
-              <p className="break-all font-mono text-sm text-white">{notice.email}</p>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500">Dapur</p>
+              <p className="break-all font-mono text-sm text-white">{notice.kitchen}</p>
               <p className="mt-3 text-[10px] uppercase tracking-wider text-slate-500">Password</p>
               <p className="break-all font-mono text-sm text-white">{notice.password}</p>
             </div>
-            <button type="button" onClick={() => void copy(`Email: ${notice.email}\nPassword: ${notice.password}`)} className="rounded-lg border border-emerald-700/70 px-3 py-2 text-xs font-semibold text-emerald-100">Salin</button>
+            <button type="button" onClick={() => void copy(`Dapur: ${notice.kitchen}\nPassword: ${notice.password}`)} className="rounded-lg border border-emerald-700/70 px-3 py-2 text-xs font-semibold text-emerald-100">Salin</button>
           </div>
           <p className="mt-2 text-xs text-amber-200">Hanya ditampilkan sekali, simpan dan kirim data ke Akuntan.</p>
         </div>
       )}
 
       <div className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 sm:p-5">
+        <div className="mb-4 flex items-center justify-between gap-3"><div><h3 className="font-semibold text-white">Manajemen Akuntan</h3><p className="mt-1 text-xs text-slate-400">Buat akun baru dan kelola kredensial dapur.</p></div><button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} aria-label="Muat ulang daftar akun" title="Muat ulang" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-600 bg-slate-800/70 text-slate-200">↻</button></div>
         <h3 className="font-semibold text-white">Buat Akun</h3>
         {loading ? <p className="mt-3 text-sm text-slate-400">Memuat daftar dapur...</p> : data.available_kitchens.length === 0 ? (
           <p className="mt-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Semua dapur aktif sudah memiliki akun Akuntan.</p>
@@ -238,7 +243,7 @@ export default function AdminPanel({ token }: { token: string }) {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h4 className="font-semibold text-white">{account.display_name}</h4>
-                    <p className="mt-0.5 break-all font-mono text-xs text-slate-400">{account.email ?? 'Email tidak ditemukan'}</p>
+                    <p className="mt-0.5 break-all font-mono text-xs text-slate-400">{account.kitchen?.name ?? 'Dapur belum ditetapkan'}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={account.is_active ? 'rounded-full border border-emerald-700/60 bg-emerald-950/40 px-2.5 py-1 text-[11px] text-emerald-300' : 'rounded-full border border-rose-700/60 bg-rose-950/40 px-2.5 py-1 text-[11px] text-rose-300'}>{account.is_active ? 'Aktif' : 'Nonaktif'}</span>
