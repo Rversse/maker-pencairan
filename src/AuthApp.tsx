@@ -106,7 +106,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
                 required
                 minLength={8}
                 maxLength={isAdmin ? 8 : 16}
-                pattern={isAdmin ? '[0-9]{8}' : '[^\\s]{8,16}'}
+                pattern={isAdmin ? '[0-9]{8}' : undefined}
                 inputMode={isAdmin ? 'numeric' : 'text'}
                 value={password}
                 onChange={(event) => {
