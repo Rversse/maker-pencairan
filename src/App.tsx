@@ -2451,7 +2451,7 @@ function App() {
                           disabled={(activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2}
                           className="h-10 rounded-lg border border-cyan-700/70 bg-cyan-950/60 px-3 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-900/70 disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                          + Tambah GAS
+                          + Tambah Gas
                         </button>
                       </div>
                       {(activeTransaction.gas ?? []).length > 0 ? (
@@ -2479,7 +2479,7 @@ function App() {
                           })}
                         </div>
                       ) : (
-                        <p className="mt-3 rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-400">Belum ada transaksi GAS. Tekan Tambah GAS untuk memulai.</p>
+                        <p className="mt-3 rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-400">Belum ada transaksi GAS. Tekan Tambah Gas untuk memulai.</p>
                       )}
                     </section>
                   )}
