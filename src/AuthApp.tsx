@@ -265,8 +265,8 @@ export default function AuthApp() {
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-white">{auth.user.role === 'accountant' ? auth.user.display_name.replace(/^Akuntan\s+/i, '') : auth.user.display_name}</p>
-          <p className="text-[11px] uppercase tracking-wider text-slate-500">{auth.user.role === 'admin' ? 'Administrator' : 'Akuntan'}</p>
+          <p className="text-sm font-semibold text-white">{auth.user.role === 'admin' ? 'Administrator' : auth.user.display_name.replace(/^Akuntan\s+/i, '')}</p>
+          {auth.user.role === 'accountant' && <p className="text-[11px] uppercase tracking-wider text-slate-500">Akuntan</p>}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {auth.user.role === 'admin' && (
