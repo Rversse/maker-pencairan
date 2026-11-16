@@ -273,6 +273,9 @@ Deno.serve(async (request: Request) => {
       if (!credential.must_change_credential && !(await verifyPassword(oldPassword, credential.credential_hash))) {
         return json(request, { error: "Password lama tidak sesuai" }, 401);
       }
+      if (credential.must_change_credential && await verifyPassword(newPassword, credential.credential_hash)) {
+        return json(request, { error: "Password baru harus berbeda dari password reset sementara" }, 400);
+      }
       const nextHash = await hashPassword(newPassword);
       const { error: updateError } = await db.from("maker_credentials").update({
         credential_hash: nextHash,
