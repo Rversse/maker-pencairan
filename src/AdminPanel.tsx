@@ -12,7 +12,7 @@ type Akuntan = {
   kitchen: Kitchen | null
 }
 type AdminList = {
-  akuntans: Accountant[]
+  accountants: Accountant[]
   available_kitchens: Kitchen[]
 }
 type CredentialNotice = { title: string; email: string; password: string }
@@ -28,7 +28,7 @@ async function adminRequest<T>(token: string, body: Record<string, unknown>): Pr
 }
 
 export default function AdminPanel({ token }: { token: string }) {
-  const [data, setData] = useState<AdminList>({ akuntans: [], available_kitchens: [] })
+  const [data, setData] = useState<AdminList>({ accountants: [], available_kitchens: [] })
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState('')
   const [error, setError] = useState('')
@@ -185,12 +185,12 @@ export default function AdminPanel({ token }: { token: string }) {
       <div className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-white">Daftar akun Accountant</h3>
+            <h3 className="font-semibold text-white">Daftar akun Akuntan</h3>
             <p className="mt-1 text-xs text-slate-400">{data.accountants.length} akun terdaftar</p>
           </div>
         </div>
         {loading ? <p className="mt-4 text-sm text-slate-400">Memuat akun...</p> : data.accountants.length === 0 ? (
-          <p className="mt-4 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Belum ada akun Accountant. Buat akun dari dapur aktif di atas.</p>
+          <p className="mt-4 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Belum ada akun Akuntan. Buat akun dari dapur aktif di atas.</p>
         ) : (
           <div className="mt-4 space-y-3">
             {data.accountants.map((account) => (
