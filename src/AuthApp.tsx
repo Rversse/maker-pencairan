@@ -82,7 +82,7 @@ function LoginScreen({ onLogin }: { onLogin: (identifier: string, password: stri
     } catch (err) {
       const status = (err as Error & { status?: number })?.status
       const rawMessage = err instanceof Error ? err.message : 'Login gagal.'
-      const message = selectedRole === 'accountant' && status === 401 ? 'Email atau Password salah' : rawMessage
+      const message = selectedRole === 'accountant' && status === 401 ? 'Email atau Password salah' : status === 423 ? 'Akses login dapur ini diblokir setelah 5 kali percobaan gagal. Silakan hubungi Admin untuk membuka blokir.' : rawMessage
       if (selectedRole === 'admin' && status === 401) {
         setPassword('')
         setPinError(true)
