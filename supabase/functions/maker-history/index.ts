@@ -100,6 +100,7 @@ Deno.serve(async (request: Request) => {
       let query = db.from("maker_drafts")
         .select("id,kitchen_id,created_by,title,status,transaction_date,version,last_event_at,created_at,updated_at")
         .order("transaction_date", { ascending: false }).order("created_at", { ascending: false });
+      query = query.is("deleted_at", null);
       if (profile.role === "accountant") {
         const { data: assignments, error } = await db.from("maker_assignments")
           .select("kitchen_id").eq("maker_user_id", profile.user_id);
@@ -125,7 +126,7 @@ Deno.serve(async (request: Request) => {
     if (action === "get") {
       if (!isUuid(body?.draft_id)) return json(request, { error: "HISTORY tidak valid" }, 400);
       const { data: draft, error } = await db.from("maker_drafts").select("*")
-        .eq("id", body.draft_id).maybeSingle();
+        .eq("id", body.draft_id).is("deleted_at", null).maybeSingle();
       if (error) return json(request, { error: "HISTORY tidak dapat dimuat" }, 503);
       if (!draft) return json(request, { error: "HISTORY tidak ditemukan" }, 404);
       if (!(await canAccessKitchen(draft.kitchen_id))) return json(request, { error: "Akses dapur ditolak" }, 403);
@@ -163,6 +164,23 @@ Deno.serve(async (request: Request) => {
         return json(request, { error: "HISTORY gagal mencatat riwayat awal" }, 503);
       }
       return json(request, { ok: true, history: draft });
+    }
+
+    if (action === "delete") {
+      if (profile.role !== "admin") return json(request, { error: "Hanya Admin yang dapat menghapus transaksi" }, 403);
+      const draftId = body?.draft_id;
+      if (!isUuid(draftId)) return json(request, { error: "Transaksi tidak valid" }, 400);
+      const { data: draft, error: draftError } = await db.from("maker_drafts")
+        .select("id,deleted_at").eq("id", draftId).is("deleted_at", null).maybeSingle();
+      if (draftError) return json(request, { error: "Transaksi tidak dapat diperiksa" }, 503);
+      if (!draft) return json(request, { error: "Transaksi tidak ditemukan atau sudah dihapus" }, 404);
+      const deletedAt = new Date().toISOString();
+      const { data: deleted, error: deleteError } = await db.from("maker_drafts").update({
+        deleted_at: deletedAt, deleted_by: profile.user_id, updated_at: deletedAt,
+      }).eq("id", draftId).is("deleted_at", null).select("id").maybeSingle();
+      if (deleteError) return json(request, { error: "Transaksi gagal dihapus" }, 503);
+      if (!deleted) return json(request, { error: "Transaksi sudah dihapus oleh proses lain" }, 409);
+      return json(request, { ok: true, deleted_id: draftId, deleted_at: deletedAt });
     }
 
     if (action === "change") {
