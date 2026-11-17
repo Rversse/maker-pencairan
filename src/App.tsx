@@ -2241,19 +2241,34 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           if (!changed) return previous
           const addedProducts = changed.productTypes.filter(product => !previous.productTypes.includes(product))
           const addedAmount = Number(changed.amount.replace(/\D/g, '')) || 0
+          const previousB3Products = previous.b3ProductTypes ?? []
+          const changedB3Products = changed.b3ProductTypes ?? []
+          const addedB3Products = changedB3Products.filter(product => !previousB3Products.includes(product))
+          const addedB3Amount = Number((changed.b3Amount ?? '').replace(/\D/g, '')) || 0
           if (addedProducts.length > 0 && addedAmount <= 0) {
             throw new Error('Isi nominal tambahan untuk item ' + addedProducts.join(', ') + ' terlebih dahulu.')
           }
-          if (addedAmount <= 0) return previous
+          if (addedB3Products.length > 0 && addedB3Amount <= 0) {
+            throw new Error('Isi nominal tambahan untuk item B3 ' + addedB3Products.join(', ') + ' terlebih dahulu.')
+          }
+          if (addedAmount <= 0 && addedB3Amount <= 0) return previous
           addedExistingRab.push({
             ...changed,
             productTypes: addedProducts.length > 0 ? addedProducts : changed.productTypes,
-            amount: String(addedAmount)
+            amount: String(addedAmount),
+            b3Enabled: addedB3Amount > 0,
+            b3ProductTypes: addedB3Products,
+            b3Amount: String(addedB3Amount)
           })
           return {
             ...previous,
             productTypes: sortStrings([...previous.productTypes, ...addedProducts]),
-            amount: amountWithDelta(previous.amount, String(addedAmount))
+            amount: addedAmount > 0 ? amountWithDelta(previous.amount, String(addedAmount)) : previous.amount,
+            b3Enabled: Boolean(previous.b3Enabled || addedB3Amount > 0),
+            b3ProductTypes: sortStrings([...previousB3Products, ...addedB3Products]),
+            b3Amount: addedB3Amount > 0
+              ? amountWithDelta(previous.b3Amount ?? '', String(addedB3Amount))
+              : (previous.b3Amount ?? '')
           }
         })
         const newRab = currentTransaction.rab.filter(row => !baseTransaction.rab.some(previous => previous.accountId === row.accountId))
@@ -2305,17 +2320,31 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           const separator = key.indexOf(':')
           const field = key.slice(0, separator)
           const id = key.slice(separator + 1)
-          if (field === 'rab') {
+          if (field === 'rab' || field === 'rab_b3') {
             const changed = currentTransaction.rab.find(row => row.accountId === id)
             if (!changed) continue
             const previous = baseTransaction.rab.find(row => row.accountId === id)
-            const merged = historySaveType === 'KEKURANGAN' && previous
-              ? { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
-              : changed
-            nextTransaction.rab = nextTransaction.rab.some(row => row.accountId === id)
-              ? nextTransaction.rab.map(row => row.accountId === id ? merged : row)
-              : [...nextTransaction.rab, merged]
-            incrementalTransaction.rab = [...incrementalTransaction.rab, changed]
+            if (field === 'rab_b3') {
+              const merged = {
+                ...changed,
+                b3Enabled: true,
+                b3Amount: historySaveType === 'KEKURANGAN' && previous
+                  ? amountWithDelta(previous.b3Amount ?? '', changed.b3Amount ?? '')
+                  : (changed.b3Amount ?? '')
+              }
+              nextTransaction.rab = nextTransaction.rab.some(row => row.accountId === id)
+                ? nextTransaction.rab.map(row => row.accountId === id ? merged : row)
+                : [...nextTransaction.rab, merged]
+              incrementalTransaction.rab = [...incrementalTransaction.rab, { ...changed, amount: '', b3Amount: changed.b3Amount ?? '' }]
+            } else {
+              const merged = historySaveType === 'KEKURANGAN' && previous
+                ? { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
+                : changed
+              nextTransaction.rab = nextTransaction.rab.some(row => row.accountId === id)
+                ? nextTransaction.rab.map(row => row.accountId === id ? merged : row)
+                : [...nextTransaction.rab, merged]
+              incrementalTransaction.rab = [...incrementalTransaction.rab, { ...changed, b3Amount: '' }]
+            }
             continue
           }
           if (!['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'].includes(field)) continue
@@ -2344,8 +2373,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         return separator < 0 ? 0 : Number(line.slice(separator + 3).replace(/\D/g, '')) || 0
       }
       snapshot.output = mergedOutput
-      snapshot.totalRab = mergedLines.filter(line => line.startsWith('RAB : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
-      snapshot.totalOpsHarian = mergedLines.filter(line => !line.startsWith('RAB : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
+      snapshot.totalRab = mergedLines.filter(line => line.startsWith('RAB : ') || line.startsWith('RAB B3 : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
+      snapshot.totalOpsHarian = mergedLines.filter(line => !line.startsWith('RAB : ') && !line.startsWith('RAB B3 : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
       snapshot.totalOverall = mergedLines.reduce((sum, line) => sum + amountFromLine(line), 0)
       const { data: listData, error: listError } = await supabase.functions.invoke('maker-history', {
         body: { action: 'list', kitchen_id: kitchenId, date_from: activeDate, date_to: activeDate },
