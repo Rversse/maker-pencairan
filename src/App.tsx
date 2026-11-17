@@ -2065,6 +2065,15 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         return transaction?.id === activeTransaction.id
       })
       if (existing) {
+        const previous = existing.payload?.transaction as TransactionGroup | undefined
+        if (!previous) throw new Error('Snapshot Riwayat tidak valid.')
+        setHistoryChangeBase(existing.payload as Record<string, unknown>)
+        setHistorySelectedKeys([
+          ...previous.rab.map(row => 'rab:' + row.accountId),
+          ...(['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const).flatMap(field =>
+            (previous[field] ?? []).map(row => field + ':' + row.id)
+          )
+        ])
         setHistorySaveOpen(true)
         setHistorySaveBusy(false)
         return
@@ -2933,7 +2942,19 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             setHistorySaveSummary('')
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
-            const restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
+            let restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
+            if (eventType === 'KEKURANGAN') {
+              const selected = new Set(selectedKeys)
+              restored = {
+                ...restored,
+                rab: restored.rab.map(row => selected.has('rab:' + row.accountId) ? { ...row, amount: '' } : row),
+                gas: restored.gas.map(row => selected.has('gas:' + row.id) ? { ...row, amount: '' } : row),
+                operasional: restored.operasional.map(row => selected.has('operasional:' + row.id) ? { ...row, amount: '' } : row),
+                pencairan_harian: restored.pencairan_harian.map(row => selected.has('pencairan_harian:' + row.id) ? { ...row, amount: '' } : row),
+                lain_lain: restored.lain_lain.map(row => selected.has('lain_lain:' + row.id) ? { ...row, amount: '' } : row),
+                arutala_lain_lain: restored.arutala_lain_lain.map(row => selected.has('arutala_lain_lain:' + row.id) ? { ...row, amount: '' } : row)
+              }
+            }
             const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
             setKitchenId(restoredKitchenId)
             setTransactions([restored])
