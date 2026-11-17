@@ -86,6 +86,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
   async function refreshDetail() {
     if (!detail) return
+    const confirmed = window.confirm('Muat ulang snapshot terakhir? Perubahan Form Utama yang belum disimpan akan ditimpa.')
+    if (!confirmed) return
     setBusy(true); setError('')
     try {
       const result = await historyRequest<HistoryDetail & { ok: boolean }>(token, { action: 'get', draft_id: detail.history.id })
@@ -186,8 +188,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   }, [activeEvent, activeEventId, activeEventIndex, selectedEvent, detail])
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
-    ? `${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
-    : 'Sudah terkunci'
+    ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
+    : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
   const metric = (label: string, value: unknown, previous: unknown) => {
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
@@ -255,7 +257,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </button>)}
         {rows.length > 0 && <div className="flex flex-wrap justify-end gap-x-5 gap-y-1 rounded-xl border border-slate-700 bg-slate-900 p-3 text-right text-xs"><span>Total RAB <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalRab ?? 0), 0))}</strong></span><span>Total OPS <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOpsHarian ?? 0), 0))}</strong></span><span>Total keseluruhan <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOverall ?? 0), 0))}</strong></span></div>}
       </div> : <div className="mt-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {detail.locked ? 'Terkunci' : `Kunci dalam ${lockCountdown}`}</p></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {lockCountdown}</p></div>
           <div className="flex flex-wrap gap-2">
             <button type="button" disabled={busy} onClick={() => void refreshDetail()} title="Muat ulang snapshot terbaru" aria-label="Muat ulang snapshot terbaru" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-emerald-600 disabled:opacity-40"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg></button>
             {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Load ke Form</button>}
