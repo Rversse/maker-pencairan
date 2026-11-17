@@ -2199,7 +2199,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       for (const key of new Set([...Object.keys(before), ...Object.keys(snapshot)])) {
         if (JSON.stringify(before[key]) !== JSON.stringify(snapshot[key])) delta[key] = snapshot[key] ?? null
       }
-      const incrementalOutput = getTransactionOutput(incrementalTransaction).join('\\n')
+      const incrementalOutput = getTransactionOutput(incrementalTransaction).join('\n')
       delta.incremental_output = incrementalOutput
       if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
       const { error: changeError } = await supabase.functions.invoke('maker-history', {
