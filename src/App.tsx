@@ -892,6 +892,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [historySaveOpen, setHistorySaveOpen] = useState(false)
+  const [historySaveType, setHistorySaveType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN'>('REVISI')
+  const [historySaveSummary, setHistorySaveSummary] = useState('')
+  const [historySaveBusy, setHistorySaveBusy] = useState(false)
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
   const [customRabDrafts, setCustomRabDrafts] = useState<Record<string, string[]>>({})
@@ -2029,15 +2033,114 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     .map(([label, complete]) => ({ label, complete }))
     .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
 
+  function getHistorySnapshot() {
+    if (!activeTransaction || !selectedKitchen) return null
+    return {
+      kitchenId,
+      kitchenName: selectedKitchen.name,
+      transactionDate: activeDate,
+      transaction: activeTransaction,
+      output,
+      totalRab,
+      totalOpsHarian,
+      totalOverall: sumOutputLines(() => true)
+    }
+  }
+
   async function copyOutput() {
-    if (!output) return
+    if (!output || !activeTransaction || !kitchenId) return
+    setHistorySaveBusy(true)
     try {
+      const snapshot = getHistorySnapshot()
+      if (!snapshot) return
+      const { data, error } = await supabase.functions.invoke('maker-history', {
+        body: { action: 'list', kitchen_id: kitchenId, date_from: activeDate, date_to: activeDate },
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Riwayat gagal diperiksa.')
+      const existing = (data?.histories ?? []).find((row: { payload?: Record<string, unknown> }) => {
+        const transaction = row.payload?.transaction as { id?: number } | undefined
+        return transaction?.id === activeTransaction.id
+      })
+      if (existing) {
+        setHistorySaveOpen(true)
+        setHistorySaveBusy(false)
+        return
+      }
+      const { error: saveError } = await supabase.functions.invoke('maker-history', {
+        body: {
+          action: 'create',
+          kitchen_id: kitchenId,
+          transaction_date: activeDate,
+          title: `Pencairan ${selectedKitchen.name} - ${activeDate}`,
+          payload: snapshot
+        },
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (saveError) throw new Error(saveError.message || 'Riwayat gagal disimpan.')
       await navigator.clipboard.writeText(output)
-      setCopyMessage('Copied')
-      window.setTimeout(() => setCopyMessage(''), 1600)
-    } catch {
-      setCopyMessage('Clipboard tidak tersedia')
-      window.setTimeout(() => setCopyMessage(''), 1800)
+      setCopyMessage('Tersimpan di Riwayat dan berhasil disalin')
+      window.setTimeout(() => setCopyMessage(''), 2200)
+    } catch (err) {
+      setCopyMessage(err instanceof Error ? err.message : 'Gagal menyimpan dan menyalin output')
+      window.setTimeout(() => setCopyMessage(''), 3000)
+    } finally {
+      setHistorySaveBusy(false)
+    }
+  }
+
+  async function confirmHistorySave() {
+    if (!activeTransaction || !output) return
+    setHistorySaveBusy(true)
+    try {
+      const snapshot = getHistorySnapshot()
+      if (!snapshot) return
+      const { data: listData, error: listError } = await supabase.functions.invoke('maker-history', {
+        body: { action: 'list', kitchen_id: kitchenId, date_from: activeDate, date_to: activeDate },
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (listError || listData?.error) throw new Error(listData?.error ?? listError?.message ?? 'Riwayat gagal diperiksa.')
+      const existing = (listData?.histories ?? []).find((row: { payload?: Record<string, unknown> }) => {
+        const transaction = row.payload?.transaction as { id?: number } | undefined
+        return transaction?.id === activeTransaction.id
+      })
+      if (!existing) throw new Error('Riwayat awal tidak ditemukan. Tutup dialog lalu tekan Copy dan Simpan lagi.')
+      const { data: detailData, error: detailError } = await supabase.functions.invoke('maker-history', {
+        body: { action: 'get', draft_id: existing.id },
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (detailError || detailData?.error) throw new Error(detailData?.error ?? detailError?.message ?? 'Detail Riwayat gagal dimuat.')
+      const before = detailData.history.payload as Record<string, unknown>
+      const delta: Record<string, unknown> = {}
+      for (const key of new Set([...Object.keys(before), ...Object.keys(snapshot)])) {
+        if (JSON.stringify(before[key]) !== JSON.stringify(snapshot[key])) delta[key] = snapshot[key] ?? null
+      }
+      const oldLines = new Set(String(before.output ?? '').split(/\\r?\\n/).filter(Boolean))
+      delta.incremental_output = String(output).split(/\\r?\\n/).filter(line => line.trim() && !oldLines.has(line)).join('\\n')
+      if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
+      const { error: changeError } = await supabase.functions.invoke('maker-history', {
+        body: {
+          action: 'change',
+          draft_id: existing.id,
+          expected_version: detailData.history.version,
+          event_type: historySaveType,
+          summary: historySaveSummary,
+          delta,
+          snapshot
+        },
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (changeError) throw new Error(changeError.message || 'Versi Riwayat gagal disimpan.')
+      await navigator.clipboard.writeText(historySaveType === 'REVISI' ? output : String(delta.incremental_output ?? ''))
+      setHistorySaveOpen(false)
+      setHistorySaveSummary('')
+      setCopyMessage(`${historySaveType} tersimpan dan output disalin`)
+      window.setTimeout(() => setCopyMessage(''), 2200)
+    } catch (err) {
+      setCopyMessage(err instanceof Error ? err.message : 'Gagal menyimpan versi Riwayat')
+      window.setTimeout(() => setCopyMessage(''), 3000)
+    } finally {
+      setHistorySaveBusy(false)
     }
   }
 
@@ -2176,9 +2279,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         {copyMessage && <span role="status" className="text-[10px] font-semibold text-emerald-300">{copyMessage}</span>}
                       </div>
 
-                      <pre onClick={() => void copyOutput()} onMouseUp={() => { if (window.getSelection()?.toString()) void copyOutput() }} title="Klik untuk menyalin output" className="mt-2 min-h-[135px] max-h-[30vh] flex-1 cursor-copy overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">
-                        {output}
-                      </pre>
+                      <div className="mt-2 flex min-h-[135px] flex-1 flex-col gap-2">
+                        <pre className="max-h-[30vh] flex-1 overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">{output}</pre>
+                        <button type="button" disabled={!output || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
+                      </div>
 
                     </>
                   )}
@@ -2732,6 +2836,26 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           )}
         </>
       </div>
+      {historySaveOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4">
+          <section className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
+            <h3 className="text-sm font-bold">Simpan perubahan pencairan</h3>
+            <p className="mt-1 text-xs text-slate-400">Pilih jenis perubahan sebelum membuat versi berikutnya.</p>
+            <label className="mt-3 block text-xs text-slate-300">Jenis perubahan
+              <select value={historySaveType} onChange={event => setHistorySaveType(event.target.value as typeof historySaveType)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">
+                <option value="REVISI">REVISI</option><option value="KEKURANGAN">KEKURANGAN</option><option value="TAMBAHAN">TAMBAHAN</option>
+              </select>
+            </label>
+            <label className="mt-3 block text-xs text-slate-300">Catatan perubahan (opsional)
+              <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder="Contoh: koreksi nominal transfer" />
+            </label>
+            <div className="mt-4 flex justify-end gap-2">
+              <button type="button" disabled={historySaveBusy} onClick={() => setHistorySaveOpen(false)} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Batal</button>
+              <button type="button" disabled={historySaveBusy} onClick={() => void confirmHistorySave()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Simpan Versi dan Copy'}</button>
+            </div>
+          </section>
+        </div>
+      )}
       {historyOpen && selectedKitchen && activeTransaction && (
         <HistoryPanel
           token={token}
