@@ -2797,7 +2797,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={`${entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''} ${!historyEnabled ? 'opacity-45' : ''}`}>
-                                <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount ? 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]' : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
+                                <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount
+                                  ? entry.isVirtualAccount
+                                    ? 'lg:grid-cols-[62px_54px_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]'
+                                    : 'lg:grid-cols-[62px_54px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]'
+                                  : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
                                   {isMappedOps ? (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-teal-700/60 bg-teal-950/30 px-2 text-center text-[10px] font-semibold text-teal-100">Ops Harian</div>
                                   ) : custom ? (isArutala ? (
@@ -2834,11 +2838,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   )) : (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
                                   )}
-                                  {custom && !isMappedSalary && !isArutala ? (
+                                  {!(showVirtualAccount && entry.isVirtualAccount) && (custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" value={ownerName} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{ownerName || 'Mapping belum tersedia'}</span></div>
-                                  )}
+                                  ))}
                                   {custom && !isMappedSalary && !isArutala ? (
                                     <select value={entry.bank ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-md border border-slate-700/90 bg-slate-950 px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
                                       <option value="">Pilih bank</option>
