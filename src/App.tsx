@@ -2159,6 +2159,17 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     }
   }
 
+  async function copyOutputOnly() {
+    if (!output.trim()) return
+    try {
+      await navigator.clipboard.writeText(output)
+      setCopyMessage('Output berhasil disalin. Form Utama dan Riwayat tidak diubah.')
+    } catch {
+      setCopyMessage('Clipboard tidak tersedia di browser ini.')
+    }
+    window.setTimeout(() => setCopyMessage(''), 3000)
+  }
+
   async function copyOutput() {
     if ((!output && !historyChangeBase) || !activeTransaction || !kitchenId) return
     setHistorySaveBusy(true)
@@ -2613,7 +2624,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                       <div className="mt-2 flex min-h-[135px] flex-1 flex-col gap-2">
                         <pre className="max-h-[30vh] flex-1 overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">{output}</pre>
-                        <button type="button" disabled={(!output && !historyChangeBase) || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button type="button" disabled={!output.trim() || historySaveBusy} onClick={() => void copyOutputOnly()} className="self-start rounded-lg border border-sky-700 bg-sky-950/50 px-3 py-2 text-[11px] font-semibold text-sky-200 hover:bg-sky-900/60 disabled:opacity-40">Copy Output</button>
+                          <button type="button" disabled={(!output && !historyChangeBase) || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
+                        </div>
                       </div>
 
                     </>
