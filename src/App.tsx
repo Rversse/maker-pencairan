@@ -1663,10 +1663,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         })
       } else {
         items.push({
-          kind: 'gas',
+          kind: 'operasional_harian',
           bank,
-          line: 'GAS : ' + accountName + ' / ' + note +
-            ' - ' + bank + ' / ' + accountNumber + ' · ' + formatNumber(entry.amount),
+          line: 'OPS HARIAN : ' + capitalizeEachWord(rawAccountName) +
+            ' - ' + bank + ' / ' + accountNumber +
+            ' · ' + note + ' · ' + formatNumber(entry.amount),
           index: items.length,
           modeRank: 0
         })
@@ -2567,54 +2568,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                   </section>
 
 
-
-                  {arutalaGasRule?.accounts && (
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-cyan-600/70 bg-slate-900/40 p-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                          <h2 className="text-base font-semibold text-white">Pencairan Gas</h2>
-                          <p className="mt-0.5 text-[11px] text-slate-400">Khusus transaksi GAS. Maksimal 2 transaksi per tanggal.</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={addGasEntry}
-                          disabled={historyChangeActive || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2}
-                          className="h-10 rounded-lg border border-cyan-700/70 bg-cyan-950/60 px-3 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-900/70 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          + Tambah Gas
-                        </button>
-                      </div>
-                      {(activeTransaction.gas ?? []).length > 0 ? (
-                        <div className="mt-3 space-y-2">
-                          <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi GAS</div>
-                          {(activeTransaction.gas ?? []).map((entry) => {
-                            const historyEnabled = isHistoryRowEnabled('gas', entry.id)
-                            const rule = arutalaGasRule
-                            const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
-                            const bank = rule?.accounts?.bank ?? '-'
-                            const accountNumber = rule?.accounts?.account_number ?? '-'
-                            return (
-                              <div key={entry.id} className={`rounded-lg border border-slate-800 bg-slate-950/40 p-2 ${!historyEnabled ? "opacity-45" : ""}`}>
-                                <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_85px_minmax(110px,0.8fr)_minmax(120px,1fr)_90px_100px_110px_34px]">
-                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">GAS</div>
-                                  <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
-                                  <div className="flex h-10 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-xs font-semibold text-slate-100">{bank}</div>
-                                  <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
-                                  <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
-                                  <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                  <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
-                                  <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      ) : (
-                        <p className="mt-3 rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-400">Belum ada transaksi GAS. Tekan Tambah Gas untuk memulai.</p>
-                      )}
-                    </section>
-                  )}
-
                   <section className={`mp-card relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Operasional Harian</h2>
@@ -2622,6 +2575,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         <button type="button" disabled={historyChangeActive} aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
+                            <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">GAS <span className="ml-1 text-[10px] text-slate-400">(maks. 2)</span></button>
                             <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
                             <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
                           </div>
@@ -2640,7 +2594,43 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         entry.operationalRuleType !== 'gaji_ahli_gizi'
                       )
                       return (
-                        <div className="mt-2 space-y-1.5">
+                        <div className="mt-3 border-t border-slate-700/70 pt-3">
+                        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <div className="text-xs font-bold uppercase tracking-wide text-cyan-200">GAS</div>
+                            <p className="mt-0.5 text-[10px] text-slate-400">Maksimal 2 transaksi per tanggal.</p>
+                          </div>
+                          <span className="text-[10px] text-slate-500">{(activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length}/2 transaksi</span>
+                        </div>
+                        {(activeTransaction.gas ?? []).length > 0 ? (
+                          <div className="space-y-2">
+                            {(activeTransaction.gas ?? []).map((entry) => {
+                              const historyEnabled = isHistoryRowEnabled('gas', entry.id)
+                              const rule = arutalaGasRule
+                              const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
+                              const bank = rule?.accounts?.bank ?? '-'
+                              const accountNumber = rule?.accounts?.account_number ?? '-'
+                              return (
+                                <div key={entry.id} className={`rounded-lg border border-slate-800 bg-slate-950/40 p-2 ${!historyEnabled ? "opacity-45" : ""}`}>
+                                  <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_85px_minmax(110px,0.8fr)_minmax(120px,1fr)_90px_100px_110px_34px]">
+                                    <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">GAS</div>
+                                    <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
+                                    <div className="flex h-10 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-xs font-semibold text-slate-100">{bank}</div>
+                                    <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
+                                    <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
+                                    <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
+                                    <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
+                                    <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          <p className="rounded-lg border border-dashed border-slate-700 px-3 py-3 text-center text-xs text-slate-400">Belum ada transaksi GAS.</p>
+                        )}
+                      </div>
+                      <div className="mt-3 space-y-1.5">
                           <div className={'hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 ' + (hasCustomVaEntry ? 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]' : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
                             <span></span>
                             <span>Nama rekening</span>
