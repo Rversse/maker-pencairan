@@ -1818,12 +1818,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     if (!base) return activeTransaction
     const next: TransactionGroup = {
       ...activeTransaction,
-      rab: activeTransaction.rab.map(row => enabled.has('rab:' + row.accountId) ? row : (base.rab.find(item => item.accountId === row.accountId) ?? row)),
-      gas: (activeTransaction.gas ?? []).map(row => enabled.has('gas:' + row.id) ? row : ((base.gas ?? []).find(item => item.id === row.id) ?? row)),
-      operasional: (activeTransaction.operasional ?? []).map(row => enabled.has('operasional:' + row.id) ? row : ((base.operasional ?? []).find(item => item.id === row.id) ?? row)),
-      pencairan_harian: (activeTransaction.pencairan_harian ?? []).map(row => enabled.has('pencairan_harian:' + row.id) ? row : ((base.pencairan_harian ?? []).find(item => item.id === row.id) ?? row)),
-      lain_lain: (activeTransaction.lain_lain ?? []).map(row => enabled.has('lain_lain:' + row.id) ? row : ((base.lain_lain ?? []).find(item => item.id === row.id) ?? row)),
-      arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).map(row => enabled.has('arutala_lain_lain:' + row.id) ? row : ((base.arutala_lain_lain ?? []).find(item => item.id === row.id) ?? row)),
+      rab: activeTransaction.rab.map(row => enabled.has('rab:' + row.accountId) ? row : { ...row, amount: '' }),
+      gas: (activeTransaction.gas ?? []).map(row => enabled.has('gas:' + row.id) ? row : { ...row, amount: '' }),
+      operasional: (activeTransaction.operasional ?? []).map(row => enabled.has('operasional:' + row.id) ? row : { ...row, amount: '' }),
+      pencairan_harian: (activeTransaction.pencairan_harian ?? []).map(row => enabled.has('pencairan_harian:' + row.id) ? row : { ...row, amount: '' }),
+      lain_lain: (activeTransaction.lain_lain ?? []).map(row => enabled.has('lain_lain:' + row.id) ? row : { ...row, amount: '' }),
+      arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).map(row => enabled.has('arutala_lain_lain:' + row.id) ? row : { ...row, amount: '' }),
     }
     return next
   }, [activeTransaction, historyChangeActive, historySelectedKeys, historyChangeBase])
@@ -2586,7 +2586,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                       return (
                         <div className="mt-2 space-y-3">
-                          {sortedRabRules.map((rule, index) =>
+                          {sortedRabRules.filter(rule => !historyChangeActive || historySelectedKeys.includes('rab:' + rule.account_id)).map((rule, index) =>
                             renderRabRow(rule, index)
                           )}
                         </div>
@@ -2615,6 +2615,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         ? activeTransaction.operasional
                         : [createOperationalEntry()]
                       const hasCustomVaEntry = entries.some((entry, index) =>
+                        (!historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) &&
                         index > 0 &&
                         !entry.useArutalaAccount &&
                         entry.operationalRuleType !== 'gaji_akuntan' &&
@@ -2627,6 +2628,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <div className="space-y-2">
                             {(activeTransaction.gas ?? []).map((entry) => {
                               const historyEnabled = isHistoryRowEnabled('gas', entry.id)
+                              if (historyChangeActive && !historyEnabled) return null
                               const rule = arutalaGasRule
                               const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                               const bank = rule?.accounts?.bank ?? '-'
@@ -2664,6 +2666,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           </div>
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
+                            if (historyChangeActive && !historyEnabled) return null
                             const custom = index > 0
                             const isArutala = Boolean(entry.useArutalaAccount)
                             const arutalaAccount = arutalaGasRule?.accounts
@@ -2807,7 +2810,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <span>Nominal</span>
                         </div>
                         {activeTransaction.pencairan_harian
-                          .filter((entry) => entry.category === 'sewa')
+                          .filter((entry) => entry.category === 'sewa' && (!historyChangeActive || historySelectedKeys.includes('pencairan_harian:' + entry.id)))
                           .map((entry) => {
                             const historyEnabled = isHistoryRowEnabled('pencairan_harian', entry.id)
                             const rental = getSppgRental(selectedKitchen?.name ?? '', masterData)
@@ -2870,7 +2873,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <span>Nominal</span>
                         </div>
                         {activeTransaction.pencairan_harian
-                          .filter((entry) => entry.category === 'gaji')
+                          .filter((entry) => entry.category === 'gaji' && (!historyChangeActive || historySelectedKeys.includes('pencairan_harian:' + entry.id)))
                           .map((entry) => {
                             const historyEnabled = isHistoryRowEnabled('pencairan_harian', entry.id)
                             const mapping = getDailyPaymentMappingForKinds(
@@ -2985,7 +2988,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             setHistoryOpen(false)
             setHistorySaveOpen(false)
             persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
-            setHistoryMessage(eventType + ' dipilih. Hanya transaksi yang dicentang dapat diedit. Setelah selesai, tekan Copy dan Simpan.')
+            setHistoryMessage(eventType + ' dipilih. Form dan output hanya menampilkan transaksi yang dicentang. Setelah selesai, tekan Copy dan Simpan.')
           }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
