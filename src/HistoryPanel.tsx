@@ -32,6 +32,7 @@ type Props = {
   kitchenName: string
   transactionDate: string
   currentSnapshot: Record<string, unknown>
+  onLoadSnapshot: (payload: Record<string, unknown>) => void
   onClose: () => void
 }
 const EVENT_TYPES = ['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const
@@ -59,7 +60,8 @@ function changedFields(before: Record<string, unknown>, after: Record<string, un
   return delta
 }
 
-export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, currentSnapshot, onClose }: Props) {
+export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, currentSnapshot, onLoadSnapshot, onClose }: Props) {
+  const [selectedDate, setSelectedDate] = useState(transactionDate)
   const [rows, setRows] = useState<HistoryRow[]>([])
   const [detail, setDetail] = useState<HistoryDetail | null>(null)
   const [eventType, setEventType] = useState<(typeof EVENT_TYPES)[number]>('REVISI')
@@ -73,12 +75,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     setBusy(true); setError('')
     try {
       const result = await historyRequest<{ histories: HistoryRow[] }>(token, {
-        action: 'list', kitchen_id: kitchenId, date_from: transactionDate, date_to: transactionDate
+        action: 'list', kitchen_id: kitchenId, date_from: selectedDate, date_to: selectedDate
       })
       setRows(result.histories)
     } catch (err) { setError(err instanceof Error ? err.message : 'HISTORY gagal dimuat.') }
     finally { setBusy(false) }
-  }, [token, kitchenId, transactionDate])
+  }, [token, kitchenId, selectedDate])
   useEffect(() => { void load() }, [load])
 
   async function openDetail(id: string) {
@@ -153,7 +155,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       {error && <p role="alert" className="mt-3 rounded-lg border border-rose-800 bg-rose-950/40 p-3 text-xs text-rose-200">{error}</p>}
       {notice && <p role="status" className="mt-3 rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-xs text-emerald-200">{notice}</p>}
       {!detail ? <div className="mt-4 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-sm font-semibold">Daftar pencairan tanggal ini</h3>
+        <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-sm font-semibold">Daftar pencairan harian</h3><label className="mt-2 block text-[11px] text-slate-400">Tanggal Riwayat<input type="date" value={selectedDate} onChange={event => setSelectedDate(event.target.value)} className="mt-1 block rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100" /></label></div>
           <button disabled={busy || !kitchenId} onClick={() => void createHistory()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">+ Simpan permintaan baru</button>
         </div>
         {busy && <p className="text-xs text-slate-400">Memuat...</p>}
@@ -166,6 +168,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       </div> : <div className="mt-4 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{detail.history.title || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">Versi {detail.history.version} · {detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'}</p></div>
           <div className="flex flex-wrap gap-2">
+            {canEdit && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Muat ke Form Utama</button>}
             {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali ke daftar</button>
           </div>
