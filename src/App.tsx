@@ -1307,7 +1307,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       return
     }
     const entries = activeTransaction.operasional ?? []
-    if (entries.some((entry) => entry.operationalRuleId === rule.id)) {
+    if (entries.some((entry) => entry.operationalRuleId === rule.id || (
+      entry.operationalRuleType === 'ops_harian' &&
+      entry.ownerName.trim() === rule.owner_name.trim() &&
+      (entry.bank ?? '').trim().toUpperCase() === rule.bank.trim().toUpperCase() &&
+      entry.accountNumber.replace(/\D/g, '') === rule.account_number.replace(/\D/g, '')
+    ))) {
       setHistoryMessage('Mapping rekening ini sudah ditambahkan.')
       window.setTimeout(() => setHistoryMessage(''), 2200)
       setOperationalAddMenuOpen(false)
@@ -2686,7 +2691,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
                             {opsMappings.map((rule) => {
-                              const added = operationalEntries.some((entry) => entry.operationalRuleId === rule.id)
+                              const added = operationalEntries.some((entry) => entry.operationalRuleId === rule.id || (
+                                entry.operationalRuleType === 'ops_harian' &&
+                                entry.ownerName.trim() === rule.owner_name.trim() &&
+                                (entry.bank ?? '').trim().toUpperCase() === rule.bank.trim().toUpperCase() &&
+                                entry.accountNumber.replace(/\D/g, '') === rule.account_number.replace(/\D/g, '')
+                              ))
                               return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian · {getOperationalRoleLabel(rule)} — {rule.owner_name}{added ? ' (Ditambahkan)' : ''}</button>
                             })}
                             {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian · Mapping belum tersedia</button>}
