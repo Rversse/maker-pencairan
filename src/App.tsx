@@ -13,6 +13,9 @@ type RabEntry = {
   accountId: string
   productTypes: string[]
   amount: string
+  b3Enabled?: boolean
+  b3ProductTypes?: string[]
+  b3Amount?: string
 }
 
 type OtherTransactionType = '' | 'operasional_harian' | 'lain_lain' | 'gas'
@@ -824,7 +827,12 @@ function normalizeTransaction(
   return {
     ...transaction,
     date: transaction.date || fallbackDate,
-    rab: Array.isArray(transaction.rab) ? transaction.rab : [],
+    rab: Array.isArray(transaction.rab) ? transaction.rab.map((entry) => ({
+      ...entry,
+      b3Enabled: Boolean(entry.b3Enabled || entry.b3Amount),
+      b3ProductTypes: Array.isArray(entry.b3ProductTypes) ? entry.b3ProductTypes : [],
+      b3Amount: typeof entry.b3Amount === 'string' ? entry.b3Amount : ''
+    })) : [],
     gas: normalizedGasEntries,
     operasional: operational,
     pencairan_harian: normalizedSewa.concat(
@@ -915,6 +923,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const historyChangeActive = Boolean(historyChangeBase && historySaveType !== 'TAMBAHAN')
   const isHistoryEntryEnabled = (key: string) => !historyChangeActive || historySelectedKeys.includes(key)
   const isHistoryRabEnabled = (accountId: string) => isHistoryEntryEnabled('rab:' + accountId)
+  const isHistoryRabB3Enabled = (accountId: string) => isHistoryEntryEnabled('rab_b3:' + accountId)
   const isHistoryRowEnabled = (field: string, id: number) => isHistoryEntryEnabled(field + ':' + id)
   const [historySaveBusy, setHistorySaveBusy] = useState(false)
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
@@ -1809,6 +1818,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       if (!entry || !rule.accounts) continue
 
       const hasAmount = isCompleteAmount(entry.amount)
+      const hasB3Amount = isCompleteAmount(entry.b3Amount ?? '')
       const supplierName = formatSupplierAccountName(
         rule.supplier?.business_name ?? rule.accounts.name,
         rule.supplier?.owner_name
@@ -1831,7 +1841,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           : sortedProducts.slice(0, -1).join(', ') + ', dan ' + sortedProducts[sortedProducts.length - 1]
       const hasProduct = productText.length > 0
       // Product selections alone do not create an output line; RAB requires a nominal.
-      if (!hasAmount) continue
+      if (!hasAmount && !hasB3Amount) continue
       const accountText =
         supplierName +
         ' - ' +
@@ -1843,13 +1853,34 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         ? accountText + ' · ' + productText + ' · ' + amountText
         : accountText + ' · ' + amountText
 
-      items.push({
-        kind: 'rab',
-        bank: getOutputBank(rule.accounts.bank),
-        line: 'RAB : ' + outputLine,
-        index: items.length,
-        modeRank: 0
-      })
+      if (hasAmount) {
+        items.push({
+          kind: 'rab',
+          bank: getOutputBank(rule.accounts.bank),
+          line: 'RAB : ' + outputLine,
+          index: items.length,
+          modeRank: 0
+        })
+      }
+      if (hasB3Amount) {
+        const b3Products = sortStrings(entry.b3ProductTypes ?? [])
+          .map((product) => catalogProducts.includes(product) ? product : capitalizeEachWord(product))
+        const b3ProductText = b3Products.length <= 1
+          ? (b3Products[0] ?? '')
+          : b3Products.length === 2
+            ? b3Products[0] + ' dan ' + b3Products[1]
+            : b3Products.slice(0, -1).join(', ') + ', dan ' + b3Products[b3Products.length - 1]
+        const b3OutputLine = b3ProductText
+          ? accountText + ' · ' + b3ProductText + ' · ' + formatNumber(entry.b3Amount ?? '')
+          : accountText + ' · ' + formatNumber(entry.b3Amount ?? '')
+        items.push({
+          kind: 'rab',
+          bank: getOutputBank(rule.accounts.bank),
+          line: 'RAB B3 : ' + b3OutputLine,
+          index: items.length,
+          modeRank: 0
+        })
+      }
     }
 
     for (const output of getSimpleOutputs(transaction)) {
@@ -1906,7 +1937,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     if (!base) return activeTransaction
     const next: TransactionGroup = {
       ...activeTransaction,
-      rab: activeTransaction.rab.map(row => enabled.has('rab:' + row.accountId) ? row : { ...row, amount: '' }),
+      rab: activeTransaction.rab.map(row => ({
+        ...row,
+        amount: enabled.has('rab:' + row.accountId) ? row.amount : '',
+        b3Amount: enabled.has('rab_b3:' + row.accountId) ? (row.b3Amount ?? '') : ''
+      })),
       gas: (activeTransaction.gas ?? []).map(row => enabled.has('gas:' + row.id) ? row : { ...row, amount: '' }),
       operasional: (activeTransaction.operasional ?? []).map(row => enabled.has('operasional:' + row.id) ? row : { ...row, amount: '' }),
       pencairan_harian: (activeTransaction.pencairan_harian ?? []).map(row => enabled.has('pencairan_harian:' + row.id) ? row : { ...row, amount: '' }),
@@ -1940,7 +1975,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
   const sumOutputLines = (matches: (line: string) => boolean) =>
     outputDetailLines.reduce((total, line) => total + (matches(line) ? getOutputAmount(line) : 0), 0)
-  const totalRab = sumOutputLines((line) => line.startsWith('RAB : '))
+  const totalRab = sumOutputLines((line) => line.startsWith('RAB : ') || line.startsWith('RAB B3 : '))
   const opsHarianBreakdown = outputDetailLines.reduce<Array<{ label: string; amount: number }>>(
     (items, line) => {
       const amount = getOutputAmount(line)
@@ -2150,7 +2185,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         setHistoryChangeBase(existing.payload as Record<string, unknown>)
         setHistorySaveType('REVISI')
         setHistorySelectedKeys([
-          ...previous.rab.map(row => 'rab:' + row.accountId),
+          ...previous.rab.flatMap(row => [
+            'rab:' + row.accountId,
+            ...(isCompleteAmount(row.b3Amount ?? '') ? ['rab_b3:' + row.accountId] : [])
+          ]),
           ...(['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const).flatMap(field =>
             (previous[field] ?? []).map(row => field + ':' + row.id)
           )
@@ -3085,9 +3123,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               )
             } else if (eventType === 'KEKURANGAN') {
               const selected = new Set(selectedKeys)
-              restored.rab = restored.rab.map(row =>
-                selected.has('rab:' + row.accountId) ? { ...row, amount: '' } : row
-              )
+              restored.rab = restored.rab.map(row => ({
+                ...row,
+                amount: selected.has('rab:' + row.accountId) ? '' : row.amount,
+                b3Amount: selected.has('rab_b3:' + row.accountId) ? '' : (row.b3Amount ?? '')
+              }))
               const clearSelected = <T extends { id: number; amount: string }>(field: string, rows: T[] | undefined) =>
                 (rows ?? []).map(row => selected.has(field + ':' + row.id) ? { ...row, amount: '' } : row)
               restored.gas = clearSelected('gas', restored.gas)
