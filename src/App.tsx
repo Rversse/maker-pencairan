@@ -2757,6 +2757,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             )
                           })}
                         </div>
+                        </div>
                       )
                     })()}
                   </section>
