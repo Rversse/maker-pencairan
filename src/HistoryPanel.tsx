@@ -117,41 +117,46 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     setNotice(`Output lengkap dengan penanda ${event.event_type} ditampilkan.`)
   }
   async function copyEventOutput(event: HistoryEvent) {
-    const savedIncrementalOutput = event.snapshot.delta?.incremental_output
-    if (typeof savedIncrementalOutput === 'string' && savedIncrementalOutput.trim()) {
-      try {
-        await navigator.clipboard.writeText(savedIncrementalOutput)
-        setNotice(`Output ${event.event_type} berhasil disalin.`)
-      } catch {
-        setError('Clipboard tidak tersedia di browser ini.')
-      }
-      return
-    }
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
-    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
-    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
+    const currentLines = String(event.snapshot.payload?.output ?? '').split('\\n')
+    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\\n')
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
       if (!match) return null
       const prefix = match[1]
       const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
-      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
+      return { identity, amount: Number(match[2].replace(/\\D/g, '')) || 0, prefix }
     }
-    const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
-    previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
+    const previousByIdentity = new Map<string, Array<NonNullable<ReturnType<typeof parseLine>>>>()
+    previousLines.forEach(line => {
+      const parsed = parseLine(line)
+      if (!parsed) return
+      const matches = previousByIdentity.get(parsed.identity) ?? []
+      matches.push(parsed)
+      previousByIdentity.set(parsed.identity, matches)
+    })
     const changed = currentLines.flatMap(line => {
       const current = parseLine(line)
       if (!current) return []
-      const before = previousByIdentity.get(current.identity)
-      if (event.event_type === 'TAMBAHAN') return before ? [] : [`+ TAMBAHAN: ${line}`]
-      if (!before || before.amount === current.amount) return []
-      if (event.event_type === 'KEKURANGAN') return [`${current.prefix} · ${money(before.amount)} + ${money(current.amount - before.amount)}`]
-      if (event.event_type === 'REVISI') return [`${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`]
+      const matches = previousByIdentity.get(current.identity) ?? []
+      const before = matches.shift()
+      previousByIdentity.set(current.identity, matches)
+
+      if (!before) return [`${current.prefix} · ${money(current.amount)}`]
+      if (event.event_type === 'REVISI') {
+        return before.amount !== current.amount || before.prefix !== current.prefix
+          ? [`${current.prefix} · ${money(current.amount)}`]
+          : []
+      }
+      if (event.event_type === 'KEKURANGAN' || event.event_type === 'TAMBAHAN') {
+        const difference = current.amount - before.amount
+        return difference > 0 ? [`${current.prefix} · ${money(difference)}`] : []
+      }
       return []
     })
     if (!changed.length) { setError('Tidak ditemukan baris yang berubah pada event ini.'); return }
-    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\n')
+    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\\n')
     try { await navigator.clipboard.writeText(output); setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`) }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
