@@ -2450,7 +2450,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         return (
                           <div
                             key={rule.account_id}
-                            className="grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3"
+                            className={`grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3 ${!historyEnabled ? "opacity-45" : ""}`}
                           >
                             <div className="min-w-0">
                               <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
@@ -2744,7 +2744,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <input
                                     type="text"
                                     required={custom}
-                                    readOnly={!custom || !historyEnabled}
+                                    readOnly={!custom} disabled={!historyEnabled}
                                     value={note}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value })}
                                     placeholder="Catatan"
