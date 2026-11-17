@@ -2265,44 +2265,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     }
   }
 
-  function restoreLastDraft() {
-    const recoveryKey = kitchenId
-      ? kitchenRecoveryStorageKey(kitchenId)
-      : RECOVERY_STORAGE_KEY
-    const recovery = readWorkspaceFromStorageKey(recoveryKey)
-
-    if (!recovery || (kitchenId && recovery.kitchenId !== kitchenId)) {
-      setHistoryMessage('Belum ada backup Reset untuk dapur ini.')
-      window.setTimeout(() => setHistoryMessage(''), 2200)
-      return
-    }
-
-    const storedTransaction = recovery.transactions.find(
-      (transaction) => transaction.id === recovery.activeTransactionId
-    ) ?? recovery.transactions[0]
-
-    if (!storedTransaction) {
-      setHistoryMessage('Backup Reset tidak berisi transaksi yang bisa dipulihkan.')
-      window.setTimeout(() => setHistoryMessage(''), 2200)
-      return
-    }
-
-    const transaction = normalizeTransaction({ ...storedTransaction, id: 1 }, today)
-
-    setKitchenId(recovery.kitchenId)
-    setTransactions([transaction])
-    setActiveTransactionId(1)
-    persistWorkspace({
-      kitchenId: recovery.kitchenId,
-      activeTransactionId: 1,
-      transactions: [transaction]
-    })
-    window.localStorage.removeItem(recoveryKey)
-
-    setHistoryMessage('Draft sebelum Reset berhasil dipulihkan.')
-    window.setTimeout(() => setHistoryMessage(''), 2200)
-  }
-
   const activeRabMap: Map<string, RabEntry> = new Map(
     (activeTransaction?.rab ?? []).map(
       (entry) => [entry.accountId, entry] as [string, RabEntry]
@@ -2347,7 +2309,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
                   <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-emerald-700/70 bg-emerald-950/50 px-3 text-[10px] font-semibold text-emerald-200 shadow-sm transition hover:border-emerald-500">Riwayat</button>
-                  <button type="button" onClick={restoreLastDraft} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-sky-500/70 hover:bg-slate-800">Restore</button>
                   <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800">Reset</button>
                 </div>
               )}
@@ -3012,6 +2973,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             setHistoryOpen(false)
             persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
             setHistoryMessage('Snapshot Riwayat berhasil dimuat ke Form Utama.')
+          }}
+          onRefreshSnapshot={(payload) => {
+            const source = payload.transaction as TransactionGroup | undefined
+            if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
+            const refreshed = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
+            const refreshedKitchenId = String(payload.kitchenId ?? kitchenId)
+            setKitchenId(refreshedKitchenId)
+            setTransactions([refreshed])
+            setActiveTransactionId(1)
+            persistWorkspace({ kitchenId: refreshedKitchenId, activeTransactionId: 1, transactions: [refreshed] })
           }}
           onClose={() => setHistoryOpen(false)}
         />
