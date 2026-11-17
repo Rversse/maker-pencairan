@@ -1295,6 +1295,38 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     )
   }
 
+  function addMappedOperationalEntry(ruleId: string) {
+    if (!activeTransaction) return
+    const rule = getOperationalRules(kitchenId, masterData).find((item) => item.id === ruleId)
+    if (!rule) {
+      setHistoryMessage('Mapping Ops Harian tidak tersedia atau sudah dinonaktifkan.')
+      window.setTimeout(() => setHistoryMessage(''), 2200)
+      return
+    }
+    const entries = activeTransaction.operasional ?? []
+    if (entries.some((entry) => entry.operationalRuleId === rule.id)) {
+      setHistoryMessage('Mapping rekening ini sudah ditambahkan.')
+      window.setTimeout(() => setHistoryMessage(''), 2200)
+      setOperationalAddMenuOpen(false)
+      return
+    }
+    const nextId = Math.max(0, ...entries.map((entry) => entry.id)) + 1
+    updateTransaction(activeTransaction.id, {
+      operasional: [...entries, {
+        ...createOperationalEntry(nextId),
+        operationalRuleType: 'ops_harian',
+        operationalRuleId: rule.id,
+        ownerName: rule.owner_name,
+        bank: rule.bank,
+        accountNumber: rule.account_number.replace(/\D/g, ''),
+        customAccount: false,
+        useArutalaAccount: false,
+        need: 'Ops Harian'
+      }]
+    })
+    setOperationalAddMenuOpen(false)
+  }
+
   function addOperationalEntry() {
     if (!activeTransaction) return
     const currentEntries = activeTransaction.operasional ?? []
@@ -1373,7 +1405,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     if (!activeTransaction) return
     const remaining = (activeTransaction.operasional ?? []).filter((entry) => entry.id !== id)
     updateTransaction(activeTransaction.id, {
-      operasional: remaining.length > 0 ? remaining : [createOperationalEntry(1)]
+      operasional: remaining
     })
   }
 
@@ -1604,35 +1636,55 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     const kitchenName = selectedKitchen?.name ?? ''
 
     const mappedOperationalAccount = getOperationalAccount(kitchenName, masterData)
+    const operationalRules = getOperationalRules(kitchenId, masterData)
     const arutalaRule = arutalaGasRule
     const arutalaAccount = arutalaRule?.accounts
     const arutalaOwnerName = arutalaRule?.supplier?.business_name || arutalaAccount?.name || ''
 
     for (const [operationalIndex, operationalEntry] of (transaction.operasional ?? []).entries()) {
       if (!isCompleteAmount(operationalEntry.amount)) continue
-      const custom = operationalIndex > 0
+      const isMappedOps = operationalEntry.operationalRuleType === 'ops_harian'
       const isArutala = Boolean(operationalEntry.useArutalaAccount)
-      const selectedCustomMapping = custom && !isArutala && operationalEntry.operationalRuleType
+      const isMappedSalary = operationalEntry.operationalRuleType === 'gaji_akuntan' ||
+        operationalEntry.operationalRuleType === 'gaji_ahli_gizi'
+      const custom = !isMappedOps && !isArutala && !isMappedSalary &&
+        (operationalIndex > 0 || Boolean(operationalEntry.customAccount))
+      const mappedOpsRule = isMappedOps
+        ? operationalRules.find((rule) => rule.id === operationalEntry.operationalRuleId)
+        : null
+      const selectedCustomMapping = isMappedSalary && operationalEntry.operationalRuleType
         ? getOperationalMapping(kitchenName, masterData, operationalEntry.operationalRuleType)
         : null
       const bank = getOutputBank(isArutala
         ? arutalaAccount?.bank ?? ''
-        : custom
-          ? selectedCustomMapping?.bank || operationalEntry.bank || ''
-          : mappedOperationalAccount?.bank ?? '')
+        : isMappedOps
+          ? mappedOpsRule?.bank ?? operationalEntry.bank ?? ''
+          : isMappedSalary
+            ? selectedCustomMapping?.bank ?? operationalEntry.bank ?? ''
+            : custom
+              ? operationalEntry.bank ?? ''
+              : mappedOperationalAccount?.bank ?? '')
       const accountNumber = (isArutala
         ? arutalaAccount?.account_number ?? ''
-        : custom
-          ? selectedCustomMapping?.accountNumber || operationalEntry.accountNumber || ''
-          : mappedOperationalAccount?.accountNumber ?? '').trim()
+        : isMappedOps
+          ? mappedOpsRule?.account_number ?? operationalEntry.accountNumber ?? ''
+          : isMappedSalary
+            ? selectedCustomMapping?.accountNumber ?? operationalEntry.accountNumber ?? ''
+            : custom
+              ? operationalEntry.accountNumber ?? ''
+              : mappedOperationalAccount?.accountNumber ?? '').trim()
       const ownerName = (isArutala
         ? arutalaOwnerName
-        : custom
-          ? selectedCustomMapping?.ownerName || operationalEntry.ownerName || ''
-          : mappedOperationalAccount?.ownerName ?? '').trim()
+        : isMappedOps
+          ? mappedOpsRule?.owner_name ?? operationalEntry.ownerName ?? ''
+          : isMappedSalary
+            ? selectedCustomMapping?.ownerName ?? operationalEntry.ownerName ?? ''
+            : custom
+              ? operationalEntry.ownerName ?? ''
+              : mappedOperationalAccount?.ownerName ?? '').trim()
       if (!bank || !accountNumber || !ownerName) continue
 
-      const note = custom ? (operationalEntry.need ?? '').trim() : 'Ops Harian'
+      const note = (operationalEntry.need ?? (isMappedOps ? 'Ops Harian' : '')).trim()
       if (!note) continue
       outputs.push({
         bank,
@@ -2027,22 +2079,18 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       })
     }
 
-    const opsMapping = getOperationalAccount(kitchenName, masterData)
     const operationalEntries = activeTransaction.operasional ?? []
-    const hasArutalaOperationalEntry = operationalEntries.some((entry) => entry.useArutalaAccount)
     const hasArutalaMapping = Boolean(arutalaGasRule?.accounts)
-    if (opsMapping || operationalEntries.some((entry) => entry.customAccount)) {
+    if (operationalEntries.length > 0) {
       outputChecks.push({
         label: 'Operasional Harian',
-        complete: Boolean(opsMapping || (hasArutalaOperationalEntry && hasArutalaMapping)) &&
-          operationalEntries.some((entry) => isCompleteAmount(entry.amount)) &&
-          operationalEntries.every((entry, index) =>
-            !isCompleteAmount(entry.amount) ||
-            index === 0 ||
-            (entry.useArutalaAccount
-              ? Boolean(hasArutalaMapping && (entry.need ?? '').trim())
-              : Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() && entry.accountNumber.trim() && (entry.need ?? '').trim()))
-          )
+        complete: operationalEntries.some((entry) => isCompleteAmount(entry.amount)) &&
+          operationalEntries.every((entry) => {
+            if (!isCompleteAmount(entry.amount)) return true
+            if (entry.useArutalaAccount) return Boolean(hasArutalaMapping && (entry.need ?? '').trim())
+            return Boolean(entry.ownerName.trim() && (entry.bank ?? '').trim() &&
+              entry.accountNumber.trim() && (entry.need ?? '').trim())
+          })
       })
     }
   }
@@ -2634,6 +2682,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         <button type="button" disabled={historyChangeActive} aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
+                            {opsMappings.map((rule) => {
+                              const added = entries.some((entry) => entry.operationalRuleId === rule.id)
+                              return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian · {getOperationalRoleLabel(rule)}{added ? ' (Ditambahkan)' : ''}</button>
+                            })}
+                            {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian · Mapping belum tersedia</button>}
                             <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
                             <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">GAS</button>
                             <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
@@ -2643,15 +2696,15 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     </div>
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
-                      const entries = activeTransaction.operasional?.length
-                        ? activeTransaction.operasional
-                        : [createOperationalEntry()]
+                      const entries = activeTransaction.operasional ?? []
+                      const opsMappings = getOperationalRules(kitchenId, masterData)
                       const hasCustomVaEntry = entries.some((entry, index) =>
                         (!historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) &&
-                        index > 0 &&
                         !entry.useArutalaAccount &&
+                        entry.operationalRuleType !== 'ops_harian' &&
                         entry.operationalRuleType !== 'gaji_akuntan' &&
-                        entry.operationalRuleType !== 'gaji_ahli_gizi'
+                        entry.operationalRuleType !== 'gaji_ahli_gizi' &&
+                        (index > 0 || entry.customAccount)
                       )
                       return (
                         <div className="mt-3 space-y-3">
@@ -2696,11 +2749,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             <span>Nominal</span>
                             <span></span>
                           </div>
+                          {entries.length === 0 && !historyChangeActive && <p className="rounded-lg border border-dashed border-slate-700 px-3 py-3 text-center text-xs text-slate-400">Belum ada transaksi Operasional Harian.</p>}
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
                             if (historyChangeActive && !historyEnabled) return null
-                            const custom = index > 0
+                            const isMappedOps = entry.operationalRuleType === 'ops_harian'
+                            const custom = !isMappedOps && (index > 0 || Boolean(entry.customAccount))
                             const isArutala = Boolean(entry.useArutalaAccount)
+                            const mappedOpsRule = isMappedOps
+                              ? opsMappings.find((rule) => rule.id === entry.operationalRuleId)
+                              : null
                             const arutalaAccount = arutalaGasRule?.accounts
                             const arutalaOwnerName = arutalaGasRule?.supplier?.business_name || arutalaAccount?.name || 'Koperasi Arutala'
                             const selectedType = entry.operationalRuleType ?? ''
@@ -2716,26 +2774,34 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const showVirtualAccount = custom && !isArutala && !isMappedSalary
                             const ownerName = isArutala
                               ? arutalaOwnerName
-                              : custom
-                                ? (isMappedSalary ? selectedMapping?.ownerName : entry.ownerName) ?? ''
-                                : mapping?.ownerName ?? ''
+                              : isMappedOps
+                                ? mappedOpsRule?.owner_name ?? entry.ownerName
+                                : custom
+                                  ? (isMappedSalary ? selectedMapping?.ownerName : entry.ownerName) ?? ''
+                                  : mapping?.ownerName ?? ''
                             const bank = isArutala
                               ? arutalaAccount?.bank ?? ''
-                              : custom
-                                ? (isMappedSalary ? selectedMapping?.bank : entry.bank) ?? ''
-                                : mapping?.bank ?? ''
+                              : isMappedOps
+                                ? mappedOpsRule?.bank ?? entry.bank
+                                : custom
+                                  ? (isMappedSalary ? selectedMapping?.bank : entry.bank) ?? ''
+                                  : mapping?.bank ?? ''
                             const accountNumber = isArutala
                               ? arutalaAccount?.account_number ?? ''
-                              : custom
-                                ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
-                                : mapping?.accountNumber ?? ''
-                            const note = custom ? (entry.need ?? '') : 'Ops Harian'
+                              : isMappedOps
+                                ? mappedOpsRule?.account_number ?? entry.accountNumber
+                                : custom
+                                  ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
+                                  : mapping?.accountNumber ?? ''
+                            const note = entry.need ?? (isMappedOps ? 'Ops Harian' : '')
                             const availableAccountant = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_akuntan')
                             const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={`${entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''} ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount ? 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]' : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
-                                  {custom ? (isArutala ? (
+                                  {isMappedOps ? (
+                                    <div className="flex h-10 w-full items-center justify-center rounded-md border border-teal-700/60 bg-teal-950/30 px-2 text-center text-[10px] font-semibold text-teal-100">Ops Harian · {mappedOpsRule ? getOperationalRoleLabel(mappedOpsRule) : 'Mapping'}</div>
+                                  ) : custom ? (isArutala ? (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-cyan-700/60 bg-cyan-950/40 px-2 text-center text-[10px] font-semibold text-cyan-100">Koperasi Arutala</div>
                                   ) : (
                                     <select
@@ -2789,8 +2855,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   )}
                                   <input
                                     type="text"
-                                    required={custom}
-                                    readOnly={!custom} disabled={!historyEnabled}
+                                    required
+                                    disabled={!historyEnabled}
                                     value={note}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value })}
                                     placeholder="Catatan"
@@ -2807,7 +2873,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!historyEnabled || (!custom ? !mapping : isArutala ? !arutalaAccount : isMappedSalary && !selectedMapping)}
+                                    disabled={!historyEnabled || (isMappedOps && !accountNumber) || (isArutala && !arutalaAccount) || (isMappedSalary && !selectedMapping)}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
@@ -2816,7 +2882,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <button
                                     type="button"
                                     onClick={() => removeOperationalEntry(entry.id)}
-                                    disabled={!historyEnabled || index === 0}
+                                    disabled={!historyEnabled}
                                     title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
                                     className="h-10 w-full rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
