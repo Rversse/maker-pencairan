@@ -2160,7 +2160,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
 
   async function copyOutput() {
-    if (!output || !activeTransaction || !kitchenId) return
+    if ((!output && !historyChangeBase) || !activeTransaction || !kitchenId) return
     setHistorySaveBusy(true)
     try {
       const snapshot = getHistorySnapshot()
@@ -2613,7 +2613,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                       <div className="mt-2 flex min-h-[135px] flex-1 flex-col gap-2">
                         <pre className="max-h-[30vh] flex-1 overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">{output}</pre>
-                        <button type="button" disabled={!output || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
+                        <button type="button" disabled={(!output && !historyChangeBase) || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
                       </div>
 
                     </>
