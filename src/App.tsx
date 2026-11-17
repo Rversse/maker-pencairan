@@ -168,12 +168,7 @@ function getOperationalRules(
   if (!masterData || !kitchenId) return []
   return masterData.operational_rules
     .filter((rule) => rule.kitchen_id === kitchenId && rule.rule_type === 'ops_harian' && rule.is_active)
-    .sort((a, b) => {
-      const roleOrder = (role: MakerOperationalRule['target_role']) =>
-        role === 'akuntan' ? 0 : role === 'aslap' ? 1 : role === 'pic_yayasan' ? 2 : 3
-      const roleCompare = roleOrder(a.target_role) - roleOrder(b.target_role)
-      return roleCompare || a.owner_name.localeCompare(b.owner_name, 'id', { sensitivity: 'base' })
-    })
+    
 }
 
 function getOperationalRoleLabel(rule: MakerOperationalRule) {
@@ -2697,9 +2692,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 (entry.bank ?? '').trim().toUpperCase() === rule.bank.trim().toUpperCase() &&
                                 entry.accountNumber.replace(/\D/g, '') === rule.account_number.replace(/\D/g, '')
                               ))
-                              return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian · {getOperationalRoleLabel(rule)} — {rule.owner_name}{added ? ' (Ditambahkan)' : ''}</button>
+                              return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian — {rule.owner_name}{added ? ' (Ditambahkan)' : ''}</button>
                             })}
-                            {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian · Mapping belum tersedia</button>}
+                            {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian — Mapping belum tersedia</button>}
                             <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
                             <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">GAS</button>
                             <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
@@ -2746,22 +2741,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               )
                             })}
                           </div>
-                        ) : (
-                          <p className="rounded-lg border border-dashed border-slate-700 px-3 py-3 text-center text-xs text-slate-400">Belum ada transaksi GAS.</p>
                         )}
                       </div>
                       <div className="mt-3 space-y-1.5">
-                          <div className={'hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 ' + (hasCustomVaEntry ? 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]' : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
-                            <span></span>
-                            <span>Nama rekening</span>
-                            <span>Bank</span>
-                            <span>Nomor rekening</span>
-                            <span>Catatan</span>
-                            {hasCustomVaEntry && <span>Transfer</span>}
-                            <span>Nominal</span>
-                            <span></span>
-                          </div>
-                          {entries.length === 0 && !historyChangeActive && <p className="rounded-lg border border-dashed border-slate-700 px-3 py-3 text-center text-xs text-slate-400">Belum ada transaksi Operasional Harian.</p>}
+                          {entries.some(entry => !historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) && (
+                            <div className="hidden lg:grid min-w-0 grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px] items-center gap-2 border-b border-slate-700/70 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300">
+                              <span></span><span>Nama rekening</span><span>Bank</span><span>Nomor rekening</span><span>Catatan</span><span>Nominal</span><span></span>
+                            </div>
+                          )}
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
                             if (historyChangeActive && !historyEnabled) return null
@@ -2812,7 +2799,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               <div key={entry.id} className={`${entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''} ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount ? 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]' : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
                                   {isMappedOps ? (
-                                    <div className="flex h-10 w-full items-center justify-center rounded-md border border-teal-700/60 bg-teal-950/30 px-2 text-center text-[10px] font-semibold text-teal-100">Ops Harian · {mappedOpsRule ? getOperationalRoleLabel(mappedOpsRule) : 'Mapping'}</div>
+                                    <div className="flex h-10 w-full items-center justify-center rounded-md border border-teal-700/60 bg-teal-950/30 px-2 text-center text-[10px] font-semibold text-teal-100">Ops Harian</div>
                                   ) : custom ? (isArutala ? (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-cyan-700/60 bg-cyan-950/40 px-2 text-center text-[10px] font-semibold text-cyan-100">Koperasi Arutala</div>
                                   ) : (
