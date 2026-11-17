@@ -167,7 +167,7 @@ function getOperationalRules(
 ): MakerOperationalRule[] {
   if (!masterData || !kitchenId) return []
   return masterData.operational_rules
-    .filter((rule) => rule.kitchen_id === kitchenId && rule.rule_type === 'ops_harian' && rule.is_active && (rule.target_role === 'akuntan' || rule.target_role === 'aslap'))
+    .filter((rule) => rule.kitchen_id === kitchenId && rule.rule_type === 'ops_harian' && rule.is_active)
     .sort((a, b) => {
       const roleOrder = (role: MakerOperationalRule['target_role']) =>
         role === 'akuntan' ? 0 : role === 'aslap' ? 1 : role === 'pic_yayasan' ? 2 : 3
