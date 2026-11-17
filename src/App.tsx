@@ -3,7 +3,8 @@ import appBrandIcon from '../fav.svg'
 import {
   getMakerMasterData,
   type MakerMasterData,
-  type MakerAccountRule
+  type MakerAccountRule,
+  type MakerOperationalRule
 } from './services/master-data'
 import { supabase } from './lib/supabase'
 import HistoryPanel from './HistoryPanel'
@@ -778,7 +779,7 @@ function normalizeTransaction(
       !entry.operationalRuleId &&
       !isCompleteAmount(entry.amount) &&
       !entry.ownerName.trim() &&
-      !entry.bank.trim() &&
+      !(entry.bank ?? '').trim() &&
       !entry.accountNumber.trim()
     ))
   const baseOperational: SimpleEntry[] = normalizedExistingOps.length > 0
@@ -1085,6 +1086,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const selectedKitchen = masterData?.kitchens.find(
     (kitchen) => kitchen.id === kitchenId
   )
+  const opsMappings = useMemo(() => getOperationalRules(kitchenId, masterData), [kitchenId, masterData])
 
   const rabRules = useMemo(() => {
     if (!masterData || !kitchenId) return []
@@ -1137,6 +1139,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     transactions.find(
       (transaction) => transaction.id === activeTransactionId
     ) ?? transactions[0]
+  const operationalEntries = activeTransaction?.operasional ?? []
 
   useEffect(() => {
     if (!selectedKitchen || !activeTransaction) return
@@ -2683,7 +2686,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
                             {opsMappings.map((rule) => {
-                              const added = entries.some((entry) => entry.operationalRuleId === rule.id)
+                              const added = operationalEntries.some((entry) => entry.operationalRuleId === rule.id)
                               return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian · {getOperationalRoleLabel(rule)} — {rule.owner_name}{added ? ' (Ditambahkan)' : ''}</button>
                             })}
                             {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian · Mapping belum tersedia</button>}
@@ -2697,7 +2700,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entries = activeTransaction.operasional ?? []
-                      const opsMappings = getOperationalRules(kitchenId, masterData)
                       const hasCustomVaEntry = entries.some((entry, index) =>
                         (!historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) &&
                         !entry.useArutalaAccount &&
