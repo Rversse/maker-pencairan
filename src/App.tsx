@@ -2838,6 +2838,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   )) : (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
                                   )}
+                                  {showVirtualAccount && (
+                                    <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
+                                      <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
+                                      <span>VA</span>
+                                    </label>
+                                  )}
                                   {!(showVirtualAccount && entry.isVirtualAccount) && (custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" value={ownerName} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
@@ -2866,12 +2872,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     aria-label="Catatan Operasional Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
-                                  {showVirtualAccount && (
-                                    <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
-                                      <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
-                                      <span>VA</span>
-                                    </label>
-                                  )}
                                   <input
                                     type="text"
                                     inputMode="numeric"
