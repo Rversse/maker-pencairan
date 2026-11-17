@@ -241,7 +241,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       if (!amountChanged && !detailChanged) return line
       changedCount++
       if (activeEvent.event_type === 'KEKURANGAN') {
-        return `${current.prefix} · ${money(before.amount)} + ${money(Math.max(0, before.amount - current.amount))}`
+        return `${current.prefix} · ${money(before.amount)} + ${money(Math.max(0, current.amount - before.amount))}`
       }
       if (activeEvent.event_type === 'REVISI') {
         return `${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`
