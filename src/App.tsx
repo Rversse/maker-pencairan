@@ -2580,7 +2580,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         const products = sortStrings(
                           rule.supplier?.product_types ?? []
                         )
+                        const normalizedKitchenName = (selectedKitchen?.name ?? '').trim().toLocaleLowerCase('id-ID')
+                        const normalizedSupplierName = (rule.supplier?.business_name ?? rule.accounts?.name ?? '').trim().toLocaleLowerCase('id-ID')
+                        const isWarungbitungArumikata = normalizedKitchenName === 'warungbitung' && normalizedSupplierName.includes('toko arumikata')
                         const historyEnabled = isHistoryRabEnabled(rule.account_id)
+                        const b3HistoryEnabled = isHistoryRabB3Enabled(rule.account_id)
                         const customProducts = entry.productTypes
                           .filter((product) => !products.includes(product))
                           .slice(0, 3)
@@ -2692,13 +2696,76 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               placeholder={historyChangeActive && historySaveType === 'KEKURANGAN' ? 'Nominal kekurangan' : 'Nominal'}
                               className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
                             />
+                            {isWarungbitungArumikata && (
+                              <div className="col-span-2 rounded-lg border border-amber-800/50 bg-amber-950/15 p-2">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div className="text-xs font-semibold text-amber-200">Pencairan B3 terpisah</div>
+                                  <button
+                                    type="button"
+                                    disabled={historyChangeActive && !entry.b3Enabled && !b3HistoryEnabled}
+                                    onClick={() => updateRabEntry(activeTransaction.id, rule.account_id, {
+                                      b3Enabled: !entry.b3Enabled,
+                                      b3Amount: entry.b3Enabled ? '' : (entry.b3Amount ?? ''),
+                                      b3ProductTypes: entry.b3Enabled ? [] : (entry.b3ProductTypes ?? [])
+                                    })}
+                                    className="rounded-md border border-amber-700/70 bg-amber-950/40 px-2.5 py-1.5 text-[11px] font-semibold text-amber-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                  >
+                                    {entry.b3Enabled ? 'Tutup B3' : '+ Tambah B3'}
+                                  </button>
+                                </div>
+                                {(entry.b3Enabled || b3HistoryEnabled) && (
+                                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                    {products.map((product) => {
+                                      const selected = (entry.b3ProductTypes ?? []).includes(product)
+                                      return (
+                                        <button
+                                          key={'b3-' + product}
+                                          type="button"
+                                          data-option-button="true"
+                                          data-selected={selected}
+                                          aria-pressed={selected}
+                                          disabled={!b3HistoryEnabled}
+                                          onClick={() => {
+                                            const current = entry.b3ProductTypes ?? []
+                                            updateRabEntry(activeTransaction.id, rule.account_id, {
+                                              b3Enabled: true,
+                                              b3ProductTypes: sortStrings(selected
+                                                ? current.filter(item => item !== product)
+                                                : [...current, product])
+                                            })
+                                          }}
+                                          className={'inline-flex h-8 items-center rounded-md border px-2 text-[11px] font-medium ' + (selected
+                                            ? 'border-amber-500 bg-amber-700 text-white'
+                                            : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800')}
+                                        >
+                                          {selected ? '✓ ' : ''}{product}
+                                        </button>
+                                      )
+                                    })}
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      value={formatNumber(entry.b3Amount ?? '')}
+                                      disabled={!b3HistoryEnabled}
+                                      onChange={(event) => updateRabEntry(activeTransaction.id, rule.account_id, {
+                                        b3Enabled: true,
+                                        b3Amount: event.target.value.replace(/\D/g, '')
+                                      })}
+                                      placeholder={historyChangeActive && historySaveType === 'KEKURANGAN' ? 'Nominal kekurangan B3' : 'Nominal B3'}
+                                      aria-label="Nominal RAB B3 Toko Arumikata"
+                                      className="h-9 w-[150px] rounded-md border border-amber-700/50 bg-slate-950 px-2.5 text-xs font-semibold text-white placeholder:text-slate-500"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )
                       }
 
                       return (
                         <div className="mt-2 space-y-3">
-                          {sortedRabRules.filter(rule => !historyChangeActive || historySelectedKeys.includes('rab:' + rule.account_id)).map((rule, index) =>
+                          {sortedRabRules.filter(rule => !historyChangeActive || historySelectedKeys.includes('rab:' + rule.account_id) || historySelectedKeys.includes('rab_b3:' + rule.account_id)).map((rule, index) =>
                             renderRabRow(rule, index)
                           )}
                         </div>
