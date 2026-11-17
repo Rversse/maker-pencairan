@@ -2072,7 +2072,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           action: 'create',
           kitchen_id: kitchenId,
           transaction_date: activeDate,
-          title: `Pencairan ${selectedKitchen.name} - ${activeDate}`,
+          title: `Pencairan ${selectedKitchen?.name ?? 'Dapur'} - ${activeDate}`,
           payload: snapshot
         },
         headers: { Authorization: `Bearer ${token}` }
