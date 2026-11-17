@@ -1647,31 +1647,18 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const rule = arutalaGasRule
       if (!rule?.accounts) continue
       const rawAccountName = rule.supplier?.business_name || rule.accounts.name
-      const accountName = formatSupplierAccountName(rawAccountName, rule.supplier?.owner_name)
       const bank = getOutputBank(rule.accounts.bank)
       const accountNumber = (rule.accounts.account_number ?? '-').trim()
 
-      if (customNoteMode) {
-        items.push({
-          kind: 'operasional_harian',
-          bank,
-          line: 'OPS HARIAN : ' + capitalizeEachWord(rawAccountName) +
-            ' - ' + bank + ' / ' + accountNumber +
-            ' · ' + note + ' · ' + formatNumber(entry.amount),
-          index: items.length,
-          modeRank: 0
-        })
-      } else {
-        items.push({
-          kind: 'operasional_harian',
-          bank,
-          line: 'OPS HARIAN : ' + capitalizeEachWord(rawAccountName) +
-            ' - ' + bank + ' / ' + accountNumber +
-            ' · ' + note + ' · ' + formatNumber(entry.amount),
-          index: items.length,
-          modeRank: 0
-        })
-      }
+      items.push({
+        kind: 'operasional_harian',
+        bank,
+        line: 'OPS HARIAN : ' + capitalizeEachWord(rawAccountName) +
+          ' - ' + bank + ' / ' + accountNumber +
+          ' · ' + note + ' · ' + formatNumber(entry.amount),
+        index: items.length,
+        modeRank: 0
+      })
     }
 
     for (const entry of transaction.pencairan_harian) {
