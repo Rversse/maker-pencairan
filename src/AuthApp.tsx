@@ -286,9 +286,18 @@ export default function AuthApp() {
           <button type="button" onClick={() => void logout()} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300">Keluar</button>
         </div>
       </div>
-      {auth.user.role === 'admin' && view === 'admin'
-        ? <div className="px-3 pb-8 sm:px-5"><AdminPanel token={auth.token} /></div>
-        : <MakerWorkspace fixedKitchen={auth.user.role === 'accountant'} token={auth.token} role={auth.user.role} />}
+      {auth.user.role === 'admin' ? (
+        <>
+          <div className={view === 'workspace' ? '' : 'hidden'}>
+            <MakerWorkspace token={auth.token} role="admin" />
+          </div>
+          <div className={view === 'admin' ? 'px-3 pb-8 sm:px-5' : 'hidden'}>
+            <AdminPanel token={auth.token} />
+          </div>
+        </>
+      ) : (
+        <MakerWorkspace fixedKitchen token={auth.token} role="accountant" />
+      )}
     </div>
   )
 }
