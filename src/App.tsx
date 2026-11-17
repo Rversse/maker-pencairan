@@ -1540,6 +1540,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       selectedKitchen?.name ?? '',
       masterData
     )
+    setHistoryChangeBase(null)
+    setHistorySelectedKeys([])
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
     setCopyMessage('')
@@ -2512,7 +2514,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <input
                                         key={fieldIndex}
                                         type="text"
-                                        value={customDraft[fieldIndex] ?? ''}
+                                        value={customDraft[fieldIndex] ?? ''} disabled={!historyEnabled}
                                         maxLength={40}
                                         aria-label={'Item ' + (fieldIndex + 1)}
                                         onChange={(event) =>
@@ -2576,7 +2578,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         <button
                           type="button"
                           onClick={addGasEntry}
-                          disabled={(activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2}
+                          disabled={historyChangeActive || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2}
                           className="h-10 rounded-lg border border-cyan-700/70 bg-cyan-950/60 px-3 text-xs font-semibold text-cyan-100 transition hover:bg-cyan-900/70 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           + Tambah Gas
@@ -2592,7 +2594,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const bank = rule?.accounts?.bank ?? '-'
                             const accountNumber = rule?.accounts?.account_number ?? '-'
                             return (
-                              <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/40 p-2">
+                              <div key={entry.id} className={`rounded-lg border border-slate-800 bg-slate-950/40 p-2 ${!historyEnabled ? "opacity-45" : ""}`}>
                                 <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_85px_minmax(110px,0.8fr)_minmax(120px,1fr)_90px_100px_110px_34px]">
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">GAS</div>
                                   <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
@@ -2617,7 +2619,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Operasional Harian</h2>
                       <div className="relative">
-                        <button type="button" aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
+                        <button type="button" disabled={historyChangeActive} aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
                             <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
@@ -2651,7 +2653,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           </div>
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
-                            const historyEnabledForArutala = isHistoryRowEnabled('gas', entry.id) || historyEnabled
+                            const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
                             const custom = index > 0
                             const isArutala = Boolean(entry.useArutalaAccount)
                             const arutalaAccount = arutalaGasRule?.accounts
@@ -2686,7 +2688,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const availableAccountant = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_akuntan')
                             const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
-                              <div key={entry.id} className={entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''}>
+                              <div key={entry.id} className={`${entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''} ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount ? 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_72px_120px_30px]' : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
                                   {custom ? (isArutala ? (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-cyan-700/60 bg-cyan-950/40 px-2 text-center text-[10px] font-semibold text-cyan-100">Koperasi Arutala</div>
@@ -2743,7 +2745,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <input
                                     type="text"
                                     required={custom}
-                                    readOnly={!custom}
+                                    readOnly={!custom || !historyEnabled}
                                     value={note}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value })}
                                     placeholder="Catatan"
@@ -2801,7 +2803,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             return (
                               <div
                                 key={entry.id}
-                                className="grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]"
+                                className={`grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px] ${!historyEnabled ? "opacity-45" : ""}`}
                               >
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
@@ -2871,7 +2873,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               : entry.kinds[0] ?? 'Jenis belum dimapping'
 
                             return (
-                              <div key={entry.id}>
+                              <div key={entry.id} className={!historyEnabled ? 'opacity-45' : ''}>
                                 <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
                                   <div
                                     title={label}
@@ -2969,7 +2971,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             setHistoryOpen(false)
             setHistorySaveOpen(false)
             persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
-            setHistoryMessage(eventType + ' dipilih. Edit nominal di Form Utama, lalu tekan Copy dan Simpan.')
+            setHistoryMessage(eventType + ' dipilih. Hanya transaksi yang dicentang dapat diedit. Setelah selesai, tekan Copy dan Simpan.')
           }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
