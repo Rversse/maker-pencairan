@@ -25,7 +25,8 @@ type SimpleEntry = {
   bank?: string
   isVirtualAccount?: boolean
   customAccount?: boolean
-  operationalRuleType?: 'gaji_akuntan' | 'gaji_ahli_gizi' | ''
+  operationalRuleType?: 'ops_harian' | 'gaji_akuntan' | 'gaji_ahli_gizi' | ''
+  operationalRuleId?: string
   need: string
   gasQuantity?: string
   gasSize?: '' | '12kg' | '50kg'
@@ -157,6 +158,31 @@ function getOperationalAccount(
   masterData: MakerMasterData | null
 ): BankAccountMapping | null {
   return getOperationalMapping(kitchenName, masterData, 'ops_harian')
+}
+
+function getOperationalRules(
+  kitchenId: string,
+  masterData: MakerMasterData | null
+): MakerOperationalRule[] {
+  if (!masterData || !kitchenId) return []
+  return masterData.operational_rules
+    .filter((rule) => rule.kitchen_id === kitchenId && rule.rule_type === 'ops_harian' && rule.is_active)
+    .sort((a, b) => {
+      const roleOrder = (role: MakerOperationalRule['target_role']) =>
+        role === 'akuntan' ? 0 : role === 'aslap' ? 1 : role === 'pic_yayasan' ? 2 : 3
+      const roleCompare = roleOrder(a.target_role) - roleOrder(b.target_role)
+      return roleCompare || a.owner_name.localeCompare(b.owner_name, 'id', { sensitivity: 'base' })
+    })
+}
+
+function getOperationalRoleLabel(rule: MakerOperationalRule) {
+  const labels: Record<string, string> = {
+    akuntan: 'Akuntan',
+    aslap: 'Aslap',
+    pic_yayasan: 'PIC Yayasan',
+    other: 'Lainnya'
+  }
+  return labels[rule.target_role ?? ''] ?? 'Ops Harian'
 }
 
 function getDailyPaymentAccount(
@@ -726,28 +752,44 @@ function normalizeTransaction(
 
   const legacyOps = normalizedOthers.filter((entry) => entry.transactionType === 'operasional_harian')
   const existingOps = Array.isArray(transaction.operasional) ? transaction.operasional : []
-  const normalizeOpsEntry = (entry: SimpleEntry, index: number): SimpleEntry => ({
-    ...createOperationalEntry(entry.id),
-    ...entry,
-    accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
-    ownerName: entry.ownerName ?? '',
-    bank: entry.bank ?? '',
-    customAccount: index > 0,
-    need: index === 0 && !entry.useArutalaAccount ? 'Ops Harian' : (entry.need ?? ''),
-    transactionType: 'operasional_harian'
-  })
+  const normalizeOpsEntry = (entry: SimpleEntry, index: number): SimpleEntry => {
+    const isLegacyMappedOps = index === 0 && !entry.customAccount &&
+      !entry.useArutalaAccount && !entry.operationalRuleType
+    return {
+      ...createOperationalEntry(entry.id),
+      ...entry,
+      accountNumber: (entry.accountNumber ?? '').replace(/\D/g, ''),
+      ownerName: entry.ownerName ?? '',
+      bank: entry.bank ?? '',
+      customAccount: Boolean(entry.customAccount ?? index > 0),
+      operationalRuleType: entry.operationalRuleType || (isLegacyMappedOps ? 'ops_harian' : ''),
+      need: entry.need ?? (isLegacyMappedOps ? 'Ops Harian' : ''),
+      transactionType: 'operasional_harian'
+    }
+  }
   const oldOpsTotal = legacyOps.reduce(
     (total, entry) => total + Number((entry.amount ?? '').replace(/\D/g, '')),
     0
   )
-  const baseOperational: SimpleEntry[] = existingOps.length > 0
-    ? existingOps.map((entry, index) => normalizeOpsEntry(entry, index))
+  const normalizedExistingOps = existingOps
+    .map((entry, index) => normalizeOpsEntry(entry, index))
+    .filter((entry) => !(
+      entry.operationalRuleType === 'ops_harian' &&
+      !entry.operationalRuleId &&
+      !isCompleteAmount(entry.amount) &&
+      !entry.ownerName.trim() &&
+      !entry.bank.trim() &&
+      !entry.accountNumber.trim()
+    ))
+  const baseOperational: SimpleEntry[] = normalizedExistingOps.length > 0
+    ? normalizedExistingOps
     : legacyOps.length > 0
       ? [{
           ...createOperationalEntry(legacyOps[0].id),
+          operationalRuleType: 'ops_harian',
           amount: String(oldOpsTotal || legacyOps[0].amount || '')
         }]
-      : [createOperationalEntry()]
+      : []
   const lastOpsId = Math.max(0, ...baseOperational.map((entry) => entry.id))
   const migratedLainLain: SimpleEntry[] = normalizedOthers
     .filter((entry) =>
@@ -835,7 +877,7 @@ function makeTransaction(
       amount: ''
     })),
     gas: [],
-    operasional: [createOperationalEntry(1)],
+    operasional: [],
     pencairan_harian: [
       { ...emptyDailyPaymentEntry(1, 'sewa'), kinds: ['Sewa SPPG'] },
       ...createPayrollRowsForKitchen(kitchenName, masterData, 2)
