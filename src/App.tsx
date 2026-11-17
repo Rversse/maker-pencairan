@@ -2744,7 +2744,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               )
                             })}
                           </div>
-                        )}
+                        ) : null}
                       </div>
                       <div className="mt-3 space-y-1.5">
                           {entries.some(entry => !historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) && (
