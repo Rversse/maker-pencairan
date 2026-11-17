@@ -125,7 +125,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
       if (!match) return null
       const prefix = match[1]
-      const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
+      const identity = /^(?:RAB|RAB B3) : /.test(prefix) ? prefix.split(' · ')[0] : prefix
       return { identity, amount: Number(match[2].replace(/\\D/g, '')) || 0, prefix }
     }
     const previousByIdentity = new Map<string, Array<NonNullable<ReturnType<typeof parseLine>>>>()
@@ -335,11 +335,21 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     if (!sourceTransaction) return []
     const entries: Array<{ key: string; label: string; amount: string }> = []
     const rab = Array.isArray(sourceTransaction.rab) ? sourceTransaction.rab as Array<Record<string, unknown>> : []
-    rab.forEach(entry => entries.push({
-      key: 'rab:' + String(entry.accountId),
-      label: 'RAB · ' + (rabLabels[String(entry.accountId)] ?? String(entry.accountId)),
-      amount: money(String(entry.amount ?? '').replace(/[^0-9]/g, ''))
-    }))
+    rab.forEach(entry => {
+      const accountLabel = rabLabels[String(entry.accountId)] ?? String(entry.accountId)
+      entries.push({
+        key: 'rab:' + String(entry.accountId),
+        label: 'RAB · ' + accountLabel,
+        amount: money(String(entry.amount ?? '').replace(/[^0-9]/g, ''))
+      })
+      if (Number(String(entry.b3Amount ?? '').replace(/[^0-9]/g, '')) > 0) {
+        entries.push({
+          key: 'rab_b3:' + String(entry.accountId),
+          label: 'RAB B3 · ' + accountLabel,
+          amount: money(String(entry.b3Amount ?? '').replace(/[^0-9]/g, ''))
+        })
+      }
+    })
     const sections = [
       ['gas', 'GAS'],
       ['operasional', 'Ops Harian'],
