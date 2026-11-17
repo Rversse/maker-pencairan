@@ -117,6 +117,16 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     setNotice(`Output lengkap dengan penanda ${event.event_type} ditampilkan.`)
   }
   async function copyEventOutput(event: HistoryEvent) {
+    const savedIncrementalOutput = event.snapshot.delta?.incremental_output
+    if (typeof savedIncrementalOutput === 'string' && savedIncrementalOutput.trim()) {
+      try {
+        await navigator.clipboard.writeText(savedIncrementalOutput)
+        setNotice(`Output ${event.event_type} berhasil disalin.`)
+      } catch {
+        setError('Clipboard tidak tersedia di browser ini.')
+      }
+      return
+    }
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
     const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
