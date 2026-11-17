@@ -191,6 +191,22 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     }
   }
 
+  async function copySnapshotOutput() {
+    const output = String(activePayload?.output ?? '')
+    if (!output.trim()) {
+      setNotice('Snapshot ini belum memiliki output untuk disalin.')
+      setError('')
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(output)
+      setNotice('Output snapshot berhasil disalin. Form Utama dan Riwayat tidak diubah.')
+      setError('')
+    } catch {
+      setError('Clipboard tidak tersedia di browser ini.')
+    }
+  }
+
   async function deleteHistory() {
     if (!detail || role !== "admin") return
     const confirmed = window.confirm("Hapus transaksi Riwayat ini? Transaksi tidak akan tampil lagi di daftar. Tindakan ini berlaku untuk status terkunci maupun belum terkunci.")
@@ -433,6 +449,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {lockCountdown}</p></div>
           <div className="flex flex-wrap gap-2">
             <button type="button" disabled={busy} onClick={() => void refreshDetail()} title="Muat ulang snapshot terbaru" aria-label="Muat ulang snapshot terbaru" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-emerald-600 disabled:opacity-40"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg></button>
+            <button type="button" disabled={busy || !String(activePayload?.output ?? '').trim()} onClick={() => void copySnapshotOutput()} title="Salin output snapshot tanpa mengubah Form Utama atau Riwayat" className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">Salin Output</button>
             {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Load ke Form</button>}
             {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali</button>
