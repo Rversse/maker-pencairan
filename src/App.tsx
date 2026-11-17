@@ -3112,11 +3112,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               restored.rab = restored.rab.map(row =>
                 selected.has('rab:' + row.accountId) ? { ...row, amount: '' } : row
               )
-              for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
-                restored[field] = (restored[field] ?? []).map(row =>
-                  selected.has(field + ':' + row.id) ? { ...row, amount: '' } : row
-                )
-              }
+              const clearSelected = <T extends { id: number; amount: string }>(field: string, rows: T[] | undefined) =>
+                (rows ?? []).map(row => selected.has(field + ':' + row.id) ? { ...row, amount: '' } : row)
+              restored.gas = clearSelected('gas', restored.gas)
+              restored.operasional = clearSelected('operasional', restored.operasional)
+              restored.pencairan_harian = clearSelected('pencairan_harian', restored.pencairan_harian)
+              restored.lain_lain = clearSelected('lain_lain', restored.lain_lain)
+              restored.arutala_lain_lain = clearSelected('arutala_lain_lain', restored.arutala_lain_lain)
             }
             const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
             setKitchenId(restoredKitchenId)
