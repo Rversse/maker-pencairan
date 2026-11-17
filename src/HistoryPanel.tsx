@@ -175,24 +175,37 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const activePayload = activeEvent?.snapshot.payload ?? detail?.history.payload
   const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
   const outputDiff = useMemo(() => {
-    if (!activeEventId || !activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0 }
+    if (!activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0 }
     const currentLines = String(activeEvent.snapshot.payload?.output ?? '').split('\n')
+    if (activeEvent.event_type === 'NORMAL') return { text: currentLines.join('\n'), changedCount: 0 }
     const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n') : []
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
       if (!match) return null
       const prefix = match[1]
       const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
-      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
+      const detail = prefix.startsWith('RAB : ') ? prefix.slice(identity.length).replace(/^ · /, '') : ''
+      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix, detail }
     }
     const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
     previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
+    const incrementalLines = String(activeEvent.snapshot.delta?.incremental_output ?? '').split('\n')
+    const incrementalByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
+    incrementalLines.forEach(line => { const parsed = parseLine(line); if (parsed) incrementalByIdentity.set(parsed.identity, parsed) })
     let changedCount = 0
     const annotated = currentLines.map(line => {
       const current = parseLine(line)
       if (!current) return line
       const before = previousByIdentity.get(current.identity)
-      if (activeEvent.event_type === 'TAMBAHAN' && !before) { changedCount++; return `+ TAMBAHAN: ${line}` }
+      if (activeEvent.event_type === 'TAMBAHAN') {
+        const incremental = incrementalByIdentity.get(current.identity)
+        const addedProduct = Boolean(before && current.detail && before.detail !== current.detail)
+        if (!before || incremental || addedProduct || (before && before.amount !== current.amount)) {
+          changedCount++
+          return `+ TAMBAHAN: ${line}`
+        }
+        return line
+      }
       if (!before || before.amount === current.amount) return line
       changedCount++
       if (activeEvent.event_type === 'KEKURANGAN') return `${current.prefix} · ${money(before.amount)} + ${money(current.amount - before.amount)}`
@@ -201,7 +214,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     })
     annotated[0] = `${activeEvent.event_type} - ${annotated[0] ?? ''}`
     return { text: annotated.join('\n'), changedCount }
-  }, [activeEvent, activeEventId, activeEventIndex, selectedEvent, detail])
+  }, [activeEvent, activeEventIndex, selectedEvent, detail])
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
@@ -297,7 +310,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
           <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
           <p className="mt-1 text-[11px] text-slate-400">Pilih jenis perubahan dan klik lanjut ke form.</p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
             {(['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const).map(type => <button key={type} type="button" data-option-button="true" data-selected={changeType === type} onClick={() => setChangeType(type)} className="rounded-lg border px-3 py-2 text-xs font-semibold">{type}</button>)}
           </div>
           {changeType && changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.filter(key => visibleSelectableEntries.some(entry => entry.key === key)).length}</p>
