@@ -79,9 +79,7 @@ type SavedWorkspace = {
 }
 
 const STORAGE_KEY = 'maker-pencairan-workspace-v7'
-const RECOVERY_STORAGE_KEY = 'maker-pencairan-workspace-recovery-v1'
 const KITCHEN_WORKSPACE_STORAGE_PREFIX = 'maker-pencairan-kitchen-workspace-v1:'
-const KITCHEN_RECOVERY_STORAGE_PREFIX = 'maker-pencairan-kitchen-recovery-v1:'
 const PREVIOUS_STORAGE_KEYS = [
   'maker-pencairan-workspace-v6',
   'maker-pencairan-workspace-v5',
@@ -416,21 +414,10 @@ function kitchenWorkspaceStorageKey(kitchenId: string) {
   return KITCHEN_WORKSPACE_STORAGE_PREFIX + kitchenId
 }
 
-function kitchenRecoveryStorageKey(kitchenId: string) {
-  return KITCHEN_RECOVERY_STORAGE_PREFIX + kitchenId
-}
-
 function persistWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
   if (!workspace.kitchenId) return
   persistWorkspaceToKey(workspace, STORAGE_KEY)
   persistWorkspaceToKey(workspace, kitchenWorkspaceStorageKey(workspace.kitchenId))
-}
-
-function persistRecoveryWorkspace(workspace: Omit<SavedWorkspace, 'version'>) {
-  const key = workspace.kitchenId
-    ? kitchenRecoveryStorageKey(workspace.kitchenId)
-    : RECOVERY_STORAGE_KEY
-  persistWorkspaceToKey(workspace, key)
 }
 
 function emptySimpleEntry(id = 1): SimpleEntry {
