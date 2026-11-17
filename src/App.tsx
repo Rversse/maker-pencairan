@@ -763,7 +763,7 @@ function normalizeTransaction(
       bank: entry.bank ?? '',
       customAccount: Boolean(entry.customAccount ?? index > 0),
       operationalRuleType: entry.operationalRuleType || (isLegacyMappedOps ? 'ops_harian' : ''),
-      need: entry.need ?? (isLegacyMappedOps ? 'Ops Harian' : ''),
+      need: entry.need || (isLegacyMappedOps ? 'Ops Harian' : ''),
       transactionType: 'operasional_harian'
     }
   }
@@ -2684,7 +2684,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
                             {opsMappings.map((rule) => {
                               const added = entries.some((entry) => entry.operationalRuleId === rule.id)
-                              return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian · {getOperationalRoleLabel(rule)}{added ? ' (Ditambahkan)' : ''}</button>
+                              return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian · {getOperationalRoleLabel(rule)} — {rule.owner_name}{added ? ' (Ditambahkan)' : ''}</button>
                             })}
                             {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian · Mapping belum tersedia</button>}
                             <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
