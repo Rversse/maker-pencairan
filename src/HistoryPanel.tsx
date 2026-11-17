@@ -33,6 +33,7 @@ type Props = {
   transactionDate: string
   rabLabels: Record<string, string>
   onLoadSnapshot: (payload: Record<string, unknown>) => void
+  onRefreshSnapshot: (payload: Record<string, unknown>) => void
   onStartChange: (payload: Record<string, unknown>, eventType: 'REVISI' | 'KEKURANGAN' | 'TAMBAHAN', selectedKeys: string[]) => void
   onClose: () => void
 }
@@ -57,7 +58,7 @@ async function historyRequest<T>(token: string, body: Record<string, unknown>): 
   if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Riwayat gagal dimuat.')
   return data as T
 }
-export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, rabLabels, onLoadSnapshot, onStartChange, onClose }: Props) {
+export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, rabLabels, onLoadSnapshot, onRefreshSnapshot, onStartChange, onClose }: Props) {
   const [selectedDate, setSelectedDate] = useState(transactionDate)
   const [rows, setRows] = useState<HistoryRow[]>([])
   const [detail, setDetail] = useState<HistoryDetail | null>(null)
@@ -67,6 +68,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [changeType, setChangeType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN' | null>(null)
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [activeEventId, setActiveEventId] = useState<string | null>(null)
+  const [clockNow, setClockNow] = useState(Date.now())
+  useEffect(() => { const timer = window.setInterval(() => setClockNow(Date.now()), 1000); return () => window.clearInterval(timer) }, [])
   const canEdit = role === 'admin' || Boolean(detail && !detail.locked)
 
   const load = useCallback(async () => {
@@ -81,6 +84,24 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   }, [token, kitchenId, selectedDate])
   useEffect(() => { void load() }, [load])
 
+  async function refreshDetail() {
+    if (!detail) return
+    const confirmed = window.confirm('Muat ulang snapshot terakhir? Perubahan Form Utama yang belum disimpan akan ditimpa.')
+    if (!confirmed) return
+    setBusy(true); setError('')
+    try {
+      const result = await historyRequest<HistoryDetail & { ok: boolean }>(token, { action: 'get', draft_id: detail.history.id })
+      setDetail(result)
+      setActiveEventId(null)
+      setSelectedKeys([])
+      setChangeType(null)
+      onRefreshSnapshot(result.history.payload)
+      await load()
+      setNotice('Snapshot terbaru berhasil dimuat ulang.')
+    } catch (err) { setError(err instanceof Error ? err.message : 'Riwayat gagal diperbarui.') }
+    finally { setBusy(false) }
+  }
+
   async function openDetail(id: string) {
     setBusy(true); setError('')
     try {
@@ -91,22 +112,37 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     finally { setBusy(false) }
   }
   function openEventOutput(event: HistoryEvent) {
-    const text = event.event_type === 'NORMAL'
-      ? String(event.snapshot.payload?.output ?? '')
-      : String(event.snapshot.delta?.incremental_output ?? '')
-    if (!text) { setError('Tidak ada output untuk riwayat ini.'); return }
     setActiveEventId(event.id)
     setError('')
-    setNotice('Output riwayat ditampilkan.')
+    setNotice(`Output lengkap dengan penanda ${event.event_type} ditampilkan.`)
   }
-  async function copyOutput() {
-    const text = activeEventId && activeEvent
-      ? (activeEvent.event_type === 'NORMAL'
-          ? String(activeEvent.snapshot.payload?.output ?? '')
-          : String(activeEvent.snapshot.delta?.incremental_output ?? ''))
-      : String(detail?.history.payload.output ?? '')
-    if (!text) { setError('Tidak ada output untuk disalin.'); return }
-    try { await navigator.clipboard.writeText(text); setNotice('Output berhasil disalin.') }
+  async function copyEventOutput(event: HistoryEvent) {
+    const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
+    const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
+    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
+    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
+    const parseLine = (line: string) => {
+      const match = /^(.*) · ([0-9.,]+)$/.exec(line)
+      if (!match) return null
+      const prefix = match[1]
+      const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
+      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
+    }
+    const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
+    previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
+    const changed = currentLines.flatMap(line => {
+      const current = parseLine(line)
+      if (!current) return []
+      const before = previousByIdentity.get(current.identity)
+      if (event.event_type === 'TAMBAHAN') return before ? [] : [`+ TAMBAHAN: ${line}`]
+      if (!before || before.amount === current.amount) return []
+      if (event.event_type === 'KEKURANGAN') return [`${current.prefix} · ${money(before.amount)} + ${money(current.amount - before.amount)}`]
+      if (event.event_type === 'REVISI') return [`${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`]
+      return []
+    })
+    if (!changed.length) { setError('Tidak ditemukan baris yang berubah pada event ini.'); return }
+    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\n')
+    try { await navigator.clipboard.writeText(output); setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`) }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
   async function deleteHistory() {
@@ -128,6 +164,38 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const activeEventIndex = activeEvent ? selectedEvent.findIndex(event => event.id === activeEvent.id) : -1
   const activePayload = activeEvent?.snapshot.payload ?? detail?.history.payload
   const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
+  const outputDiff = useMemo(() => {
+    if (!activeEventId || !activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0 }
+    const currentLines = String(activeEvent.snapshot.payload?.output ?? '').split('\n')
+    const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n') : []
+    const parseLine = (line: string) => {
+      const match = /^(.*) · ([0-9.,]+)$/.exec(line)
+      if (!match) return null
+      const prefix = match[1]
+      const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
+      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
+    }
+    const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
+    previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
+    let changedCount = 0
+    const annotated = currentLines.map(line => {
+      const current = parseLine(line)
+      if (!current) return line
+      const before = previousByIdentity.get(current.identity)
+      if (activeEvent.event_type === 'TAMBAHAN' && !before) { changedCount++; return `+ TAMBAHAN: ${line}` }
+      if (!before || before.amount === current.amount) return line
+      changedCount++
+      if (activeEvent.event_type === 'KEKURANGAN') return `${current.prefix} · ${money(before.amount)} + ${money(current.amount - before.amount)}`
+      if (activeEvent.event_type === 'REVISI') return `${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`
+      return line
+    })
+    annotated[0] = `${activeEvent.event_type} - ${annotated[0] ?? ''}`
+    return { text: annotated.join('\n'), changedCount }
+  }, [activeEvent, activeEventId, activeEventIndex, selectedEvent, detail])
+  const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
+  const lockCountdown = lockRemainingMs > 0
+    ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
+    : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
   const metric = (label: string, value: unknown, previous: unknown) => {
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
@@ -195,8 +263,9 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </button>)}
         {rows.length > 0 && <div className="flex flex-wrap justify-end gap-x-5 gap-y-1 rounded-xl border border-slate-700 bg-slate-900 p-3 text-right text-xs"><span>Total RAB <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalRab ?? 0), 0))}</strong></span><span>Total OPS <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOpsHarian ?? 0), 0))}</strong></span><span>Total keseluruhan <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOverall ?? 0), 0))}</strong></span></div>}
       </div> : <div className="mt-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'}</p></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {lockCountdown}</p></div>
           <div className="flex flex-wrap gap-2">
+            <button type="button" disabled={busy} onClick={() => void refreshDetail()} title="Muat ulang snapshot terbaru" aria-label="Muat ulang snapshot terbaru" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-emerald-600 disabled:opacity-40"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg></button>
             {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Load ke Form</button>}
             {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali</button>
@@ -231,17 +300,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           </div>
         </section>}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <h4 className="text-xs font-semibold">Output</h4>
-            <button type="button" onClick={() => void copyOutput()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin</button>
-          </div>
-          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{activeEventId && activeEvent
-            ? (activeEvent.event_type === 'NORMAL'
-                ? String(activeEvent.snapshot.payload?.output ?? '')
-                : String(activeEvent.snapshot.delta?.incremental_output ?? ''))
-            : String(detail.history.payload.output ?? '')}</pre>
+          <div className="mb-2 flex items-center justify-between gap-3"><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div>
+          <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{outputDiff.text}</pre>
         </div>
-        <div><h4 className="mb-2 text-xs font-semibold">Riwayat</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><button onClick={() => openEventOutput(event)} className="mt-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Buka</button></div>)}</div></div>
+        <div><h4 className="mb-2 text-xs font-semibold">Riwayat</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><div className="mt-2 flex flex-wrap gap-2"><button onClick={() => openEventOutput(event)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Buka</button>{activeEventId === event.id && event.event_type !== 'NORMAL' && <button onClick={() => void copyEventOutput(event)} className="rounded-md border border-emerald-700 bg-emerald-950/40 px-2.5 py-1.5 text-[10px] font-semibold text-emerald-200">Salin {event.event_type}</button>}</div></div>)}</div></div>
 
         {!canEdit && <p className="rounded-lg border border-amber-800/60 bg-amber-950/20 p-3 text-xs text-amber-200">Riwayat terkunci. Hanya Admin yang dapat mengubahnya.</p>}
       </div>}
