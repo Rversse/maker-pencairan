@@ -246,20 +246,22 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
     <section className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl sm:p-5">
-      <header className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
-        <div><h2 className="text-lg font-bold">Riwayat Pencairan</h2><p className="mt-1 text-xs text-slate-400">{kitchenName} · {formatDate(transactionDate)}</p></div>
-        <button onClick={onClose} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Tutup</button>
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+        <div className="min-w-0"><h2 className="text-lg font-bold">Riwayat Pencairan</h2><p className="mt-1 text-xs text-slate-400">{kitchenName}</p></div>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          {!detail && <input type="date" aria-label="Pilih tanggal riwayat" value={selectedDate} onClick={event => event.currentTarget.showPicker?.()} onChange={event => setSelectedDate(event.target.value)} className="min-h-9 cursor-pointer rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-100 [color-scheme:dark]" />}
+          <button onClick={onClose} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Tutup</button>
+        </div>
       </header>
       {error && <p role="alert" className="mt-3 rounded-lg border border-rose-800 bg-rose-950/40 p-3 text-xs text-rose-200">{error}</p>}
       {notice && <p role="status" className="mt-3 rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-xs text-emerald-200">{notice}</p>}
       {!detail ? <div className="mt-4 space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-sm font-semibold">Daftar pencairan harian</h3><label className="mt-2 block text-[11px] text-slate-400">Tanggal Riwayat · {formatDate(selectedDate)}<input type="date" value={selectedDate} onChange={event => setSelectedDate(event.target.value)} className="mt-1 block rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100" /></label></div>
-        </div>
+        <div><h3 className="text-sm font-semibold">Daftar pencairan harian</h3></div>
         {busy && <p className="text-xs text-slate-400">Memuat...</p>}
-        {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada Riwayat untuk dapur dan tanggal ini.</p>}
+        {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada riwayat</p>}
         {rows.map(row => <button key={row.id} onClick={() => void openDetail(row.id)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-left hover:border-emerald-700">
           <span><span className="block text-sm font-semibold">{formatTitle(row.title) || 'Pencairan'}</span><span className="mt-1 block text-[11px] text-slate-400">Dibuat {dateTime(row.created_at)}</span></span>
-          <span className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300"><span>RAB Rp {money(row.payload?.totalRab)}</span><span>OPS Rp {money(row.payload?.totalOpsHarian)}</span><span>Total Rp {money(row.payload?.totalOverall)}</span><span className="font-semibold text-emerald-300">Buka</span></span>
+          <span className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300"><span>RAB Rp {money(row.payload?.totalRab)}</span><span>OPS Rp {money(row.payload?.totalOpsHarian)}</span><span>Total Rp {money(row.payload?.totalOverall)}</span></span>
         </button>)}
         {rows.length > 0 && <div className="flex flex-wrap justify-end gap-x-5 gap-y-1 rounded-xl border border-slate-700 bg-slate-900 p-3 text-right text-xs"><span>Total RAB <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalRab ?? 0), 0))}</strong></span><span>Total OPS <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOpsHarian ?? 0), 0))}</strong></span><span>Total keseluruhan <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOverall ?? 0), 0))}</strong></span></div>}
       </div> : <div className="mt-4 space-y-4">
