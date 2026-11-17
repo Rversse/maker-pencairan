@@ -2113,19 +2113,26 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const currentTransaction = snapshot.transaction as TransactionGroup
       if (!baseTransaction) throw new Error('Snapshot asal tidak ditemukan. Muat ulang transaksi dari Riwayat.')
       const nextTransaction: TransactionGroup = { ...baseTransaction }
+      const incrementalTransaction: TransactionGroup = { ...baseTransaction }
       const amountWithDelta = (previous: string, entered: string) =>
-        String((Number(previous.replace(/\\D/g, '')) || 0) + (Number(entered.replace(/\\D/g, '')) || 0))
+        String((Number(previous.replace(/\D/g, '')) || 0) + (Number(entered.replace(/\D/g, '')) || 0))
       if (historySaveType === 'TAMBAHAN') {
+        const newRab = currentTransaction.rab.filter(row => !baseTransaction.rab.some(previous => previous.accountId === row.accountId))
+        nextTransaction.rab = [...baseTransaction.rab, ...newRab]
+        incrementalTransaction.rab = newRab
         for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
           const beforeRows = baseTransaction[field] ?? []
           const currentRows = currentTransaction[field] ?? []
           const beforeIds = new Set(beforeRows.map(row => row.id))
-          ;(nextTransaction as unknown as Record<string, unknown>)[field] = [
-            ...beforeRows,
-            ...currentRows.filter(row => !beforeIds.has(row.id))
-          ]
+          const addedRows = currentRows.filter(row => !beforeIds.has(row.id))
+          ;(nextTransaction as unknown as Record<string, unknown>)[field] = [...beforeRows, ...addedRows]
+          ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = addedRows
         }
       } else {
+        incrementalTransaction.rab = []
+        for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
+          ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = []
+        }
         for (const key of historySelectedKeys) {
           const separator = key.indexOf(':')
           const field = key.slice(0, separator)
@@ -2140,6 +2147,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             nextTransaction.rab = nextTransaction.rab.some(row => row.accountId === id)
               ? nextTransaction.rab.map(row => row.accountId === id ? merged : row)
               : [...nextTransaction.rab, merged]
+            incrementalTransaction.rab = [...incrementalTransaction.rab, changed]
             continue
           }
           if (!['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'].includes(field)) continue
@@ -2155,6 +2163,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           ;(nextTransaction as unknown as Record<string, unknown>)[section] = (nextTransaction[section] ?? []).map(row =>
             String(row.id) === id ? merged : row
           )
+          ;(incrementalTransaction as unknown as Record<string, unknown>)[section] = [
+            ...((incrementalTransaction[section] ?? []) as typeof changedRows), changed
+          ]
         }
       }
       snapshot.transaction = nextTransaction
@@ -2162,7 +2173,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const mergedLines = mergedOutput.split('\n').slice(1).filter(line => line.trim())
       const amountFromLine = (line: string) => {
         const separator = line.lastIndexOf(' · ')
-        return separator < 0 ? 0 : Number(line.slice(separator + 3).replace(/\\D/g, '')) || 0
+        return separator < 0 ? 0 : Number(line.slice(separator + 3).replace(/\D/g, '')) || 0
       }
       snapshot.output = mergedOutput
       snapshot.totalRab = mergedLines.filter(line => line.startsWith('RAB : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
@@ -2188,8 +2199,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       for (const key of new Set([...Object.keys(before), ...Object.keys(snapshot)])) {
         if (JSON.stringify(before[key]) !== JSON.stringify(snapshot[key])) delta[key] = snapshot[key] ?? null
       }
-      const oldLines = new Set(String(before.output ?? '').split(/\\r?\\n/).filter(Boolean))
-      delta.incremental_output = String(output).split(/\\r?\\n/).filter(line => line.trim() && !oldLines.has(line)).join('\\n')
+      const incrementalOutput = getTransactionOutput(incrementalTransaction).join('\\n')
+      delta.incremental_output = incrementalOutput
       if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
       const { error: changeError } = await supabase.functions.invoke('maker-history', {
         body: {
@@ -2720,7 +2731,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" inputMode="numeric" value={entry.accountNumber} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" inputMode="numeric" value={entry.accountNumber} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={accountNumber || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
                                   )}
