@@ -38,7 +38,7 @@ type Props = {
 }
 const money = (value: unknown) => new Intl.NumberFormat('id-ID').format(Number(value) || 0)
 const formatDate = (value: string) => {
-  const match = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(value)
+    const match = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(value)
   if (!match) return value
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
   return `${match[3]}-${months[Number(match[2]) - 1] ?? match[2]}-${match[1]}`
@@ -119,7 +119,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     rab.forEach(entry => entries.push({
       key: 'rab:' + String(entry.accountId),
       label: 'RAB · ' + (rabLabels[String(entry.accountId)] ?? String(entry.accountId)),
-      amount: money(String(entry.amount ?? '').replace(/\\D/g, ''))
+      amount: money(String(entry.amount ?? '').replace(/[^0-9]/g, ''))
     }))
     const sections = [
       ['gas', 'GAS'],
@@ -137,7 +137,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         entries.push({
           key: field + ':' + String(entry.id),
           label: title + ' · ' + detailLabel,
-          amount: money(String(entry.amount ?? '').replace(/\\D/g, ''))
+          amount: money(String(entry.amount ?? '').replace(/[^0-9]/g, ''))
         })
       })
     })
