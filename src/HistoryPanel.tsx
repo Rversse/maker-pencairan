@@ -123,7 +123,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      return match ? { identity: match[1], amount: Number(match[2].replace(/\D/g, '')) || 0, prefix: match[1] } : null
+      if (!match) return null
+      const prefix = match[1]
+      const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
+      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
     }
     const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
     previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
@@ -167,7 +170,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n') : []
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      return match ? { identity: match[1], amount: Number(match[2].replace(/\D/g, '')) || 0, prefix: match[1] } : null
+      if (!match) return null
+      const prefix = match[1]
+      const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
+      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
     }
     const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
     previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
