@@ -2120,7 +2120,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           const beforeRows = baseTransaction[field] ?? []
           const currentRows = currentTransaction[field] ?? []
           const beforeIds = new Set(beforeRows.map(row => row.id))
-          ;(nextTransaction[field] as typeof currentRows) = [
+          ;(nextTransaction as unknown as Record<string, unknown>)[field] = [
             ...beforeRows,
             ...currentRows.filter(row => !beforeIds.has(row.id))
           ]
@@ -2152,7 +2152,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           const merged = historySaveType === 'KEKURANGAN' && previous
             ? { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
             : changed
-          ;(nextTransaction[section] as typeof changedRows) = (nextTransaction[section] ?? []).map(row =>
+          ;(nextTransaction as unknown as Record<string, unknown>)[section] = (nextTransaction[section] ?? []).map(row =>
             String(row.id) === id ? merged : row
           )
         }
