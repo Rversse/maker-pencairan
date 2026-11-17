@@ -3201,7 +3201,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             const clearAmounts = <T extends { amount: string }>(rows: T[] | undefined) =>
               (rows ?? []).map(row => ({ ...row, amount: '' }))
             if (eventType === 'TAMBAHAN') {
-              restored.rab = clearAmounts(restored.rab)
+              restored.rab = clearAmounts(restored.rab).map(row => ({ ...row, b3Amount: '' }))
               restored.gas = clearAmounts(restored.gas)
               restored.operasional = clearAmounts(restored.operasional)
               restored.pencairan_harian = clearAmounts(restored.pencairan_harian)
