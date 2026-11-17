@@ -117,12 +117,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   async function copyEventOutput(event: HistoryEvent) {
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
-    const currentLines = String(event.snapshot.payload?.output ?? '').split('\\n')
-    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\\n')
+    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
+    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
       if (!match) return null
-      return { identity: match[1], amount: Number(match[2].replace(/\\D/g, '')) || 0, prefix: match[1] }
+      return { identity: match[1], amount: Number(match[2].replace(/\D/g, '')) || 0, prefix: match[1] }
     }
     const previousByIdentity = new Map(previousLines.map(line => [parseLine(line)?.identity, parseLine(line)]).filter(([key, value]) => Boolean(key && value)) as Array<[string, NonNullable<ReturnType<typeof parseLine>>]>)
     const changed = currentLines.filter(line => {
@@ -133,7 +133,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       return Boolean(before && before.amount !== current.amount)
     })
     const header = currentLines[0] ?? ''
-    const output = [header, ...changed].filter(Boolean).join('\\n')
+    const output = [header, ...changed].filter(Boolean).join('\n')
     if (!changed.length) { setError('Tidak ditemukan baris nominal yang berubah pada event ini.'); return }
     try { await navigator.clipboard.writeText(output); setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`) }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
@@ -159,11 +159,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
   const outputDiff = useMemo(() => {
     if (!activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0 }
-    const currentLines = String(activeEvent.snapshot.payload?.output ?? '').split('\\n')
-    const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\\n') : []
+    const currentLines = String(activeEvent.snapshot.payload?.output ?? '').split('\n')
+    const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n') : []
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      return match ? { identity: match[1], amount: Number(match[2].replace(/\\D/g, '')) || 0, prefix: match[1] } : null
+      return match ? { identity: match[1], amount: Number(match[2].replace(/\D/g, '')) || 0, prefix: match[1] } : null
     }
     const previousByIdentity = new Map(previousLines.map(line => [parseLine(line)?.identity, parseLine(line)]).filter(([key, value]) => Boolean(key && value)) as Array<[string, NonNullable<ReturnType<typeof parseLine>>]>)
     let changedCount = 0
@@ -171,14 +171,15 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       const current = parseLine(line)
       if (!current) return line
       const before = previousByIdentity.get(current.identity)
-      if (activeEvent.event_type === 'TAMBAHAN' && !before) { changedCount++; return `🟢 [TAMBAHAN] ${line}` }
+      if (activeEvent.event_type === 'TAMBAHAN' && !before) { changedCount++; return `+ TAMBAHAN: ${line}` }
       if (!before || before.amount === current.amount) return line
       changedCount++
       if (activeEvent.event_type === 'KEKURANGAN') return `${current.prefix} · ${money(before.amount)} + ${money(current.amount - before.amount)}`
       if (activeEvent.event_type === 'REVISI') return `${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`
       return line
     })
-    return { text: annotated.join('\\n'), changedCount }
+    annotated[0] = `${activeEvent.event_type} - ${annotated[0] ?? ''}`
+    return { text: annotated.join('\n'), changedCount }
   }, [activeEvent, activeEventIndex, selectedEvent, detail])
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
