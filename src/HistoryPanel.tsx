@@ -307,7 +307,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       return mergeFragments(fragments)
     })
     return { lines, changedCount }
-  }, [activeEvent, activeEventIndex, selectedEvent, detail])  const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
+  }, [activeEvent, activeEventIndex, selectedEvent, detail])
+  const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
