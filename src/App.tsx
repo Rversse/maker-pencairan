@@ -2220,46 +2220,62 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
 
   async function confirmHistorySave() {
-    if (!activeTransaction || !output) return
+    if (!activeTransaction || !historyChangeBase) return
     setHistorySaveBusy(true)
     try {
       const currentSnapshot = getHistorySnapshot()
-      if (!currentSnapshot) return
+      if (!currentSnapshot) throw new Error('Snapshot perubahan tidak dapat dibentuk.')
       const snapshot: Record<string, unknown> = { ...currentSnapshot }
-      const basePayload = historyChangeBase
-      const baseTransaction = basePayload?.transaction as TransactionGroup | undefined
+      const baseTransaction = historyChangeBase.transaction as TransactionGroup | undefined
       const currentTransaction = snapshot.transaction as TransactionGroup
       if (!baseTransaction) throw new Error('Snapshot asal tidak ditemukan. Muat ulang transaksi dari Riwayat.')
+
       const nextTransaction: TransactionGroup = { ...baseTransaction }
-      const incrementalTransaction: TransactionGroup = { ...baseTransaction }
+      const incrementalTransaction: TransactionGroup = {
+        ...baseTransaction,
+        rab: [],
+        gas: [],
+        operasional: [],
+        pencairan_harian: [],
+        lain_lain: [],
+        arutala_lain_lain: []
+      }
+      const parseAmount = (value: string | undefined) => Number(String(value ?? '').replace(/\D/g, '')) || 0
       const amountWithDelta = (previous: string, entered: string) =>
-        String((Number(previous.replace(/\D/g, '')) || 0) + (Number(entered.replace(/\D/g, '')) || 0))
+        String(parseAmount(previous) + parseAmount(entered))
+      const fields = ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const
+
       if (historySaveType === 'TAMBAHAN') {
-        const addedExistingRab: RabEntry[] = []
-        const mergedExistingRab = baseTransaction.rab.map(previous => {
+        const incrementalRab: RabEntry[] = []
+        const mergedRab = baseTransaction.rab.map(previous => {
           const changed = currentTransaction.rab.find(row => row.accountId === previous.accountId)
           if (!changed) return previous
+
           const addedProducts = changed.productTypes.filter(product => !previous.productTypes.includes(product))
-          const addedAmount = Number(changed.amount.replace(/\D/g, '')) || 0
+          const addedAmount = parseAmount(changed.amount)
           const previousB3Products = previous.b3ProductTypes ?? []
           const changedB3Products = changed.b3ProductTypes ?? []
           const addedB3Products = changedB3Products.filter(product => !previousB3Products.includes(product))
-          const addedB3Amount = Number((changed.b3Amount ?? '').replace(/\D/g, '')) || 0
+          const addedB3Amount = parseAmount(changed.b3Amount)
+
           if (addedProducts.length > 0 && addedAmount <= 0) {
-            throw new Error('Isi nominal tambahan untuk item ' + addedProducts.join(', ') + ' terlebih dahulu.')
+            throw new Error('Isi nominal tambahan RAB untuk item ' + addedProducts.join(', ') + '.')
           }
           if (addedB3Products.length > 0 && addedB3Amount <= 0) {
-            throw new Error('Isi nominal tambahan untuk item B3 ' + addedB3Products.join(', ') + ' terlebih dahulu.')
+            throw new Error('Isi nominal tambahan RAB B3 untuk item ' + addedB3Products.join(', ') + '.')
           }
-          if (addedAmount <= 0 && addedB3Amount <= 0) return previous
-          addedExistingRab.push({
-            ...changed,
-            productTypes: addedProducts.length > 0 ? addedProducts : changed.productTypes,
-            amount: String(addedAmount),
-            b3Enabled: addedB3Amount > 0,
-            b3ProductTypes: addedB3Products,
-            b3Amount: String(addedB3Amount)
-          })
+
+          if (addedAmount > 0 || addedB3Amount > 0) {
+            incrementalRab.push({
+              ...changed,
+              productTypes: addedProducts.length > 0 ? addedProducts : changed.productTypes,
+              amount: addedAmount > 0 ? String(addedAmount) : '',
+              b3Enabled: addedB3Amount > 0,
+              b3ProductTypes: addedB3Products.length > 0 ? addedB3Products : (addedB3Amount > 0 ? changedB3Products : []),
+              b3Amount: addedB3Amount > 0 ? String(addedB3Amount) : ''
+            })
+          }
+
           return {
             ...previous,
             productTypes: sortStrings([...previous.productTypes, ...addedProducts]),
@@ -2271,100 +2287,149 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               : (previous.b3Amount ?? '')
           }
         })
-        const newRab = currentTransaction.rab.filter(row => !baseTransaction.rab.some(previous => previous.accountId === row.accountId))
-        nextTransaction.rab = [...mergedExistingRab, ...newRab]
-        incrementalTransaction.rab = [...addedExistingRab, ...newRab]
-        for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
+
+        const knownRabIds = new Set(baseTransaction.rab.map(row => row.accountId))
+        const newRab = currentTransaction.rab.filter(row => !knownRabIds.has(row.accountId)).filter(row => {
+          const hasNormal = parseAmount(row.amount) > 0
+          const hasB3 = parseAmount(row.b3Amount) > 0
+          if ((row.productTypes.length > 0 && !hasNormal) || ((row.b3ProductTypes ?? []).length > 0 && !hasB3)) {
+            throw new Error('Isi nominal untuk item RAB baru sebelum menyimpan TAMBAHAN.')
+          }
+          return hasNormal || hasB3
+        })
+        nextTransaction.rab = [...mergedRab, ...newRab]
+        incrementalRab.push(...newRab)
+        incrementalTransaction.rab = incrementalRab
+
+        for (const field of fields) {
           const beforeRows = baseTransaction[field] ?? []
           const currentRows = currentTransaction[field] ?? []
-          const enteredRows = currentRows.filter(row => isCompleteAmount(row.amount))
+          const enteredRows = currentRows.filter(row => parseAmount(row.amount) > 0)
           const enteredById = new Map(enteredRows.map(row => [String(row.id), row]))
-
-          // TAMBAHAN clears the form amounts but preserves row IDs. Any amount
-          // entered on a row is therefore an increment, even when that row
-          // already had a nominal in the previous snapshot.
           const mergedRows = beforeRows.map(previous => {
             const entered = enteredById.get(String(previous.id))
             if (!entered) return previous
-            return {
-              ...entered,
-              amount: amountWithDelta(previous.amount, entered.amount)
-            }
+            return { ...entered, amount: amountWithDelta(previous.amount, entered.amount) }
           })
           const knownIds = new Set(beforeRows.map(row => String(row.id)))
-          mergedRows.push(...enteredRows.filter(row => !knownIds.has(String(row.id))))
-
-          ;(nextTransaction as unknown as Record<string, unknown>)[field] = mergedRows
+          const newRows = enteredRows.filter(row => !knownIds.has(String(row.id)))
+          ;(nextTransaction as unknown as Record<string, unknown>)[field] = [...mergedRows, ...newRows]
           ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = enteredRows
         }
-
-        // The date bucket mirrors the active GAS and Arutala operational rows.
-        // Do not collect it a second time: updateTransaction already syncs these
-        // rows into the bucket, so processing both sources duplicates or
-        // misidentifies the same transaction.
-        const mergedDateBuckets: Record<string, ArutalaDateBucket> = {
-          ...(baseTransaction.arutala_by_date ?? {}),
-          ...(currentTransaction.arutala_by_date ?? {})
-        }
-        mergedDateBuckets[activeDate] = {
-          gas: nextTransaction.gas ?? [],
-          lain_lain: (nextTransaction.operasional ?? []).filter(row => row.useArutalaAccount)
-        }
-        nextTransaction.arutala_by_date = mergedDateBuckets
       } else {
-        incrementalTransaction.rab = []
-        for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
-          ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = []
-        }
-        for (const key of historySelectedKeys) {
+        const selected = new Set(historySelectedKeys)
+        const rabById = new Map(baseTransaction.rab.map(row => [row.accountId, { ...row }]))
+        const changedRabById = new Map(currentTransaction.rab.map(row => [row.accountId, row]))
+        const incrementalRabById = new Map<string, RabEntry>()
+
+        for (const key of selected) {
           const separator = key.indexOf(':')
           const field = key.slice(0, separator)
           const id = key.slice(separator + 1)
+
           if (field === 'rab' || field === 'rab_b3') {
-            const changed = currentTransaction.rab.find(row => row.accountId === id)
-            if (!changed) continue
-            const previous = baseTransaction.rab.find(row => row.accountId === id)
-            if (field === 'rab_b3') {
-              const merged = {
-                ...changed,
-                b3Enabled: true,
-                b3Amount: historySaveType === 'KEKURANGAN' && previous
-                  ? amountWithDelta(previous.b3Amount ?? '', changed.b3Amount ?? '')
-                  : (changed.b3Amount ?? '')
-              }
-              nextTransaction.rab = nextTransaction.rab.some(row => row.accountId === id)
-                ? nextTransaction.rab.map(row => row.accountId === id ? merged : row)
-                : [...nextTransaction.rab, merged]
-              incrementalTransaction.rab = [...incrementalTransaction.rab, { ...changed, amount: '', b3Amount: changed.b3Amount ?? '' }]
-            } else {
-              const merged = historySaveType === 'KEKURANGAN' && previous
-                ? { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
-                : changed
-              nextTransaction.rab = nextTransaction.rab.some(row => row.accountId === id)
-                ? nextTransaction.rab.map(row => row.accountId === id ? merged : row)
-                : [...nextTransaction.rab, merged]
-              incrementalTransaction.rab = [...incrementalTransaction.rab, { ...changed, b3Amount: '' }]
+            const previous = rabById.get(id)
+            if (!previous) continue
+            const changed = changedRabById.get(id)
+            const incremental = incrementalRabById.get(id) ?? {
+              ...previous,
+              amount: '',
+              b3Amount: '',
+              b3Enabled: false,
+              b3ProductTypes: []
             }
+
+            if (field === 'rab') {
+              if (!changed) {
+                previous.amount = ''
+                previous.productTypes = []
+              } else if (historySaveType === 'KEKURANGAN') {
+                const delta = parseAmount(changed.amount)
+                if (delta <= 0) throw new Error('Isi nominal kekurangan RAB atau hapus baris yang dipilih.')
+                previous.amount = amountWithDelta(previous.amount, changed.amount)
+                incremental.amount = changed.amount
+                incremental.productTypes = changed.productTypes
+              } else {
+                previous.amount = changed.amount
+                previous.productTypes = changed.productTypes
+                incremental.amount = changed.amount
+                incremental.productTypes = changed.productTypes
+              }
+            } else {
+              if (!changed) {
+                previous.b3Amount = ''
+                previous.b3Enabled = false
+                previous.b3ProductTypes = []
+              } else if (historySaveType === 'KEKURANGAN') {
+                const delta = parseAmount(changed.b3Amount)
+                if (delta <= 0) throw new Error('Isi nominal kekurangan RAB B3 atau hapus baris yang dipilih.')
+                previous.b3Amount = amountWithDelta(previous.b3Amount ?? '', changed.b3Amount ?? '')
+                previous.b3Enabled = true
+                previous.b3ProductTypes = changed.b3ProductTypes ?? []
+                incremental.b3Amount = changed.b3Amount ?? ''
+                incremental.b3Enabled = true
+                incremental.b3ProductTypes = changed.b3ProductTypes ?? []
+              } else {
+                previous.b3Amount = changed.b3Amount ?? ''
+                previous.b3Enabled = Boolean(changed.b3Enabled || parseAmount(changed.b3Amount) > 0)
+                previous.b3ProductTypes = changed.b3ProductTypes ?? []
+                incremental.b3Amount = changed.b3Amount ?? ''
+                incremental.b3Enabled = Boolean(changed.b3Enabled || parseAmount(changed.b3Amount) > 0)
+                incremental.b3ProductTypes = changed.b3ProductTypes ?? []
+              }
+            }
+            incrementalRabById.set(id, incremental)
             continue
           }
-          if (!['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'].includes(field)) continue
-          const section = field as 'gas' | 'operasional' | 'pencairan_harian' | 'lain_lain' | 'arutala_lain_lain'
-          const changedRows = currentTransaction[section] ?? []
-          const previousRows = baseTransaction[section] ?? []
-          const changed = changedRows.find(row => String(row.id) === id)
+
+          if (!fields.includes(field as typeof fields[number])) continue
+          const section = field as typeof fields[number]
+          const previousRows = (nextTransaction[section] ?? []) as SimpleEntry[] | DailyPaymentEntry[]
+          const changedRows = (currentTransaction[section] ?? []) as SimpleEntry[] | DailyPaymentEntry[]
           const previous = previousRows.find(row => String(row.id) === id)
-          if (!changed) continue
-          const merged = historySaveType === 'KEKURANGAN' && previous
-            ? { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
-            : changed
-          ;(nextTransaction as unknown as Record<string, unknown>)[section] = (nextTransaction[section] ?? []).map(row =>
+          if (!previous) continue
+          const changed = changedRows.find(row => String(row.id) === id)
+
+          if (!changed) {
+            ;(nextTransaction as unknown as Record<string, unknown>)[section] = previousRows.filter(row => String(row.id) !== id)
+            continue
+          }
+
+          let merged: typeof changed
+          if (historySaveType === 'KEKURANGAN') {
+            if (parseAmount(changed.amount) <= 0) {
+              throw new Error('Isi nominal kekurangan untuk transaksi yang dipilih, atau hapus barisnya.')
+            }
+            merged = { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
+          } else {
+            merged = { ...changed, amount: changed.amount }
+          }
+
+          ;(nextTransaction as unknown as Record<string, unknown>)[section] = previousRows.map(row =>
             String(row.id) === id ? merged : row
           )
           ;(incrementalTransaction as unknown as Record<string, unknown>)[section] = [
-            ...((incrementalTransaction[section] ?? []) as typeof changedRows), changed
+            ...((incrementalTransaction[section] ?? []) as typeof changedRows),
+            { ...changed }
           ]
         }
+
+        nextTransaction.rab = [...rabById.values()]
+        incrementalTransaction.rab = [...incrementalRabById.values()]
       }
+
+      // GAS and Arutala date buckets are a mirror of the active transaction rows.
+      // Rebuild the active date bucket for every change mode to prevent stale snapshots.
+      const dateBuckets: Record<string, ArutalaDateBucket> = {
+        ...(baseTransaction.arutala_by_date ?? {}),
+        ...(currentTransaction.arutala_by_date ?? {})
+      }
+      dateBuckets[activeDate] = {
+        gas: nextTransaction.gas ?? [],
+        lain_lain: (nextTransaction.operasional ?? []).filter(row => row.useArutalaAccount)
+      }
+      nextTransaction.arutala_by_date = dateBuckets
+
       snapshot.transaction = nextTransaction
       const mergedOutput = getTransactionOutput(nextTransaction).join('\n')
       const mergedLines = mergedOutput.split('\n').slice(1).filter(line => line.trim())
@@ -2373,9 +2438,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         return separator < 0 ? 0 : Number(line.slice(separator + 3).replace(/\D/g, '')) || 0
       }
       snapshot.output = mergedOutput
-      snapshot.totalRab = mergedLines.filter(line => line.startsWith('RAB : ') || line.startsWith('RAB B3 : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
-      snapshot.totalOpsHarian = mergedLines.filter(line => !line.startsWith('RAB : ') && !line.startsWith('RAB B3 : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
+      snapshot.totalRab = mergedLines
+        .filter(line => line.startsWith('RAB : ') || line.startsWith('RAB B3 : '))
+        .reduce((sum, line) => sum + amountFromLine(line), 0)
+      snapshot.totalOpsHarian = mergedLines
+        .filter(line => !line.startsWith('RAB : ') && !line.startsWith('RAB B3 : '))
+        .reduce((sum, line) => sum + amountFromLine(line), 0)
       snapshot.totalOverall = mergedLines.reduce((sum, line) => sum + amountFromLine(line), 0)
+
       const { data: listData, error: listError } = await supabase.functions.invoke('maker-history', {
         body: { action: 'list', kitchen_id: kitchenId, date_from: activeDate, date_to: activeDate },
         headers: { Authorization: `Bearer ${token}` }
@@ -2386,6 +2456,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         return transaction?.id === activeTransaction.id
       })
       if (!existing) throw new Error('Riwayat awal tidak ditemukan. Tutup dialog lalu tekan Copy dan Simpan lagi.')
+
       const { data: detailData, error: detailError } = await supabase.functions.invoke('maker-history', {
         body: { action: 'get', draft_id: existing.id },
         headers: { Authorization: `Bearer ${token}` }
@@ -2396,8 +2467,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       for (const key of new Set([...Object.keys(before), ...Object.keys(snapshot)])) {
         if (JSON.stringify(before[key]) !== JSON.stringify(snapshot[key])) delta[key] = snapshot[key] ?? null
       }
+
       const incrementalOutput = getTransactionOutput(incrementalTransaction, historySaveType).join('\n')
       delta.incremental_output = incrementalOutput
+
       if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
       const { error: changeError } = await supabase.functions.invoke('maker-history', {
         body: {
@@ -2412,6 +2485,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         headers: { Authorization: `Bearer ${token}` }
       })
       if (changeError) throw new Error(changeError.message || 'Versi Riwayat gagal disimpan.')
+
       const savedTransaction = normalizeTransaction({ ...nextTransaction, id: activeTransaction.id }, activeDate)
       setTransactions([savedTransaction])
       setActiveTransactionId(savedTransaction.id)
@@ -2421,11 +2495,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       setHistorySaveType('REVISI')
       setHistorySaveOpen(false)
       setHistorySaveSummary('')
-      try {
-        await navigator.clipboard.writeText(String(delta.incremental_output ?? ''))
-        setCopyMessage(`${historySaveType} tersimpan dan output disalin`)
-      } catch {
-        setCopyMessage(`${historySaveType} tersimpan, tetapi clipboard tidak tersedia`)
+
+      if (incrementalOutput) {
+        try {
+          await navigator.clipboard.writeText(incrementalOutput)
+          setCopyMessage(`${historySaveType} tersimpan dan output perubahan disalin`)
+        } catch {
+          setCopyMessage(`${historySaveType} tersimpan, tetapi clipboard tidak tersedia`)
+        }
+      } else {
+        setCopyMessage(`${historySaveType} tersimpan. Tidak ada baris bernominal untuk disalin.`)
       }
       window.setTimeout(() => setCopyMessage(''), 3000)
     } catch (err) {
