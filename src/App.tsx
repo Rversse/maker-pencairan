@@ -171,16 +171,6 @@ function getOperationalRules(
     
 }
 
-function getOperationalRoleLabel(rule: MakerOperationalRule) {
-  const labels: Record<string, string> = {
-    akuntan: 'Akuntan',
-    aslap: 'Aslap',
-    pic_yayasan: 'PIC Yayasan',
-    other: 'Lainnya'
-  }
-  return labels[rule.target_role ?? ''] ?? 'Ops Harian'
-}
-
 function getDailyPaymentAccount(
   kitchenName: string,
   kind: DailyPaymentKind,
@@ -2708,14 +2698,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     {(() => {
                       const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
                       const entries = activeTransaction.operasional ?? []
-                      const hasCustomVaEntry = entries.some((entry, index) =>
-                        (!historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) &&
-                        !entry.useArutalaAccount &&
-                        entry.operationalRuleType !== 'ops_harian' &&
-                        entry.operationalRuleType !== 'gaji_akuntan' &&
-                        entry.operationalRuleType !== 'gaji_ahli_gizi' &&
-                        (index > 0 || entry.customAccount)
-                      )
                       return (
                         <div className="mt-3 space-y-3">
                         <div className="pt-1">
