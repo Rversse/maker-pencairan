@@ -2979,7 +2979,24 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
             const restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
             if (eventType === 'TAMBAHAN') {
-              restored.rab = restored.rab.map(row => ({ ...row, amount: '' }))
+              const clearAmounts = <T extends { amount: string }>(rows: T[] | undefined) =>
+                (rows ?? []).map(row => ({ ...row, amount: '' }))
+              restored.rab = clearAmounts(restored.rab)
+              restored.gas = clearAmounts(restored.gas)
+              restored.operasional = clearAmounts(restored.operasional)
+              restored.pencairan_harian = clearAmounts(restored.pencairan_harian)
+              restored.lain_lain = clearAmounts(restored.lain_lain)
+              restored.arutala_lain_lain = clearAmounts(restored.arutala_lain_lain)
+              restored.arutala_by_date = Object.fromEntries(
+                Object.entries(restored.arutala_by_date ?? {}).map(([date, bucket]) => [
+                  date,
+                  {
+                    ...bucket,
+                    gas: clearAmounts(bucket.gas),
+                    lain_lain: clearAmounts(bucket.lain_lain)
+                  }
+                ])
+              )
             }
             const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
             setKitchenId(restoredKitchenId)
