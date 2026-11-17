@@ -303,7 +303,22 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <div className="mb-2 flex items-center justify-between gap-3"><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div>
           <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{outputDiff.text}</pre>
         </div>
-        <div><h4 className="mb-2 text-xs font-semibold">Riwayat</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><div className="mt-2 flex flex-wrap gap-2"><button onClick={() => openEventOutput(event)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Buka</button>{activeEventId === event.id && event.event_type !== 'NORMAL' && <button onClick={() => void copyEventOutput(event)} className="rounded-md border border-emerald-700 bg-emerald-950/40 px-2.5 py-1.5 text-[10px] font-semibold text-emerald-200">Salin {event.event_type}</button>}</div></div>)}</div></div>
+        <div>
+          <h4 className="mb-2 text-xs font-semibold">Riwayat</h4>
+          <div className="overflow-hidden rounded-lg border border-slate-800 divide-y divide-slate-800/90">
+            {selectedEvent.map(event => (
+              <div key={event.id} className={`flex min-h-11 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 transition-colors ${activeEventId === event.id ? 'bg-slate-800/70' : 'bg-slate-950/40 hover:bg-slate-900/80'}`}>
+                <span className="shrink-0 text-[11px] font-bold text-emerald-300">{event.event_type}</span>
+                <span className="min-w-0 flex-1 truncate text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</span>
+                <span className="shrink-0 text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
+                <div className="ml-auto flex shrink-0 items-center gap-1.5">
+                  <button onClick={() => openEventOutput(event)} className="rounded-md border border-slate-700 px-2 py-1 text-[10px] font-semibold text-slate-200 hover:border-slate-500">Buka</button>
+                  {activeEventId === event.id && event.event_type !== 'NORMAL' && <button onClick={() => void copyEventOutput(event)} className="rounded-md border border-emerald-700 bg-emerald-950/40 px-2 py-1 text-[10px] font-semibold text-emerald-200">Salin {event.event_type}</button>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {!canEdit && <p className="rounded-lg border border-amber-800/60 bg-amber-950/20 p-3 text-xs text-amber-200">Riwayat terkunci. Hanya Admin yang dapat mengubahnya.</p>}
       </div>}
