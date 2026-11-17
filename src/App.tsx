@@ -2141,60 +2141,40 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           const beforeRows = baseTransaction[field] ?? []
           const currentRows = currentTransaction[field] ?? []
           const beforeById = new Map(beforeRows.map(row => [String(row.id), row]))
-          const addedRows = currentRows.filter(row => {
-            if (!isCompleteAmount(row.amount)) return false
-            const previous = beforeById.get(String(row.id))
-            return !previous || !isCompleteAmount(previous.amount)
+          const enteredRows = currentRows.filter(row => isCompleteAmount(row.amount))
+          const enteredById = new Map(enteredRows.map(row => [String(row.id), row]))
+
+          // TAMBAHAN clears the form amounts but preserves row IDs. Any amount
+          // entered on a row is therefore an increment, even when that row
+          // already had a nominal in the previous snapshot.
+          const mergedRows = beforeRows.map(previous => {
+            const entered = enteredById.get(String(previous.id))
+            if (!entered) return previous
+            return {
+              ...entered,
+              amount: amountWithDelta(previous.amount, entered.amount)
+            }
           })
-          const addedById = new Map(addedRows.map(row => [String(row.id), row]))
-          const mergedRows = beforeRows.map(row => addedById.get(String(row.id)) ?? row)
           const knownIds = new Set(beforeRows.map(row => String(row.id)))
-          mergedRows.push(...addedRows.filter(row => !knownIds.has(String(row.id))))
+          mergedRows.push(...enteredRows.filter(row => !knownIds.has(String(row.id))))
+
           ;(nextTransaction as unknown as Record<string, unknown>)[field] = mergedRows
-          ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = addedRows
+          ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = enteredRows
         }
-        const baseDateBuckets = baseTransaction.arutala_by_date ?? {}
-        const currentDateBuckets = currentTransaction.arutala_by_date ?? {}
-        const mergedDateBuckets: Record<string, ArutalaDateBucket> = { ...baseDateBuckets }
-        const addedBucketGas: SimpleEntry[] = []
-        const addedBucketOther: SimpleEntry[] = []
-        for (const [date, currentBucket] of Object.entries(currentDateBuckets)) {
-          const previousBucket = baseDateBuckets[date] ?? { gas: [], lain_lain: [] }
-          const collectAddedRows = (previousRows: SimpleEntry[], currentRows: SimpleEntry[]) => {
-            const previousById = new Map(previousRows.map(row => [String(row.id), row]))
-            return currentRows.filter(row => {
-              if (!isCompleteAmount(row.amount)) return false
-              const previous = previousById.get(String(row.id))
-              return !previous || !isCompleteAmount(previous.amount)
-            })
-          }
-          const mergeBucketRows = (previousRows: SimpleEntry[], addedRows: SimpleEntry[]) => {
-            const addedById = new Map(addedRows.map(row => [String(row.id), row]))
-            const merged = previousRows.map(row => addedById.get(String(row.id)) ?? row)
-            const previousIds = new Set(previousRows.map(row => String(row.id)))
-            merged.push(...addedRows.filter(row => !previousIds.has(String(row.id))))
-            return merged
-          }
-          const newGasRows = collectAddedRows(previousBucket.gas ?? [], currentBucket.gas ?? [])
-          const newOtherRows = collectAddedRows(previousBucket.lain_lain ?? [], currentBucket.lain_lain ?? [])
-          addedBucketGas.push(...newGasRows)
-          addedBucketOther.push(...newOtherRows)
-          mergedDateBuckets[date] = {
-            gas: mergeBucketRows(previousBucket.gas ?? [], newGasRows),
-            lain_lain: mergeBucketRows(previousBucket.lain_lain ?? [], newOtherRows)
-          }
+
+        // The date bucket mirrors the active GAS and Arutala operational rows.
+        // Do not collect it a second time: updateTransaction already syncs these
+        // rows into the bucket, so processing both sources duplicates or
+        // misidentifies the same transaction.
+        const mergedDateBuckets: Record<string, ArutalaDateBucket> = {
+          ...(baseTransaction.arutala_by_date ?? {}),
+          ...(currentTransaction.arutala_by_date ?? {})
+        }
+        mergedDateBuckets[activeDate] = {
+          gas: nextTransaction.gas ?? [],
+          lain_lain: (nextTransaction.operasional ?? []).filter(row => row.useArutalaAccount)
         }
         nextTransaction.arutala_by_date = mergedDateBuckets
-        incrementalTransaction.gas = [...(incrementalTransaction.gas ?? []), ...addedBucketGas]
-        incrementalTransaction.operasional = [
-          ...(incrementalTransaction.operasional ?? []),
-          ...addedBucketOther.map(row => ({
-            ...row,
-            useArutalaAccount: true,
-            customAccount: true,
-            transactionType: 'operasional_harian' as const
-          }))
-        ]
       } else {
         incrementalTransaction.rab = []
         for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
