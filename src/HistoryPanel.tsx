@@ -175,87 +175,139 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const activePayload = activeEvent?.snapshot.payload ?? detail?.history.payload
   const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
   const outputDiff = useMemo(() => {
-    if (!activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0, highlights: [] as string[] }
-    const currentLines = String(activeEvent.snapshot.payload?.output ?? '').split('\n')
-    if (activeEvent.event_type === 'NORMAL') return { text: currentLines.join('\n'), changedCount: 0, highlights: [] as string[] }
-    const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n') : []
-    const parseLine = (line: string) => {
-      const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      if (!match) return null
-      const prefix = match[1]
-      const isRab = prefix.startsWith('RAB : ')
-      const isOps = prefix.startsWith('OPS HARIAN : ')
-      const separator = prefix.indexOf(' · ')
-      const identity = isRab || isOps
-        ? (separator >= 0 ? prefix.slice(0, separator) : prefix)
-        : prefix
-      const detail = isRab || isOps
-        ? (separator >= 0 ? prefix.slice(separator + 3).trim() : '')
-        : ''
-      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix, detail }
+    type OutputFragment = { text: string; highlighted: boolean }
+    type ParsedOutputLine = {
+      identity: string
+      detail: string
+      amount: number
+      amountText: string
+      hasDetail: boolean
     }
-    type ParsedOutputLine = NonNullable<ReturnType<typeof parseLine>>
-    const parseLines = (lines: string[]) => lines.flatMap(line => {
+    const plain = (text: string): OutputFragment[] => text ? [{ text, highlighted: false }] : []
+    const mergeFragments = (fragments: OutputFragment[]) => fragments.reduce<OutputFragment[]>((merged, fragment) => {
+      if (!fragment.text) return merged
+      const previous = merged[merged.length - 1]
+      if (previous && previous.highlighted === fragment.highlighted) previous.text += fragment.text
+      else merged.push({ ...fragment })
+      return merged
+    }, [])
+    const changedText = (current: string, previous: string): OutputFragment[] => {
+      if (!current) return []
+      if (!previous) return [{ text: current, highlighted: true }]
+      const tokens = current.match(/\s+|[^\s]+/g) ?? []
+      const currentWordIndexes = tokens.flatMap((token, index) => /^\s+$/.test(token) ? [] : [index])
+      const previousWords = previous.match(/\S+/g) ?? []
+      const currentWords = currentWordIndexes.map(index => tokens[index].toLocaleLowerCase('id-ID'))
+      const previousNormalized = previousWords.map(word => word.toLocaleLowerCase('id-ID'))
+      const rows = currentWords.length + 1
+      const columns = previousNormalized.length + 1
+      const matrix = Array.from({ length: rows }, () => new Array<number>(columns).fill(0))
+      for (let i = currentWords.length - 1; i >= 0; i--) {
+        for (let j = previousNormalized.length - 1; j >= 0; j--) {
+          matrix[i][j] = currentWords[i] === previousNormalized[j]
+            ? matrix[i + 1][j + 1] + 1
+            : Math.max(matrix[i + 1][j], matrix[i][j + 1])
+        }
+      }
+      const matched = new Set<number>()
+      let i = 0
+      let j = 0
+      while (i < currentWords.length && j < previousNormalized.length) {
+        if (currentWords[i] === previousNormalized[j]) {
+          matched.add(currentWordIndexes[i])
+          i++
+          j++
+        } else if (matrix[i + 1][j] >= matrix[i][j + 1]) i++
+        else j++
+      }
+      return mergeFragments(tokens.map((token, index) => ({
+        text: token,
+        highlighted: !/^\s+$/.test(token) && !matched.has(index)
+      })))
+    }
+    const parseLine = (line: string): ParsedOutputLine | null => {
+      const amountSeparator = line.lastIndexOf(' · ')
+      if (amountSeparator < 0) return null
+      const amountText = line.slice(amountSeparator + 3)
+      if (!/^[0-9.,]+$/.test(amountText)) return null
+      const body = line.slice(0, amountSeparator)
+      const detailSeparator = body.indexOf(' · ')
+      const identity = detailSeparator >= 0 ? body.slice(0, detailSeparator) : body
+      const detail = detailSeparator >= 0 ? body.slice(detailSeparator + 3) : ''
+      return {
+        identity,
+        detail,
+        hasDetail: detailSeparator >= 0,
+        amount: Number(amountText.replace(/\D/g, '')) || 0,
+        amountText
+      }
+    }
+    const currentLines = String(activeEvent?.snapshot.payload?.output ?? detail?.history.payload.output ?? '').split('\n')
+    if (!activeEvent || activeEvent.event_type === 'NORMAL') {
+      return { lines: currentLines.map(line => plain(line)), changedCount: 0 }
+    }
+    const previousLines = activeEventIndex > 0
+      ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n')
+      : []
+    const previousParsed = previousLines.flatMap(line => {
       const parsed = parseLine(line)
       return parsed ? [parsed] : []
     })
-    const previousParsed = parseLines(previousLines)
-    const incrementalParsed = parseLines(String(activeEvent.snapshot.delta?.incremental_output ?? '').split('\n'))
-    const normalizeDetail = (value: string) => value.toLocaleLowerCase('id-ID').replace(/[^a-z0-9]+/g, ' ').trim()
-    const detailSimilarity = (left: string, right: string) => {
-      const a = normalizeDetail(left)
-      const b = normalizeDetail(right)
-      if (!a || !b) return 0
-      if (a === b) return 100
-      if (a.includes(b) || b.includes(a)) return 90
-      const aWords = new Set(a.split(/\s+/))
-      const bWords = new Set(b.split(/\s+/))
-      const shared = [...aWords].filter(word => bWords.has(word)).length
-      return shared ? (shared / Math.min(aWords.size, bWords.size)) * 70 : 0
-    }
-    const bestMatch = (current: ParsedOutputLine, candidates: ParsedOutputLine[]) => {
-      const sameAccount = candidates.filter(candidate => candidate.identity === current.identity)
-      if (!sameAccount.length) return undefined
-      return sameAccount
-        .map(candidate => ({ candidate, score: current.detail || candidate.detail ? detailSimilarity(current.detail, candidate.detail) : 100 }))
-        .filter(item => item.score >= 60)
-        .sort((a, b) => b.score - a.score)[0]?.candidate
-    }
+    const usedPrevious = new Set<number>()
     let changedCount = 0
-    const highlights: string[] = []
-    const annotated = currentLines.map(line => {
+    const lines = currentLines.map(line => {
       const current = parseLine(line)
-      if (!current) return line
-      const before = bestMatch(current, previousParsed)
-      if (activeEvent.event_type === 'TAMBAHAN') {
-        const incremental = bestMatch(current, incrementalParsed)
-        const addedProduct = Boolean(before && current.detail && before.detail !== current.detail)
-        if (!before || incremental || addedProduct || (before && before.amount !== current.amount)) {
-          changedCount++
-          return `+ TAMBAHAN: ${line}`
-        }
-        return line
+      if (!current) return plain(line)
+      const candidates = previousParsed
+        .map((candidate, index) => ({ candidate, index }))
+        .filter(item =>
+          !usedPrevious.has(item.index) &&
+          item.candidate.identity.toLocaleLowerCase('id-ID') === current.identity.toLocaleLowerCase('id-ID')
+        )
+      const best = candidates
+        .map(item => {
+          const left = current.detail.toLocaleLowerCase('id-ID')
+          const right = item.candidate.detail.toLocaleLowerCase('id-ID')
+          const score = left === right ? 100 : left && right
+            ? [...new Set(left.split(/\s+/))].filter(word => right.split(/\s+/).includes(word)).length
+            : 0
+          return { ...item, score }
+        })
+        .sort((a, b) => b.score - a.score)[0]
+      if (!best) {
+        changedCount++
+        return [{ text: line, highlighted: true }]
       }
-      if (!before) return line
-      const amountChanged = before.amount !== current.amount
-      const detailChanged = normalizeDetail(before.detail) !== normalizeDetail(current.detail)
-      if (!amountChanged && !detailChanged) return line
+      usedPrevious.add(best.index)
+      const before = best.candidate
+      const detailChanged = current.detail !== before.detail
+      const amountChanged = current.amount !== before.amount
+      const amountDelta = current.amount - before.amount
+      if (!detailChanged && !amountChanged) return plain(line)
       changedCount++
-      if (activeEvent.event_type === 'KEKURANGAN') {
-        return `${current.prefix} · ${money(before.amount)} + ${money(Math.max(0, current.amount - before.amount))}`
+      const fragments: OutputFragment[] = []
+      fragments.push(...plain(current.identity))
+      if (current.hasDetail) {
+        fragments.push(...plain(' · '))
+        fragments.push(...changedText(current.detail, before.detail))
       }
-      if (activeEvent.event_type === 'REVISI') {
-        const previousParts = before.detail.split(',').map(part => normalizeDetail(part)).filter(Boolean)
-        const addedParts = current.detail.split(',').map(part => part.trim()).filter(part => part && !previousParts.includes(normalizeDetail(part)))
-        highlights.push(...addedParts)
-        return `${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`
+      fragments.push(...plain(' · '))
+      fragments.push({
+        text: current.amountText,
+        highlighted: activeEvent.event_type === 'REVISI' && amountChanged
+      })
+      if (
+        (activeEvent.event_type === 'KEKURANGAN' || activeEvent.event_type === 'TAMBAHAN') &&
+        amountDelta > 0
+      ) {
+        fragments.push(...plain(' (+'))
+        fragments.push({ text: money(amountDelta), highlighted: true })
+        fragments.push(...plain(activeEvent.event_type === 'KEKURANGAN' ? ' kekurangan)' : ' tambahan)'))
       }
-      return line
+      return mergeFragments(fragments)
     })
-    annotated[0] = `${activeEvent.event_type} - ${annotated[0] ?? ''}`
-    return { text: annotated.join('\n'), changedCount, highlights: [...new Set(highlights)] }
-  }, [activeEvent, activeEventIndex, selectedEvent, detail])
-  const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
+    return { lines, changedCount }
+  }, [activeEvent, activeEventIndex, selectedEvent, detail])  const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
@@ -367,24 +419,13 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
           <div className="mb-2 flex items-center justify-between gap-3"><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div>
           <div className="max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-slate-300">
-            {outputDiff.text.split('\n').map((line, lineIndex) => {
-              const terms = outputDiff.highlights.filter(term => line.includes(term)).sort((a, b) => b.length - a.length)
-              let fragments: Array<{ text: string; highlighted: boolean }> = [{ text: line || ' ', highlighted: false }]
-              for (const term of terms) {
-                fragments = fragments.flatMap(fragment => {
-                  if (fragment.highlighted || !fragment.text.includes(term)) return [fragment]
-                  const pieces = fragment.text.split(term)
-                  return pieces.flatMap((piece, index) => index < pieces.length - 1
-                    ? [{ text: piece, highlighted: false }, { text: term, highlighted: true }]
-                    : [{ text: piece, highlighted: false }])
-                })
-              }
-              return <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
+            {outputDiff.lines.map((fragments, lineIndex) => (
+              <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
                 fragment.highlighted
                   ? <span key={partIndex} className="text-sky-200 underline decoration-sky-400 decoration-2 underline-offset-4">{fragment.text}</span>
                   : fragment.text
               )}</div>
-            })}
+            ))}
           </div>
         </div>
         <div>
