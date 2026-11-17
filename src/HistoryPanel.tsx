@@ -189,7 +189,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             {!selectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada baris transaksi yang dapat dipilih.</p>}
           </div>}
           <div className="mt-3 flex justify-end">
-            <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => onStartChange(detail.history.payload, changeType, selectedKeys)} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Pilih dan lanjut ke Form</button>
+            <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, changeType, selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Pilih dan lanjut ke Form</button>
           </div>
         </section>}
                 <div className="rounded-xl border border-slate-800 bg-slate-900 p-3"><h4 className="mb-2 text-xs font-semibold">Output saat ini</h4><pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{String(detail.history.payload.output ?? '')}</pre></div>
