@@ -43,6 +43,7 @@ const formatDate = (value: string) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
   return `${match[3]}-${months[Number(match[2]) - 1] ?? match[2]}-${match[1]}`
 }
+const formatTitle = (value: string | null) => value?.replace(/\\d{4}-\\d{2}-\\d{2}/g, date => formatDate(date)) ?? ''
 const dateTime = (value: string) => {
   const date = new Date(value)
   return `${formatDate(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`)} · ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
@@ -136,7 +137,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         entries.push({
           key: field + ':' + String(entry.id),
           label: title + ' · ' + detailLabel,
-          amount: String(entry.amount ?? '')
+          amount: money(String(entry.amount ?? '').replace(/\\D/g, ''))
         })
       })
     })
@@ -152,17 +153,17 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       {error && <p role="alert" className="mt-3 rounded-lg border border-rose-800 bg-rose-950/40 p-3 text-xs text-rose-200">{error}</p>}
       {notice && <p role="status" className="mt-3 rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-xs text-emerald-200">{notice}</p>}
       {!detail ? <div className="mt-4 space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-sm font-semibold">Daftar pencairan harian</h3><label className="mt-2 block text-[11px] text-slate-400">Tanggal Riwayat<input type="date" value={selectedDate} onChange={event => setSelectedDate(event.target.value)} className="mt-1 block rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100" /></label></div>
+        <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-sm font-semibold">Daftar pencairan harian</h3><label className="mt-2 block text-[11px] text-slate-400">Tanggal Riwayat · {formatDate(selectedDate)}<input type="date" value={selectedDate} onChange={event => setSelectedDate(event.target.value)} className="mt-1 block rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100" /></label></div>
         </div>
         {busy && <p className="text-xs text-slate-400">Memuat...</p>}
-        {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada HISTORY untuk dapur dan tanggal ini.</p>}
+        {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada Riwayat untuk dapur dan tanggal ini.</p>}
         {rows.map(row => <button key={row.id} onClick={() => void openDetail(row.id)} className="flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-left hover:border-emerald-700">
-          <span><span className="block text-sm font-semibold">{row.title || 'Pencairan'}</span><span className="mt-1 block text-[11px] text-slate-400">Versi {row.version} · Dibuat {dateTime(row.created_at)}</span></span>
+          <span><span className="block text-sm font-semibold">{formatTitle(row.title) || 'Pencairan'}</span><span className="mt-1 block text-[11px] text-slate-400">Versi {row.version} · Dibuat {dateTime(row.created_at)}</span></span>
           <span className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300"><span>RAB Rp {money(row.payload?.totalRab)}</span><span>OPS Rp {money(row.payload?.totalOpsHarian)}</span><span>Total Rp {money(row.payload?.totalOverall)}</span><span className="font-semibold text-emerald-300">Buka</span></span>
         </button>)}
         {rows.length > 0 && <div className="flex flex-wrap justify-end gap-x-5 gap-y-1 rounded-xl border border-slate-700 bg-slate-900 p-3 text-right text-xs"><span>Total RAB <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalRab ?? 0), 0))}</strong></span><span>Total OPS <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOpsHarian ?? 0), 0))}</strong></span><span>Total keseluruhan <strong className="ml-1">Rp {money(rows.reduce((sum, row) => sum + Number(row.payload?.totalOverall ?? 0), 0))}</strong></span></div>}
       </div> : <div className="mt-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{detail.history.title || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">Versi {detail.history.version} · {detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'}</p></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">Versi {detail.history.version} · {detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'}</p></div>
           <div className="flex flex-wrap gap-2">
             {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Load ke Form</button>}
             {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
