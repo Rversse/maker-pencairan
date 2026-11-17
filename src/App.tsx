@@ -2131,18 +2131,34 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         const baseDateBuckets = baseTransaction.arutala_by_date ?? {}
         const currentDateBuckets = currentTransaction.arutala_by_date ?? {}
         const mergedDateBuckets: Record<string, ArutalaDateBucket> = { ...baseDateBuckets }
+        const addedBucketGas: SimpleEntry[] = []
+        const addedBucketOther: SimpleEntry[] = []
         for (const [date, currentBucket] of Object.entries(currentDateBuckets)) {
           const previousBucket = baseDateBuckets[date] ?? { gas: [], lain_lain: [] }
-          const mergeAddedRows = (previousRows: SimpleEntry[], currentRows: SimpleEntry[]) => {
+          const collectAddedRows = (previousRows: SimpleEntry[], currentRows: SimpleEntry[]) => {
             const previousIds = new Set(previousRows.map(row => row.id))
-            return [...previousRows, ...currentRows.filter(row => !previousIds.has(row.id))]
+            return currentRows.filter(row => !previousIds.has(row.id))
           }
+          const newGasRows = collectAddedRows(previousBucket.gas ?? [], currentBucket.gas ?? [])
+          const newOtherRows = collectAddedRows(previousBucket.lain_lain ?? [], currentBucket.lain_lain ?? [])
+          addedBucketGas.push(...newGasRows)
+          addedBucketOther.push(...newOtherRows)
           mergedDateBuckets[date] = {
-            gas: mergeAddedRows(previousBucket.gas ?? [], currentBucket.gas ?? []),
-            lain_lain: mergeAddedRows(previousBucket.lain_lain ?? [], currentBucket.lain_lain ?? [])
+            gas: [...(previousBucket.gas ?? []), ...newGasRows],
+            lain_lain: [...(previousBucket.lain_lain ?? []), ...newOtherRows]
           }
         }
         nextTransaction.arutala_by_date = mergedDateBuckets
+        incrementalTransaction.gas = [...(incrementalTransaction.gas ?? []), ...addedBucketGas]
+        incrementalTransaction.operasional = [
+          ...(incrementalTransaction.operasional ?? []),
+          ...addedBucketOther.map(row => ({
+            ...row,
+            useArutalaAccount: true,
+            customAccount: true,
+            transactionType: 'operasional_harian' as const
+          }))
+        ]
       } else {
         incrementalTransaction.rab = []
         for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
