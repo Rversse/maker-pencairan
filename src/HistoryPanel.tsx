@@ -183,22 +183,51 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
       if (!match) return null
       const prefix = match[1]
-      const identity = prefix.startsWith('RAB : ') ? prefix.split(' · ')[0] : prefix
-      const detail = prefix.startsWith('RAB : ') ? prefix.slice(identity.length).replace(/^ · /, '') : ''
+      const isRab = prefix.startsWith('RAB : ')
+      const isOps = prefix.startsWith('OPS HARIAN : ')
+      const separator = prefix.indexOf(' · ')
+      const identity = isRab || isOps
+        ? (separator >= 0 ? prefix.slice(0, separator) : prefix)
+        : prefix
+      const detail = isRab || isOps
+        ? (separator >= 0 ? prefix.slice(separator + 3).trim() : '')
+        : ''
       return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix, detail }
     }
-    const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
-    previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
-    const incrementalLines = String(activeEvent.snapshot.delta?.incremental_output ?? '').split('\n')
-    const incrementalByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
-    incrementalLines.forEach(line => { const parsed = parseLine(line); if (parsed) incrementalByIdentity.set(parsed.identity, parsed) })
+    type ParsedOutputLine = NonNullable<ReturnType<typeof parseLine>>
+    const parseLines = (lines: string[]) => lines.flatMap(line => {
+      const parsed = parseLine(line)
+      return parsed ? [parsed] : []
+    })
+    const previousParsed = parseLines(previousLines)
+    const incrementalParsed = parseLines(String(activeEvent.snapshot.delta?.incremental_output ?? '').split('\n'))
+    const normalizeDetail = (value: string) => value.toLocaleLowerCase('id-ID').replace(/[^a-z0-9]+/g, ' ').trim()
+    const detailSimilarity = (left: string, right: string) => {
+      const a = normalizeDetail(left)
+      const b = normalizeDetail(right)
+      if (!a || !b) return 0
+      if (a === b) return 100
+      if (a.includes(b) || b.includes(a)) return 90
+      const aWords = new Set(a.split(/\s+/))
+      const bWords = new Set(b.split(/\s+/))
+      const shared = [...aWords].filter(word => bWords.has(word)).length
+      return shared ? (shared / Math.min(aWords.size, bWords.size)) * 70 : 0
+    }
+    const bestMatch = (current: ParsedOutputLine, candidates: ParsedOutputLine[]) => {
+      const sameAccount = candidates.filter(candidate => candidate.identity === current.identity)
+      if (!sameAccount.length) return undefined
+      return sameAccount
+        .map(candidate => ({ candidate, score: current.detail || candidate.detail ? detailSimilarity(current.detail, candidate.detail) : 100 }))
+        .filter(item => item.score >= 60)
+        .sort((a, b) => b.score - a.score)[0]?.candidate
+    }
     let changedCount = 0
     const annotated = currentLines.map(line => {
       const current = parseLine(line)
       if (!current) return line
-      const before = previousByIdentity.get(current.identity)
+      const before = bestMatch(current, previousParsed)
       if (activeEvent.event_type === 'TAMBAHAN') {
-        const incremental = incrementalByIdentity.get(current.identity)
+        const incremental = bestMatch(current, incrementalParsed)
         const addedProduct = Boolean(before && current.detail && before.detail !== current.detail)
         if (!before || incremental || addedProduct || (before && before.amount !== current.amount)) {
           changedCount++
@@ -206,10 +235,17 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         }
         return line
       }
-      if (!before || before.amount === current.amount) return line
+      if (!before) return line
+      const amountChanged = before.amount !== current.amount
+      const detailChanged = normalizeDetail(before.detail) !== normalizeDetail(current.detail)
+      if (!amountChanged && !detailChanged) return line
       changedCount++
-      if (activeEvent.event_type === 'KEKURANGAN') return `${current.prefix} · ${money(before.amount)} + ${money(current.amount - before.amount)}`
-      if (activeEvent.event_type === 'REVISI') return `${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`
+      if (activeEvent.event_type === 'KEKURANGAN') {
+        return `${current.prefix} · ${money(before.amount)} + ${money(Math.max(0, before.amount - current.amount))}`
+      }
+      if (activeEvent.event_type === 'REVISI') {
+        return `${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`
+      }
       return line
     })
     annotated[0] = `${activeEvent.event_type} - ${annotated[0] ?? ''}`
