@@ -43,7 +43,7 @@ const formatDate = (value: string) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
   return `${match[3]}-${months[Number(match[2]) - 1] ?? match[2]}-${match[1]}`
 }
-const formatTitle = (value: string | null) => value?.replace(/\\d{4}-\\d{2}-\\d{2}/g, date => formatDate(date)) ?? ''
+const formatTitle = (value: string | null) => value?.replace(/[0-9]{4}-[0-9]{2}-[0-9]{2}/g, date => formatDate(date)) ?? ''
 const dateTime = (value: string) => {
   const date = new Date(value)
   return `${formatDate(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`)} · ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
