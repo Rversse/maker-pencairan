@@ -166,7 +166,7 @@ function getOperationalRules(
 ): MakerOperationalRule[] {
   if (!masterData || !kitchenId) return []
   return masterData.operational_rules
-    .filter((rule) => rule.kitchen_id === kitchenId && rule.rule_type === 'ops_harian' && rule.is_active)
+    .filter((rule) => rule.kitchen_id === kitchenId && rule.rule_type === 'ops_harian' && rule.is_active && (rule.target_role === 'akuntan' || rule.target_role === 'aslap'))
     .sort((a, b) => {
       const roleOrder = (role: MakerOperationalRule['target_role']) =>
         role === 'akuntan' ? 0 : role === 'aslap' ? 1 : role === 'pic_yayasan' ? 2 : 3
@@ -1658,7 +1658,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const bank = getOutputBank(isArutala
         ? arutalaAccount?.bank ?? ''
         : isMappedOps
-          ? mappedOpsRule?.bank ?? operationalEntry.bank ?? ''
+          ? mappedOpsRule?.bank ?? operationalEntry.bank ?? mappedOperationalAccount?.bank ?? ''
           : isMappedSalary
             ? selectedCustomMapping?.bank ?? operationalEntry.bank ?? ''
             : custom
@@ -1667,7 +1667,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const accountNumber = (isArutala
         ? arutalaAccount?.account_number ?? ''
         : isMappedOps
-          ? mappedOpsRule?.account_number ?? operationalEntry.accountNumber ?? ''
+          ? mappedOpsRule?.account_number ?? operationalEntry.accountNumber ?? mappedOperationalAccount?.accountNumber ?? ''
           : isMappedSalary
             ? selectedCustomMapping?.accountNumber ?? operationalEntry.accountNumber ?? ''
             : custom
@@ -1676,7 +1676,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const ownerName = (isArutala
         ? arutalaOwnerName
         : isMappedOps
-          ? mappedOpsRule?.owner_name ?? operationalEntry.ownerName ?? ''
+          ? mappedOpsRule?.owner_name ?? operationalEntry.ownerName ?? mappedOperationalAccount?.ownerName ?? ''
           : isMappedSalary
             ? selectedCustomMapping?.ownerName ?? operationalEntry.ownerName ?? ''
             : custom
@@ -2775,21 +2775,21 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const ownerName = isArutala
                               ? arutalaOwnerName
                               : isMappedOps
-                                ? mappedOpsRule?.owner_name ?? entry.ownerName
+                                ? mappedOpsRule?.owner_name ?? entry.ownerName ?? mapping?.ownerName ?? ''
                                 : custom
                                   ? (isMappedSalary ? selectedMapping?.ownerName : entry.ownerName) ?? ''
                                   : mapping?.ownerName ?? ''
                             const bank = isArutala
                               ? arutalaAccount?.bank ?? ''
                               : isMappedOps
-                                ? mappedOpsRule?.bank ?? entry.bank
+                                ? mappedOpsRule?.bank ?? entry.bank ?? mapping?.bank ?? ''
                                 : custom
                                   ? (isMappedSalary ? selectedMapping?.bank : entry.bank) ?? ''
                                   : mapping?.bank ?? ''
                             const accountNumber = isArutala
                               ? arutalaAccount?.account_number ?? ''
                               : isMappedOps
-                                ? mappedOpsRule?.account_number ?? entry.accountNumber
+                                ? mappedOpsRule?.account_number ?? entry.accountNumber ?? mapping?.accountNumber ?? ''
                                 : custom
                                   ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
                                   : mapping?.accountNumber ?? ''
