@@ -2033,11 +2033,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     .map(([label, complete]) => ({ label, complete }))
     .sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
 
-  function getHistorySnapshot() {
+  function getHistorySnapshot(): Record<string, unknown> | null {
     if (!activeTransaction || !selectedKitchen) return null
     return {
       kitchenId,
-      kitchenName: selectedKitchen.name,
+      kitchenName: selectedKitchen?.name ?? '',
       transactionDate: activeDate,
       transaction: activeTransaction,
       output,
@@ -2863,16 +2863,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           kitchenId={kitchenId}
           kitchenName={selectedKitchen.name}
           transactionDate={activeDate}
-          currentSnapshot={{
-            kitchenId,
-            kitchenName: selectedKitchen.name,
-            transactionDate: activeDate,
-            transaction: activeTransaction,
-            output,
-            totalRab,
-            totalOpsHarian,
-            totalOverall: sumOutputLines(() => true)
-          }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
