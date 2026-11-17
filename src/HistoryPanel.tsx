@@ -32,6 +32,7 @@ type Props = {
   kitchenName: string
   transactionDate: string
   onLoadSnapshot: (payload: Record<string, unknown>) => void
+  onStartChange: (payload: Record<string, unknown>, eventType: 'REVISI' | 'KEKURANGAN' | 'TAMBAHAN', selectedKeys: string[]) => void
   onClose: () => void
 }
 const money = (value: unknown) => new Intl.NumberFormat('id-ID').format(Number(value) || 0)
@@ -45,13 +46,15 @@ async function historyRequest<T>(token: string, body: Record<string, unknown>): 
   if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'HISTORY gagal dimuat.')
   return data as T
 }
-export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, onLoadSnapshot, onClose }: Props) {
+export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, onLoadSnapshot, onStartChange, onClose }: Props) {
   const [selectedDate, setSelectedDate] = useState(transactionDate)
   const [rows, setRows] = useState<HistoryRow[]>([])
   const [detail, setDetail] = useState<HistoryDetail | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [changeType, setChangeType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN'>('REVISI')
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const canEdit = role === 'admin' || Boolean(detail && !detail.locked)
 
   const load = useCallback(async () => {
@@ -97,6 +100,38 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   }
 
   const selectedEvent = useMemo(() => detail?.events ?? [], [detail])
+  const sourceTransaction = detail?.history.payload.transaction as Record<string, unknown> | undefined
+  const selectableEntries = useMemo(() => {
+    if (!sourceTransaction) return []
+    const entries: Array<{ key: string; label: string; amount: string }> = []
+    const rab = Array.isArray(sourceTransaction.rab) ? sourceTransaction.rab as Array<Record<string, unknown>> : []
+    rab.forEach(entry => entries.push({
+      key: 'rab:' + String(entry.accountId),
+      label: 'RAB · ' + String(entry.accountId),
+      amount: String(entry.amount ?? '')
+    }))
+    const sections = [
+      ['gas', 'GAS'],
+      ['operasional', 'Ops Harian'],
+      ['pencairan_harian', 'Pencairan harian'],
+      ['lain_lain', 'Lain-lain'],
+      ['arutala_lain_lain', 'Arutala']
+    ] as const
+    sections.forEach(([field, title]) => {
+      const rows = Array.isArray(sourceTransaction[field]) ? sourceTransaction[field] as Array<Record<string, unknown>> : []
+      rows.forEach(entry => {
+        const detailLabel = field === 'pencairan_harian'
+          ? (Array.isArray(entry.kinds) ? entry.kinds.join(' + ') : String(entry.category ?? 'Pencairan'))
+          : String(entry.need ?? entry.accountId ?? title)
+        entries.push({
+          key: field + ':' + String(entry.id),
+          label: title + ' · ' + detailLabel,
+          amount: String(entry.amount ?? '')
+        })
+      })
+    })
+    return entries
+  }, [sourceTransaction])
 
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
     <section className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl sm:p-5">
@@ -119,7 +154,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       </div> : <div className="mt-4 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{detail.history.title || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">Versi {detail.history.version} · {detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'}</p></div>
           <div className="flex flex-wrap gap-2">
-            {canEdit && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Muat ke Form Utama</button>}
+            {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Muat ke Form Utama</button>}
             {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali ke daftar</button>
           </div>
@@ -129,7 +164,24 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">Total Ops Harian</p><p className="mt-1 text-lg font-semibold">Rp {money(detail.history.payload.totalOpsHarian)}</p></div>
           <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">Total Keseluruhan</p><p className="mt-1 text-lg font-semibold">Rp {money(detail.history.payload.totalOverall)}</p></div>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-3"><h4 className="mb-2 text-xs font-semibold">Output snapshot</h4><pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{String(detail.history.payload.output ?? '')}</pre></div>
+        {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
+          <h4 className="text-xs font-semibold">Buat perubahan dari snapshot</h4>
+          <p className="mt-1 text-[11px] text-slate-400">Pilih jenis perubahan. Untuk Revisi dan Kekurangan, pilih transaksi yang akan diubah. Tambahan membuka form untuk membuat baris baru.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {(['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const).map(type => <button key={type} type="button" onClick={() => { setChangeType(type); setSelectedKeys([]) }} className={`rounded-lg border px-3 py-2 text-xs font-semibold ${changeType === type ? 'border-emerald-500 bg-emerald-900/50 text-emerald-100' : 'border-slate-700 text-slate-300'}`}>{type}</button>)}
+          </div>
+          {changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2">
+            {selectableEntries.map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
+              <input type="checkbox" checked={selectedKeys.includes(entry.key)} onChange={event => setSelectedKeys(current => event.target.checked ? [...current, entry.key] : current.filter(key => key !== entry.key))} />
+              <span className="min-w-0 flex-1">{entry.label}</span><span className="tabular-nums text-slate-400">{entry.amount}</span>
+            </label>)}
+            {!selectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada baris transaksi yang dapat dipilih.</p>}
+          </div>}
+          <div className="mt-3 flex justify-end">
+            <button type="button" disabled={busy || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => onStartChange(detail.history.payload, changeType, selectedKeys)} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Pilih dan lanjut ke Form Utama</button>
+          </div>
+        </section>}
+                <div className="rounded-xl border border-slate-800 bg-slate-900 p-3"><h4 className="mb-2 text-xs font-semibold">Output snapshot</h4><pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{String(detail.history.payload.output ?? '')}</pre></div>
         <div><h4 className="mb-2 text-xs font-semibold">Riwayat versi</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><button onClick={() => void copyEventOutput(event)} className="mt-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin {event.event_type === 'NORMAL' ? 'output awal' : 'output incremental'}</button></div>)}</div></div>
 
         {!canEdit && <p className="rounded-lg border border-amber-800/60 bg-amber-950/20 p-3 text-xs text-amber-200">HISTORY terkunci. Hanya Admin yang dapat mengubahnya.</p>}
