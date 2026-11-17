@@ -2749,6 +2749,18 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             totalOpsHarian,
             totalOverall: sumOutputLines(() => true)
           }}
+          onLoadSnapshot={(payload) => {
+            const source = payload.transaction as TransactionGroup | undefined
+            if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
+            const restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
+            const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
+            setKitchenId(restoredKitchenId)
+            setTransactions([restored])
+            setActiveTransactionId(1)
+            setHistoryOpen(false)
+            persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
+            setHistoryMessage('Snapshot Riwayat berhasil dimuat ke Form Utama.')
+          }}
           onClose={() => setHistoryOpen(false)}
         />
       )}
