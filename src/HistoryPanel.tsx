@@ -175,9 +175,9 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const activePayload = activeEvent?.snapshot.payload ?? detail?.history.payload
   const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
   const outputDiff = useMemo(() => {
-    if (!activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0 }
+    if (!activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0, highlights: [] as string[] }
     const currentLines = String(activeEvent.snapshot.payload?.output ?? '').split('\n')
-    if (activeEvent.event_type === 'NORMAL') return { text: currentLines.join('\n'), changedCount: 0 }
+    if (activeEvent.event_type === 'NORMAL') return { text: currentLines.join('\n'), changedCount: 0, highlights: [] as string[] }
     const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n') : []
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
@@ -222,6 +222,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         .sort((a, b) => b.score - a.score)[0]?.candidate
     }
     let changedCount = 0
+    const highlights: string[] = []
     const annotated = currentLines.map(line => {
       const current = parseLine(line)
       if (!current) return line
@@ -244,12 +245,15 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         return `${current.prefix} · ${money(before.amount)} + ${money(Math.max(0, current.amount - before.amount))}`
       }
       if (activeEvent.event_type === 'REVISI') {
+        const previousParts = before.detail.split(',').map(part => normalizeDetail(part)).filter(Boolean)
+        const addedParts = current.detail.split(',').map(part => part.trim()).filter(part => part && !previousParts.includes(normalizeDetail(part)))
+        highlights.push(...addedParts)
         return `${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`
       }
       return line
     })
     annotated[0] = `${activeEvent.event_type} - ${annotated[0] ?? ''}`
-    return { text: annotated.join('\n'), changedCount }
+    return { text: annotated.join('\n'), changedCount, highlights: [...new Set(highlights)] }
   }, [activeEvent, activeEventIndex, selectedEvent, detail])
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
@@ -362,7 +366,18 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </section>}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
           <div className="mb-2 flex items-center justify-between gap-3"><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div>
-          <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{outputDiff.text}</pre>
+          <div className="max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-slate-300">
+            {outputDiff.text.split('\n').map((line, lineIndex) => {
+              const terms = outputDiff.highlights.filter(term => line.includes(term)).sort((a, b) => b.length - a.length)
+              if (!terms.length) return <div key={lineIndex}>{line || ' '}</div>
+              const pattern = new RegExp('(' + terms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\          <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{outputDiff.text}</pre>')).join('|') + ')', 'gi')
+              return <div key={lineIndex}>{line.split(pattern).map((part, partIndex) =>
+                terms.some(term => term.toLocaleLowerCase('id-ID') === part.toLocaleLowerCase('id-ID'))
+                  ? <span key={partIndex} className="text-sky-200 underline decoration-sky-400 decoration-2 underline-offset-4">{part}</span>
+                  : part
+              )}</div>
+            })}
+          </div>
         </div>
         <div>
           <h4 className="mb-2 text-xs font-semibold">Riwayat</h4>
