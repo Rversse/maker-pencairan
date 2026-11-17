@@ -2068,6 +2068,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         const previous = existing.payload?.transaction as TransactionGroup | undefined
         if (!previous) throw new Error('Snapshot Riwayat tidak valid.')
         setHistoryChangeBase(existing.payload as Record<string, unknown>)
+        setHistorySaveType('REVISI')
         setHistorySelectedKeys([
           ...previous.rab.map(row => 'rab:' + row.accountId),
           ...(['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const).flatMap(field =>
@@ -2157,8 +2158,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         }
       }
       snapshot.transaction = nextTransaction
-      const mergedOutput = getTransactionOutput(nextTransaction).join('\\n')
-      const mergedLines = mergedOutput.split('\\n').slice(1).filter(line => line.trim())
+      const mergedOutput = getTransactionOutput(nextTransaction).join('\n')
+      const mergedLines = mergedOutput.split('\n').slice(1).filter(line => line.trim())
       const amountFromLine = (line: string) => {
         const separator = line.lastIndexOf(' · ')
         return separator < 0 ? 0 : Number(line.slice(separator + 3).replace(/\\D/g, '')) || 0
@@ -2913,11 +2914,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           <section className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
             <h3 className="text-sm font-bold">Simpan perubahan pencairan</h3>
             <p className="mt-1 text-xs text-slate-400">Pilih jenis perubahan sebelum membuat versi berikutnya.</p>
-            <label className="mt-3 block text-xs text-slate-300">Jenis perubahan
-              <select value={historySaveType} onChange={event => setHistorySaveType(event.target.value as typeof historySaveType)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">
-                <option value="REVISI">REVISI</option><option value="KEKURANGAN">KEKURANGAN</option><option value="TAMBAHAN">TAMBAHAN</option>
-              </select>
-            </label>
+            <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>
             <label className="mt-3 block text-xs text-slate-300">Catatan perubahan (opsional)
               <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder="Contoh: koreksi nominal transfer" />
             </label>
