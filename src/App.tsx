@@ -2955,14 +2955,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4">
           <section className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
             <h3 className="text-sm font-bold">Simpan perubahan pencairan</h3>
-            <p className="mt-1 text-xs text-slate-400">Pilih jenis perubahan sebelum membuat versi berikutnya.</p>
-            <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>
+            <p className="mt-1 text-xs text-slate-400">Periksa perubahan, lalu simpan dan salin output.</p>
+            <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>{historySaveType !== 'TAMBAHAN' && <p className="mt-2 text-xs text-slate-400">Transaksi terpilih: {historySelectedKeys.length}</p>}
             <label className="mt-3 block text-xs text-slate-300">Catatan perubahan (opsional)
               <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder="Contoh: koreksi nominal transfer" />
             </label>
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" disabled={historySaveBusy} onClick={() => setHistorySaveOpen(false)} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Batal</button>
-              <button type="button" disabled={historySaveBusy} onClick={() => void confirmHistorySave()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Simpan Versi dan Copy'}</button>
+              <button type="button" disabled={historySaveBusy} onClick={() => void confirmHistorySave()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Simpan dan Salin'}</button>
             </div>
           </section>
         </div>
