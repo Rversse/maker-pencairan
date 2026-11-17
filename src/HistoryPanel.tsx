@@ -38,7 +38,7 @@ type Props = {
 }
 const money = (value: unknown) => new Intl.NumberFormat('id-ID').format(Number(value) || 0)
 const formatDate = (value: string) => {
-    const match = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(value)
+  const match = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(value)
   if (!match) return value
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
   return `${match[3]}-${months[Number(match[2]) - 1] ?? match[2]}-${match[1]}`
@@ -93,7 +93,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       ? String(event.snapshot.payload?.output ?? '')
       : String(event.snapshot.delta?.incremental_output ?? '')
     if (!text) { setError('Tidak ada baris output baru pada perubahan ini.'); return }
-    try { await navigator.clipboard.writeText(text); setNotice('Output incremental berhasil disalin.') }
+    try { await navigator.clipboard.writeText(text); setNotice('Output berhasil disalin.') }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
   async function deleteHistory() {
@@ -181,7 +181,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <div className="mt-3 flex flex-wrap gap-2">
             {(['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const).map(type => <button key={type} type="button" data-option-button="true" data-selected={changeType === type} onClick={() => setChangeType(type)} className="rounded-lg border px-3 py-2 text-xs font-semibold">{type}</button>)}
           </div>
-          {changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2">
+          {changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.length}</p>
             {selectableEntries.map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
               <input type="checkbox" checked={selectedKeys.includes(entry.key)} onChange={event => setSelectedKeys(current => event.target.checked ? [...current, entry.key] : current.filter(key => key !== entry.key))} />
               <span className="min-w-0 flex-1">{entry.label}</span><span className="tabular-nums text-slate-300">Rp {entry.amount}</span>
