@@ -2055,6 +2055,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     try {
       const snapshot = getHistorySnapshot()
       if (!snapshot) return
+      if (historyChangeBase) {
+        setHistorySaveOpen(true)
+        setHistorySaveBusy(false)
+        return
+      }
       const { data, error } = await supabase.functions.invoke('maker-history', {
         body: { action: 'list', kitchen_id: kitchenId, date_from: activeDate, date_to: activeDate },
         headers: { Authorization: `Bearer ${token}` }
@@ -2957,8 +2962,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             <h3 className="text-sm font-bold">Simpan perubahan pencairan</h3>
             <p className="mt-1 text-xs text-slate-400">Periksa perubahan, lalu simpan dan salin output.</p>
             <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>{historySaveType !== 'TAMBAHAN' && <p className="mt-2 text-xs text-slate-400">Transaksi terpilih: {historySelectedKeys.length}</p>}
-            <label className="mt-3 block text-xs text-slate-300">Keterangan perubahan (opsional)
-              <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder="Contoh: koreksi rekening tujuan" />
+            <label className="mt-3 block text-xs text-slate-300">Catatan {historySaveType === 'REVISI' ? 'revisi' : historySaveType === 'KEKURANGAN' ? 'kekurangan' : 'tambahan'} (opsional)
+              <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder={historySaveType === 'REVISI' ? 'Apa yang direvisi?' : historySaveType === 'KEKURANGAN' ? 'Apa yang menjadi kekurangan?' : 'Apa yang ditambahkan?'} />
             </label>
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" disabled={historySaveBusy} onClick={() => setHistorySaveOpen(false)} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Batal</button>
@@ -2985,27 +2990,15 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             setHistorySaveSummary('')
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
-            let restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
-            if (eventType === 'KEKURANGAN') {
-              const selected = new Set(selectedKeys)
-              restored = {
-                ...restored,
-                rab: restored.rab.map(row => selected.has('rab:' + row.accountId) ? { ...row, amount: '' } : row),
-                gas: restored.gas.map(row => selected.has('gas:' + row.id) ? { ...row, amount: '' } : row),
-                operasional: restored.operasional.map(row => selected.has('operasional:' + row.id) ? { ...row, amount: '' } : row),
-                pencairan_harian: restored.pencairan_harian.map(row => selected.has('pencairan_harian:' + row.id) ? { ...row, amount: '' } : row),
-                lain_lain: restored.lain_lain.map(row => selected.has('lain_lain:' + row.id) ? { ...row, amount: '' } : row),
-                arutala_lain_lain: restored.arutala_lain_lain.map(row => selected.has('arutala_lain_lain:' + row.id) ? { ...row, amount: '' } : row)
-              }
-            }
+            const restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
             const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
             setKitchenId(restoredKitchenId)
             setTransactions([restored])
             setActiveTransactionId(1)
             setHistoryOpen(false)
-            setHistorySaveOpen(true)
+            setHistorySaveOpen(false)
             persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
-            setHistoryMessage(eventType + ' dipilih. Lanjutkan perubahan di Form Utama.')
+            setHistoryMessage(eventType + ' dipilih. Edit nominal di Form Utama, lalu tekan Copy dan Simpan.')
           }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined

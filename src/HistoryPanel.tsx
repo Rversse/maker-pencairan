@@ -64,7 +64,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [changeType, setChangeType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN'>('REVISI')
+  const [changeType, setChangeType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN' | null>(null)
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const canEdit = role === 'admin' || Boolean(detail && !detail.locked)
 
@@ -177,11 +177,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </div>
         {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
           <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
-          <p className="mt-1 text-[11px] text-slate-400">Pilih Revisi atau Kekurangan, lalu pilih transaksi yang akan diubah. Tambahan untuk membuat transaksi baru.</p>
+          <p className="mt-1 text-[11px] text-slate-400">Pilih jenis perubahan terlebih dahulu. Setelah itu pilih baris yang akan diubah, lalu lanjutkan ke Form Utama.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {(['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const).map(type => <button key={type} type="button" data-option-button="true" data-selected={changeType === type} onClick={() => setChangeType(type)} className="rounded-lg border px-3 py-2 text-xs font-semibold">{type}</button>)}
           </div>
-          {changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.length}</p>
+          {changeType && changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.length}</p>
             {selectableEntries.map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
               <input type="checkbox" checked={selectedKeys.includes(entry.key)} onChange={event => setSelectedKeys(current => event.target.checked ? [...current, entry.key] : current.filter(key => key !== entry.key))} />
               <span className="min-w-0 flex-1">{entry.label}</span><span className="tabular-nums text-slate-300">Rp {entry.amount}</span>
@@ -189,7 +189,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             {!selectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada baris transaksi yang dapat dipilih.</p>}
           </div>}
           <div className="mt-3 flex justify-end">
-            <button type="button" disabled={busy || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => onStartChange(detail.history.payload, changeType, selectedKeys)} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Pilih dan lanjut ke Form</button>
+            <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, changeType, selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Pilih dan lanjut ke Form</button>
           </div>
         </section>}
                 <div className="rounded-xl border border-slate-800 bg-slate-900 p-3"><h4 className="mb-2 text-xs font-semibold">Output saat ini</h4><pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{String(detail.history.payload.output ?? '')}</pre></div>
