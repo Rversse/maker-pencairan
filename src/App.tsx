@@ -2562,9 +2562,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         <button type="button" disabled={historyChangeActive} aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
-                            <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">GAS <span className="ml-1 text-[10px] text-slate-400">(maks. 2)</span></button>
-                            <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
                             <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
+                            <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">GAS</button>
+                            <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
                           </div>
                         )}
                       </div>
@@ -2582,14 +2582,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                       )
                       return (
                         <div className="mt-3 space-y-3">
-                        <div className="border-t border-slate-700/70 pt-3">
-                        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                          <div>
-                            <div className="text-xs font-bold uppercase tracking-wide text-cyan-200">GAS</div>
-                            <p className="mt-0.5 text-[10px] text-slate-400">Maksimal 2 transaksi per tanggal.</p>
-                          </div>
-                          <span className="text-[10px] text-slate-500">{(activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length}/2 transaksi</span>
-                        </div>
+                        <div className="pt-1">
                         {(activeTransaction.gas ?? []).length > 0 ? (
                           <div className="space-y-2">
                             {(activeTransaction.gas ?? []).map((entry) => {
