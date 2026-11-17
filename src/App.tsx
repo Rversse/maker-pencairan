@@ -2653,7 +2653,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           </div>
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
-                            const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
                             const custom = index > 0
                             const isArutala = Boolean(entry.useArutalaAccount)
                             const arutalaAccount = arutalaGasRule?.accounts
