@@ -117,24 +117,26 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   async function copyEventOutput(event: HistoryEvent) {
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
-    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
-    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
+    const currentLines = String(event.snapshot.payload?.output ?? '').split('\\n')
+    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\\n')
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      if (!match) return null
-      return { identity: match[1], amount: Number(match[2].replace(/\D/g, '')) || 0, prefix: match[1] }
+      return match ? { identity: match[1], amount: Number(match[2].replace(/\\D/g, '')) || 0, prefix: match[1] } : null
     }
-    const previousByIdentity = new Map(previousLines.map(line => [parseLine(line)?.identity, parseLine(line)]).filter(([key, value]) => Boolean(key && value)) as Array<[string, NonNullable<ReturnType<typeof parseLine>>]>)
-    const changed = currentLines.filter(line => {
+    const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
+    previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
+    const changed = currentLines.flatMap(line => {
       const current = parseLine(line)
-      if (!current) return false
+      if (!current) return []
       const before = previousByIdentity.get(current.identity)
-      if (event.event_type === 'TAMBAHAN') return !before
-      return Boolean(before && before.amount !== current.amount)
+      if (event.event_type === 'TAMBAHAN') return before ? [] : [`+ TAMBAHAN: ${line}`]
+      if (!before || before.amount === current.amount) return []
+      if (event.event_type === 'KEKURANGAN') return [`${current.prefix} · ${money(before.amount)} + ${money(current.amount - before.amount)}`]
+      if (event.event_type === 'REVISI') return [`${current.prefix} · ${money(before.amount)} → ${money(current.amount)}`]
+      return []
     })
-    const header = currentLines[0] ?? ''
-    const output = [header, ...changed].filter(Boolean).join('\n')
-    if (!changed.length) { setError('Tidak ditemukan baris nominal yang berubah pada event ini.'); return }
+    if (!changed.length) { setError('Tidak ditemukan baris yang berubah pada event ini.'); return }
+    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\\n')
     try { await navigator.clipboard.writeText(output); setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`) }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
