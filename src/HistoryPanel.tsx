@@ -31,6 +31,7 @@ type Props = {
   kitchenId: string
   kitchenName: string
   transactionDate: string
+  rabLabels: Record<string, string>
   onLoadSnapshot: (payload: Record<string, unknown>) => void
   onStartChange: (payload: Record<string, unknown>, eventType: 'REVISI' | 'KEKURANGAN' | 'TAMBAHAN', selectedKeys: string[]) => void
   onClose: () => void
@@ -46,7 +47,7 @@ async function historyRequest<T>(token: string, body: Record<string, unknown>): 
   if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'HISTORY gagal dimuat.')
   return data as T
 }
-export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, onLoadSnapshot, onStartChange, onClose }: Props) {
+export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, rabLabels, onLoadSnapshot, onStartChange, onClose }: Props) {
   const [selectedDate, setSelectedDate] = useState(transactionDate)
   const [rows, setRows] = useState<HistoryRow[]>([])
   const [detail, setDetail] = useState<HistoryDetail | null>(null)
@@ -107,7 +108,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const rab = Array.isArray(sourceTransaction.rab) ? sourceTransaction.rab as Array<Record<string, unknown>> : []
     rab.forEach(entry => entries.push({
       key: 'rab:' + String(entry.accountId),
-      label: 'RAB · ' + String(entry.accountId),
+      label: 'RAB · ' + (rabLabels[String(entry.accountId)] ?? String(entry.accountId)),
       amount: String(entry.amount ?? '')
     }))
     const sections = [
@@ -136,7 +137,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
     <section className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl sm:p-5">
       <header className="flex items-center justify-between gap-3 border-b border-slate-800 pb-3">
-        <div><h2 className="text-lg font-bold">HISTORY Pencairan</h2><p className="mt-1 text-xs text-slate-400">{kitchenName} · {transactionDate}</p></div>
+        <div><h2 className="text-lg font-bold">Riwayat Pencairan</h2><p className="mt-1 text-xs text-slate-400">{kitchenName} · {transactionDate}</p></div>
         <button onClick={onClose} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Tutup</button>
       </header>
       {error && <p role="alert" className="mt-3 rounded-lg border border-rose-800 bg-rose-950/40 p-3 text-xs text-rose-200">{error}</p>}
