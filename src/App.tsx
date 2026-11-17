@@ -1537,12 +1537,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
 
   function resetWorkspace() {
-    persistRecoveryWorkspace({
-      kitchenId,
-      activeTransactionId,
-      transactions
-    })
-
     const resetDate = toIsoDate(new Date())
     const nextTransaction = makeTransaction(
       1,
@@ -1558,7 +1552,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
     setCopyMessage('')
-    setHistoryMessage('Data direset. Data sebelumnya bisa dipulihkan.')
+    setHistoryMessage('Form berhasil direset. Snapshot tersimpan tetap tersedia di Riwayat.')
     window.setTimeout(() => setHistoryMessage(''), 1800)
   }
 
