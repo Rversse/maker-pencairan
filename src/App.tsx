@@ -2215,7 +2215,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         headers: { Authorization: `Bearer ${token}` }
       })
       if (changeError) throw new Error(changeError.message || 'Versi Riwayat gagal disimpan.')
-      await navigator.clipboard.writeText(historySaveType === 'REVISI' ? output : String(delta.incremental_output ?? ''))
+      await navigator.clipboard.writeText(String(delta.incremental_output ?? ''))
       setHistorySaveOpen(false)
       setHistorySaveSummary('')
       setCopyMessage(`${historySaveType} tersimpan dan output disalin`)
