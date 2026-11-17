@@ -66,7 +66,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [notice, setNotice] = useState('')
   const [changeType, setChangeType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN' | null>(null)
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
-  const [outputPreview, setOutputPreview] = useState<string | null>(null)
+  const [activeEventId, setActiveEventId] = useState<string | null>(null)
   const canEdit = role === 'admin' || Boolean(detail && !detail.locked)
 
   const load = useCallback(async () => {
@@ -86,7 +86,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     try {
       const result = await historyRequest<HistoryDetail & { ok: boolean }>(token, { action: 'get', draft_id: id })
       setDetail(result)
-      setOutputPreview(null)
+      setActiveEventId(null)
     } catch (err) { setError(err instanceof Error ? err.message : 'Detail Riwayat gagal dimuat.') }
     finally { setBusy(false) }
   }
@@ -95,12 +95,16 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       ? String(event.snapshot.payload?.output ?? '')
       : String(event.snapshot.delta?.incremental_output ?? '')
     if (!text) { setError('Tidak ada output untuk riwayat ini.'); return }
-    setOutputPreview(text)
+    setActiveEventId(event.id)
     setError('')
     setNotice('Output riwayat ditampilkan.')
   }
   async function copyOutput() {
-    const text = outputPreview ?? String(detail?.history.payload.output ?? '')
+    const text = activeEventId && activeEvent
+      ? (activeEvent.event_type === 'NORMAL'
+          ? String(activeEvent.snapshot.payload?.output ?? '')
+          : String(activeEvent.snapshot.delta?.incremental_output ?? ''))
+      : String(detail?.history.payload.output ?? '')
     if (!text) { setError('Tidak ada output untuk disalin.'); return }
     try { await navigator.clipboard.writeText(text); setNotice('Output berhasil disalin.') }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
@@ -120,6 +124,19 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   }
 
   const selectedEvent = useMemo(() => detail?.events ?? [], [detail])
+  const activeEvent = selectedEvent.find(event => event.id === activeEventId) ?? selectedEvent[selectedEvent.length - 1] ?? null
+  const activeEventIndex = activeEvent ? selectedEvent.findIndex(event => event.id === activeEvent.id) : -1
+  const activePayload = activeEvent?.snapshot.payload ?? detail?.history.payload
+  const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
+  const metric = (label: string, value: unknown, previous: unknown) => {
+    const currentValue = Number(value ?? 0) || 0
+    const previousValue = Number(previous ?? 0) || 0
+    const difference = currentValue - previousValue
+    const hasPrevious = Boolean(previousPayload)
+    const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-400'
+    const indicator = !hasPrevious ? 'Snapshot awal' : difference > 0 ? `↑ +Rp ${money(difference)}` : difference < 0 ? `↓ -Rp ${money(Math.abs(difference))}` : '= Tidak berubah'
+    return <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">{label}</p><p className="mt-1 text-lg font-semibold">Rp {money(currentValue)}</p><p className={`mt-1 text-[10px] font-semibold ${indicatorClass}`}>{indicator}</p></div>
+  }
   const sourceTransaction = detail?.history.payload.transaction as Record<string, unknown> | undefined
   const selectableEntries = useMemo(() => {
     if (!sourceTransaction) return []
@@ -185,10 +202,16 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali</button>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">Total RAB</p><p className="mt-1 text-lg font-semibold">Rp {money(detail.history.payload.totalRab)}</p></div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">Total Ops Harian</p><p className="mt-1 text-lg font-semibold">Rp {money(detail.history.payload.totalOpsHarian)}</p></div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">Total Keseluruhan</p><p className="mt-1 text-lg font-semibold">Rp {money(detail.history.payload.totalOverall)}</p></div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div><p className="text-[10px] uppercase tracking-wide text-slate-500">Snapshot aktif</p><p className="mt-1 text-xs font-semibold text-slate-100">{activeEvent?.event_type ?? 'NORMAL'} <span className="font-normal text-slate-400">· {activeEvent?.summary || 'Pencairan awal'}</span></p></div>
+            <span className="text-[10px] text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : 'Snapshot terbaru'}</span>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            {metric('Total RAB', activePayload?.totalRab, previousPayload?.totalRab)}
+            {metric('Total Ops Harian', activePayload?.totalOpsHarian, previousPayload?.totalOpsHarian)}
+            {metric('Total Keseluruhan', activePayload?.totalOverall, previousPayload?.totalOverall)}
+          </div>
         </div>
         {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
           <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
@@ -212,7 +235,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             <h4 className="text-xs font-semibold">Output</h4>
             <button type="button" onClick={() => void copyOutput()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin</button>
           </div>
-          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{outputPreview ?? String(detail.history.payload.output ?? '')}</pre>
+          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{activeEventId && activeEvent
+            ? (activeEvent.event_type === 'NORMAL'
+                ? String(activeEvent.snapshot.payload?.output ?? '')
+                : String(activeEvent.snapshot.delta?.incremental_output ?? ''))
+            : String(detail.history.payload.output ?? '')}</pre>
         </div>
         <div><h4 className="mb-2 text-xs font-semibold">Riwayat</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><button onClick={() => openEventOutput(event)} className="mt-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Buka</button></div>)}</div></div>
 
