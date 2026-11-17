@@ -884,6 +884,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [historySaveSummary, setHistorySaveSummary] = useState('')
   const [historyChangeBase, setHistoryChangeBase] = useState<Record<string, unknown> | null>(null)
   const [historySelectedKeys, setHistorySelectedKeys] = useState<string[]>([])
+  const historyChangeActive = Boolean(historyChangeBase && historySaveType !== 'TAMBAHAN')
+  const isHistoryEntryEnabled = (key: string) => !historyChangeActive || historySelectedKeys.includes(key)
+  const isHistoryRabEnabled = (accountId: string) => isHistoryEntryEnabled('rab:' + accountId)
+  const isHistoryRowEnabled = (field: string, id: number) => isHistoryEntryEnabled(field + ':' + id)
   const [historySaveBusy, setHistorySaveBusy] = useState(false)
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
@@ -1817,10 +1821,25 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     return mainLines
   }
 
-  const output =
-    activeTransaction
-      ? getTransactionOutput(activeTransaction).join('\n')
-      : ''
+  const outputTransaction = useMemo(() => {
+    if (!activeTransaction || !historyChangeActive) return activeTransaction
+    const enabled = new Set(historySelectedKeys)
+    const base = historyChangeBase?.transaction as TransactionGroup | undefined
+    if (!base) return activeTransaction
+    const next: TransactionGroup = {
+      ...activeTransaction,
+      rab: activeTransaction.rab.map(row => enabled.has('rab:' + row.accountId) ? row : (base.rab.find(item => item.accountId === row.accountId) ?? row)),
+      gas: (activeTransaction.gas ?? []).map(row => enabled.has('gas:' + row.id) ? row : ((base.gas ?? []).find(item => item.id === row.id) ?? row)),
+      operasional: (activeTransaction.operasional ?? []).map(row => enabled.has('operasional:' + row.id) ? row : ((base.operasional ?? []).find(item => item.id === row.id) ?? row)),
+      pencairan_harian: (activeTransaction.pencairan_harian ?? []).map(row => enabled.has('pencairan_harian:' + row.id) ? row : ((base.pencairan_harian ?? []).find(item => item.id === row.id) ?? row)),
+      lain_lain: (activeTransaction.lain_lain ?? []).map(row => enabled.has('lain_lain:' + row.id) ? row : ((base.lain_lain ?? []).find(item => item.id === row.id) ?? row)),
+      arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).map(row => enabled.has('arutala_lain_lain:' + row.id) ? row : ((base.arutala_lain_lain ?? []).find(item => item.id === row.id) ?? row)),
+    }
+    return next
+  }, [activeTransaction, historyChangeActive, historySelectedKeys, historyChangeBase])
+  const output = outputTransaction
+    ? getTransactionOutput(outputTransaction).join('\n')
+    : ''
   const outputDetailLines = output ? output.split('\n').slice(1).filter((line) => line.trim()) : []
   const outputLineCount = outputDetailLines.length
   const hasOutputAmount = (prefix: string, accountNumber: string, amount: string) => {
@@ -2419,6 +2438,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         const products = sortStrings(
                           rule.supplier?.product_types ?? []
                         )
+                        const historyEnabled = isHistoryRabEnabled(rule.account_id)
                         const customProducts = entry.productTypes
                           .filter((product) => !products.includes(product))
                           .slice(0, 3)
@@ -2452,6 +2472,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         data-option-button="true"
                                         data-selected={selected}
                                         aria-pressed={selected}
+                                        disabled={!historyEnabled}
                                         onClick={() =>
                                           toggleRabProduct(
                                             activeTransaction.id,
@@ -2479,7 +2500,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         [rule.account_id]: !current[rule.account_id]
                                       }))
                                     }
-                                    disabled={customProducts.length >= 3 && !customRabOpen[rule.account_id]}
+                                    disabled={!historyEnabled || (customProducts.length >= 3 && !customRabOpen[rule.account_id])}
                                     className="inline-flex h-9 items-center rounded-md border border-dashed border-sky-700 bg-sky-950/40 px-2.5 text-xs font-medium text-sky-200 transition hover:bg-sky-900/50 disabled:cursor-not-allowed disabled:opacity-40"
                                   >
                                     + Item Lain
@@ -2516,6 +2537,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               type="text"
                               inputMode="numeric"
                               value={formatNumber(entry.amount)}
+                              disabled={!historyEnabled}
                               onChange={(event) =>
                                 updateRabEntry(
                                   activeTransaction.id,
@@ -2564,6 +2586,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         <div className="mt-3 space-y-2">
                           <div className="text-[11px] font-bold uppercase tracking-wide text-cyan-200">Transaksi GAS</div>
                           {(activeTransaction.gas ?? []).map((entry) => {
+                            const historyEnabled = isHistoryRowEnabled('gas', entry.id)
                             const rule = arutalaGasRule
                             const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                             const bank = rule?.accounts?.bank ?? '-'
@@ -2575,10 +2598,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                   <div className="flex h-10 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-xs font-semibold text-slate-100">{bank}</div>
                                   <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
-                                  <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
-                                  <select value={entry.gasSize ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                  <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
-                                  <button type="button" onClick={() => removeGasEntry(entry.id)} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
+                                  <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
+                                  <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
+                                  <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
+                                  <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                 </div>
                               </div>
                             )
@@ -2627,6 +2650,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             <span></span>
                           </div>
                           {entries.map((entry, index) => {
+                            const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
+                            const historyEnabledForArutala = isHistoryRowEnabled('gas', entry.id) || historyEnabled
                             const custom = index > 0
                             const isArutala = Boolean(entry.useArutalaAccount)
                             const arutalaAccount = arutalaGasRule?.accounts
@@ -2668,6 +2693,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   ) : (
                                     <select
                                       value={selectedType}
+                                      disabled={!historyEnabled}
                                       onChange={(event) => {
                                         const nextType = event.target.value as SimpleEntry['operationalRuleType']
                                         const nextMapping = nextType
@@ -2697,12 +2723,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" value={ownerName} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" value={ownerName} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{ownerName || 'Mapping belum tersedia'}</span></div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <select value={entry.bank ?? ''} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-md border border-slate-700/90 bg-slate-950 px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
+                                    <select value={entry.bank ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="h-10 w-full min-w-0 cursor-pointer appearance-none rounded-md border border-slate-700/90 bg-slate-950 px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
                                       <option value="">Pilih bank</option>
                                       {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
                                     </select>
@@ -2710,7 +2736,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={bank || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" inputMode="numeric" value={entry.accountNumber} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" inputMode="numeric" value={entry.accountNumber} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={accountNumber || '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
                                   )}
@@ -2726,7 +2752,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   />
                                   {showVirtualAccount && (
                                     <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
-                                      <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
+                                      <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
                                       <span>VA</span>
                                     </label>
                                   )}
@@ -2734,7 +2760,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!custom ? !mapping : isArutala ? !arutalaAccount : isMappedSalary && !selectedMapping}
+                                    disabled={!historyEnabled || (!custom ? !mapping : isArutala ? !arutalaAccount : isMappedSalary && !selectedMapping)}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
@@ -2743,7 +2769,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <button
                                     type="button"
                                     onClick={() => removeOperationalEntry(entry.id)}
-                                    disabled={index === 0}
+                                    disabled={!historyEnabled || index === 0}
                                     title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
                                     className="h-10 w-full rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
@@ -2770,6 +2796,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa')
                           .map((entry) => {
+                            const historyEnabled = isHistoryRowEnabled('pencairan_harian', entry.id)
                             const rental = getSppgRental(selectedKitchen?.name ?? '', masterData)
                             return (
                               <div
@@ -2789,7 +2816,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!rental}
+                                    disabled={!historyEnabled || !rental}
                                     onChange={(event) =>
                                       updateDailyPaymentEntry(
                                         activeTransaction.id,
@@ -2832,6 +2859,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'gaji')
                           .map((entry) => {
+                            const historyEnabled = isHistoryRowEnabled('pencairan_harian', entry.id)
                             const mapping = getDailyPaymentMappingForKinds(
                               selectedKitchen?.name ?? '',
                               entry.kinds,
@@ -2867,7 +2895,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
-                                    disabled={!mapping}
+                                    disabled={!historyEnabled || !mapping}
                                     onChange={(event) =>
                                       updateDailyPaymentEntry(
                                         activeTransaction.id,
@@ -2928,8 +2956,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           ]))}
           onStartChange={(payload, eventType, selectedKeys) => {
             setHistoryChangeBase(payload)
-            setHistorySaveType(eventType)
             setHistorySelectedKeys(selectedKeys)
+            setHistorySaveType(eventType)
             setHistorySaveSummary('')
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
