@@ -2581,7 +2581,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         entry.operationalRuleType !== 'gaji_ahli_gizi'
                       )
                       return (
-                        <div className="mt-3 border-t border-slate-700/70 pt-3">
+                        <div className="mt-3 space-y-3">
+                        <div className="border-t border-slate-700/70 pt-3">
                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                           <div>
                             <div className="text-xs font-bold uppercase tracking-wide text-cyan-200">GAS</div>
