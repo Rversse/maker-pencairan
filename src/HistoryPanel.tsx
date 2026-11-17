@@ -100,7 +100,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     setNotice('Output riwayat ditampilkan.')
   }
   async function copyOutput() {
-    const text = activeEvent
+    const text = activeEventId && activeEvent
       ? (activeEvent.event_type === 'NORMAL'
           ? String(activeEvent.snapshot.payload?.output ?? '')
           : String(activeEvent.snapshot.delta?.incremental_output ?? ''))
@@ -235,7 +235,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             <h4 className="text-xs font-semibold">Output</h4>
             <button type="button" onClick={() => void copyOutput()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin</button>
           </div>
-          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{activeEvent
+          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{activeEventId && activeEvent
             ? (activeEvent.event_type === 'NORMAL'
                 ? String(activeEvent.snapshot.payload?.output ?? '')
                 : String(activeEvent.snapshot.delta?.incremental_output ?? ''))
