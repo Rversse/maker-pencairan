@@ -152,6 +152,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     })
     return entries
   }, [sourceTransaction])
+  const visibleSelectableEntries = useMemo(
+    () => changeType && changeType !== 'TAMBAHAN'
+      ? selectableEntries.filter(entry => Number(entry.amount.replace(/\\D/g, '')) > 0)
+      : selectableEntries,
+    [selectableEntries, changeType]
+  )
 
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
     <section className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl sm:p-5">
@@ -190,12 +196,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <div className="mt-3 flex flex-wrap gap-2">
             {(['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const).map(type => <button key={type} type="button" data-option-button="true" data-selected={changeType === type} onClick={() => setChangeType(type)} className="rounded-lg border px-3 py-2 text-xs font-semibold">{type}</button>)}
           </div>
-          {changeType && changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.length}</p>
-            {selectableEntries.filter(entry => Number(entry.amount.replace(/\\D/g, '')) > 0).map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
+          {changeType && changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.filter(key => visibleSelectableEntries.some(entry => entry.key === key)).length}</p>
+            {visibleSelectableEntries.map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
               <input type="checkbox" checked={selectedKeys.includes(entry.key)} onChange={event => setSelectedKeys(current => event.target.checked ? [...current, entry.key] : current.filter(key => key !== entry.key))} />
               <span className="min-w-0 flex-1">{entry.label}</span><span className="tabular-nums text-slate-300">Rp {entry.amount}</span>
             </label>)}
-            {!selectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada baris transaksi yang dapat dipilih.</p>}
+            {!visibleSelectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada transaksi bernilai di atas 0 yang dapat dipilih.</p>}
           </div>}
           <div className="mt-3 flex justify-end">
             <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, changeType, selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Lanjut ke Form</button>
