@@ -2742,7 +2742,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     {entry.b3Enabled ? 'Tutup B3' : '+ Tambah B3'}
                                   </button>
                                 </div>
-                                {(entry.b3Enabled || b3HistoryEnabled) && (
+                                {(entry.b3Enabled || (historyChangeActive && b3HistoryEnabled)) && (
                                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
                                     {products.map((product) => {
                                       const selected = (entry.b3ProductTypes ?? []).includes(product)
