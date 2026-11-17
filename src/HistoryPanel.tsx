@@ -35,7 +35,6 @@ type Props = {
   onLoadSnapshot: (payload: Record<string, unknown>) => void
   onClose: () => void
 }
-const EVENT_TYPES = ['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const
 const money = (value: unknown) => new Intl.NumberFormat('id-ID').format(Number(value) || 0)
 const dateTime = (value: string) => new Date(value).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })
 
@@ -47,25 +46,10 @@ async function historyRequest<T>(token: string, body: Record<string, unknown>): 
   if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'HISTORY gagal dimuat.')
   return data as T
 }
-function changedFields(before: Record<string, unknown>, after: Record<string, unknown>) {
-  const delta: Record<string, unknown> = {}
-  for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
-    if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) delta[key] = after[key] ?? null
-  }
-  if (Object.prototype.hasOwnProperty.call(delta, 'output')) {
-    const oldLines = new Set(String(before.output ?? '').split(/\r?\n/).filter(Boolean))
-    delta.incremental_output = String(after.output ?? '').split(/\r?\n/)
-      .filter(line => line.trim() && !oldLines.has(line)).join('\n')
-  }
-  return delta
-}
-
 export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, currentSnapshot, onLoadSnapshot, onClose }: Props) {
   const [selectedDate, setSelectedDate] = useState(transactionDate)
   const [rows, setRows] = useState<HistoryRow[]>([])
   const [detail, setDetail] = useState<HistoryDetail | null>(null)
-  const [eventType, setEventType] = useState<(typeof EVENT_TYPES)[number]>('REVISI')
-  const [summary, setSummary] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -99,19 +83,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     try { await navigator.clipboard.writeText(text); setNotice('Output incremental berhasil disalin.') }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
-  async function createHistory() {
-    setBusy(true); setError(''); setNotice('')
-    try {
-      const result = await historyRequest<{ history: HistoryRow }>(token, {
-        action: 'create', kitchen_id: kitchenId, transaction_date: transactionDate,
-        title: `Pencairan ${kitchenName} - ${transactionDate}`, payload: currentSnapshot
-      })
-      setNotice('HISTORY awal berhasil disimpan.')
-      await load()
-      await openDetail(result.history.id)
-    } catch (err) { setError(err instanceof Error ? err.message : 'Gagal menyimpan HISTORY.') }
-    finally { setBusy(false) }
-  }
   async function deleteHistory() {
     if (!detail || role !== "admin") return
     const confirmed = window.confirm("Hapus transaksi HISTORY ini? Transaksi tidak akan tampil lagi di daftar. Tindakan ini berlaku untuk status terkunci maupun belum terkunci.")
@@ -126,24 +97,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     finally { setBusy(false) }
   }
 
-  async function saveChange() {
-    if (!detail) return
-    const before = detail.history.payload
-    const delta = changedFields(before, currentSnapshot)
-    if (!Object.keys(delta).length) { setError('Tidak ada perubahan dari snapshot terakhir.'); return }
-    setBusy(true); setError(''); setNotice('')
-    try {
-      await historyRequest(token, {
-        action: 'change', draft_id: detail.history.id, expected_version: detail.history.version,
-        event_type: eventType, summary, delta, snapshot: currentSnapshot
-      })
-      setNotice(`${eventType} berhasil disimpan sebagai versi berikutnya.`)
-      setSummary('')
-      await openDetail(detail.history.id)
-      await load()
-    } catch (err) { setError(err instanceof Error ? err.message : 'Gagal menyimpan perubahan.') }
-    finally { setBusy(false) }
-  }
   const selectedEvent = useMemo(() => detail?.events ?? [], [detail])
 
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
