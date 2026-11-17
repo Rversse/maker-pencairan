@@ -296,6 +296,9 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         text: current.amountText,
         highlighted: activeEvent.event_type === 'REVISI' && amountChanged
       })
+      if (activeEvent.event_type === 'REVISI' && amountChanged) {
+        fragments.push(...plain(' (Nominal Awal: ' + money(before.amount) + ')'))
+      }
       if (
         (activeEvent.event_type === 'KEKURANGAN' || activeEvent.event_type === 'TAMBAHAN') &&
         amountDelta > 0
@@ -413,7 +416,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             </label>)}
             {!visibleSelectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada transaksi bernilai di atas 0 yang dapat dipilih.</p>}
           </div>}
-          <div className="mt-3 flex justify-end">
+          <div className="mt-3 flex items-center justify-between gap-2">
+            {changeType ? (
+              <button type="button" disabled={busy} onClick={() => { setChangeType(null); setSelectedKeys([]); setNotice('Pemilihan perubahan dibatalkan.'); setError('') }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 disabled:opacity-40">Batal</button>
+            ) : <span />}
             <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, changeType, selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Lanjut ke Form</button>
           </div>
         </section>}
