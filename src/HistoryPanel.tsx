@@ -86,7 +86,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     try {
       const result = await historyRequest<HistoryDetail & { ok: boolean }>(token, { action: 'get', draft_id: id })
       setDetail(result)
-      setActiveEventId(result.events?.[result.events.length - 1]?.id ?? null)
+      setActiveEventId(null)
     } catch (err) { setError(err instanceof Error ? err.message : 'Detail Riwayat gagal dimuat.') }
     finally { setBusy(false) }
   }
