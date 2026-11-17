@@ -117,11 +117,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   async function copyEventOutput(event: HistoryEvent) {
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
-    const currentLines = String(event.snapshot.payload?.output ?? '').split('\\n')
-    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\\n')
+    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
+    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      return match ? { identity: match[1], amount: Number(match[2].replace(/\\D/g, '')) || 0, prefix: match[1] } : null
+      return match ? { identity: match[1], amount: Number(match[2].replace(/\D/g, '')) || 0, prefix: match[1] } : null
     }
     const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
     previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
@@ -136,7 +136,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       return []
     })
     if (!changed.length) { setError('Tidak ditemukan baris yang berubah pada event ini.'); return }
-    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\\n')
+    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\n')
     try { await navigator.clipboard.writeText(output); setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`) }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
@@ -160,7 +160,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const activePayload = activeEvent?.snapshot.payload ?? detail?.history.payload
   const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
   const outputDiff = useMemo(() => {
-    if (!activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0 }
+    if (!activeEventId || !activeEvent) return { text: String(detail?.history.payload.output ?? ''), changedCount: 0 }
     const currentLines = String(activeEvent.snapshot.payload?.output ?? '').split('\n')
     const previousLines = activeEventIndex > 0 ? String(selectedEvent[activeEventIndex - 1]?.snapshot.payload?.output ?? '').split('\n') : []
     const parseLine = (line: string) => {
@@ -182,7 +182,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     })
     annotated[0] = `${activeEvent.event_type} - ${annotated[0] ?? ''}`
     return { text: annotated.join('\n'), changedCount }
-  }, [activeEvent, activeEventIndex, selectedEvent, detail])
+  }, [activeEvent, activeEventId, activeEventIndex, selectedEvent, detail])
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
