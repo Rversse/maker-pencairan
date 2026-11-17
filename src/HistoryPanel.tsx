@@ -167,7 +167,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
       return match ? { identity: match[1], amount: Number(match[2].replace(/\D/g, '')) || 0, prefix: match[1] } : null
     }
-    const previousByIdentity = new Map(previousLines.map(line => [parseLine(line)?.identity, parseLine(line)]).filter(([key, value]) => Boolean(key && value)) as Array<[string, NonNullable<ReturnType<typeof parseLine>>]>)
+    const previousByIdentity = new Map<string, NonNullable<ReturnType<typeof parseLine>>>()
+    previousLines.forEach(line => { const parsed = parseLine(line); if (parsed) previousByIdentity.set(parsed.identity, parsed) })
     let changedCount = 0
     const annotated = currentLines.map(line => {
       const current = parseLine(line)
