@@ -117,16 +117,36 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     setNotice(`Output lengkap dengan penanda ${event.event_type} ditampilkan.`)
   }
   async function copyEventOutput(event: HistoryEvent) {
+    const storedOutput = event.snapshot.delta?.incremental_output
+    if (typeof storedOutput === 'string') {
+      if (!storedOutput.trim()) {
+        setNotice(`Perubahan ${event.event_type} tersimpan. Tidak ada baris bernominal untuk disalin.`)
+        setError('')
+        return
+      }
+      try {
+        await navigator.clipboard.writeText(storedOutput)
+        setNotice(`Output ${event.event_type} berhasil disalin.`)
+        setError('')
+      } catch {
+        setError('Clipboard tidak tersedia di browser ini.')
+      }
+      return
+    }
+
+    // Compatibility fallback for older events created before incremental_output
+    // was stored. Compare complete output lines using their stable account/category
+    // identity; only the amount/detail delta is copied for additive event types.
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
-    const currentLines = String(event.snapshot.payload?.output ?? '').split('\\n')
-    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\\n')
+    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
+    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
     const parseLine = (line: string) => {
       const match = /^(.*) · ([0-9.,]+)$/.exec(line)
       if (!match) return null
       const prefix = match[1]
-      const identity = /^(?:RAB|RAB B3) : /.test(prefix) ? prefix.split(' · ')[0] : prefix
-      return { identity, amount: Number(match[2].replace(/\\D/g, '')) || 0, prefix }
+      const identity = prefix.split(' · ')[0]
+      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
     }
     const previousByIdentity = new Map<string, Array<NonNullable<ReturnType<typeof parseLine>>>>()
     previousLines.forEach(line => {
@@ -136,13 +156,13 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       matches.push(parsed)
       previousByIdentity.set(parsed.identity, matches)
     })
+
     const changed = currentLines.flatMap(line => {
       const current = parseLine(line)
       if (!current) return []
       const matches = previousByIdentity.get(current.identity) ?? []
       const before = matches.shift()
       previousByIdentity.set(current.identity, matches)
-
       if (!before) return [`${current.prefix} · ${money(current.amount)}`]
       if (event.event_type === 'REVISI') {
         return before.amount !== current.amount || before.prefix !== current.prefix
@@ -151,15 +171,26 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       }
       if (event.event_type === 'KEKURANGAN' || event.event_type === 'TAMBAHAN') {
         const difference = current.amount - before.amount
-        return difference > 0 ? [`${current.prefix} · ${money(difference)}`] : []
+        return difference > 0 ? [`${current.identity} · ${money(difference)}`] : []
       }
       return []
     })
-    if (!changed.length) { setError('Tidak ditemukan baris yang berubah pada event ini.'); return }
-    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\\n')
-    try { await navigator.clipboard.writeText(output); setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`) }
-    catch { setError('Clipboard tidak tersedia di browser ini.') }
+
+    if (!changed.length) {
+      setNotice(`Perubahan ${event.event_type} tersimpan. Tidak ada baris bernominal untuk disalin.`)
+      setError('')
+      return
+    }
+    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\n')
+    try {
+      await navigator.clipboard.writeText(output)
+      setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`)
+      setError('')
+    } catch {
+      setError('Clipboard tidak tersedia di browser ini.')
+    }
   }
+
   async function deleteHistory() {
     if (!detail || role !== "admin") return
     const confirmed = window.confirm("Hapus transaksi Riwayat ini? Transaksi tidak akan tampil lagi di daftar. Tindakan ini berlaku untuk status terkunci maupun belum terkunci.")
