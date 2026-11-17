@@ -2140,9 +2140,17 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
           const beforeRows = baseTransaction[field] ?? []
           const currentRows = currentTransaction[field] ?? []
-          const beforeIds = new Set(beforeRows.map(row => row.id))
-          const addedRows = currentRows.filter(row => !beforeIds.has(row.id))
-          ;(nextTransaction as unknown as Record<string, unknown>)[field] = [...beforeRows, ...addedRows]
+          const beforeById = new Map(beforeRows.map(row => [String(row.id), row]))
+          const addedRows = currentRows.filter(row => {
+            if (!isCompleteAmount(row.amount)) return false
+            const previous = beforeById.get(String(row.id))
+            return !previous || !isCompleteAmount(previous.amount)
+          })
+          const addedById = new Map(addedRows.map(row => [String(row.id), row]))
+          const mergedRows = beforeRows.map(row => addedById.get(String(row.id)) ?? row)
+          const knownIds = new Set(beforeRows.map(row => String(row.id)))
+          mergedRows.push(...addedRows.filter(row => !knownIds.has(String(row.id))))
+          ;(nextTransaction as unknown as Record<string, unknown>)[field] = mergedRows
           ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = addedRows
         }
         const baseDateBuckets = baseTransaction.arutala_by_date ?? {}
@@ -2153,16 +2161,27 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         for (const [date, currentBucket] of Object.entries(currentDateBuckets)) {
           const previousBucket = baseDateBuckets[date] ?? { gas: [], lain_lain: [] }
           const collectAddedRows = (previousRows: SimpleEntry[], currentRows: SimpleEntry[]) => {
-            const previousIds = new Set(previousRows.map(row => row.id))
-            return currentRows.filter(row => !previousIds.has(row.id))
+            const previousById = new Map(previousRows.map(row => [String(row.id), row]))
+            return currentRows.filter(row => {
+              if (!isCompleteAmount(row.amount)) return false
+              const previous = previousById.get(String(row.id))
+              return !previous || !isCompleteAmount(previous.amount)
+            })
+          }
+          const mergeBucketRows = (previousRows: SimpleEntry[], addedRows: SimpleEntry[]) => {
+            const addedById = new Map(addedRows.map(row => [String(row.id), row]))
+            const merged = previousRows.map(row => addedById.get(String(row.id)) ?? row)
+            const previousIds = new Set(previousRows.map(row => String(row.id)))
+            merged.push(...addedRows.filter(row => !previousIds.has(String(row.id))))
+            return merged
           }
           const newGasRows = collectAddedRows(previousBucket.gas ?? [], currentBucket.gas ?? [])
           const newOtherRows = collectAddedRows(previousBucket.lain_lain ?? [], currentBucket.lain_lain ?? [])
           addedBucketGas.push(...newGasRows)
           addedBucketOther.push(...newOtherRows)
           mergedDateBuckets[date] = {
-            gas: [...(previousBucket.gas ?? []), ...newGasRows],
-            lain_lain: [...(previousBucket.lain_lain ?? []), ...newOtherRows]
+            gas: mergeBucketRows(previousBucket.gas ?? [], newGasRows),
+            lain_lain: mergeBucketRows(previousBucket.lain_lain ?? [], newOtherRows)
           }
         }
         nextTransaction.arutala_by_date = mergedDateBuckets
