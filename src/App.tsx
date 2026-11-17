@@ -2282,7 +2282,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         headers: { Authorization: `Bearer ${token}` }
       })
       if (changeError) throw new Error(changeError.message || 'Versi Riwayat gagal disimpan.')
-      await navigator.clipboard.writeText(String(delta.incremental_output ?? ''))
       const savedTransaction = normalizeTransaction({ ...nextTransaction, id: activeTransaction.id }, activeDate)
       setTransactions([savedTransaction])
       setActiveTransactionId(savedTransaction.id)
@@ -2292,8 +2291,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       setHistorySaveType('REVISI')
       setHistorySaveOpen(false)
       setHistorySaveSummary('')
-      setCopyMessage(`${historySaveType} tersimpan dan output disalin`)
-      window.setTimeout(() => setCopyMessage(''), 2200)
+      try {
+        await navigator.clipboard.writeText(String(delta.incremental_output ?? ''))
+        setCopyMessage(`${historySaveType} tersimpan dan output disalin`)
+      } catch {
+        setCopyMessage(`${historySaveType} tersimpan, tetapi clipboard tidak tersedia`)
+      }
+      window.setTimeout(() => setCopyMessage(''), 3000)
     } catch (err) {
       setCopyMessage(err instanceof Error ? err.message : 'Gagal menyimpan versi Riwayat')
       window.setTimeout(() => setCopyMessage(''), 3000)
