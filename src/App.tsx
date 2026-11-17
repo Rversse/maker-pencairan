@@ -895,6 +895,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [historySaveOpen, setHistorySaveOpen] = useState(false)
   const [historySaveType, setHistorySaveType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN'>('REVISI')
   const [historySaveSummary, setHistorySaveSummary] = useState('')
+  const [historyChangeBase, setHistoryChangeBase] = useState<Record<string, unknown> | null>(null)
+  const [historySelectedKeys, setHistorySelectedKeys] = useState<string[]>([])
   const [historySaveBusy, setHistorySaveBusy] = useState(false)
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
@@ -2063,6 +2065,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         return transaction?.id === activeTransaction.id
       })
       if (existing) {
+        const previous = existing.payload?.transaction as TransactionGroup | undefined
+        if (!previous) throw new Error('Snapshot Riwayat tidak valid.')
+        setHistoryChangeBase(existing.payload as Record<string, unknown>)
+        setHistorySaveType('REVISI')
+        setHistorySelectedKeys([
+          ...previous.rab.map(row => 'rab:' + row.accountId),
+          ...(['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const).flatMap(field =>
+            (previous[field] ?? []).map(row => field + ':' + row.id)
+          )
+        ])
         setHistorySaveOpen(true)
         setHistorySaveBusy(false)
         return
@@ -2093,8 +2105,69 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     if (!activeTransaction || !output) return
     setHistorySaveBusy(true)
     try {
-      const snapshot = getHistorySnapshot()
-      if (!snapshot) return
+      const currentSnapshot = getHistorySnapshot()
+      if (!currentSnapshot) return
+      const snapshot: Record<string, unknown> = { ...currentSnapshot }
+      const basePayload = historyChangeBase
+      const baseTransaction = basePayload?.transaction as TransactionGroup | undefined
+      const currentTransaction = snapshot.transaction as TransactionGroup
+      if (!baseTransaction) throw new Error('Snapshot asal tidak ditemukan. Muat ulang transaksi dari Riwayat.')
+      const nextTransaction: TransactionGroup = { ...baseTransaction }
+      const amountWithDelta = (previous: string, entered: string) =>
+        String((Number(previous.replace(/\\D/g, '')) || 0) + (Number(entered.replace(/\\D/g, '')) || 0))
+      if (historySaveType === 'TAMBAHAN') {
+        for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
+          const beforeRows = baseTransaction[field] ?? []
+          const currentRows = currentTransaction[field] ?? []
+          const beforeIds = new Set(beforeRows.map(row => row.id))
+          ;(nextTransaction as unknown as Record<string, unknown>)[field] = [
+            ...beforeRows,
+            ...currentRows.filter(row => !beforeIds.has(row.id))
+          ]
+        }
+      } else {
+        for (const key of historySelectedKeys) {
+          const separator = key.indexOf(':')
+          const field = key.slice(0, separator)
+          const id = key.slice(separator + 1)
+          if (field === 'rab') {
+            const changed = currentTransaction.rab.find(row => row.accountId === id)
+            if (!changed) continue
+            const previous = baseTransaction.rab.find(row => row.accountId === id)
+            const merged = historySaveType === 'KEKURANGAN' && previous
+              ? { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
+              : changed
+            nextTransaction.rab = nextTransaction.rab.some(row => row.accountId === id)
+              ? nextTransaction.rab.map(row => row.accountId === id ? merged : row)
+              : [...nextTransaction.rab, merged]
+            continue
+          }
+          if (!['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'].includes(field)) continue
+          const section = field as 'gas' | 'operasional' | 'pencairan_harian' | 'lain_lain' | 'arutala_lain_lain'
+          const changedRows = currentTransaction[section] ?? []
+          const previousRows = baseTransaction[section] ?? []
+          const changed = changedRows.find(row => String(row.id) === id)
+          const previous = previousRows.find(row => String(row.id) === id)
+          if (!changed) continue
+          const merged = historySaveType === 'KEKURANGAN' && previous
+            ? { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
+            : changed
+          ;(nextTransaction as unknown as Record<string, unknown>)[section] = (nextTransaction[section] ?? []).map(row =>
+            String(row.id) === id ? merged : row
+          )
+        }
+      }
+      snapshot.transaction = nextTransaction
+      const mergedOutput = getTransactionOutput(nextTransaction).join('\n')
+      const mergedLines = mergedOutput.split('\n').slice(1).filter(line => line.trim())
+      const amountFromLine = (line: string) => {
+        const separator = line.lastIndexOf(' · ')
+        return separator < 0 ? 0 : Number(line.slice(separator + 3).replace(/\\D/g, '')) || 0
+      }
+      snapshot.output = mergedOutput
+      snapshot.totalRab = mergedLines.filter(line => line.startsWith('RAB : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
+      snapshot.totalOpsHarian = mergedLines.filter(line => !line.startsWith('RAB : ')).reduce((sum, line) => sum + amountFromLine(line), 0)
+      snapshot.totalOverall = mergedLines.reduce((sum, line) => sum + amountFromLine(line), 0)
       const { data: listData, error: listError } = await supabase.functions.invoke('maker-history', {
         body: { action: 'list', kitchen_id: kitchenId, date_from: activeDate, date_to: activeDate },
         headers: { Authorization: `Bearer ${token}` }
@@ -2841,11 +2914,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           <section className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
             <h3 className="text-sm font-bold">Simpan perubahan pencairan</h3>
             <p className="mt-1 text-xs text-slate-400">Pilih jenis perubahan sebelum membuat versi berikutnya.</p>
-            <label className="mt-3 block text-xs text-slate-300">Jenis perubahan
-              <select value={historySaveType} onChange={event => setHistorySaveType(event.target.value as typeof historySaveType)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs">
-                <option value="REVISI">REVISI</option><option value="KEKURANGAN">KEKURANGAN</option><option value="TAMBAHAN">TAMBAHAN</option>
-              </select>
-            </label>
+            <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>
             <label className="mt-3 block text-xs text-slate-300">Catatan perubahan (opsional)
               <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder="Contoh: koreksi nominal transfer" />
             </label>
@@ -2863,6 +2932,35 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           kitchenId={kitchenId}
           kitchenName={selectedKitchen.name}
           transactionDate={activeDate}
+          onStartChange={(payload, eventType, selectedKeys) => {
+            setHistoryChangeBase(payload)
+            setHistorySaveType(eventType)
+            setHistorySelectedKeys(selectedKeys)
+            setHistorySaveSummary('')
+            const source = payload.transaction as TransactionGroup | undefined
+            if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
+            let restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
+            if (eventType === 'KEKURANGAN') {
+              const selected = new Set(selectedKeys)
+              restored = {
+                ...restored,
+                rab: restored.rab.map(row => selected.has('rab:' + row.accountId) ? { ...row, amount: '' } : row),
+                gas: restored.gas.map(row => selected.has('gas:' + row.id) ? { ...row, amount: '' } : row),
+                operasional: restored.operasional.map(row => selected.has('operasional:' + row.id) ? { ...row, amount: '' } : row),
+                pencairan_harian: restored.pencairan_harian.map(row => selected.has('pencairan_harian:' + row.id) ? { ...row, amount: '' } : row),
+                lain_lain: restored.lain_lain.map(row => selected.has('lain_lain:' + row.id) ? { ...row, amount: '' } : row),
+                arutala_lain_lain: restored.arutala_lain_lain.map(row => selected.has('arutala_lain_lain:' + row.id) ? { ...row, amount: '' } : row)
+              }
+            }
+            const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
+            setKitchenId(restoredKitchenId)
+            setTransactions([restored])
+            setActiveTransactionId(1)
+            setHistoryOpen(false)
+            setHistorySaveOpen(true)
+            persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
+            setHistoryMessage(eventType + ' dipilih. Lanjutkan perubahan di Form Utama.')
+          }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
