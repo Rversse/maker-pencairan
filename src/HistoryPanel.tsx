@@ -154,7 +154,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   }, [sourceTransaction])
   const visibleSelectableEntries = useMemo(
     () => changeType && changeType !== 'TAMBAHAN'
-      ? selectableEntries.filter(entry => Number(entry.amount.replace(/\\D/g, '')) > 0)
+      ? selectableEntries.filter(entry => Number(entry.amount.replace(/\D/g, '')) > 0)
       : selectableEntries,
     [selectableEntries, changeType]
   )
