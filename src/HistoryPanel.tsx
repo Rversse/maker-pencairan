@@ -31,11 +31,9 @@ type Props = {
   kitchenId: string
   kitchenName: string
   transactionDate: string
-  currentSnapshot: Record<string, unknown>
   onLoadSnapshot: (payload: Record<string, unknown>) => void
   onClose: () => void
 }
-const EVENT_TYPES = ['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const
 const money = (value: unknown) => new Intl.NumberFormat('id-ID').format(Number(value) || 0)
 const dateTime = (value: string) => new Date(value).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })
 
@@ -47,25 +45,10 @@ async function historyRequest<T>(token: string, body: Record<string, unknown>): 
   if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'HISTORY gagal dimuat.')
   return data as T
 }
-function changedFields(before: Record<string, unknown>, after: Record<string, unknown>) {
-  const delta: Record<string, unknown> = {}
-  for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
-    if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) delta[key] = after[key] ?? null
-  }
-  if (Object.prototype.hasOwnProperty.call(delta, 'output')) {
-    const oldLines = new Set(String(before.output ?? '').split(/\r?\n/).filter(Boolean))
-    delta.incremental_output = String(after.output ?? '').split(/\r?\n/)
-      .filter(line => line.trim() && !oldLines.has(line)).join('\n')
-  }
-  return delta
-}
-
-export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, currentSnapshot, onLoadSnapshot, onClose }: Props) {
+export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, onLoadSnapshot, onClose }: Props) {
   const [selectedDate, setSelectedDate] = useState(transactionDate)
   const [rows, setRows] = useState<HistoryRow[]>([])
   const [detail, setDetail] = useState<HistoryDetail | null>(null)
-  const [eventType, setEventType] = useState<(typeof EVENT_TYPES)[number]>('REVISI')
-  const [summary, setSummary] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -99,19 +82,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     try { await navigator.clipboard.writeText(text); setNotice('Output incremental berhasil disalin.') }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
-  async function createHistory() {
-    setBusy(true); setError(''); setNotice('')
-    try {
-      const result = await historyRequest<{ history: HistoryRow }>(token, {
-        action: 'create', kitchen_id: kitchenId, transaction_date: transactionDate,
-        title: `Pencairan ${kitchenName} - ${transactionDate}`, payload: currentSnapshot
-      })
-      setNotice('HISTORY awal berhasil disimpan.')
-      await load()
-      await openDetail(result.history.id)
-    } catch (err) { setError(err instanceof Error ? err.message : 'Gagal menyimpan HISTORY.') }
-    finally { setBusy(false) }
-  }
   async function deleteHistory() {
     if (!detail || role !== "admin") return
     const confirmed = window.confirm("Hapus transaksi HISTORY ini? Transaksi tidak akan tampil lagi di daftar. Tindakan ini berlaku untuk status terkunci maupun belum terkunci.")
@@ -126,24 +96,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     finally { setBusy(false) }
   }
 
-  async function saveChange() {
-    if (!detail) return
-    const before = detail.history.payload
-    const delta = changedFields(before, currentSnapshot)
-    if (!Object.keys(delta).length) { setError('Tidak ada perubahan dari snapshot terakhir.'); return }
-    setBusy(true); setError(''); setNotice('')
-    try {
-      await historyRequest(token, {
-        action: 'change', draft_id: detail.history.id, expected_version: detail.history.version,
-        event_type: eventType, summary, delta, snapshot: currentSnapshot
-      })
-      setNotice(`${eventType} berhasil disimpan sebagai versi berikutnya.`)
-      setSummary('')
-      await openDetail(detail.history.id)
-      await load()
-    } catch (err) { setError(err instanceof Error ? err.message : 'Gagal menyimpan perubahan.') }
-    finally { setBusy(false) }
-  }
   const selectedEvent = useMemo(() => detail?.events ?? [], [detail])
 
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
@@ -156,7 +108,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       {notice && <p role="status" className="mt-3 rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-xs text-emerald-200">{notice}</p>}
       {!detail ? <div className="mt-4 space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3"><div><h3 className="text-sm font-semibold">Daftar pencairan harian</h3><label className="mt-2 block text-[11px] text-slate-400">Tanggal Riwayat<input type="date" value={selectedDate} onChange={event => setSelectedDate(event.target.value)} className="mt-1 block rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs text-slate-100" /></label></div>
-          <button disabled={busy || !kitchenId} onClick={() => void createHistory()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">+ Simpan permintaan baru</button>
         </div>
         {busy && <p className="text-xs text-slate-400">Memuat...</p>}
         {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada HISTORY untuk dapur dan tanggal ini.</p>}
@@ -180,7 +131,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3"><h4 className="mb-2 text-xs font-semibold">Output snapshot</h4><pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{String(detail.history.payload.output ?? '')}</pre></div>
         <div><h4 className="mb-2 text-xs font-semibold">Riwayat versi</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><button onClick={() => void copyEventOutput(event)} className="mt-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin {event.event_type === 'NORMAL' ? 'output awal' : 'output incremental'}</button></div>)}</div></div>
-        {canEdit && <div className="rounded-xl border border-slate-700 bg-slate-900/70 p-3"><h4 className="text-xs font-semibold">Simpan perubahan incremental</h4><div className="mt-2 flex flex-wrap gap-2"><select value={eventType} onChange={e => setEventType(e.target.value as typeof eventType)} className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs">{EVENT_TYPES.map(type => <option key={type}>{type}</option>)}</select><input value={summary} onChange={e => setSummary(e.target.value)} placeholder="Catatan perubahan (opsional)" className="min-w-[180px] flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-xs" /><button disabled={busy} onClick={() => void saveChange()} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold disabled:opacity-40">Simpan versi {detail.history.version + 1}</button></div><p className="mt-2 text-[10px] text-slate-500">Hanya field yang berubah dicatat sebagai delta. Batas kunci: {dateTime(detail.lock_at)}.</p></div>}
+
         {!canEdit && <p className="rounded-lg border border-amber-800/60 bg-amber-950/20 p-3 text-xs text-amber-200">HISTORY terkunci. Hanya Admin yang dapat mengubahnya.</p>}
       </div>}
     </section>
