@@ -66,6 +66,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [notice, setNotice] = useState('')
   const [changeType, setChangeType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN' | null>(null)
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
+  const [outputPreview, setOutputPreview] = useState<string | null>(null)
   const canEdit = role === 'admin' || Boolean(detail && !detail.locked)
 
   const load = useCallback(async () => {
@@ -85,14 +86,22 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     try {
       const result = await historyRequest<HistoryDetail & { ok: boolean }>(token, { action: 'get', draft_id: id })
       setDetail(result)
+      setOutputPreview(null)
     } catch (err) { setError(err instanceof Error ? err.message : 'Detail Riwayat gagal dimuat.') }
     finally { setBusy(false) }
   }
-  async function copyEventOutput(event: HistoryEvent) {
+  function openEventOutput(event: HistoryEvent) {
     const text = event.event_type === 'NORMAL'
       ? String(event.snapshot.payload?.output ?? '')
       : String(event.snapshot.delta?.incremental_output ?? '')
-    if (!text) { setError('Tidak ada baris output baru pada perubahan ini.'); return }
+    if (!text) { setError('Tidak ada output untuk riwayat ini.'); return }
+    setOutputPreview(text)
+    setError('')
+    setNotice('Output riwayat ditampilkan.')
+  }
+  async function copyOutput() {
+    const text = outputPreview ?? String(detail?.history.payload.output ?? '')
+    if (!text) { setError('Tidak ada output untuk disalin.'); return }
     try { await navigator.clipboard.writeText(text); setNotice('Output berhasil disalin.') }
     catch { setError('Clipboard tidak tersedia di browser ini.') }
   }
@@ -177,23 +186,29 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </div>
         {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
           <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
-          <p className="mt-1 text-[11px] text-slate-400">Pilih jenis perubahan terlebih dahulu. Setelah itu pilih baris yang akan diubah, lalu lanjutkan ke Form Utama.</p>
+          <p className="mt-1 text-[11px] text-slate-400">Pilih jenis perubahan dan klik lanjut ke form.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {(['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const).map(type => <button key={type} type="button" data-option-button="true" data-selected={changeType === type} onClick={() => setChangeType(type)} className="rounded-lg border px-3 py-2 text-xs font-semibold">{type}</button>)}
           </div>
           {changeType && changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.length}</p>
-            {selectableEntries.map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
+            {selectableEntries.filter(entry => Number(entry.amount.replace(/\\D/g, '')) > 0).map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
               <input type="checkbox" checked={selectedKeys.includes(entry.key)} onChange={event => setSelectedKeys(current => event.target.checked ? [...current, entry.key] : current.filter(key => key !== entry.key))} />
               <span className="min-w-0 flex-1">{entry.label}</span><span className="tabular-nums text-slate-300">Rp {entry.amount}</span>
             </label>)}
             {!selectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada baris transaksi yang dapat dipilih.</p>}
           </div>}
           <div className="mt-3 flex justify-end">
-            <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, changeType, selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Pilih dan lanjut ke Form</button>
+            <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, changeType, selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Lanjut ke Form</button>
           </div>
         </section>}
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-3"><h4 className="mb-2 text-xs font-semibold">Output saat ini</h4><pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{String(detail.history.payload.output ?? '')}</pre></div>
-        <div><h4 className="mb-2 text-xs font-semibold">Perubahan tersimpan</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><button onClick={() => void copyEventOutput(event)} className="mt-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin</button></div>)}</div></div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <h4 className="text-xs font-semibold">Output</h4>
+            <button type="button" onClick={() => void copyOutput()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Salin</button>
+          </div>
+          <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{outputPreview ?? String(detail.history.payload.output ?? '')}</pre>
+        </div>
+        <div><h4 className="mb-2 text-xs font-semibold">Riwayat</h4><div className="space-y-2">{selectedEvent.map(event => <div key={event.id} className="rounded-lg border border-slate-800 p-3"><div className="flex flex-wrap justify-between gap-2"><span className="text-xs font-semibold text-emerald-300">{event.event_type}</span><span className="text-[10px] text-slate-500">{dateTime(event.created_at)}</span></div><p className="mt-1 text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p><button onClick={() => openEventOutput(event)} className="mt-2 rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200">Buka</button></div>)}</div></div>
 
         {!canEdit && <p className="rounded-lg border border-amber-800/60 bg-amber-950/20 p-3 text-xs text-amber-200">Riwayat terkunci. Hanya Admin yang dapat mengubahnya.</p>}
       </div>}
