@@ -2140,7 +2140,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
           const beforeRows = baseTransaction[field] ?? []
           const currentRows = currentTransaction[field] ?? []
-          const beforeById = new Map(beforeRows.map(row => [String(row.id), row]))
           const enteredRows = currentRows.filter(row => isCompleteAmount(row.amount))
           const enteredById = new Map(enteredRows.map(row => [String(row.id), row]))
 
