@@ -369,12 +369,20 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <div className="max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-slate-300">
             {outputDiff.text.split('\n').map((line, lineIndex) => {
               const terms = outputDiff.highlights.filter(term => line.includes(term)).sort((a, b) => b.length - a.length)
-              if (!terms.length) return <div key={lineIndex}>{line || ' '}</div>
-              const pattern = new RegExp('(' + terms.map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\          <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-slate-300">{outputDiff.text}</pre>')).join('|') + ')', 'gi')
-              return <div key={lineIndex}>{line.split(pattern).map((part, partIndex) =>
-                terms.some(term => term.toLocaleLowerCase('id-ID') === part.toLocaleLowerCase('id-ID'))
-                  ? <span key={partIndex} className="text-sky-200 underline decoration-sky-400 decoration-2 underline-offset-4">{part}</span>
-                  : part
+              let fragments: Array<{ text: string; highlighted: boolean }> = [{ text: line || ' ', highlighted: false }]
+              for (const term of terms) {
+                fragments = fragments.flatMap(fragment => {
+                  if (fragment.highlighted || !fragment.text.includes(term)) return [fragment]
+                  const pieces = fragment.text.split(term)
+                  return pieces.flatMap((piece, index) => index < pieces.length - 1
+                    ? [{ text: piece, highlighted: false }, { text: term, highlighted: true }]
+                    : [{ text: piece, highlighted: false }])
+                })
+              }
+              return <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
+                fragment.highlighted
+                  ? <span key={partIndex} className="text-sky-200 underline decoration-sky-400 decoration-2 underline-offset-4">{fragment.text}</span>
+                  : fragment.text
               )}</div>
             })}
           </div>
