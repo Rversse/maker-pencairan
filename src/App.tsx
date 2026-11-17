@@ -2128,6 +2128,21 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           ;(nextTransaction as unknown as Record<string, unknown>)[field] = [...beforeRows, ...addedRows]
           ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = addedRows
         }
+        const baseDateBuckets = baseTransaction.arutala_by_date ?? {}
+        const currentDateBuckets = currentTransaction.arutala_by_date ?? {}
+        const mergedDateBuckets: Record<string, ArutalaDateBucket> = { ...baseDateBuckets }
+        for (const [date, currentBucket] of Object.entries(currentDateBuckets)) {
+          const previousBucket = baseDateBuckets[date] ?? { gas: [], lain_lain: [] }
+          const mergeAddedRows = (previousRows: SimpleEntry[], currentRows: SimpleEntry[]) => {
+            const previousIds = new Set(previousRows.map(row => row.id))
+            return [...previousRows, ...currentRows.filter(row => !previousIds.has(row.id))]
+          }
+          mergedDateBuckets[date] = {
+            gas: mergeAddedRows(previousBucket.gas ?? [], currentBucket.gas ?? []),
+            lain_lain: mergeAddedRows(previousBucket.lain_lain ?? [], currentBucket.lain_lain ?? [])
+          }
+        }
+        nextTransaction.arutala_by_date = mergedDateBuckets
       } else {
         incrementalTransaction.rab = []
         for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
