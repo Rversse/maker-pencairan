@@ -2113,9 +2113,30 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const amountWithDelta = (previous: string, entered: string) =>
         String((Number(previous.replace(/\D/g, '')) || 0) + (Number(entered.replace(/\D/g, '')) || 0))
       if (historySaveType === 'TAMBAHAN') {
+        const addedExistingRab: RabEntry[] = []
+        const mergedExistingRab = baseTransaction.rab.map(previous => {
+          const changed = currentTransaction.rab.find(row => row.accountId === previous.accountId)
+          if (!changed) return previous
+          const addedProducts = changed.productTypes.filter(product => !previous.productTypes.includes(product))
+          const addedAmount = Number(changed.amount.replace(/\D/g, '')) || 0
+          if (addedProducts.length > 0 && addedAmount <= 0) {
+            throw new Error('Isi nominal tambahan untuk item ' + addedProducts.join(', ') + ' terlebih dahulu.')
+          }
+          if (addedAmount <= 0) return previous
+          addedExistingRab.push({
+            ...changed,
+            productTypes: addedProducts.length > 0 ? addedProducts : changed.productTypes,
+            amount: String(addedAmount)
+          })
+          return {
+            ...previous,
+            productTypes: sortStrings([...previous.productTypes, ...addedProducts]),
+            amount: amountWithDelta(previous.amount, String(addedAmount))
+          }
+        })
         const newRab = currentTransaction.rab.filter(row => !baseTransaction.rab.some(previous => previous.accountId === row.accountId))
-        nextTransaction.rab = [...baseTransaction.rab, ...newRab]
-        incrementalTransaction.rab = newRab
+        nextTransaction.rab = [...mergedExistingRab, ...newRab]
+        incrementalTransaction.rab = [...addedExistingRab, ...newRab]
         for (const field of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
           const beforeRows = baseTransaction[field] ?? []
           const currentRows = currentTransaction[field] ?? []
@@ -2935,6 +2956,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
             const restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
+            if (eventType === 'TAMBAHAN') {
+              restored.rab = restored.rab.map(row => ({ ...row, amount: '' }))
+            }
             const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
             setKitchenId(restoredKitchenId)
             setTransactions([restored])
