@@ -297,15 +297,16 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         highlighted: activeEvent.event_type === 'REVISI' && amountChanged
       })
       if (activeEvent.event_type === 'REVISI' && amountChanged) {
-        fragments.push(...plain(' (Nominal Awal: ' + money(before.amount) + ')'))
+        fragments.push(...plain(' (Nominal Sebelumnya: ' + money(before.amount) + ')'))
       }
-      if (
-        (activeEvent.event_type === 'KEKURANGAN' || activeEvent.event_type === 'TAMBAHAN') &&
-        amountDelta > 0
-      ) {
+      if (activeEvent.event_type === 'KEKURANGAN' && amountDelta > 0) {
+        fragments.push(...plain(' (' + money(before.amount) + ' + '))
+        fragments.push({ text: money(amountDelta), highlighted: true })
+        fragments.push(...plain(')'))
+      } else if (activeEvent.event_type === 'TAMBAHAN' && amountDelta > 0) {
         fragments.push(...plain(' (+'))
         fragments.push({ text: money(amountDelta), highlighted: true })
-        fragments.push(...plain(activeEvent.event_type === 'KEKURANGAN' ? ' kekurangan)' : ' tambahan)'))
+        fragments.push(...plain(' tambahan)'))
       }
       return mergeFragments(fragments)
     })
