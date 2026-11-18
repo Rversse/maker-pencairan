@@ -186,7 +186,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     }
   }
 
-  async function copySnapshotOutput() {
+  async function copyActiveHistoryOutput() {
+    if (activeEvent && activeEvent.event_type !== 'NORMAL') {
+      await copyEventOutput(activeEvent)
+      return
+    }
     const output = String(activePayload?.output ?? '')
     if (!output.trim()) {
       setNotice('Snapshot ini belum memiliki output untuk disalin.')
@@ -195,7 +199,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     }
     try {
       await navigator.clipboard.writeText(output)
-      setNotice('Output snapshot berhasil disalin. Form Utama dan Riwayat tidak diubah.')
+      setNotice('Output snapshot awal berhasil disalin. Form Utama dan Riwayat tidak diubah.')
       setError('')
     } catch {
       setError('Clipboard tidak tersedia di browser ini.')
@@ -419,7 +423,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           </div>
         </section>}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div><button type="button" disabled={busy || !String(activePayload?.output ?? '').trim()} onClick={() => void copySnapshotOutput()} title="Salin output snapshot" className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">Salin Output</button></div>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div><button type="button" disabled={busy || (!String(activePayload?.output ?? '').trim() && !String(activeEvent?.snapshot.delta?.incremental_output ?? '').trim())} onClick={() => void copyActiveHistoryOutput()} title={activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin hanya perubahan pada riwayat ini' : 'Salin output snapshot awal'} className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">{activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin Perubahan' : 'Salin Output'}</button></div>
           <div className="max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-slate-300">
             {outputDiff.lines.map((fragments, lineIndex) => (
               <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
