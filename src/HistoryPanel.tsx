@@ -367,7 +367,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
   const eventLabel = (eventType: string) => {
-    if (eventType === 'NORMAL') return 'Pencairan'
+    if (eventType === 'NORMAL') return 'Pencairan Awal'
     if (eventType === 'REVISI') return 'Revisi'
     if (eventType === 'KEKURANGAN') return 'Kekurangan'
     if (eventType === 'TAMBAHAN') return 'Tambahan'
@@ -521,8 +521,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                 <div className="min-w-0">
                   <h3 className="text-base font-bold text-slate-100">{formatDate(detail.history.transaction_date)}</h3>
                   <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                    <span className={detail.locked && role !== 'admin' ? 'mp-history-status mp-history-status--locked' : 'mp-history-status mp-history-status--editable'}>
-                      {detail.locked && role !== 'admin' ? 'TERKUNCI' : 'DAPAT DIEDIT'}
+                    <span className={detail.locked ? 'mp-history-status mp-history-status--locked' : 'mp-history-status mp-history-status--editable'}>
+                      {detail.locked ? 'Terkunci' : 'Edit'}
                     </span>
                     <span className="text-[10px] text-slate-500">{lockCountdown}</span>
                   </div>
@@ -566,13 +566,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
               </div>
 
               <section className="mp-history-summary rounded-xl border border-slate-800/80 bg-slate-900/45 p-3 sm:p-4">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span className="mp-history-event-badge">{eventLabel(activeEvent?.event_type ?? 'NORMAL')}</span>
-                    {activeEvent && activeEvent.event_type !== 'NORMAL' && activeEvent.summary && <span className="min-w-0 truncate text-xs text-slate-400">{activeEvent.summary}</span>}
-                  </div>
-                  <span className="shrink-0 text-[10px] tabular-nums text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : dateTime(detail.history.updated_at)}</span>
-                </div>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   {metric('Total RAB', activePayload?.totalRab, previousPayload?.totalRab)}
                   {metric('Total Ops Harian', activePayload?.totalOpsHarian, previousPayload?.totalOpsHarian)}
@@ -582,10 +575,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
               <section className="mp-history-output overflow-hidden rounded-xl border border-slate-800/80 bg-slate-900/55">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 px-3 py-2.5 sm:px-4">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-sm font-semibold text-slate-100">Output</h4>
-                    {activeEvent && <span className="mp-history-event-badge">{eventLabel(activeEvent.event_type)}</span>}
-                  </div>
+                  <h4 className="text-sm font-semibold text-slate-100">Output</h4>
                   <div className="flex flex-wrap items-center gap-2">
                     {canEdit && (
                       <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload)} className="mp-history-primary-button rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
