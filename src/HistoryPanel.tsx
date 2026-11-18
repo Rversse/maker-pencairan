@@ -65,8 +65,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [changeType, setChangeType] = useState<'REVISI' | null>(null)
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [activeEventId, setActiveEventId] = useState<string | null>(null)
   const [clockNow, setClockNow] = useState(Date.now())
   useEffect(() => { const timer = window.setInterval(() => setClockNow(Date.now()), 1000); return () => window.clearInterval(timer) }, [])
@@ -93,8 +91,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       const result = await historyRequest<HistoryDetail & { ok: boolean }>(token, { action: 'get', draft_id: detail.history.id })
       setDetail(result)
       setActiveEventId(null)
-      setSelectedKeys([])
-      setChangeType(null)
       onRefreshSnapshot(result.history.payload)
       await load()
       setNotice('Snapshot terbaru berhasil dimuat ulang.')
@@ -378,53 +374,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     return <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">{label}</p><p className="mt-1 text-lg font-semibold">Rp {money(currentValue)}</p><p className={`mt-1 text-[10px] font-semibold ${indicatorClass}`}>{indicator}</p></div>
   }
   const sourceTransaction = detail?.history.payload.transaction as Record<string, unknown> | undefined
-  const selectableEntries = useMemo(() => {
-    if (!sourceTransaction) return []
-    const entries: Array<{ key: string; label: string; amount: string }> = []
-    const rab = Array.isArray(sourceTransaction.rab) ? sourceTransaction.rab as Array<Record<string, unknown>> : []
-    rab.forEach(entry => {
-      const accountLabel = rabLabels[String(entry.accountId)] ?? String(entry.accountId)
-      entries.push({
-        key: 'rab:' + String(entry.accountId),
-        label: 'RAB · ' + accountLabel,
-        amount: money(String(entry.amount ?? '').replace(/[^0-9]/g, ''))
-      })
-      if (Number(String(entry.b3Amount ?? '').replace(/[^0-9]/g, '')) > 0) {
-        entries.push({
-          key: 'rab_b3:' + String(entry.accountId),
-          label: 'RAB B3 · ' + accountLabel,
-          amount: money(String(entry.b3Amount ?? '').replace(/[^0-9]/g, ''))
-        })
-      }
-    })
-    const sections = [
-      ['gas', 'GAS'],
-      ['operasional', 'Ops Harian'],
-      ['pencairan_harian', 'Pencairan harian'],
-      ['lain_lain', 'Lain-lain'],
-      ['arutala_lain_lain', 'Arutala']
-    ] as const
-    sections.forEach(([field, title]) => {
-      const rows = Array.isArray(sourceTransaction[field]) ? sourceTransaction[field] as Array<Record<string, unknown>> : []
-      rows.forEach(entry => {
-        const detailLabel = field === 'pencairan_harian'
-          ? (Array.isArray(entry.kinds) ? entry.kinds.join(' + ') : String(entry.category ?? 'Pencairan'))
-          : String(entry.need ?? entry.accountId ?? title)
-        entries.push({
-          key: field + ':' + String(entry.id),
-          label: title + ' · ' + detailLabel,
-          amount: money(String(entry.amount ?? '').replace(/[^0-9]/g, ''))
-        })
-      })
-    })
-    return entries
-  }, [sourceTransaction])
-  const visibleSelectableEntries = useMemo(
-    () => changeType
-      ? selectableEntries.filter(entry => Number(entry.amount.replace(/\D/g, '')) > 0)
-      : selectableEntries,
-    [selectableEntries, changeType]
-  )
+
 
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
     <section className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl sm:p-5">
