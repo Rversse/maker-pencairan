@@ -3090,18 +3090,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     <div role="note" className="mt-2 rounded-lg border border-amber-700/50 bg-amber-950/20 px-3 py-2 text-xs leading-5 text-amber-100">
                       <span className="font-bold">Periksa kategori sebelum mengisi nominal.</span>
                     </div>
-                    <div className="mt-3">
-                      <div className="rounded-lg border border-sky-700/40 bg-sky-950/10 p-2.5">
-                        <h3 className="text-sm font-bold text-sky-200">Insentif Fasilitas SPPG</h3>
+                    <div className="mt-3 space-y-1.5">
+                      <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
+                        <span>Jenis pencairan</span>
+                        <span>Nama rekening</span>
+                        <span>Bank</span>
+                        <span>Nomor rekening</span>
+                        <span>Nominal</span>
                       </div>
-                      <div className="mt-2 space-y-1.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
-                          <span>Jenis pencairan</span>
-                          <span>Nama rekening</span>
-                          <span>Bank</span>
-                          <span>Nomor rekening</span>
-                          <span>Nominal</span>
-                        </div>
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'sewa' && isHistoryRowEnabled('pencairan_harian', entry.id))
                           .map((entry) => {
@@ -3144,14 +3140,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             )
                           })}
                       </div>
-                    </div>
 
-                    <div className="mt-4 border-t border-violet-500/30 pt-3">
-                      <div className="rounded-lg border border-violet-700/40 bg-violet-950/10 p-2.5">
-                        <h3 className="text-sm font-bold text-violet-200">Gaji dan Insentif PIC</h3>
-                      </div>
-
-                      {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
+                    {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
                         <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
                           Ada nominal dari data lama yang masih digabung. Nominal ini belum masuk ke output—cek pembagiannya, lalu pindahkan ke kolom yang sesuai.
                           {activeTransaction.legacy_gaji.map((legacy, index) => (
@@ -3162,14 +3152,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         </div>
                       )}
 
-                      <div className="mt-2 space-y-1.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
-                          <span>Jenis pencairan</span>
-                          <span>Nama rekening</span>
-                          <span>Bank</span>
-                          <span>Nomor rekening</span>
-                          <span>Nominal</span>
-                        </div>
+                      <div className="space-y-1.5">
                         {activeTransaction.pencairan_harian
                           .filter((entry) => entry.category === 'gaji' && isHistoryRowEnabled('pencairan_harian', entry.id))
                           .map((entry) => {
@@ -3226,7 +3209,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             )
                           })}
                       </div>
-                    </div>
                   </section>
 
 
