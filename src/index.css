@@ -1162,3 +1162,21 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-gas-flex-row,
   .mp-salary-flex-row { min-width: 0; }
 }
+
+
+/* Consistent alignment and readable text across payment detail fields.
+   Nominal inputs intentionally retain their normal left-aligned entry text. */
+.mp-gas-flex-row > :not(:nth-last-child(2)):not(:last-child),
+.mp-ops-flex-row > :not(:nth-last-child(2)):not(:last-child),
+.mp-salary-flex-row:not(.hidden) > :not(:last-child) {
+  text-align: center !important;
+  color: #e2e8f0 !important;
+}
+
+/* GAS quantity and size are editable controls; keep their text visually
+   consistent with the account fields instead of inheriting muted styling. */
+.mp-gas-flex-row > input:not(:nth-last-child(2)),
+.mp-gas-flex-row > select {
+  color: #e2e8f0 !important;
+  text-align: center !important;
+}
