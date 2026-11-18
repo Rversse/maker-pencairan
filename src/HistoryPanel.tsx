@@ -467,20 +467,9 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </div>
         {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
           <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
-          <p className="mt-1 text-[11px] text-slate-400">Pilih transaksi yang akan direvisi. Mode Kekurangan tersedia sebagai toggle pada masing-masing baris di Form.</p>
-          <div className="mt-3 flex justify-center"><button type="button" data-option-button="true" data-selected={changeType === 'REVISI'} onClick={() => setChangeType('REVISI')} className="rounded-lg border px-4 py-2 text-xs font-semibold">Revisi</button></div>
-          {changeType && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.filter(key => visibleSelectableEntries.some(entry => entry.key === key)).length}</p>
-            {visibleSelectableEntries.map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
-              <input type="checkbox" checked={selectedKeys.includes(entry.key)} onChange={event => setSelectedKeys(current => event.target.checked ? [...current, entry.key] : current.filter(key => key !== entry.key))} />
-              <span className="min-w-0 flex-1">{entry.label}</span><span className="tabular-nums text-slate-300">Rp {entry.amount}</span>
-            </label>)}
-            {!visibleSelectableEntries.length && <p className="p-2 text-xs text-slate-400">Tidak ada transaksi bernilai di atas 0 yang dapat dipilih.</p>}
-          </div>}
-          <div className="mt-3 flex items-center justify-between gap-2">
-            {changeType ? (
-              <button type="button" disabled={busy} onClick={() => { setChangeType(null); setSelectedKeys([]); setNotice('Pemilihan perubahan dibatalkan.'); setError('') }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 disabled:opacity-40">Batal</button>
-            ) : <span />}
-            <button type="button" disabled={busy || !changeType || selectedKeys.length === 0} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, 'REVISI', selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Lanjut ke Form</button>
+          <p className="mt-1 text-[11px] text-slate-400">Klik Revisi untuk memuat seluruh transaksi ke Form Utama. Ubah hanya nominal yang direvisi, aktifkan Kekurangan pada baris yang perlu ditambahkan, atau buat transaksi tambahan langsung dari Form.</p>
+          <div className="mt-3 flex justify-center">
+            <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload, 'REVISI', selectableEntries.map(entry => entry.key))} className="rounded-lg bg-emerald-700 px-5 py-2 text-xs font-semibold text-white disabled:opacity-40">Revisi</button>
           </div>
         </section>}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
