@@ -945,7 +945,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     const key = field + ':' + id
     if (historySelectedKeys.includes(key)) return true
     const base = historyChangeBase?.transaction as TransactionGroup | undefined
-    const baseRows = base?.[field as keyof TransactionGroup] as Array<{ id: number }> | undefined
+    const baseRows = (base as unknown as Record<string, Array<{ id: number }> | undefined> | undefined)?.[field]
     return !(baseRows ?? []).some(row => String(row.id) === String(id))
   }
   const [historySaveBusy, setHistorySaveBusy] = useState(false)
@@ -1955,7 +1955,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
   const outputTransaction = useMemo(() => {
     if (!activeTransaction || !historyChangeActive) return activeTransaction
-    const enabled = new Set(historySelectedKeys)
     const base = historyChangeBase?.transaction as TransactionGroup | undefined
     if (!base) return activeTransaction
     const next: TransactionGroup = {
@@ -2904,8 +2903,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <div className="space-y-2">
                             {(activeTransaction.gas ?? []).map((entry) => {
                               const historyEnabled = isHistoryRowEnabled('gas', entry.id)
-                              if (historyChangeActive && !historyEnabled && !isHistoryRowEnabled('gas', entry.id)) return null
-                              const rule = arutalaGasRule
+                                                            const rule = arutalaGasRule
                               const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                               const bank = rule?.accounts?.bank ?? '-'
                               const accountNumber = rule?.accounts?.account_number ?? '-'
@@ -2936,8 +2934,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           )}
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
-                            if (historyChangeActive && !historyEnabled && !isHistoryRowEnabled('operasional', entry.id)) return null
-                            const isMappedOps = entry.operationalRuleType === 'ops_harian'
+                                                        const isMappedOps = entry.operationalRuleType === 'ops_harian'
                             const custom = !isMappedOps && (index > 0 || Boolean(entry.customAccount))
                             const isArutala = Boolean(entry.useArutalaAccount)
                             const mappedOpsRule = isMappedOps
