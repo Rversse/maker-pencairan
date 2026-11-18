@@ -2486,7 +2486,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         if (JSON.stringify(before[key]) !== JSON.stringify(snapshot[key])) delta[key] = snapshot[key] ?? null
       }
 
-      delta.shortage_keys = [...shortageKeys]
       const incrementalOutput = getTransactionOutput(incrementalTransaction, 'REVISI').join('\n')
       delta.incremental_output = incrementalOutput
       if (shortageKeys.size > 0) delta.shortage_keys = [...shortageKeys]
