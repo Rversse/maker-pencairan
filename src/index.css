@@ -1159,7 +1159,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 }
 .mp-form-stack .mp-tag--gas { border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 15%) !important; }
 .mp-form-stack .mp-tag--ops { border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 11%) !important; }
-.mp-form-stack .mp-tag--arutala { border-color: rgb(100 116 139 / 35%) !important; border-left-color: #94a3b8 !important; background: rgb(51 65 85 / 28%) !important; color: #cbd5e1 !important; }
+.mp-form-stack .mp-tag--arutala { border-color: rgb(45 212 191 / 25%) !important; border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 12%) !important; color: #99f6e4 !important; }
 .mp-form-stack .mp-tag--custom {
   border-color: rgb(100 116 139 / 44%) !important;
   border-left-color: #64748b !important;
@@ -1169,11 +1169,11 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   cursor: pointer;
 }
 .mp-form-stack .mp-tag--salary {
-  border-color: rgb(100 116 139 / 35%) !important;
-  border-left-color: #64748b !important;
-  background: rgb(30 41 59 / 52%) !important;
-  color: #dbe5f2 !important;
-  letter-spacing: .025em;
+  border-color: rgb(45 212 191 / 25%) !important;
+  border-left-color: #2dd4bf !important;
+  background: rgb(13 148 136 / 12%) !important;
+  color: #99f6e4 !important;
+  letter-spacing: .045em;
 }
 .mp-form-stack .mp-tag--custom:focus {
   border-bottom-color: #2dd4bf !important;
@@ -1719,5 +1719,88 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-history-dialog button {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+
+/* ── Nominal sizing refinement · 203px fields ─────────────────────────── */
+.mp-form-stack .mp-rab-row {
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+}
+.mp-form-stack .mp-rab-nominal {
+  width: max-content;
+  max-width: 100%;
+  justify-self: end;
+  justify-content: flex-end !important;
+}
+.mp-form-stack .mp-rab-b3-nominal {
+  width: max-content;
+  max-width: 100%;
+  margin-left: auto;
+  justify-content: flex-end !important;
+}
+
+/* Left-side operational fields size to their content. The nominal track
+   uses remaining room as a spacer, with the amount input aligned at right. */
+.mp-form-stack .mp-gas-flex-row {
+  grid-template-columns: max-content max-content max-content max-content max-content max-content minmax(0, 1fr) 36px !important;
+}
+.mp-form-stack .mp-ops-flex-row {
+  grid-template-columns: max-content max-content max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
+}
+.mp-form-stack .mp-ops-flex-row.has-va {
+  grid-template-columns: max-content 54px max-content max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
+}
+.mp-form-stack .mp-ops-flex-row.is-va {
+  grid-template-columns: max-content 54px max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
+}
+.mp-form-stack .mp-ops-flex-row .mp-ops-note {
+  width: max-content;
+  min-width: 120px;
+  max-width: 280px;
+  field-sizing: content;
+}
+.mp-form-stack .mp-ops-flex-row .mp-payment-nominal,
+.mp-form-stack .mp-gas-flex-row .mp-payment-nominal,
+.mp-form-stack .mp-salary-flex-row .mp-payment-nominal {
+  width: 100%;
+  min-width: 0;
+  justify-content: flex-end !important;
+}
+.mp-form-stack .mp-salary-flex-row {
+  grid-template-columns: max-content max-content max-content max-content minmax(0, 1fr) !important;
+}
+
+/* Fixed preferred width; fields shrink only when a smaller viewport requires it. */
+.mp-form-stack .mp-rab-row .mp-rab-nominal > input,
+.mp-form-stack .mp-rab-row .mp-rab-b3-nominal > input,
+.mp-form-stack .mp-gas-flex-row .mp-payment-nominal > input,
+.mp-form-stack .mp-ops-flex-row .mp-payment-nominal > input,
+.mp-form-stack .mp-salary-flex-row .mp-payment-nominal > input {
+  width: 203px !important;
+  min-width: 0 !important;
+  max-width: min(203px, 100%) !important;
+  flex: 0 1 203px !important;
+  margin-left: auto !important;
+  text-align: center !important;
+}
+.mp-form-stack .mp-rab-nominal,
+.mp-form-stack .mp-rab-b3-nominal { gap: 7px; }
+.mp-form-stack .mp-payment-nominal > button { flex: 0 0 auto; }
+
+@media (max-width: 1023px) {
+  .mp-form-stack .mp-rab-row { grid-template-columns: minmax(0, 1fr) !important; }
+  .mp-form-stack .mp-rab-nominal,
+  .mp-form-stack .mp-rab-b3-nominal { justify-self: end; }
+  .mp-form-stack .mp-gas-flex-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
+  }
+  .mp-form-stack .mp-ops-flex-row,
+  .mp-form-stack .mp-ops-flex-row.has-va,
+  .mp-form-stack .mp-ops-flex-row.is-va {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) 36px !important;
+  }
+  .mp-form-stack .mp-salary-flex-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
