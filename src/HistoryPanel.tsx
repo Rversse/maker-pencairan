@@ -389,9 +389,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const indicator = !hasPrevious ? 'Snapshot awal' : difference > 0 ? `↑ +Rp ${money(difference)}` : difference < 0 ? `↓ -Rp ${money(Math.abs(difference))}` : '= Tidak berubah'
     return <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">{label}</p><p className="mt-1 text-lg font-semibold">Rp {money(currentValue)}</p><p className={`mt-1 text-[10px] font-semibold ${indicatorClass}`}>{indicator}</p></div>
   }
-  const sourceTransaction = detail?.history.payload.transaction as Record<string, unknown> | undefined
-
-
   return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
     <section className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl sm:p-5">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
