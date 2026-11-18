@@ -2791,7 +2791,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 )
                               }
                               placeholder="Nominal"
-                              className={`mp-rab-amount h-10 w-full max-w-[180px] min-w-0 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
+                              className={`mp-rab-amount h-10 w-full max-w-[180px] min-w-0 px-3 text-right text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
                             />{renderHistoryShortageButton('rab:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }))}</div>
                             {isWarungbitungArumikata && (
                               <div className="col-span-2 rounded-lg border border-amber-800/50 bg-amber-950/15 p-2">
@@ -2914,13 +2914,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
                                   <div className="mp-gas-flex-row grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[62px_minmax(130px,1.05fr)_72px_minmax(120px,0.95fr)_76px_108px_minmax(180px,1.6fr)_36px]">
-                                    <div className="mp-ops-kind flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-bold">GAS</div>
-                                    <div title={accountName} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
-                                    <div className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-xs font-semibold text-slate-100">{bank}</div>
-                                    <div title={accountNumber} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
-                                    <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="mp-ops-field h-10 min-w-0 px-2 text-xs text-white" />
-                                    <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field h-10 min-w-0 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                    <div className="flex min-w-0 items-center justify-end gap-1.5"><input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field h-10 w-full max-w-[180px] min-w-0 px-2 text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }))}</div>
+                                    <div className="mp-ops-kind mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-bold">GAS</div>
+                                    <div title={accountName} className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
+                                    <div className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank}</div>
+                                    <div title={accountNumber} className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
+                                    <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="mp-ops-field mp-payment-detail h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
+                                    <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field mp-payment-detail h-10 min-w-0 px-2 text-center text-xs text-slate-100"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
+                                    <div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field h-10 w-full max-w-[180px] min-w-0 px-2 text-right text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }))}</div>
                                     <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                   </div>
                                 </div>
@@ -2985,7 +2985,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   {isMappedOps ? (
                                     <div className="mp-ops-kind flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-bold">Ops Harian</div>
                                   ) : custom ? (isArutala ? (
-                                    <div className="mp-ops-field flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-teal-100">Koperasi Arutala</div>
+                                    <div className="mp-ops-field mp-payment-detail flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-teal-100">Koperasi Arutala</div>
                                   ) : (
                                     <select
                                       value={selectedType}
@@ -3009,38 +3009,38 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         })
                                       }}
                                       aria-label="Jenis transaksi tambahan Operasional Harian"
-                                      className="mp-ops-field h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-semibold text-slate-100 outline-none transition focus:border-teal-500"
+                                      className="mp-ops-field mp-payment-detail h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-semibold text-slate-100 outline-none transition focus:border-teal-500"
                                     >
                                       <option value="">Custom</option>
                                       <option value="gaji_akuntan">Gaji AK{!availableAccountant ? ' · Isi rekening manual' : ''}</option>
                                       <option value="gaji_ahli_gizi">Gaji AG{!availableNutritionist ? ' · Isi rekening manual' : ''}</option>
                                     </select>
                                   )) : (
-                                    <div className="mp-ops-field flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
+                                    <div className="mp-ops-field mp-payment-detail flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
                                   )}
                                   {showVirtualAccount && (
-                                    <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
+                                    <label className="mp-payment-detail flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
                                       <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-teal-400" />
                                       <span>VA</span>
                                     </label>
                                   )}
                                   {!(showVirtualAccount && entry.isVirtualAccount) && (custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" value={ownerName} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="mp-ops-field h-10 w-full min-w-0 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" value={ownerName} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="mp-ops-field mp-payment-detail h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
-                                    <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{ownerName || 'Mapping belum tersedia'}</span></div>
+                                    <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{ownerName || 'Mapping belum tersedia'}</span></div>
                                   ))}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <select value={entry.bank ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
+                                    <select value={entry.bank ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
                                       <option value="">Pilih bank</option>
                                       {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
                                     </select>
                                   ) : (
-                                    <div title={bank || '-'} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
+                                    <div title={bank || '-'} className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" inputMode="numeric" value={entry.accountNumber} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="mp-ops-field h-10 w-full min-w-0 px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" inputMode="numeric" value={entry.accountNumber} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="mp-ops-field mp-payment-detail h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
-                                    <div title={accountNumber || '-'} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
+                                    <div title={accountNumber || '-'} className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
                                   )}
                                   <input
                                     type="text"
@@ -3050,9 +3050,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value })}
                                     placeholder="Catatan"
                                     aria-label="Catatan Operasional Harian"
-                                    className={`mp-ops-field h-10 w-full min-w-0 ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
+                                    className={`mp-ops-field mp-payment-detail h-10 w-full min-w-0 text-center ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
-                                  <div className="flex min-w-0 items-center justify-end gap-1.5"><input
+                                  <div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
@@ -3060,7 +3060,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
-                                    className={`mp-ops-field h-10 w-full max-w-[180px] min-w-0 px-2.5 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`mp-ops-field h-10 w-full max-w-[180px] min-w-0 px-2.5 text-right text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryShortageButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }))}</div>
                                   <button
                                     type="button"
@@ -3103,7 +3103,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 key={entry.id}
                                 className={`mp-payment-row mp-salary-flex-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
                               >
-                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     Insentif Fasilitas SPPG
                                   </div>
                                   <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
@@ -3115,7 +3115,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                   </div>
-                                  <div className="flex min-w-0 items-center justify-end gap-1.5"><input
+                                  <div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
@@ -3129,7 +3129,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Insentif Fasilitas SPPG"
-                                    className={`h-10 w-full max-w-[180px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`h-10 w-full max-w-[180px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-right text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }))}</div>
                               </div>
                             )
