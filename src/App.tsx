@@ -2839,7 +2839,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         </button>
                                       )
                                     })}
-<div className="flex min-w-0 items-center gap-1.5"><input
+<div className="ml-auto flex min-w-0 items-center justify-end gap-1.5"><input
                                       type="text"
                                       inputMode="numeric"
                                       value={formatNumber(entry.b3Amount ?? '')}
@@ -2850,7 +2850,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       })}
                                       placeholder="Nominal B3"
                                       aria-label="Nominal RAB B3 Toko Arumikata"
-                                      className="h-9 w-[150px] rounded-md border border-amber-700/50 bg-slate-950 px-2.5 text-xs font-semibold text-white placeholder:text-slate-500"
+                                      className="h-10 w-full max-w-[180px] min-w-0 rounded-md border border-amber-700/50 bg-slate-950 px-2.5 text-sm font-semibold text-white placeholder:text-slate-500"
                                     />{renderHistoryShortageButton('rab_b3:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }))}</div>
                                   </div>
                                 )}
