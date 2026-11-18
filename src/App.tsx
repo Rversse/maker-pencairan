@@ -3086,7 +3086,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                       <span className="font-bold">Periksa kategori sebelum mengisi nominal.</span>
                     </div>
                     <div className="mt-3 space-y-1.5">
-                      <div className="hidden lg:mp-salary-flex-row grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
+                      <div className="mp-salary-flex-row hidden min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid">
                         <span>Jenis pencairan</span>
                         <span>Nama rekening</span>
                         <span>Bank</span>
