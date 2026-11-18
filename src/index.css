@@ -1804,3 +1804,106 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* ── Output copy + three-zone salary rows ──────────────────────────────── */
+.mp-output-copy {
+  cursor: copy;
+  user-select: text;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+.mp-output-copy:hover,
+.mp-output-copy:focus-visible {
+  border-color: rgb(45 212 191 / 64%) !important;
+  box-shadow: 0 0 0 2px rgb(45 212 191 / 9%), inset 0 1px 0 rgb(255 255 255 / 2%) !important;
+  outline: none;
+}
+.mp-output-copy:active {
+  background: rgb(13 148 136 / 10%) !important;
+}
+
+/* Desktop: category tag | account details (owner, bank, number) | nominal. */
+.mp-form-stack .mp-salary-flex-row {
+  grid-template-columns: max-content minmax(0, 1fr) 203px !important;
+  grid-template-areas: "tag account amount";
+  align-items: center !important;
+  column-gap: clamp(12px, 1.8vw, 24px) !important;
+  row-gap: 8px !important;
+}
+.mp-salary-flex-row > .mp-tag--salary {
+  grid-area: tag;
+  justify-self: start;
+}
+.mp-salary-account-details {
+  grid-area: account;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  width: 100%;
+}
+.mp-salary-account-details > .mp-salary-field {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  justify-self: stretch;
+}
+.mp-salary-account-details > .mp-salary-field:first-child,
+.mp-salary-account-details > .mp-salary-field:last-child {
+  overflow: hidden;
+}
+.mp-salary-flex-row > .mp-payment-nominal {
+  grid-area: amount;
+  width: max-content !important;
+  min-width: 0 !important;
+  max-width: 100%;
+  justify-self: end;
+  justify-content: flex-end !important;
+}
+.mp-salary-flex-row > .mp-payment-nominal > input {
+  width: 203px !important;
+  min-width: 203px !important;
+  max-width: 203px !important;
+  flex: 0 0 203px !important;
+  margin-left: 0 !important;
+  text-align: center !important;
+}
+
+/* Tablet and phone: tag and nominal share the top line; account details
+   occupy one readable row underneath without pushing the nominal away. */
+@media (max-width: 1023px) {
+  .mp-form-stack .mp-salary-flex-row {
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    grid-template-areas:
+      "tag amount"
+      "account account";
+    column-gap: 12px !important;
+    row-gap: 9px !important;
+  }
+  .mp-salary-flex-row > .mp-tag--salary { grid-area: tag; }
+  .mp-salary-account-details {
+    grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+    gap: 8px;
+  }
+  .mp-salary-flex-row > .mp-payment-nominal {
+    grid-area: amount;
+    justify-self: end;
+  }
+}
+@media (max-width: 639px) {
+  .mp-salary-account-details {
+    grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
+    gap: 6px;
+  }
+  .mp-salary-account-details > .mp-salary-field {
+    padding-inline: 6px !important;
+    font-size: 11px !important;
+  }
+  .mp-salary-flex-row > .mp-payment-nominal > input {
+    width: min(203px, 42vw) !important;
+    min-width: 0 !important;
+    max-width: 203px !important;
+    flex: 1 1 auto !important;
+  }
+}
