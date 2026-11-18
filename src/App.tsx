@@ -2652,7 +2652,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 )}
               </div>
 
-              <div className="mp-form-stack flex min-w-0 w-full max-w-[960px] flex-col gap-3">
+              <div className="mp-form-stack flex min-w-0 w-full max-w-[1120px] flex-col gap-3">
                 {kitchenId && activeTransaction && (
                 <>
                   <section className="mp-card w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
@@ -2920,7 +2920,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
                                     <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                    <div className="col-span-2 flex min-w-0 items-center gap-1.5"><input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={isHistoryShortage('gas:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'} aria-label="Nominal GAS" className="h-10 min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }))}</div>
+                                    <div className="flex min-w-0 items-center gap-1.5"><input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={isHistoryShortage('gas:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'} aria-label="Nominal GAS" className="h-10 min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }))}</div>
                                     <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                   </div>
                                 </div>
@@ -2984,7 +2984,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               <div key={entry.id} className={`${entries.length > 1 ? 'rounded-lg border border-slate-800 bg-slate-950/40 p-2' : ''} ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount
                                   ? entry.isVirtualAccount
-                                    ? 'lg:grid-cols-[62px_54px_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]'
+                                    ? 'lg:grid-cols-[62px_54px_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_minmax(190px,1.2fr)_30px]'
                                     : 'lg:grid-cols-[62px_54px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_minmax(190px,1.2fr)_30px]'
                                   : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
                                   {isMappedOps ? (
@@ -3057,7 +3057,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     aria-label="Catatan Operasional Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
-                                  <div className="col-span-2 flex min-w-0 items-center gap-1.5"><input
+                                  <div className="flex min-w-0 items-center gap-1.5"><input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
@@ -3089,7 +3089,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
                       <div className="mt-2 space-y-1.5">
-                        <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                           <span>Nama rekening</span>
                           <span>Bank</span>
                           <span>Nomor rekening</span>
@@ -3103,7 +3103,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             return (
                               <div
                                 key={entry.id}
-                                className={`grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
+                                className={`grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
                               >
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
