@@ -379,12 +379,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const difference = currentValue - previousValue
     const hasPrevious = Boolean(previousPayload)
     const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-500'
-    const indicator = !hasPrevious ? 'Nilai awal' : difference > 0 ? \`↑ +Rp \${money(difference)}\` : difference < 0 ? \`↓ -Rp \${money(Math.abs(difference))}\` : 'Tidak berubah'
+    const indicator = !hasPrevious ? 'Nilai awal' : difference > 0 ? `↑ +Rp ${money(difference)}` : difference < 0 ? `↓ -Rp ${money(Math.abs(difference))}` : 'Tidak berubah'
     return (
       <div className="mp-history-metric min-w-0 rounded-xl px-3 py-3">
         <p className="text-[10px] font-semibold uppercase tracking-[.08em] text-slate-400">{label}</p>
         <p className="mt-1 break-words text-lg font-bold tabular-nums text-slate-50">Rp {money(currentValue)}</p>
-        <p className={\`mt-1 text-[10px] font-semibold tabular-nums \${indicatorClass}\`}>{indicator}</p>
+        <p className={`mt-1 text-[10px] font-semibold tabular-nums ${indicatorClass}`}>{indicator}</p>
       </div>
     )
   }
