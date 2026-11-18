@@ -3085,9 +3085,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     })()}
                   </section>
 
-                  <div className="w-full min-w-0 space-y-3">
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
-                      <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
+                  <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-slate-950/35 p-3">
+                    <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
+                    <div role="note" className="mt-2 rounded-lg border border-amber-700/50 bg-amber-950/20 px-3 py-2 text-xs leading-5 text-amber-100">
+                      <span className="font-bold">Periksa kategori sebelum mengisi nominal.</span> Insentif Fasilitas SPPG berbeda dari Gaji Relawan dan Insentif PIC. Pastikan nominal dimasukkan ke kelompok yang sesuai.
+                    </div>
+                    <div className="mt-3 rounded-lg border border-sky-700/40 bg-sky-950/10 p-2.5">
+                      <h3 className="text-sm font-bold text-sky-200">Insentif Fasilitas SPPG</h3>
                       <div className="mt-2 space-y-1.5">
                         <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                           <span>Nama rekening</span>
@@ -3134,10 +3138,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             )
                           })}
                       </div>
-                    </section>
+                    </div>
 
-                    <section className="mp-card w-full min-w-0 rounded-xl border border-violet-600/60 bg-violet-950/10 p-3">
-                      <h2 className="text-base font-semibold text-white">Pencairan Gaji dan Insentif</h2>
+                    <div className="mt-4 border-t border-violet-500/30 pt-3">
+                      <div className="rounded-lg border border-violet-700/40 bg-violet-950/10 p-2.5">
+                        <h3 className="text-sm font-bold text-violet-200">Gaji dan Insentif SDM</h3>
+                        <p className="mt-1 text-[11px] text-slate-400">Gaji Relawan · Insentif PIC Sekolah · Insentif PIC Posyandu</p>
+                      </div>
 
                       {activeTransaction.legacy_gaji && activeTransaction.legacy_gaji.length > 0 && (
                         <div className="mt-3 rounded-lg border border-amber-700/50 bg-amber-950/20 p-3 text-xs leading-5 text-amber-100">
@@ -3214,10 +3221,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             )
                           })}
                       </div>
-                    </section>
-
-                    
-                  </div>
+                    </div>
+                  </section>
 
 
 
