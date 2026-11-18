@@ -1117,7 +1117,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-ops-flex-row:has(> label input:checked) {
     grid-template-columns: max-content 54px max-content max-content max-content minmax(0, 1fr) max-content 36px !important;
   }
-  .mp-ops-flex-row > :not(label):not(.mp-payment-nominal):not(:last-child) {
+  .mp-ops-flex-row > :not(input):not(label):not(.mp-payment-nominal):not(:last-child) {
     width: max-content !important;
     max-width: 18rem;
     min-width: 0;
