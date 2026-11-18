@@ -3101,18 +3101,18 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             return (
                               <div
                                 key={entry.id}
-                                className={`grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
+                                className={`mp-payment-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
                               >
-                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     Insentif Fasilitas SPPG
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div title={rental?.bank ?? '-'} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div title={rental?.bank ?? '-'} className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     {rental?.bank ?? '-'}
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                   </div>
                                   <div className="flex min-w-0 items-center justify-end gap-1.5"><input
@@ -3164,23 +3164,23 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                             return (
                               <div key={entry.id} className={!historyEnabled ? 'opacity-45' : ''}>
-                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
+                                <div className="mp-payment-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                                   <div
                                     title={label}
-                                    className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100"
+                                    className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
                                   >
                                     <span title={label} className="truncate">{label}</span>
                                   </div>
                                   <div
                                     title={mapping?.ownerName ?? 'Mapping belum tersedia'}
-                                    className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100"
+                                    className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
                                   >
                                     <span title={mapping?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     {mapping?.bank ?? '-'}
                                   </div>
-                                  <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                                   </div>
                                   <div className="flex min-w-0 items-center justify-end gap-1.5"><input
