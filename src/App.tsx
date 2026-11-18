@@ -2692,7 +2692,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         return (
                           <div
                             key={rule.account_id}
-                            className={`grid min-w-0 grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(220px,auto)] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3 ${!historyEnabled ? "opacity-45" : ""}`}
+                            className={`mp-rab-row grid min-w-0 grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(220px,auto)] items-center gap-2 p-2.5 sm:gap-3 ${!historyEnabled ? "opacity-45" : ""}`}
                           >
                             <div className="min-w-0">
                               <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
@@ -2725,7 +2725,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                           )
                                         }
                                         className={[
-                                          'inline-flex h-9 items-center rounded-md border px-2.5 text-xs font-medium transition',
+                                          'mp-rab-choice inline-flex h-9 items-center rounded-md border px-2.5 text-xs font-medium transition',
                                           selected
                                             ? 'border-emerald-500 bg-emerald-600 text-white'
                                             : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
@@ -2745,7 +2745,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       }))
                                     }
                                     disabled={!historyEnabled || (customProducts.length >= 3 && !customRabOpen[rule.account_id])}
-                                    className="inline-flex h-9 items-center rounded-md border border-dashed border-sky-700 bg-sky-950/40 px-2.5 text-xs font-medium text-sky-200 transition hover:bg-sky-900/50 disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="mp-rab-add inline-flex h-9 items-center rounded-md border border-dashed px-2.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
                                   >
                                     + Item Lain
                                   </button>
@@ -2791,7 +2791,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 )
                               }
                               placeholder="Nominal"
-                              className={`h-10 w-full max-w-[180px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
+                              className={`mp-rab-amount h-10 w-full max-w-[180px] min-w-0 px-3 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
                             />{renderHistoryShortageButton('rab:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }))}</div>
                             {isWarungbitungArumikata && (
                               <div className="col-span-2 rounded-lg border border-amber-800/50 bg-amber-950/15 p-2">
@@ -2850,7 +2850,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       })}
                                       placeholder="Nominal B3"
                                       aria-label="Nominal RAB B3 Toko Arumikata"
-                                      className="h-10 w-full max-w-[180px] min-w-0 rounded-md border border-amber-700/50 bg-slate-950 px-2.5 text-sm font-semibold text-white placeholder:text-slate-500"
+                                      className="mp-rab-amount h-10 w-full max-w-[180px] min-w-0 px-2.5 text-sm font-semibold text-white placeholder:text-slate-500"
                                     />{renderHistoryShortageButton('rab_b3:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }))}</div>
                                   </div>
                                 )}
@@ -2913,7 +2913,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               const accountNumber = rule?.accounts?.account_number ?? '-'
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
-                                  <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(110px,0.85fr)_minmax(130px,1.05fr)_72px_minmax(120px,0.95fr)_76px_108px_minmax(250px,1.6fr)_36px]">
+                                  <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[62px_minmax(130px,1.05fr)_72px_minmax(120px,0.95fr)_76px_108px_minmax(180px,1.6fr)_36px]">
                                     <div className="mp-ops-kind flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-bold">GAS</div>
                                     <div title={accountName} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-xs font-semibold text-slate-100">{bank}</div>
