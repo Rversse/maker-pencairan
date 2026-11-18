@@ -831,3 +831,73 @@ main button[data-option-button='true'][data-selected='true']:not(:disabled) {
 @media (max-width: 639px) {
   .mp-payment-row { padding: 10px 0; }
 }
+
+
+/* RAB ledger: flatten supplier cards and give choices/amounts a consistent rhythm. */
+.mp-rab-row {
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 30%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.mp-rab-row:last-child { border-bottom-color: transparent !important; }
+.mp-rab-choice {
+  border-color: rgb(100 116 139 / 42%) !important;
+  background: rgb(15 23 42 / 74%) !important;
+  color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+.mp-rab-choice[data-selected='true'] {
+  border-color: rgb(16 185 129 / 78%) !important;
+  background: linear-gradient(145deg, #047857, #065f46) !important;
+  color: #ecfdf5 !important;
+}
+.mp-rab-choice:hover:not(:disabled) {
+  border-color: rgb(45 212 191 / 78%) !important;
+  background: rgb(13 148 136 / 18%) !important;
+  color: #f0fdfa !important;
+}
+.mp-rab-add {
+  border-color: rgb(56 189 248 / 48%) !important;
+  background: rgb(2 132 199 / 9%) !important;
+  color: #bae6fd !important;
+}
+.mp-rab-add:hover:not(:disabled) {
+  border-color: rgb(56 189 248 / 82%) !important;
+  background: rgb(2 132 199 / 20%) !important;
+  color: #e0f2fe !important;
+}
+.mp-rab-amount {
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 58%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.mp-rab-amount:focus {
+  border-bottom-color: #2dd4bf !important;
+  box-shadow: 0 1px 0 rgb(45 212 191 / 70%) !important;
+}
+.mp-rab-amount:disabled {
+  background: rgb(15 23 42 / 42%) !important;
+  color: rgb(148 163 184 / 68%) !important;
+}
+.mp-static-field {
+  background: rgb(15 23 42 / 38%) !important;
+  border-radius: 5px !important;
+}
+.mp-card .mp-ops-row .mp-ops-field:not(input):not(select):not(textarea) {
+  background: rgb(15 23 42 / 34%) !important;
+  border-radius: 5px !important;
+}
+main input:disabled,
+main select:disabled,
+main textarea:disabled,
+main input[readonly],
+main textarea[readonly] {
+  background: rgb(15 23 42 / 42%) !important;
+}
+@media (max-width: 639px) {
+  .mp-rab-row { padding-inline: 2px !important; }
+}
