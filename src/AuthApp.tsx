@@ -118,8 +118,8 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-slate-700/80 bg-slate-900/90 p-6 shadow-2xl sm:p-8">
+    <main className="mp-auth-screen flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
+      <div className="mp-auth-card w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/85 p-6 shadow-xl sm:p-8">
         <div className="mb-7 text-center">
           <p className="text-lg font-bold tracking-tight text-white">Maker Pencairan</p>
           <h1 className="mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
@@ -188,8 +188,8 @@ function ChangePasswordScreen({ onSave }: { onSave: (password: string, confirmPa
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-amber-700/50 bg-slate-900 p-6 shadow-2xl sm:p-8">
+    <main className="mp-auth-screen flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
+      <div className="mp-auth-card w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/85 p-6 shadow-xl sm:p-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-300">Keamanan akun</p>
         <h1 className="mt-2 text-2xl font-bold">Buat password baru</h1>
         
@@ -270,8 +270,8 @@ export default function AuthApp() {
   if (auth.mustChange) return <ChangePasswordScreen onSave={changePassword} />
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5">
+    <div className="mp-app-shell min-h-screen bg-slate-950 text-white">
+      <header className="mp-app-header sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl"><div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-3 py-3 sm:px-5">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-white">{auth.user.role === 'admin' ? 'Administrator' : auth.user.display_name.replace(/^Akuntan\s+/i, '')}</p>
           {auth.user.role === 'accountant' && <p className="text-[11px] uppercase tracking-wider text-slate-500">Akuntan</p>}
@@ -285,7 +285,7 @@ export default function AuthApp() {
           )}
           <button type="button" onClick={() => void logout()} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300">Keluar</button>
         </div>
-      </div>
+      </div></header>
       {auth.user.role === 'admin' ? (
         <>
           <div className={view === 'workspace' ? '' : 'hidden'}>

@@ -171,13 +171,13 @@ export default function AdminPanel({ token }: { token: string }) {
   }
 
   return (
-    <section className="mx-auto w-full max-w-5xl space-y-4">
-      {toast && <div role="status" className="fixed bottom-5 right-5 z-50 rounded-xl border border-emerald-600/60 bg-slate-900 px-4 py-3 text-sm text-emerald-100 shadow-2xl">{toast}</div>}
+    <section className="mp-admin-panel mx-auto w-full max-w-5xl space-y-5">
+      {toast && <div role="status" className="mp-admin-toast fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md rounded-xl border border-teal-700/60 bg-slate-900 px-4 py-3 text-sm text-teal-100 shadow-xl sm:bottom-5 sm:left-auto sm:right-5">{toast}</div>}
       {error && <div role="alert" className="rounded-xl border border-rose-700/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</div>}
       {message && <div role="status" className="rounded-xl border border-emerald-700/50 bg-emerald-950/30 p-3 text-sm text-emerald-200">{message}</div>}
 
       {notice && (
-        <div className="rounded-2xl border border-emerald-500/50 bg-emerald-950/30 p-4">
+        <div className="mp-admin-credential-notice rounded-2xl border border-teal-700/55 bg-teal-950/20 p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-semibold text-emerald-100">{notice.title}</h3>
             <button type="button" onClick={() => setNotice(null)} className="rounded-lg border border-emerald-700/60 px-2.5 py-1.5 text-xs text-emerald-100">Tutup</button>
@@ -196,7 +196,7 @@ export default function AdminPanel({ token }: { token: string }) {
         </div>
       )}
 
-      <div className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 sm:p-5">
+      <div className="mp-admin-card rounded-2xl border border-slate-700/70 bg-slate-900/55 p-4 sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-3"><div><h3 className="font-semibold text-white">Manajemen Akuntan</h3><p className="mt-1 text-xs text-slate-400">Buat akun baru dan kelola kredensial dapur.</p></div><button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} aria-label="Muat ulang daftar akun" title="Muat ulang" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-600 bg-slate-800/70 text-slate-200">↻</button></div>
         <h3 className="font-semibold text-white">Buat Akun</h3>
         {loading ? <p className="mt-3 text-sm text-slate-400">Memuat daftar dapur...</p> : data.available_kitchens.length === 0 ? (
