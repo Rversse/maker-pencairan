@@ -43,7 +43,6 @@ const formatDate = (value: string) => {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
   return `${match[3]}-${months[Number(match[2]) - 1] ?? match[2]}-${match[1]}`
 }
-const formatTitle = (value: string | null) => value?.replace(/[0-9]{4}-[0-9]{2}-[0-9]{2}/g, date => formatDate(date)) ?? ''
 const dateTime = (value: string) => {
   const date = new Date(value)
   return `${formatDate(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`)} · ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
@@ -83,7 +82,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
   async function refreshDetail() {
     if (!detail) return
-    const confirmed = window.confirm('Muat ulang snapshot terakhir? Perubahan Form Utama yang belum disimpan akan ditimpa.')
+    const confirmed = window.confirm('Muat ulang data terakhir? Perubahan Form Utama yang belum disimpan akan ditimpa.')
     if (!confirmed) return
     setBusy(true); setError('')
     try {
@@ -92,7 +91,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       setActiveEventId(null)
       onRefreshSnapshot(result.history.payload)
       await load()
-      setNotice('Snapshot terbaru berhasil dimuat ulang.')
+      setNotice('Data riwayat terbaru berhasil dimuat ulang.')
     } catch (err) { setError(err instanceof Error ? err.message : 'Riwayat gagal diperbarui.') }
     finally { setBusy(false) }
   }
@@ -109,7 +108,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   function openEventOutput(event: HistoryEvent) {
     setActiveEventId(event.id)
     setError('')
-    setNotice(`Output lengkap dengan penanda ${event.event_type} ditampilkan.`)
+    setNotice('')
   }
   async function copyEventOutput(event: HistoryEvent) {
     const storedOutput = event.snapshot.delta?.incremental_output
@@ -367,85 +366,300 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
+  const eventLabel = (eventType: string) => {
+    if (eventType === 'NORMAL') return 'Pencairan awal'
+    if (eventType === 'REVISI') return 'Revisi'
+    if (eventType === 'KEKURANGAN') return 'Kekurangan'
+    if (eventType === 'TAMBAHAN') return 'Tambahan'
+    return eventType
+  }
   const metric = (label: string, value: unknown, previous: unknown) => {
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
     const difference = currentValue - previousValue
     const hasPrevious = Boolean(previousPayload)
-    const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-400'
-    const indicator = !hasPrevious ? 'Snapshot awal' : difference > 0 ? `↑ +Rp ${money(difference)}` : difference < 0 ? `↓ -Rp ${money(Math.abs(difference))}` : '= Tidak berubah'
-    return <div className="rounded-lg border border-slate-800 bg-slate-900 p-3"><p className="text-[11px] text-slate-400">{label}</p><p className="mt-1 text-lg font-semibold">Rp {money(currentValue)}</p><p className={`mt-1 text-[10px] font-semibold ${indicatorClass}`}>{indicator}</p></div>
+    const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-500'
+    const indicator = !hasPrevious ? 'Nilai awal' : difference > 0 ? \`↑ +Rp \${money(difference)}\` : difference < 0 ? \`↓ -Rp \${money(Math.abs(difference))}\` : 'Tidak berubah'
+    return (
+      <div className="mp-history-metric min-w-0 rounded-xl px-3 py-3">
+        <p className="text-[10px] font-semibold uppercase tracking-[.08em] text-slate-400">{label}</p>
+        <p className="mt-1 break-words text-lg font-bold tabular-nums text-slate-50">Rp {money(currentValue)}</p>
+        <p className={\`mt-1 text-[10px] font-semibold tabular-nums \${indicatorClass}\`}>{indicator}</p>
+      </div>
+    )
   }
-  return <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-black/70 p-3 pt-8 sm:p-6">
-    <section className="w-full max-w-4xl rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl sm:p-5">
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
-        <div className="min-w-0"><h2 className="text-lg font-bold">Riwayat Pencairan</h2><p className="mt-1 text-xs text-slate-400">{kitchenName}</p></div>
-        <div className="ml-auto flex flex-wrap items-center gap-2">
-          {!detail && <input type="date" aria-label="Pilih tanggal riwayat" value={selectedDate} onClick={event => event.currentTarget.showPicker?.()} onChange={event => setSelectedDate(event.target.value)} className="min-h-9 cursor-pointer rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-100 [color-scheme:dark]" />}
-          <button type="button" onClick={onClose} title="Tutup riwayat" aria-label="Tutup riwayat" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
-        </div>
-      </header>
-      {error && <p role="alert" className="mt-3 rounded-lg border border-rose-800 bg-rose-950/40 p-3 text-xs text-rose-200">{error}</p>}
-      {notice && <p role="status" className="mt-3 rounded-lg border border-emerald-800 bg-emerald-950/30 p-3 text-xs text-emerald-200">{notice}</p>}
-      {!detail ? <div className="mt-4 space-y-3">
-        <div><h3 className="text-sm font-semibold">Daftar pencairan harian</h3></div>
-        {busy && <p className="text-xs text-slate-400">Memuat...</p>}
-        {!rows.length && !busy && <p className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-xs text-slate-400">Belum ada riwayat</p>}
-        {rows.map(row => <button key={row.id} onClick={() => void openDetail(row.id)} className="group flex w-full flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-left transition-colors duration-150 hover:border-slate-200 hover:bg-white">
-          <span><span className="block text-sm font-semibold text-slate-100 transition-colors group-hover:text-slate-900">{formatTitle(row.title) || 'Pencairan'}</span><span className="mt-1 block text-[11px] text-slate-400 transition-colors group-hover:text-slate-600">Dibuat {dateTime(row.created_at)}</span></span>
-          <span className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300 transition-colors group-hover:text-slate-700"><span>RAB Rp {money(row.payload?.totalRab)}</span><span>OPS Rp {money(row.payload?.totalOpsHarian)}</span><span>Total Rp {money(row.payload?.totalOverall)}</span></span>
-        </button>)}
-      </div> : <div className="mt-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatDate(detail.history.transaction_date)}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {lockCountdown}</p></div>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" disabled={busy} onClick={() => void refreshDetail()} title="Muat ulang snapshot terbaru" aria-label="Muat ulang snapshot terbaru" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-emerald-600 disabled:opacity-40"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg></button>
-            {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Load ke Form</button>}
-            {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
-          <button type="button" onClick={() => { setDetail(null); void load() }} title="Kembali ke daftar riwayat" aria-label="Kembali ke daftar riwayat" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/><path d="M9 12h11"/></svg></button>
+
+  const isSelectedEvent = (event: HistoryEvent) => activeEvent?.id === event.id
+
+  return (
+    <div className="mp-history-overlay fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-2 backdrop-blur-sm sm:p-5">
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mp-history-title"
+        className="mp-history-dialog flex max-h-[min(94dvh,920px)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-[#0b1422] shadow-2xl shadow-black/50"
+      >
+        <header className="mp-history-header flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 px-4 py-3.5 sm:px-5">
+          <div className="min-w-0">
+            <h2 id="mp-history-title" className="text-base font-bold tracking-tight text-slate-50 sm:text-lg">Riwayat Pencairan</h2>
+            <p className="mt-0.5 truncate text-xs text-slate-400">{kitchenName}</p>
           </div>
-        </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <div><p className="text-[10px] uppercase tracking-wide text-slate-500">Snapshot aktif</p><p className="mt-1 text-xs font-semibold text-slate-100">{activeEvent?.event_type ?? 'NORMAL'} <span className="font-normal text-slate-400">· {activeEvent?.summary || 'Pencairan awal'}</span></p></div>
-            <span className="text-[10px] text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : 'Snapshot terbaru'}</span>
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            {!detail && (
+              <label className="mp-history-date flex h-9 items-center gap-2 rounded-lg border border-slate-700/80 bg-slate-900/70 px-2.5">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-teal-300" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <rect x="3.5" y="5" width="17" height="15" rx="2.2" />
+                  <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9.5h17" />
+                </svg>
+                <input
+                  type="date"
+                  aria-label="Pilih tanggal riwayat"
+                  value={selectedDate}
+                  onClick={event => event.currentTarget.showPicker?.()}
+                  onChange={event => setSelectedDate(event.target.value)}
+                  className="h-8 w-[126px] cursor-pointer border-0 bg-transparent p-0 text-xs font-semibold text-slate-100 [color-scheme:dark] outline-none"
+                />
+              </label>
+            )}
+            <button
+              type="button"
+              onClick={onClose}
+              title="Tutup riwayat"
+              aria-label="Tutup riwayat"
+              className="mp-history-icon-button grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-white"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                <path d="m18 6-12 12M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {metric('Total RAB', activePayload?.totalRab, previousPayload?.totalRab)}
-            {metric('Total Ops Harian', activePayload?.totalOpsHarian, previousPayload?.totalOpsHarian)}
-            {metric('Total Keseluruhan', activePayload?.totalOverall, previousPayload?.totalOverall)}
+        </header>
+
+        {(error || notice) && (
+          <div className="mp-history-messages shrink-0 space-y-2 px-4 pt-3 sm:px-5">
+            {error && <p role="alert" className="rounded-lg border border-rose-800/60 bg-rose-950/25 px-3 py-2.5 text-xs text-rose-200">{error}</p>}
+            {notice && <p role="status" className="rounded-lg border border-teal-800/60 bg-teal-950/20 px-3 py-2.5 text-xs text-teal-100">{notice}</p>}
           </div>
-        </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div><div className="flex items-center gap-2">{canEdit && <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/50 disabled:opacity-40">Revisi</button>}<button type="button" disabled={busy || (!String(activePayload?.output ?? '').trim() && !String(activeEvent?.snapshot.delta?.incremental_output ?? '').trim())} onClick={() => void copyActiveHistoryOutput()} title={activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin hanya perubahan pada riwayat ini' : 'Salin output snapshot awal'} className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">{activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin Perubahan' : 'Salin Output'}</button></div></div>
-          <div className="max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-slate-300">
-            {outputDiff.lines.map((fragments, lineIndex) => (
-              <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
-                fragment.highlighted
-                  ? <span key={partIndex} className="text-teal-200 underline decoration-teal-400 decoration-2 underline-offset-4">{fragment.text}</span>
-                  : fragment.text
-              )}</div>
-            ))}
-          </div>
-        </div>
-        <div>
-          <h4 className="mb-2 text-xs font-semibold">Riwayat Perubahan</h4>
-          <div className="overflow-hidden rounded-lg border border-slate-800 divide-y divide-slate-800/90">
-            {selectedEvent.map(event => (
-              <div key={event.id} className={`flex min-h-11 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 transition-colors ${activeEventId === event.id ? 'bg-slate-800/70' : 'bg-slate-950/40 hover:bg-slate-900/80'}`}>
-                <span className="shrink-0 text-[11px] font-bold text-emerald-300">{event.event_type}</span>
-                <span className="min-w-0 flex-1 truncate text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</span>
-                <span className="shrink-0 text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
-                <div className="ml-auto flex shrink-0 items-center gap-1.5">
-                  <button onClick={() => openEventOutput(event)} className="rounded-md border border-slate-700 px-2 py-1 text-[10px] font-semibold text-slate-200 hover:border-slate-500">Buka</button>
-                  {activeEventId === event.id && event.event_type !== 'NORMAL' && <button onClick={() => void copyEventOutput(event)} className="rounded-md border border-emerald-700 bg-emerald-950/40 px-2 py-1 text-[10px] font-semibold text-emerald-200">Salin {event.event_type}</button>}
+        )}
+
+        <div className="mp-history-body min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
+          {!detail ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-100">Transaksi harian</h3>
+                  <p className="mt-0.5 text-[11px] text-slate-500">{formatDate(selectedDate)}</p>
+                </div>
+                <span className="rounded-full border border-slate-700/70 bg-slate-900/70 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-slate-400">
+                  {rows.length} transaksi
+                </span>
+              </div>
+
+              {busy && (
+                <div className="flex items-center gap-2 rounded-xl border border-slate-800/80 bg-slate-900/40 px-3 py-3 text-xs text-slate-400">
+                  <span className="mp-history-spinner h-3.5 w-3.5 rounded-full border-2 border-slate-600 border-t-teal-300" />
+                  Memuat riwayat...
+                </div>
+              )}
+
+              {!rows.length && !busy && (
+                <div className="rounded-xl border border-dashed border-slate-700/80 bg-slate-900/25 px-4 py-10 text-center">
+                  <svg viewBox="0 0 24 24" className="mx-auto h-8 w-8 text-slate-600" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                    <rect x="4" y="4.5" width="16" height="16" rx="2" />
+                    <path d="M8 3v3M16 3v3M4 9h16M8 13h3M8 16.5h6" />
+                  </svg>
+                  <p className="mt-3 text-sm font-semibold text-slate-300">Belum ada pencairan</p>
+                  <p className="mt-1 text-xs text-slate-500">Tidak ada transaksi untuk tanggal ini.</p>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                {rows.map(row => (
+                  <button
+                    key={row.id}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void openDetail(row.id)}
+                    className="mp-history-list-item group flex w-full min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800/90 bg-slate-900/55 px-3.5 py-3 text-left transition duration-150 hover:border-teal-600/50 hover:bg-slate-900/90 disabled:cursor-wait disabled:opacity-60 sm:px-4"
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="mp-history-date-icon grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-slate-700/70 bg-slate-800/70 text-teal-300">
+                        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <rect x="3.5" y="5" width="17" height="15" rx="2.2" />
+                          <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9.5h17" />
+                        </svg>
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-slate-100">{formatDate(row.transaction_date)}</span>
+                        <span className="mt-1 block text-[11px] text-slate-500">Disimpan {dateTime(row.created_at)}</span>
+                      </span>
+                    </span>
+                    <span className="mp-history-list-totals grid w-full grid-cols-3 gap-2 border-t border-slate-800/70 pt-2 text-left sm:w-auto sm:min-w-[330px] sm:border-0 sm:pt-0">
+                      <span className="min-w-0">
+                        <span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-500">RAB</span>
+                        <span className="mt-0.5 block truncate text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalRab)}</span>
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-500">Ops harian</span>
+                        <span className="mt-0.5 block truncate text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalOpsHarian)}</span>
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-500">Total</span>
+                        <span className="mt-0.5 block truncate text-xs font-bold tabular-nums text-teal-200">Rp {money(row.payload?.totalOverall)}</span>
+                      </span>
+                    </span>
+                    <svg viewBox="0 0 24 24" className="hidden h-4 w-4 shrink-0 text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-teal-300 sm:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="m9 18 6-6-6-6" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4 sm:space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-slate-100">{formatDate(detail.history.transaction_date)}</h3>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <span className={detail.locked && role !== 'admin' ? 'mp-history-status mp-history-status--locked' : 'mp-history-status mp-history-status--editable'}>
+                      {detail.locked && role !== 'admin' ? 'TERKUNCI' : 'DAPAT DIEDIT'}
+                    </span>
+                    <span className="text-[10px] text-slate-500">{lockCountdown}</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => void refreshDetail()}
+                    title="Muat ulang data terakhir"
+                    aria-label="Muat ulang data terakhir"
+                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-teal-100 disabled:opacity-40"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 7v5h-5M4 17v-5h5" />
+                      <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
+                    </svg>
+                  </button>
+                  {canEdit && role === 'admin' && (
+                    <button type="button" disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">
+                      Load ke Form
+                    </button>
+                  )}
+                  {role === 'admin' && (
+                    <button type="button" disabled={busy} onClick={() => void deleteHistory()} className="mp-history-danger-button rounded-lg border border-rose-800/70 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">
+                      Hapus transaksi
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => { setDetail(null); void load() }}
+                    title="Kembali ke daftar riwayat"
+                    aria-label="Kembali ke daftar riwayat"
+                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-white"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="m15 18-6-6 6-6M9 12h11" />
+                    </svg>
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {!canEdit && <p className="rounded-lg border border-amber-800/60 bg-amber-950/20 p-3 text-xs text-amber-200">Riwayat terkunci. Hanya Admin yang dapat mengubahnya.</p>}
-      </div>}
-    </section>
-  </div>
+              <section className="mp-history-summary rounded-xl border border-slate-800/80 bg-slate-900/45 p-3 sm:p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="mp-history-event-badge">{eventLabel(activeEvent?.event_type ?? 'NORMAL')}</span>
+                    {activeEvent?.summary && <span className="min-w-0 truncate text-xs text-slate-400">{activeEvent.summary}</span>}
+                  </div>
+                  <span className="shrink-0 text-[10px] tabular-nums text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : dateTime(detail.history.updated_at)}</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {metric('Total RAB', activePayload?.totalRab, previousPayload?.totalRab)}
+                  {metric('Total Ops Harian', activePayload?.totalOpsHarian, previousPayload?.totalOpsHarian)}
+                  {metric('Total Keseluruhan', activePayload?.totalOverall, previousPayload?.totalOverall)}
+                </div>
+              </section>
+
+              <section className="mp-history-output overflow-hidden rounded-xl border border-slate-800/80 bg-slate-900/55">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 px-3 py-2.5 sm:px-4">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-semibold text-slate-100">Output</h4>
+                    {activeEvent && <span className="mp-history-event-badge">{eventLabel(activeEvent.event_type)}</span>}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {canEdit && (
+                      <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload)} className="mp-history-primary-button rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
+                        Revisi
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={busy || (!String(activePayload?.output ?? '').trim() && !String(activeEvent?.snapshot.delta?.incremental_output ?? '').trim())}
+                      onClick={() => void copyActiveHistoryOutput()}
+                      title={activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin hanya perubahan pada riwayat ini' : 'Salin output awal'}
+                      className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40"
+                    >
+                      {activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin Perubahan' : 'Salin Output'}
+                    </button>
+                  </div>
+                </div>
+                <div className="max-h-[34vh] min-h-[120px] overflow-auto whitespace-pre-wrap break-words px-3 py-3 text-xs leading-5 text-slate-300 sm:px-4">
+                  {outputDiff.lines.map((fragments, lineIndex) => (
+                    <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
+                      fragment.highlighted
+                        ? <span key={partIndex} className="text-teal-200 underline decoration-teal-400/80 decoration-2 underline-offset-4">{fragment.text}</span>
+                        : fragment.text
+                    )}</div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="mp-history-timeline">
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <h4 className="text-sm font-semibold text-slate-100">Timeline</h4>
+                  <span className="text-[10px] tabular-nums text-slate-500">{selectedEvent.length} aktivitas</span>
+                </div>
+                {!selectedEvent.length ? (
+                  <p className="rounded-lg border border-dashed border-slate-700/80 px-3 py-4 text-xs text-slate-500">Belum ada aktivitas.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {[...selectedEvent].reverse().map(event => (
+                      <div key={event.id} className={isSelectedEvent(event) ? 'mp-history-timeline-item is-active' : 'mp-history-timeline-item'}>
+                        <span className="mp-history-timeline-marker" aria-hidden="true" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span className={event.event_type === 'NORMAL' ? 'mp-history-event-type is-normal' : 'mp-history-event-type'}>
+                              {eventLabel(event.event_type)}
+                            </span>
+                            <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
+                          </div>
+                          <p className="mt-1 break-words text-xs text-slate-300">{event.summary || (event.event_type === 'NORMAL' ? 'Pencairan awal' : 'Perubahan tersimpan')}</p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
+                            {isSelectedEvent(event) ? 'Dipilih' : 'Lihat'}
+                          </button>
+                          {isSelectedEvent(event) && event.event_type !== 'NORMAL' && (
+                            <button type="button" onClick={() => void copyEventOutput(event)} className="mp-history-timeline-copy rounded-md border border-slate-700/80 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300">
+                              Salin
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {!canEdit && (
+                <p className="rounded-lg border border-amber-800/50 bg-amber-950/15 px-3 py-2.5 text-xs text-amber-200">
+                  Riwayat terkunci. Hanya Admin yang dapat mengubahnya.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  )
 }
