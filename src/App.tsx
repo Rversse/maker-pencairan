@@ -2851,7 +2851,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               }
                               placeholder="Nominal"
                               className={`mp-nominal-input mp-rab-amount h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
-                            />{renderHistoryShortageButton('rab:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }))}</div>
+                            />{renderHistoryShortageButton('rab:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }), () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: historyPreviousAmount('rab:' + rule.account_id) }))}</div>
                             {isWarungbitungArumikata && (
                               <div className="col-span-2 rounded-lg border border-amber-800/50 bg-amber-950/15 p-2">
                                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2910,7 +2910,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       placeholder="Nominal B3"
                                       aria-label="Nominal RAB B3 Toko Arumikata"
                                       className="mp-nominal-input mp-rab-amount h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-white placeholder:text-slate-500"
-                                    />{renderHistoryShortageButton('rab_b3:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }))}</div>
+                                    />{renderHistoryShortageButton('rab_b3:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }), () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: historyPreviousAmount('rab_b3:' + rule.account_id) }))}</div>
                                   </div>
                                 )}
                               </div>
@@ -2979,7 +2979,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={accountNumber} className="mp-ops-field mp-payment-detail mp-gas-account flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
                                     <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="mp-ops-field mp-payment-detail mp-gas-quantity h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field mp-payment-detail mp-gas-size h-10 min-w-0 px-2 text-center text-xs text-slate-100"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                    <div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }))}</div>
+                                    <div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
                                     <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                   </div>
                                 </div>
@@ -3116,7 +3116,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
                                     className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />{renderHistoryShortageButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }))}</div>
+                                  />{renderHistoryShortageButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
                                   <button
                                     type="button"
                                     onClick={() => removeOperationalEntry(entry.id)}
@@ -3181,7 +3181,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder="Nominal"
                                     aria-label="Nominal Insentif Fasilitas SPPG"
                                     className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }))}</div>
+                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                               </div>
                             )
                           })}
@@ -3251,7 +3251,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
                                     className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }))}</div>
+                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                                 </div>
                               </div>
                             )
