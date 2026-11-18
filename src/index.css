@@ -1622,9 +1622,9 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   color: #99f6e4;
 }
 .mp-history-status--locked {
-  border: 1px solid rgb(245 158 11 / 36%);
-  background: rgb(245 158 11 / 9%);
-  color: #fcd34d;
+  border: 1px solid rgb(244 63 94 / 44%);
+  background: rgb(159 18 57 / 14%);
+  color: #fda4af;
 }
 .mp-history-output {
   border-color: rgb(71 85 105 / 46%) !important;
@@ -1634,7 +1634,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   position: relative;
   display: flex;
   min-width: 0;
-  align-items: flex-start;
+  align-items: center;
   gap: 11px;
   border: 1px solid rgb(71 85 105 / 35%);
   border-radius: 10px;
@@ -1653,7 +1653,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   width: 9px;
   height: 9px;
   flex: 0 0 9px;
-  margin-top: 5px;
+  margin-top: 0;
   border: 2px solid #5eead4;
   border-radius: 50%;
   background: #0f766e;
