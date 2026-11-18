@@ -3226,7 +3226,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             rule.account_id,
             formatSupplierAccountName(rule.supplier?.business_name ?? rule.accounts?.name ?? rule.account_id, rule.supplier?.owner_name)
           ]))}
-          onStartChange={(payload, eventType, selectedKeys) => {
+          onStartChange={(payload, _eventType, selectedKeys) => {
             setHistoryChangeBase(payload)
             setHistorySelectedKeys(selectedKeys)
             setHistoryShortageKeys([])
