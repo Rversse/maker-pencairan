@@ -901,3 +901,128 @@ main textarea[readonly] {
 @media (max-width: 639px) {
   .mp-rab-row { padding-inline: 2px !important; }
 }
+
+
+/* Maker visual system — final consolidation pass.
+   Navy/slate surfaces, teal interaction, semantic amber/red only. */
+:root {
+  --mp-page-bg: #070c16;
+  --mp-ambient-a: rgb(45 212 191 / 7%);
+  --mp-ambient-b: rgb(45 212 191 / 3%);
+  --mp-ambient-c: transparent;
+  --mp-grid: rgb(148 163 184 / 2%);
+  --mp-card-top: #111c2c;
+  --mp-card-bottom: #0b1422;
+  --mp-card-rim-a: rgb(71 85 105 / 66%);
+  --mp-card-rim-b: rgb(45 212 191 / 30%);
+  --mp-card-glow: rgb(45 212 191 / 5%);
+  --mp-action-bg: linear-gradient(145deg, #172235, #101a2a);
+  --mp-action-text: #e2e8f0;
+  --mp-action-border: rgb(100 116 139 / 48%);
+  --mp-action-hover-bg: linear-gradient(145deg, rgb(13 148 136 / 22%), #101a2a);
+  --mp-action-hover-text: #f0fdfa;
+  --mp-action-hover-border: rgb(45 212 191 / 72%);
+}
+
+/* One shared navy/slate card surface; amber remains reserved for RAB. */
+.mp-card {
+  --mp-accent: 45 212 191 !important;
+  --mp-card-rim-a: rgb(71 85 105 / 66%) !important;
+  --mp-card-rim-b: rgb(45 212 191 / 32%) !important;
+  --mp-card-glow: rgb(45 212 191 / 5%) !important;
+  background:
+    linear-gradient(145deg, #111c2c, #0b1422) padding-box,
+    linear-gradient(135deg, rgb(71 85 105 / 68%), rgb(45 212 191 / 32%)) border-box !important;
+}
+.mp-card[class*='border-amber-500'] {
+  --mp-accent: 245 158 11 !important;
+  --mp-card-rim-b: rgb(245 158 11 / 42%) !important;
+  background:
+    linear-gradient(145deg, #111c2c, #0b1422) padding-box,
+    linear-gradient(135deg, rgb(100 116 139 / 70%), rgb(245 158 11 / 42%)) border-box !important;
+}
+.mp-card[class*='border-cyan-600'],
+.mp-card[class*='border-teal-600'],
+.mp-card[class*='border-sky-600'],
+.mp-card[class*='border-orange-600'],
+.mp-card[class*='border-violet-600'] { --mp-accent: 45 212 191 !important; }
+.mp-card::before {
+  background: radial-gradient(ellipse at 0% 0%, rgb(45 212 191 / 5%), transparent 62%) !important;
+}
+.mp-card[class*='border-amber-500']::before {
+  background: radial-gradient(ellipse at 0% 0%, rgb(245 158 11 / 5%), transparent 62%) !important;
+}
+.mp-card::after {
+  background: linear-gradient(90deg, transparent, rgb(45 212 191 / 54%), transparent) !important;
+}
+.mp-card[class*='border-amber-500']::after {
+  background: linear-gradient(90deg, transparent, rgb(245 158 11 / 58%), transparent) !important;
+}
+.mp-card h2::before {
+  background: #2dd4bf !important;
+  box-shadow: 0 0 0 3px rgb(45 212 191 / 12%), 0 0 9px rgb(45 212 191 / 36%) !important;
+}
+.mp-card[class*='border-amber-500'] h2::before {
+  background: #f59e0b !important;
+  box-shadow: 0 0 0 3px rgb(245 158 11 / 12%), 0 0 9px rgb(245 158 11 / 32%) !important;
+}
+
+/* No bright-white hover inversion; keep hover feedback within teal/slate. */
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
+  border-color: rgb(45 212 191 / 72%) !important;
+  background: linear-gradient(145deg, rgb(13 148 136 / 22%), #101a2a) !important;
+  color: #f0fdfa !important;
+}
+:root:not([data-theme='light']) button[data-option-button='true'][data-selected='false']:hover:not(:disabled) {
+  border-color: rgb(45 212 191 / 72%) !important;
+  background: rgb(13 148 136 / 16%) !important;
+  color: #f0fdfa !important;
+}
+:root:not([data-theme='light']) button[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: #34d399 !important;
+  background: linear-gradient(145deg, #059669, #065f46) !important;
+  color: #ffffff !important;
+}
+
+/* Output-linked values use the same teal confirmation/focus language. */
+:root:not([data-theme='light']) .mp-field--has-output,
+:root:not([data-theme='light']) .mp-field--has-output:hover,
+:root:not([data-theme='light']) .mp-field--has-output:focus,
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
+:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
+  border-color: #2dd4bf !important;
+  box-shadow: 0 0 0 1px rgb(45 212 191 / 22%), 0 0 7px rgb(45 212 191 / 14%) !important;
+}
+
+/* Read-only account values are subtly recessed, not mistaken for inputs. */
+.mp-static-field,
+.mp-card .mp-ops-row .mp-ops-field:not(input):not(select):not(textarea) {
+  background: rgb(15 23 42 / 34%) !important;
+  border-radius: 5px !important;
+}
+main input:disabled,
+main select:disabled,
+main textarea:disabled,
+main input[readonly],
+main textarea[readonly] {
+  background: rgb(15 23 42 / 48%) !important;
+  color: rgb(148 163 184 / 66%) !important;
+}
+
+/* Informational cyan/sky accents become teal; semantic red/amber stay intact. */
+main [class*='text-sky-'],
+main [class*='text-cyan-'] { color: #99f6e4 !important; }
+main [class*='border-sky-'],
+main [class*='border-cyan-'] { border-color: rgb(45 212 191 / 38%) !important; }
+main [class*='bg-sky-'],
+main [class*='bg-cyan-'] { background-color: rgb(13 148 136 / 10%) !important; }
+main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
+
+/* Shared popovers and overlays inherit the same deep surface. */
+[role='dialog'],
+[role='menu'] {
+  color: #e2e8f0;
+  border-color: rgb(71 85 105 / 72%) !important;
+  background-color: #0b1422 !important;
+}
