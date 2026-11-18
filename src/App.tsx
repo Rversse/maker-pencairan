@@ -2913,7 +2913,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               const accountNumber = rule?.accounts?.account_number ?? '-'
                               return (
                                 <div key={entry.id} className={`rounded-lg border border-slate-800 bg-slate-950/40 p-2 ${!historyEnabled ? "opacity-45" : ""}`}>
-                                  <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(130px,1fr)_85px_minmax(110px,0.8fr)_minmax(120px,1fr)_90px_minmax(190px,1.2fr)_34px]">
+                                  <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(120px,0.9fr)_minmax(140px,1.15fr)_80px_minmax(130px,1fr)_80px_120px_minmax(180px,1.2fr)_34px]">
                                     <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100">GAS</div>
                                     <div title={accountName} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="flex h-10 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-xs font-semibold text-slate-100">{bank}</div>
