@@ -2489,6 +2489,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       delta.shortage_keys = [...shortageKeys]
       const incrementalOutput = getTransactionOutput(incrementalTransaction, 'REVISI').join('\n')
       delta.incremental_output = incrementalOutput
+      if (shortageKeys.size > 0) delta.shortage_keys = [...shortageKeys]
 
       if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
       const { error: changeError } = await supabase.functions.invoke('maker-history', {
@@ -2511,6 +2512,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       persistWorkspace({ kitchenId, activeTransactionId: savedTransaction.id, transactions: [savedTransaction] })
       setHistoryChangeBase(null)
       setHistorySelectedKeys([])
+      setHistoryShortageKeys([])
       setHistorySaveType('REVISI')
       setHistorySaveOpen(false)
       setHistorySaveSummary('')
@@ -2956,7 +2958,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
 {historyChangeActive && historySelectedKeys.includes(('gas:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('gas:' + entry.id))} onChange={event => { toggleHistoryShortage(('gas:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('gas:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('gas:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
-                                    <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={historyChangeActive && historyShortageKeys.some(key => key) ? 'Masukkan nominal kekurangan' : 'Nominal'} aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
+                                    <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={isHistoryShortage('gas:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'} aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
                                     <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                   </div>
                                 </div>
@@ -3101,7 +3103,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     value={formatNumber(entry.amount)}
                                     disabled={!historyEnabled || (isMappedOps && !accountNumber) || (isArutala && !arutalaAccount) || (isMappedSalary && !selectedMapping)}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
-                                    placeholder={historyChangeActive && historySaveType === 'KEKURANGAN' ? 'Nominal kekurangan' : 'Nominal'}
+                                    placeholder={isHistoryShortage('operasional:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
                                     aria-label="Nominal Ops Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />
@@ -3165,7 +3167,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         { amount: event.target.value.replace(/\D/g, '') }
                                       )
                                     }
-                                    placeholder={historyChangeActive && historySaveType === 'KEKURANGAN' ? 'Nominal kekurangan' : 'Nominal'}
+                                    placeholder={isHistoryShortage('pencairan_harian:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
                                     aria-label="Nominal Insentif Fasilitas SPPG"
                                     className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />
@@ -3245,7 +3247,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         { amount: event.target.value.replace(/\D/g, '') }
                                       )
                                     }
-                                    placeholder={historyChangeActive && historySaveType === 'KEKURANGAN' ? 'Nominal kekurangan' : 'Nominal'}
+                                    placeholder={isHistoryShortage('lain_lain:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
                                     aria-label={'Nominal ' + label}
                                     className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />
