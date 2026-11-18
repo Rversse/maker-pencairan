@@ -1030,44 +1030,237 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 
 
 
-/* Payment rows: centered content, fluid nominal fields, stable actions. */
-.mp-rab-row {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-  align-items: center !important;
+/* ── Maker form system · Batch 1 ─────────────────────────────────────── */
+
+/* One quiet navy surface across all main form cards. RAB keeps only a
+   restrained amber cue; all other sections share the same teal identity. */
+.mp-form-stack > .mp-card {
+  --mp-card-top: #101b2b !important;
+  --mp-card-bottom: #0a1321 !important;
+  --mp-card-rim-a: rgb(71 85 105 / 58%) !important;
+  --mp-card-rim-b: rgb(45 212 191 / 27%) !important;
+  --mp-card-glow: rgb(45 212 191 / 4%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 16%), inset 0 1px 0 rgb(255 255 255 / 2%) !important;
 }
-.mp-rab-row > :first-child {
-  grid-column: 1;
+.mp-form-stack > .mp-card:hover {
+  --mp-card-rim-a: rgb(100 116 139 / 68%) !important;
+  --mp-card-rim-b: rgb(45 212 191 / 40%) !important;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 20%) !important;
+}
+.mp-form-stack > .mp-card[class*="border-amber"] {
+  --mp-card-rim-b: rgb(245 158 11 / 36%) !important;
+  --mp-card-glow: rgb(245 158 11 / 3%) !important;
+}
+.mp-form-stack > .mp-card::before { opacity: .34 !important; }
+.mp-form-stack > .mp-card::after { opacity: .18 !important; }
+.mp-form-stack > .mp-card h2::before {
+  background: #2dd4bf !important;
+  box-shadow: 0 0 8px rgb(45 212 191 / 18%) !important;
+}
+.mp-form-stack > .mp-card[class*="border-amber"] h2::before {
+  background: #f59e0b !important;
+  box-shadow: none !important;
+}
+
+/* Editable, read-only and disabled controls must be visually distinct. */
+.mp-form-stack input:not([type="checkbox"]):not([type="radio"]),
+.mp-form-stack select,
+.mp-form-stack textarea {
+  min-width: 0;
+  color: #e2e8f0;
+  text-align: center;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 58%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+.mp-form-stack input::placeholder,
+.mp-form-stack textarea::placeholder {
+  color: #64748b !important;
+  text-align: center;
+}
+.mp-form-stack input:hover:not(:disabled):not([readonly]),
+.mp-form-stack select:hover:not(:disabled),
+.mp-form-stack textarea:hover:not(:disabled):not([readonly]) {
+  border-bottom-color: #94a3b8 !important;
+}
+.mp-form-stack input:focus,
+.mp-form-stack select:focus,
+.mp-form-stack textarea:focus {
+  border-bottom-color: #2dd4bf !important;
+  box-shadow: 0 1px 0 rgb(45 212 191 / 66%) !important;
+  outline: none;
+}
+.mp-form-stack input:disabled,
+.mp-form-stack select:disabled,
+.mp-form-stack textarea:disabled,
+.mp-form-stack input[readonly],
+.mp-form-stack textarea[readonly] {
+  color: #a7b3c4 !important;
+  -webkit-text-fill-color: #a7b3c4 !important;
+  background: rgb(15 23 42 / 50%) !important;
+  border-bottom-color: rgb(71 85 105 / 38%) !important;
+  cursor: not-allowed;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+.mp-form-stack input[type="checkbox"] { accent-color: #2dd4bf; }
+.mp-form-stack option { color: #e2e8f0; background: #0d1725; }
+
+/* Read-only account data: subtle dark inset, without a full rectangular box. */
+.mp-form-stack .mp-static-field,
+.mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
+  color: #dbe5f2 !important;
+  background: rgb(8 15 27 / 48%) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 36%) !important;
+  border-radius: 5px 5px 0 0 !important;
+  box-shadow: none !important;
+  text-align: center !important;
+}
+.mp-form-stack .mp-payment-detail {
+  color: #dbe5f2 !important;
+  text-align: center !important;
+  -webkit-text-fill-color: #dbe5f2 !important;
+}
+.mp-form-stack .mp-payment-detail::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  text-align: center !important;
+}
+
+/* Type labels are tags, not input fields. They size to their text and stay
+   uppercase so account identity is clear at a glance. */
+.mp-form-stack .mp-tag {
+  display: inline-flex;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: 100%;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border: 1px solid rgb(45 212 191 / 25%) !important;
+  border-left: 2px solid #2dd4bf !important;
+  border-radius: 7px !important;
+  background: rgb(13 148 136 / 12%) !important;
+  color: #99f6e4 !important;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .045em;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: none !important;
+}
+.mp-form-stack .mp-tag--gas { border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 15%) !important; }
+.mp-form-stack .mp-tag--ops { border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 11%) !important; }
+.mp-form-stack .mp-tag--arutala { border-color: rgb(100 116 139 / 35%) !important; border-left-color: #94a3b8 !important; background: rgb(51 65 85 / 28%) !important; color: #cbd5e1 !important; }
+.mp-form-stack .mp-tag--custom {
+  border-color: rgb(100 116 139 / 44%) !important;
+  border-left-color: #64748b !important;
+  background: rgb(30 41 59 / 54%) !important;
+  color: #dbe5f2 !important;
+  appearance: auto !important;
+  cursor: pointer;
+}
+.mp-form-stack .mp-tag--salary {
+  border-color: rgb(100 116 139 / 35%) !important;
+  border-left-color: #64748b !important;
+  background: rgb(30 41 59 / 52%) !important;
+  color: #dbe5f2 !important;
+  letter-spacing: .025em;
+}
+.mp-form-stack .mp-tag--custom:focus {
+  border-bottom-color: #2dd4bf !important;
+}
+
+/* RAB: supplier and product information stay on the left; nominal is a
+   separate flexible area on the right. Product chips wrap naturally, not
+   into one-character columns. */
+.mp-form-stack .mp-rab-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, .34fr) !important;
+  align-items: center !important;
+  column-gap: 18px !important;
+  row-gap: 10px !important;
+  padding: 12px 8px !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 30%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.mp-form-stack .mp-rab-row:last-child { border-bottom-color: transparent !important; }
+.mp-rab-details { min-width: 0; text-align: left !important; }
+.mp-rab-details > div:first-child {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left !important;
+  white-space: nowrap;
+}
+.mp-rab-details > div:nth-child(2) {
+  display: flex;
   width: 100%;
   min-width: 0;
-  text-align: center;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: 7px;
 }
-.mp-rab-row > :first-child > div:first-child {
-  text-align: center;
+.mp-form-stack .mp-rab-choice,
+.mp-form-stack .mp-rab-add {
+  flex: 0 0 auto;
+  min-height: 34px;
+  white-space: nowrap;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
-.mp-rab-row > :first-child > div:nth-child(2) {
-  justify-content: center;
+.mp-form-stack .mp-rab-choice {
+  border-color: rgb(100 116 139 / 42%) !important;
+  background: #111e2e !important;
+  color: #dbe5f2 !important;
+  box-shadow: none !important;
 }
-.mp-rab-row > :nth-child(2) {
-  grid-column: 2;
+.mp-form-stack .mp-rab-choice[data-selected="true"] {
+  border-color: #2dd4bf !important;
+  background: #0f766e !important;
+  color: #ecfeff !important;
+}
+.mp-form-stack .mp-rab-choice:hover:not(:disabled),
+.mp-form-stack .mp-rab-add:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: #2dd4bf !important;
+}
+.mp-form-stack .mp-rab-add {
+  border-color: rgb(100 116 139 / 48%) !important;
+  background: rgb(30 41 59 / 42%) !important;
+  color: #cbd5e1 !important;
+}
+.mp-rab-nominal {
   width: 100%;
   min-width: 0;
   justify-self: stretch;
-}
-.mp-rab-row > :nth-child(3) {
-  grid-column: 1 / -1;
-  min-width: 0;
-}
-.mp-rab-row .mp-payment-nominal,
-.mp-rab-row .ml-auto {
-  width: 100% !important;
-  min-width: 0 !important;
   justify-content: center !important;
 }
-.mp-rab-row .ml-auto {
-  margin-left: 0 !important;
+.mp-rab-nominal > input {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 1 1 0 !important;
+  text-align: center !important;
 }
-.mp-rab-row .mp-payment-nominal > input,
-.mp-rab-row .ml-auto > input {
+.mp-rab-row > .col-span-2 { grid-column: 1 / -1; min-width: 0; }
+.mp-rab-b3-nominal {
+  width: min(100%, 320px);
+  min-width: 0;
+  margin-left: auto;
+}
+.mp-rab-b3-nominal > input {
   width: 100% !important;
   min-width: 0 !important;
   max-width: none !important;
@@ -1075,163 +1268,215 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   text-align: center !important;
 }
 
-/* GAS: centered fields in fluid columns; delete remains a fixed icon action. */
-.mp-gas-flex-row {
-  grid-template-columns:
-    minmax(0, .7fr) minmax(0, 1.5fr) minmax(0, .7fr)
-    minmax(0, 1.2fr) minmax(0, .8fr) minmax(0, .9fr)
-    minmax(0, 1.5fr) 36px !important;
-  align-items: center !important;
-}
-.mp-gas-flex-row > * {
+/* Operational rows share the same account sequence. The VA state explicitly
+   changes only the relevant tracks; the remove action is always 36px. */
+.mp-form-stack .mp-ops-row {
   min-width: 0;
-  width: 100%;
-  justify-self: stretch;
-  text-align: center;
+  padding: 9px 4px;
+  border-bottom: 1px solid rgb(100 116 139 / 28%);
+  background: transparent;
 }
-.mp-gas-flex-row > :last-child {
-  width: 36px !important;
-  min-width: 36px !important;
-  max-width: 36px !important;
-  justify-self: end;
-  flex: 0 0 36px !important;
-}
-
-/* Ops Harian: responsive columns; VA adds one column only while unchecked.
-   The Kekurangan action stays at the far right of the nominal group. */
-.mp-ops-flex-row {
-  grid-template-columns:
-    minmax(0, .8fr) minmax(0, 1.2fr) minmax(0, .7fr)
-    minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1.3fr) 36px !important;
+.mp-form-stack .mp-ops-row:last-child { border-bottom-color: transparent; }
+.mp-form-stack .mp-gas-flex-row {
+  display: grid !important;
+  grid-template-columns: max-content max-content max-content max-content minmax(64px, .42fr) minmax(90px, .55fr) minmax(150px, .9fr) 36px !important;
   align-items: center !important;
+  gap: 9px !important;
 }
-.mp-ops-flex-row:has(> label) {
-  grid-template-columns:
-    minmax(0, .8fr) 54px minmax(0, 1.2fr) minmax(0, .7fr)
-    minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1.3fr) 36px !important;
+.mp-gas-owner, .mp-gas-bank, .mp-gas-account {
+  width: max-content;
+  max-width: 220px;
+  padding-inline: 12px;
 }
-.mp-ops-flex-row:has(> label input:checked) {
-  grid-template-columns:
-    minmax(0, .8fr) 54px minmax(0, .7fr) minmax(0, 1.1fr)
-    minmax(0, 1.2fr) minmax(0, 1.3fr) 36px !important;
+.mp-gas-quantity { width: 100%; min-width: 64px; max-width: 110px; }
+.mp-gas-size { width: 100%; min-width: 90px; max-width: 120px; }
+.mp-form-stack .mp-ops-flex-row {
+  display: grid !important;
+  grid-template-columns: max-content max-content max-content max-content minmax(150px, 1.2fr) minmax(170px, .9fr) 36px !important;
+  align-items: center !important;
+  gap: 9px !important;
 }
-.mp-ops-flex-row > * {
-  min-width: 0;
-  width: 100%;
-  justify-self: stretch;
-  text-align: center;
+.mp-form-stack .mp-ops-flex-row.has-va {
+  grid-template-columns: max-content 54px max-content max-content max-content minmax(140px, 1.15fr) minmax(170px, .9fr) 36px !important;
 }
-.mp-ops-flex-row > label {
+.mp-form-stack .mp-ops-flex-row.is-va {
+  grid-template-columns: max-content 54px max-content max-content minmax(140px, 1.15fr) minmax(170px, .9fr) 36px !important;
+}
+.mp-ops-flex-row .mp-va-toggle {
   width: 54px !important;
   min-width: 54px !important;
   max-width: 54px !important;
+  min-height: 36px;
   justify-self: center;
   flex: 0 0 54px !important;
   white-space: nowrap;
 }
-.mp-ops-flex-row > label input[type='checkbox'] {
-  flex: 0 0 auto;
+.mp-ops-flex-row .mp-ops-type-select {
+  min-width: 82px;
+  max-width: 170px;
+  justify-self: start;
 }
-.mp-ops-flex-row > :nth-last-child(2) {
+.mp-ops-flex-row .mp-ops-owner,
+.mp-ops-flex-row .mp-ops-bank,
+.mp-ops-flex-row .mp-ops-account {
+  width: max-content;
+  min-width: 76px;
+  max-width: 220px;
+}
+.mp-ops-flex-row input.mp-ops-owner,
+.mp-ops-flex-row input.mp-ops-account {
+  field-sizing: content;
+}
+.mp-ops-flex-row .mp-ops-note {
   width: 100%;
   min-width: 0;
-  justify-self: stretch;
+  max-width: none;
 }
-.mp-ops-flex-row > :last-child {
+.mp-ops-flex-row .mp-payment-nominal,
+.mp-gas-flex-row .mp-payment-nominal {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.mp-ops-flex-row .mp-payment-nominal > input,
+.mp-gas-flex-row .mp-payment-nominal > input {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0;
+  text-align: center !important;
+}
+.mp-form-stack .mp-row-remove {
   width: 36px !important;
   min-width: 36px !important;
   max-width: 36px !important;
+  height: 36px !important;
   justify-self: end;
   flex: 0 0 36px !important;
+  padding: 0 !important;
 }
 
-/* Salary/incentive: equal, centered detail columns and a fluid nominal field. */
-.mp-salary-flex-row {
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  align-items: center !important;
+/* Incentive/salary: the category itself is the tag, account metadata remains
+   quiet read-only cells, and the nominal input is flexible. No table header. */
+.mp-form-stack .mp-payment-row {
+  padding: 10px 5px;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 28%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
-.mp-salary-flex-row > * {
+.mp-form-stack .mp-payment-row:last-child { border-bottom-color: transparent !important; }
+.mp-form-stack .mp-salary-flex-row {
+  display: grid !important;
+  grid-template-columns: max-content max-content max-content max-content minmax(170px, 1fr) !important;
+  align-items: center !important;
+  gap: 9px !important;
+}
+.mp-salary-flex-row .mp-salary-field {
+  width: max-content;
+  max-width: 240px;
+  padding-inline: 12px;
+}
+.mp-salary-flex-row .mp-payment-nominal {
   width: 100%;
   min-width: 0;
-  justify-self: stretch;
-  text-align: center;
+  justify-content: center;
 }
-
-/* Shared nominal behavior: no fixed width; digits and placeholder centered. */
-.mp-payment-nominal {
-  display: flex;
-  width: 100% !important;
-  min-width: 0 !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: .375rem;
-  text-align: center !important;
-}
-.mp-payment-nominal > input {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  flex: 1 1 0 !important;
-  text-align: center !important;
-}
-/* Preserve the right-side Kekurangan tag in Operational Daily rows. */
-.mp-gas-flex-row .mp-payment-nominal > button,
-.mp-ops-flex-row .mp-payment-nominal > button {
-  margin-left: auto;
-  flex: 0 0 auto;
-}
-
-/* Center all account labels, selects, inputs, and placeholders consistently. */
-.mp-payment-detail {
-  color: #e2e8f0 !important;
-  text-align: center !important;
-  -webkit-text-fill-color: #e2e8f0 !important;
-}
-.mp-payment-detail::placeholder {
-  color: rgb(148 163 184 / 72%) !important;
-  -webkit-text-fill-color: rgb(148 163 184 / 72%) !important;
-  text-align: center !important;
-}
-.mp-payment-detail select,
-select.mp-payment-detail,
-input.mp-payment-detail {
-  color: #e2e8f0 !important;
-  text-align: center !important;
-  -webkit-text-fill-color: #e2e8f0 !important;
-}
-.mp-rab-amount {
-  text-align: center !important;
-}
-.mp-salary-flex-row.hidden > span:last-child {
+.mp-salary-flex-row .mp-payment-nominal > input {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0;
   text-align: center !important;
 }
 
+/* Nominal is not hard-coded to a fixed width; it uses the space assigned by
+   its row. Numeric values are centered inside each editable field. */
+.mp-form-stack .mp-nominal-input,
+.mp-form-stack .mp-payment-nominal > input,
+.mp-form-stack .mp-rab-amount {
+  text-align: center !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle entrance feedback; disable motion for accessibility preferences. */
+.mp-rab-row, .mp-ops-row, .mp-payment-row {
+  animation: mp-row-enter 180ms ease both;
+}
+@keyframes mp-row-enter {
+  from { opacity: .65; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-rab-row, .mp-ops-row, .mp-payment-row { animation: none !important; }
+}
+
+/* Tablet: preserve field order, then let nominal span available width. */
 @media (max-width: 1023px) {
-  .mp-rab-row {
-    grid-template-columns: minmax(0, 1fr) !important;
+  .mp-form-stack .mp-rab-row { grid-template-columns: minmax(0, 1fr) !important; }
+  .mp-rab-nominal { grid-column: 1; width: 100%; }
+  .mp-form-stack .mp-gas-flex-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
   }
-  .mp-rab-row > :first-child,
-  .mp-rab-row > :nth-child(2) {
-    grid-column: 1;
+  .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; }
+  .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; }
+  .mp-gas-flex-row > .mp-gas-bank { grid-column: 3; }
+  .mp-gas-flex-row > .mp-gas-account { grid-column: 4; }
+  .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; max-width: none; }
+  .mp-gas-flex-row > .mp-gas-size { grid-column: 2; max-width: none; }
+  .mp-gas-flex-row > .mp-payment-nominal { grid-column: 3 / 5; }
+  .mp-gas-flex-row > .mp-row-remove { grid-column: 5; grid-row: 1 / span 2; }
+
+  .mp-form-stack .mp-ops-flex-row,
+  .mp-form-stack .mp-ops-flex-row.has-va,
+  .mp-form-stack .mp-ops-flex-row.is-va {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) 36px !important;
   }
-  .mp-rab-row > :nth-child(2) {
-    width: 100%;
+  .mp-ops-flex-row > .mp-tag { grid-column: 1; }
+  .mp-ops-flex-row > .mp-va-toggle { grid-column: 2; }
+  .mp-ops-flex-row > .mp-ops-owner { grid-column: 1; }
+  .mp-ops-flex-row > .mp-ops-bank { grid-column: 2; }
+  .mp-ops-flex-row > .mp-ops-account { grid-column: 1; }
+  .mp-ops-flex-row > .mp-ops-note { grid-column: 2; }
+  .mp-ops-flex-row > .mp-payment-nominal { grid-column: 1 / 3; }
+  .mp-ops-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 4; }
+
+  .mp-form-stack .mp-salary-flex-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
+  .mp-salary-flex-row > .mp-payment-nominal { grid-column: 1 / -1; }
+}
+@media (max-width: 639px) {
+  .mp-form-stack > .mp-card { padding: 12px !important; }
+  .mp-rab-row { padding-inline: 2px !important; }
   .mp-gas-flex-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important;
   }
-  .mp-gas-flex-row > :last-child {
-    justify-self: end;
-  }
+  .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; }
+  .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; }
+  .mp-gas-flex-row > .mp-gas-bank { grid-column: 1; }
+  .mp-gas-flex-row > .mp-gas-account { grid-column: 2; }
+  .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; }
+  .mp-gas-flex-row > .mp-gas-size { grid-column: 2; }
+  .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 3; }
+  .mp-gas-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 4; }
+
   .mp-ops-flex-row,
-  .mp-ops-flex-row:has(> label),
-  .mp-ops-flex-row:has(> label input:checked) {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-  .mp-ops-flex-row > :last-child {
-    justify-self: end;
-  }
-  .mp-salary-flex-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
+  .mp-ops-flex-row.has-va,
+  .mp-ops-flex-row.is-va { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important; }
+  .mp-ops-flex-row > .mp-tag { grid-column: 1; }
+  .mp-ops-flex-row > .mp-va-toggle { grid-column: 2; }
+  .mp-ops-flex-row > .mp-ops-owner { grid-column: 1; }
+  .mp-ops-flex-row > .mp-ops-bank { grid-column: 2; }
+  .mp-ops-flex-row > .mp-ops-account { grid-column: 1; }
+  .mp-ops-flex-row > .mp-ops-note { grid-column: 2; }
+  .mp-ops-flex-row > .mp-payment-nominal { grid-column: 1 / 3; }
+  .mp-ops-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 4; }
+
+  .mp-salary-flex-row { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .mp-salary-flex-row > .mp-payment-nominal { grid-column: 1 / -1; }
 }
