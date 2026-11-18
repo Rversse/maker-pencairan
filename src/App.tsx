@@ -3094,7 +3094,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <span>Nominal</span>
                         </div>
                         {activeTransaction.pencairan_harian
-                          .filter((entry) => entry.category === 'sewa' && (!historyChangeActive || historySelectedKeys.includes('pencairan_harian:' + entry.id)))
+                          .filter((entry) => entry.category === 'sewa' && isHistoryRowEnabled('pencairan_harian', entry.id))
                           .map((entry) => {
                             const historyEnabled = isHistoryRowEnabled('pencairan_harian', entry.id)
                             const rental = getSppgRental(selectedKitchen?.name ?? '', masterData)
@@ -3158,7 +3158,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <span>Nominal</span>
                         </div>
                         {activeTransaction.pencairan_harian
-                          .filter((entry) => entry.category === 'gaji' && (!historyChangeActive || historySelectedKeys.includes('pencairan_harian:' + entry.id)))
+                          .filter((entry) => entry.category === 'gaji' && isHistoryRowEnabled('pencairan_harian', entry.id))
                           .map((entry) => {
                             const historyEnabled = isHistoryRowEnabled('pencairan_harian', entry.id)
                             const mapping = getDailyPaymentMappingForKinds(
