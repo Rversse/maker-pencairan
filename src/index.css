@@ -1030,34 +1030,54 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 
 
 
-/* Payment layout system: fit the descriptive fields, reserve a spacer,
-   then pin Nominal and row actions to the far right. */
+/* Payment layout: content-sized detail columns, flexible spacer,
+   fixed-width nominal group, and a non-shrinking delete action. */
 @media (min-width: 1024px) {
-  /* RAB: details occupy the flexible left area; nominal stays right. */
+  /* RAB: description/chips fit their content; spacer separates fixed nominal. */
   .mp-rab-row {
-    grid-template-columns: minmax(0, 1fr) max-content !important;
+    grid-template-columns: max-content minmax(0, 1fr) max-content !important;
     align-items: center !important;
   }
-  .mp-rab-row > :first-child { min-width: 0; }
+  .mp-rab-row > :first-child {
+    grid-column: 1;
+    width: max-content;
+    max-width: calc(100% - 240px);
+    min-width: 0;
+  }
   .mp-rab-row > :nth-child(2) {
+    grid-column: 3;
     width: max-content;
     min-width: 180px;
     justify-self: end;
     flex: 0 0 auto;
   }
-  .mp-rab-row > :nth-child(2) > input {
+  .mp-rab-row > :nth-child(2) input {
     width: 180px !important;
     min-width: 180px !important;
+    max-width: 180px !important;
     flex: 0 0 180px !important;
   }
+  .mp-rab-row > :nth-child(3) {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+  .mp-rab-row .mp-payment-nominal,
+  .mp-rab-row .ml-auto {
+    width: max-content !important;
+    min-width: 180px !important;
+    flex: 0 0 auto !important;
+  }
 
-  /* GAS: fixed operational controls, content-sized account fields,
-     flexible spacer, fixed nominal group and fixed delete action. */
+  /* GAS: account fields are content-width; quantity/size remain controlled. */
   .mp-gas-flex-row {
-    grid-template-columns: 62px fit-content(18rem) fit-content(6rem) fit-content(12rem) 76px 108px minmax(0, 1fr) max-content 36px !important;
+    grid-template-columns: 62px max-content max-content max-content 76px 108px minmax(0, 1fr) max-content 36px !important;
     align-items: center !important;
   }
-  .mp-gas-flex-row > :nth-child(1) { grid-column: 1; }
+  .mp-gas-flex-row > :nth-child(1) {
+    grid-column: 1;
+    width: 62px;
+    min-width: 62px;
+  }
   .mp-gas-flex-row > :nth-child(2) { grid-column: 2; width: max-content; max-width: 18rem; }
   .mp-gas-flex-row > :nth-child(3) { grid-column: 3; width: max-content; max-width: 6rem; }
   .mp-gas-flex-row > :nth-child(4) { grid-column: 4; width: max-content; max-width: 12rem; }
@@ -1073,6 +1093,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-gas-flex-row > :nth-last-child(2) input {
     width: 180px !important;
     min-width: 180px !important;
+    max-width: 180px !important;
     flex: 0 0 180px !important;
   }
   .mp-gas-flex-row > :last-child {
@@ -1084,21 +1105,38 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     flex: 0 0 36px !important;
   }
 
-  /* Ops rows use content-sized type/account/note fields. The spacer absorbs
-     unused width. nth-last-child keeps nominal and delete stable whether VA
-     is checked (owner field hidden) or unchecked (owner field visible). */
+  /* Ops rows: use max-content tracks rather than fit-content tracks.
+     fit-content tracks were expanding to consume spare grid width. */
   .mp-ops-flex-row {
-    grid-template-columns: fit-content(10rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) fit-content(18rem) minmax(0, 1fr) max-content 36px !important;
+    grid-template-columns: max-content max-content max-content max-content max-content minmax(0, 1fr) max-content 36px !important;
     align-items: center !important;
   }
   .mp-ops-flex-row:has(> label) {
-    grid-template-columns: fit-content(10rem) 54px fit-content(18rem) fit-content(6rem) fit-content(12rem) fit-content(18rem) minmax(0, 1fr) max-content 36px !important;
+    grid-template-columns: max-content 54px max-content max-content max-content max-content minmax(0, 1fr) max-content 36px !important;
   }
   .mp-ops-flex-row:has(> label input:checked) {
-    grid-template-columns: fit-content(10rem) 54px fit-content(6rem) fit-content(12rem) fit-content(18rem) minmax(0, 1fr) max-content 36px !important;
+    grid-template-columns: max-content 54px max-content max-content max-content minmax(0, 1fr) max-content 36px !important;
   }
-  .mp-ops-flex-row > :first-child { width: max-content; max-width: 10rem; }
+  .mp-ops-flex-row > :not(label):not(.mp-payment-nominal):not(:last-child) {
+    width: max-content !important;
+    max-width: 18rem;
+    min-width: 0;
+    justify-self: start;
+  }
+  .mp-ops-flex-row > :first-child { max-width: 10rem; }
+  .mp-ops-flex-row > input.mp-payment-detail:not([type='checkbox']) {
+    width: auto !important;
+    min-width: 4ch;
+    max-width: 18rem;
+    field-sizing: content;
+  }
+  .mp-ops-flex-row > select.mp-payment-detail {
+    width: max-content !important;
+    min-width: 0;
+    max-width: 10rem;
+  }
   .mp-ops-flex-row > label {
+    grid-column: 2;
     width: 54px !important;
     min-width: 54px !important;
     max-width: 54px !important;
@@ -1108,16 +1146,17 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-ops-flex-row > label input[type='checkbox'] { flex: 0 0 auto; }
   .mp-ops-flex-row > :nth-last-child(2) {
     grid-column: 7;
-    width: max-content;
-    min-width: 180px;
+    width: max-content !important;
+    min-width: 180px !important;
     justify-self: end;
-    flex: 0 0 auto;
+    flex: 0 0 auto !important;
   }
   .mp-ops-flex-row:has(> label) > :nth-last-child(2) { grid-column: 8; }
   .mp-ops-flex-row:has(> label input:checked) > :nth-last-child(2) { grid-column: 7; }
   .mp-ops-flex-row > :nth-last-child(2) input {
     width: 180px !important;
     min-width: 180px !important;
+    max-width: 180px !important;
     flex: 0 0 180px !important;
   }
   .mp-ops-flex-row > :last-child {
@@ -1131,41 +1170,61 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-ops-flex-row:has(> label) > :last-child { grid-column: 9; }
   .mp-ops-flex-row:has(> label input:checked) > :last-child { grid-column: 8; }
 
-  /* Salary/PIC: four fields fit content; spacer pushes fixed nominal group
-     to the right edge. The header uses the same six-column geometry. */
+  /* Salary/incentive: four detail fields fit content; nominal stays fixed. */
   .mp-salary-flex-row {
-    grid-template-columns: fit-content(18rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) minmax(0, 1fr) max-content !important;
+    grid-template-columns: max-content max-content max-content max-content minmax(0, 1fr) max-content !important;
     align-items: center !important;
   }
-  .mp-salary-flex-row > :nth-child(1),
-  .mp-salary-flex-row > :nth-child(2) { width: max-content; max-width: 18rem; }
-  .mp-salary-flex-row > :nth-child(3) { width: max-content; max-width: 6rem; }
-  .mp-salary-flex-row > :nth-child(4) { width: max-content; max-width: 12rem; }
+  .mp-salary-flex-row > :nth-child(-n+4) {
+    width: max-content !important;
+    max-width: 18rem;
+    min-width: 0;
+    justify-self: start;
+  }
   .mp-salary-flex-row > :last-child {
     grid-column: 6;
     width: max-content !important;
     min-width: 180px !important;
     justify-self: end;
-    flex: 0 0 auto;
+    flex: 0 0 auto !important;
+    text-align: right;
   }
   .mp-salary-flex-row > :last-child input {
     width: 180px !important;
     min-width: 180px !important;
+    max-width: 180px !important;
     flex: 0 0 180px !important;
   }
 }
 
-@media (max-width: 1023px) {
-  .mp-rab-row > :nth-child(2) { width: 100%; }
-  .mp-rab-row > :nth-child(2) > input { width: 100%; min-width: 0; }
-  .mp-ops-flex-row,
-  .mp-gas-flex-row,
-  .mp-salary-flex-row { min-width: 0; }
+/* Nominal input width includes a fixed 180px field; shortage actions never
+   steal width from the input or the adjacent delete control. */
+.mp-payment-nominal {
+  width: max-content !important;
+  min-width: 180px !important;
+  flex: 0 0 auto !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+}
+.mp-payment-nominal > input {
+  width: 180px !important;
+  min-width: 180px !important;
+  max-width: 180px !important;
+  flex: 0 0 180px !important;
+  text-align: right !important;
+}
+.mp-rab-amount {
+  text-align: right !important;
+}
+.mp-rab-row .ml-auto input {
+  width: 180px !important;
+  min-width: 180px !important;
+  max-width: 180px !important;
+  flex: 0 0 180px !important;
+  text-align: right !important;
 }
 
-
-/* Explicit payment-field hooks. Avoid positional selectors: Ops rows have
-   optional VA and conditional owner fields, so child indexes are unstable. */
+/* Consistent legibility for the account/detail fields. */
 .mp-payment-detail {
   color: #e2e8f0 !important;
   text-align: center !important;
@@ -1182,16 +1241,6 @@ input.mp-payment-detail {
   color: #e2e8f0 !important;
   text-align: center !important;
   -webkit-text-fill-color: #e2e8f0 !important;
-}
-.mp-payment-nominal {
-  justify-content: flex-end !important;
-  text-align: right !important;
-}
-.mp-payment-nominal > input {
-  text-align: right !important;
-}
-.mp-rab-amount {
-  text-align: right !important;
 }
 .mp-salary-flex-row.hidden > span:last-child {
   text-align: right !important;
