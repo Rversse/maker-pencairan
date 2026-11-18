@@ -1206,7 +1206,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     transactions.find(
       (transaction) => transaction.id === activeTransactionId
     ) ?? transactions[0]
-  const operationalEntries = activeTransaction?.operasional ?? []
 
   useEffect(() => {
     if (!selectedKitchen || !activeTransaction) return
@@ -1374,17 +1373,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       return
     }
     const entries = activeTransaction.operasional ?? []
-    if (entries.some((entry) => entry.operationalRuleId === rule.id || (
-      entry.operationalRuleType === 'ops_harian' &&
-      entry.ownerName.trim() === rule.owner_name.trim() &&
-      (entry.bank ?? '').trim().toUpperCase() === rule.bank.trim().toUpperCase() &&
-      entry.accountNumber.replace(/\D/g, '') === rule.account_number.replace(/\D/g, '')
-    ))) {
-      setHistoryMessage('Mapping rekening ini sudah ditambahkan.')
-      window.setTimeout(() => setHistoryMessage(''), 2200)
-      setOperationalAddMenuOpen(false)
-      return
-    }
+    // A mapped Ops Harian account may receive multiple payouts on the same date.
+    // Each payout is a distinct row with its own amount and transaction ID.
     const nextId = Math.max(0, ...entries.map((entry) => entry.id)) + 1
     updateTransaction(activeTransaction.id, {
       operasional: [...entries, {
@@ -1408,13 +1398,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     const nextId = currentEntries.length === 0
       ? 1
       : Math.max(...currentEntries.map((entry) => entry.id)) + 1
-    const mapping = getOperationalAccount(selectedKitchen?.name ?? '', masterData)
     updateTransaction(activeTransaction.id, {
       operasional: [...currentEntries, {
         ...createOperationalEntry(nextId),
-        ownerName: mapping?.ownerName ?? '',
-        bank: mapping?.bank ?? '',
-        accountNumber: mapping?.accountNumber ?? '',
+        ownerName: '',
+        bank: '',
+        accountNumber: '',
         customAccount: true,
         operationalRuleType: '',
         useArutalaAccount: false,
@@ -2941,15 +2930,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         <button type="button" aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
-                            {opsMappings.map((rule) => {
-                              const added = operationalEntries.some((entry) => entry.operationalRuleId === rule.id || (
-                                entry.operationalRuleType === 'ops_harian' &&
-                                entry.ownerName.trim() === rule.owner_name.trim() &&
-                                (entry.bank ?? '').trim().toUpperCase() === rule.bank.trim().toUpperCase() &&
-                                entry.accountNumber.replace(/\D/g, '') === rule.account_number.replace(/\D/g, '')
-                              ))
-                              return <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} disabled={added} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Ops Harian — {rule.owner_name}{added ? ' (Ditambahkan)' : ''}</button>
-                            })}
+                            {opsMappings.map((rule) => (
+                              <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Ops Harian — {rule.owner_name}</button>
+                            ))}
                             {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian — Mapping belum tersedia</button>}
                             {!isCihaurKitchen && <>
                               <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
@@ -3095,7 +3078,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   ))}
                                   {custom && !isMappedSalary && !isArutala ? (
                                     <select value={entry.bank ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
-                                      <option value="">Pilih bank</option>
+                                      <option value="">Nama bank</option>
                                       {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
                                     </select>
                                   ) : (
