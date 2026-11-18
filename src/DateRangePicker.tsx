@@ -287,7 +287,7 @@ export function DateRangePicker({
         aria-haspopup="dialog"
         onClick={handleTriggerClick}
       >
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4 shrink-0 text-sky-300">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4 shrink-0 text-teal-300">
           <rect x="3" y="5" width="18" height="16" rx="2" />
           <path d="M16 3v4M8 3v4M3 10h18" />
         </svg>
@@ -330,7 +330,7 @@ export function DateRangePicker({
               type="button"
               aria-expanded={showMonthYearPicker}
               className={[
-                'flex min-w-0 items-center justify-center gap-1 px-2 font-bold text-sky-200 hover:bg-slate-700',
+                'flex min-w-0 items-center justify-center gap-1 px-2 font-bold text-teal-200 hover:bg-teal-950/40',
                 density === 'normal' ? 'rounded-md py-1 text-xs' : density === 'compact' ? 'rounded-md py-0.5 text-[11px]' : 'rounded py-0 text-[10px]'
               ].join(' ')}
               onClick={() => setShowMonthYearPicker((current) => !current)}
@@ -434,10 +434,10 @@ export function DateRangePicker({
                         ? 'h-7 text-[10px]'
                         : 'h-6 text-[9px]',
                     isStart || isEnd
-                      ? 'border-sky-400 bg-sky-500 text-slate-950'
+                      ? 'border-teal-400 bg-teal-500 text-slate-950'
                       : inRange
-                        ? 'border-sky-500/20 bg-sky-500/15 text-sky-100'
-                        : 'border-transparent bg-transparent text-slate-200 hover:border-sky-400 hover:bg-sky-500/10',
+                        ? 'border-teal-500/25 bg-teal-500/15 text-teal-100'
+                        : 'border-transparent bg-transparent text-slate-200 hover:border-teal-400 hover:bg-teal-500/10',
                     beforePending ? 'cursor-not-allowed opacity-30' : ''
                   ].join(' ')}
                 >
