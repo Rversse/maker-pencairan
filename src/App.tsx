@@ -3252,10 +3252,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           kitchenId={kitchenId}
           kitchenName={selectedKitchen.name}
           transactionDate={activeDate}
-          rabLabels={Object.fromEntries(sortedRabRules.map(rule => [
-            rule.account_id,
-            formatSupplierAccountName(rule.supplier?.business_name ?? rule.accounts?.name ?? rule.account_id, rule.supplier?.owner_name)
-          ]))}
           onStartChange={(payload, _eventType, selectedKeys) => {
             setHistoryChangeBase(payload)
             setHistorySelectedKeys(selectedKeys)
