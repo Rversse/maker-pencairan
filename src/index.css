@@ -1907,3 +1907,159 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     flex: 1 1 auto !important;
   }
 }
+
+
+/* ── History editing controls and compact history list ─────────────────── */
+.mp-form-stack .mp-history-shortage-toggle {
+  display: inline-flex;
+  min-height: 36px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid rgb(100 116 139 / 48%) !important;
+  border-radius: 8px !important;
+  background: rgb(30 41 59 / 38%) !important;
+  color: #cbd5e1 !important;
+  white-space: nowrap;
+}
+.mp-form-stack .mp-history-shortage-toggle:hover:not(:disabled) {
+  border-color: rgb(45 212 191 / 58%) !important;
+  background: rgb(13 148 136 / 10%) !important;
+  color: #e2e8f0 !important;
+}
+.mp-form-stack .mp-history-shortage-toggle.is-active {
+  border-color: rgb(45 212 191 / 70%) !important;
+  background: rgb(13 148 136 / 18%) !important;
+  color: #99f6e4 !important;
+}
+.mp-history-shortage-switch {
+  position: relative;
+  display: inline-flex;
+  width: 27px;
+  height: 16px;
+  flex: 0 0 27px;
+  align-items: center;
+  border: 1px solid rgb(100 116 139 / 58%);
+  border-radius: 999px;
+  padding: 2px;
+  background: #1e293b;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.mp-history-shortage-switch > span {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transform: translateX(0);
+  transition: transform 150ms ease, background-color 150ms ease;
+}
+.mp-history-shortage-toggle.is-active .mp-history-shortage-switch {
+  border-color: #0f766e;
+  background: #0f766e;
+}
+.mp-history-shortage-toggle.is-active .mp-history-shortage-switch > span {
+  background: #ecfeff;
+  transform: translateX(11px);
+}
+
+/* Show the original value above the editable field only while a History
+   revision is active. The amount field and shortage switch remain side by side. */
+.mp-form-stack .mp-payment-nominal.mp-has-history-previous {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end !important;
+  row-gap: 2px;
+  padding-top: 14px;
+}
+.mp-history-previous-amount {
+  display: block;
+  min-width: 0;
+  flex: 0 0 100%;
+  order: -1;
+  overflow: hidden;
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 12px;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.mp-form-stack .mp-gas-quantity-stack {
+  display: flex;
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  flex: 0 0 68px !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+.mp-form-stack .mp-gas-quantity-input {
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  text-align: center !important;
+}
+.mp-form-stack .mp-gas-flex-row {
+  grid-template-columns: max-content max-content max-content max-content 68px max-content minmax(0, 1fr) 36px !important;
+}
+.mp-form-stack .mp-gas-flex-row > .mp-gas-size {
+  width: max-content;
+  min-width: 90px;
+  max-width: 112px;
+}
+
+/* Keep the native date control inside its bordered date-picker capsule.
+   Remove browser underline/link-like treatment from the editable date text. */
+.mp-history-date input[type="date"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  text-decoration: none !important;
+  text-underline-offset: 0 !important;
+}
+.mp-history-date input[type="date"]:focus,
+.mp-history-date input[type="date"]:focus-visible {
+  border: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.mp-history-date input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: .8;
+}
+.mp-history-list-totals {
+  justify-items: end;
+}
+.mp-history-list-totals > span {
+  min-width: 0;
+  text-align: right;
+}
+@media (max-width: 1023px) {
+  .mp-form-stack .mp-gas-flex-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
+  }
+  .mp-form-stack .mp-gas-quantity-stack {
+    justify-self: start;
+  }
+}
+@media (max-width: 639px) {
+  .mp-form-stack .mp-gas-flex-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important;
+  }
+  .mp-form-stack .mp-gas-quantity-stack {
+    justify-self: start;
+  }
+}
