@@ -1099,10 +1099,10 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 .mp-form-stack textarea:disabled,
 .mp-form-stack input[readonly],
 .mp-form-stack textarea[readonly] {
-  color: #a7b3c4 !important;
-  -webkit-text-fill-color: #a7b3c4 !important;
-  background: rgb(15 23 42 / 50%) !important;
-  border-bottom-color: rgb(71 85 105 / 38%) !important;
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  background: rgb(51 65 85 / 58%) !important;
+  border-bottom-color: rgb(100 116 139 / 46%) !important;
   cursor: not-allowed;
   opacity: 1 !important;
   box-shadow: none !important;
