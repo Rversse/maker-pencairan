@@ -1238,3 +1238,30 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-gas-flex-row,
   .mp-salary-flex-row { min-width: 0; }
 }
+
+
+/* Nominal group width is its fixed 180px input plus optional shortage action.
+   This keeps the input stable without allowing the action to collide with ×. */
+@media (min-width: 1024px) {
+  .mp-gas-flex-row {
+    grid-template-columns: 62px fit-content(18rem) fit-content(6rem) fit-content(12rem) 76px 108px max-content 36px !important;
+  }
+  .mp-ops-flex-row {
+    grid-template-columns: fit-content(10rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) minmax(100px, 1fr) max-content 36px !important;
+  }
+  .mp-ops-flex-row:has(> label) {
+    grid-template-columns: fit-content(10rem) 54px fit-content(18rem) fit-content(6rem) fit-content(12rem) minmax(100px, 1fr) max-content 36px !important;
+  }
+  .mp-ops-flex-row:has(> label input:checked) {
+    grid-template-columns: fit-content(10rem) 54px fit-content(6rem) fit-content(12rem) minmax(100px, 1fr) max-content 36px !important;
+  }
+  .mp-ops-flex-row:has(> label input:not(:checked)) > :nth-child(6) {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: initial !important;
+  }
+  .mp-salary-flex-row {
+    grid-template-columns: fit-content(18rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) max-content !important;
+  }
+}
