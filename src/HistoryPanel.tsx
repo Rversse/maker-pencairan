@@ -34,7 +34,7 @@ type Props = {
   rabLabels: Record<string, string>
   onLoadSnapshot: (payload: Record<string, unknown>) => void
   onRefreshSnapshot: (payload: Record<string, unknown>) => void
-  onStartChange: (payload: Record<string, unknown>, eventType: 'REVISI' | 'KEKURANGAN' | 'TAMBAHAN', selectedKeys: string[]) => void
+  onStartChange: (payload: Record<string, unknown>, eventType: 'REVISI', selectedKeys: string[]) => void
   onClose: () => void
 }
 const money = (value: unknown) => new Intl.NumberFormat('id-ID').format(Number(value) || 0)
@@ -65,7 +65,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [changeType, setChangeType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN' | null>(null)
+  const [changeType, setChangeType] = useState<'REVISI' | null>(null)
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
   const [activeEventId, setActiveEventId] = useState<string | null>(null)
   const [clockNow, setClockNow] = useState(Date.now())
@@ -420,7 +420,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     return entries
   }, [sourceTransaction])
   const visibleSelectableEntries = useMemo(
-    () => changeType && changeType !== 'TAMBAHAN'
+    () => changeType
       ? selectableEntries.filter(entry => Number(entry.amount.replace(/\D/g, '')) > 0)
       : selectableEntries,
     [selectableEntries, changeType]
@@ -449,7 +449,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {lockCountdown}</p></div>
           <div className="flex flex-wrap gap-2">
             <button type="button" disabled={busy} onClick={() => void refreshDetail()} title="Muat ulang snapshot terbaru" aria-label="Muat ulang snapshot terbaru" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-emerald-600 disabled:opacity-40"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg></button>
-            <button type="button" disabled={busy || !String(activePayload?.output ?? '').trim()} onClick={() => void copySnapshotOutput()} title="Salin output snapshot tanpa mengubah Form Utama atau Riwayat" className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">Salin Output</button>
             {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Load ke Form</button>}
             {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
           <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali</button>
@@ -468,11 +467,9 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         </div>
         {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
           <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
-          <p className="mt-1 text-[11px] text-slate-400">Pilih jenis perubahan dan klik lanjut ke form.</p>
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            {(['REVISI', 'KEKURANGAN', 'TAMBAHAN'] as const).map(type => <button key={type} type="button" data-option-button="true" data-selected={changeType === type} onClick={() => setChangeType(type)} className="rounded-lg border px-3 py-2 text-xs font-semibold">{type}</button>)}
-          </div>
-          {changeType && changeType !== 'TAMBAHAN' && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.filter(key => visibleSelectableEntries.some(entry => entry.key === key)).length}</p>
+          <p className="mt-1 text-[11px] text-slate-400">Pilih transaksi yang akan direvisi. Mode Kekurangan tersedia sebagai toggle pada masing-masing baris di Form.</p>
+          <div className="mt-3 flex justify-center"><button type="button" data-option-button="true" data-selected={changeType === 'REVISI'} onClick={() => setChangeType('REVISI')} className="rounded-lg border px-4 py-2 text-xs font-semibold">Revisi</button></div>
+          {changeType && <div className="mt-3 max-h-52 space-y-1 overflow-auto rounded-lg border border-slate-800 p-2"><p className="px-2 pb-1 text-[11px] text-slate-400">Transaksi dipilih: {selectedKeys.filter(key => visibleSelectableEntries.some(entry => entry.key === key)).length}</p>
             {visibleSelectableEntries.map(entry => <label key={entry.key} className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs hover:bg-slate-800/70">
               <input type="checkbox" checked={selectedKeys.includes(entry.key)} onChange={event => setSelectedKeys(current => event.target.checked ? [...current, entry.key] : current.filter(key => key !== entry.key))} />
               <span className="min-w-0 flex-1">{entry.label}</span><span className="tabular-nums text-slate-300">Rp {entry.amount}</span>
@@ -483,11 +480,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             {changeType ? (
               <button type="button" disabled={busy} onClick={() => { setChangeType(null); setSelectedKeys([]); setNotice('Pemilihan perubahan dibatalkan.'); setError('') }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 disabled:opacity-40">Batal</button>
             ) : <span />}
-            <button type="button" disabled={busy || !changeType || (changeType !== 'TAMBAHAN' && selectedKeys.length === 0)} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, changeType, selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Lanjut ke Form</button>
+            <button type="button" disabled={busy || !changeType || selectedKeys.length === 0} onClick={() => { if (!changeType) return; onStartChange(detail.history.payload, 'REVISI', selectedKeys) }} className="rounded-lg bg-emerald-700 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">Lanjut ke Form</button>
           </div>
         </section>}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-          <div className="mb-2 flex items-center justify-between gap-3"><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div><button type="button" disabled={busy || !String(activePayload?.output ?? '').trim()} onClick={() => void copySnapshotOutput()} title="Salin output snapshot" className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">Salin Output</button></div>
           <div className="max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-slate-300">
             {outputDiff.lines.map((fragments, lineIndex) => (
               <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
