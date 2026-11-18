@@ -2913,7 +2913,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               const accountNumber = rule?.accounts?.account_number ?? '-'
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
-                                  <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[62px_minmax(130px,1.05fr)_72px_minmax(120px,0.95fr)_76px_108px_minmax(180px,1.6fr)_36px]">
+                                  <div className="mp-gas-flex-row grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[62px_minmax(130px,1.05fr)_72px_minmax(120px,0.95fr)_76px_108px_minmax(180px,1.6fr)_36px]">
                                     <div className="mp-ops-kind flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-bold">GAS</div>
                                     <div title={accountName} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-xs font-semibold text-slate-100">{bank}</div>
@@ -2977,7 +2977,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? 'opacity-45' : ''}`}>
-                                <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount
+                                <div className={'mp-ops-flex-row grid min-w-0 items-end gap-2 ' + (showVirtualAccount
                                   ? entry.isVirtualAccount
                                     ? 'lg:grid-cols-[62px_54px_90px_minmax(105px,0.75fr)_minmax(220px,1.4fr)_minmax(260px,1.6fr)_36px]'
                                     : 'lg:grid-cols-[62px_54px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(160px,1fr)_minmax(260px,1.6fr)_36px]'
@@ -3086,7 +3086,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                       <span className="font-bold">Periksa kategori sebelum mengisi nominal.</span>
                     </div>
                     <div className="mt-3 space-y-1.5">
-                      <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
+                      <div className="hidden lg:mp-salary-flex-row grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                         <span>Jenis pencairan</span>
                         <span>Nama rekening</span>
                         <span>Bank</span>
@@ -3101,7 +3101,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             return (
                               <div
                                 key={entry.id}
-                                className={`mp-payment-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
+                                className={`mp-payment-row mp-salary-flex-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
                               >
                                   <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     Insentif Fasilitas SPPG
@@ -3164,7 +3164,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                             return (
                               <div key={entry.id} className={!historyEnabled ? 'opacity-45' : ''}>
-                                <div className="mp-payment-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
+                                <div className="mp-payment-row mp-salary-flex-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                                   <div
                                     title={label}
                                     className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
