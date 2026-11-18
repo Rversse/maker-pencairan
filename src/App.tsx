@@ -920,7 +920,23 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [historySaveSummary, setHistorySaveSummary] = useState('')
   const [historyChangeBase, setHistoryChangeBase] = useState<Record<string, unknown> | null>(null)
   const [historySelectedKeys, setHistorySelectedKeys] = useState<string[]>([])
-  const historyChangeActive = Boolean(historyChangeBase && historySaveType !== 'TAMBAHAN')
+  const [historyShortageKeys, setHistoryShortageKeys] = useState<string[]>([])
+  const historyChangeActive = Boolean(historyChangeBase)
+  const isHistoryShortage = (key: string) => historyShortageKeys.includes(key)
+  const toggleHistoryShortage = (key: string, enabled: boolean) => setHistoryShortageKeys(current => enabled ? [...new Set([...current, key])] : current.filter(item => item !== key))
+  const historyPreviousAmount = (key: string) => {
+    const base = historyChangeBase?.transaction as TransactionGroup | undefined
+    if (!base) return ''
+    const separator = key.indexOf(':')
+    const field = key.slice(0, separator)
+    const id = key.slice(separator + 1)
+    if (field === 'rab' || field === 'rab_b3') {
+      const row = base.rab.find(item => item.accountId === id)
+      return field === 'rab_b3' ? row?.b3Amount ?? '' : row?.amount ?? ''
+    }
+    const rows = base[field as keyof TransactionGroup] as Array<{ id: number; amount: string }> | undefined
+    return rows?.find(row => String(row.id) === id)?.amount ?? ''
+  }
   const isHistoryEntryEnabled = (key: string) => !historyChangeActive || historySelectedKeys.includes(key)
   const isHistoryRabEnabled = (accountId: string) => isHistoryEntryEnabled('rab:' + accountId)
   const isHistoryRabB3Enabled = (accountId: string) => isHistoryEntryEnabled('rab_b3:' + accountId)
@@ -2159,17 +2175,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     }
   }
 
-  async function copyOutputOnly() {
-    if (!output.trim()) return
-    try {
-      await navigator.clipboard.writeText(output)
-      setCopyMessage('Output berhasil disalin. Form Utama dan Riwayat tidak diubah.')
-    } catch {
-      setCopyMessage('Clipboard tidak tersedia di browser ini.')
-    }
-    window.setTimeout(() => setCopyMessage(''), 3000)
-  }
-
   async function copyOutput() {
     if ((!output && !historyChangeBase) || !activeTransaction || !kitchenId) return
     setHistorySaveBusy(true)
@@ -2255,8 +2260,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const amountWithDelta = (previous: string, entered: string) =>
         String(parseAmount(previous) + parseAmount(entered))
       const fields = ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const
+      const shortageKeys = new Set(historyShortageKeys)
+      const isShortage = (key: string) => shortageKeys.has(key)
 
-      if (historySaveType === 'TAMBAHAN') {
+      if (false) {
         const incrementalRab: RabEntry[] = []
         const mergedRab = baseTransaction.rab.map(previous => {
           const changed = currentTransaction.rab.find(row => row.accountId === previous.accountId)
@@ -2354,7 +2361,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               if (!changed) {
                 previous.amount = ''
                 previous.productTypes = []
-              } else if (historySaveType === 'KEKURANGAN') {
+              } else if (isShortage(key)) {
                 const delta = parseAmount(changed.amount)
                 if (delta <= 0) throw new Error('Isi nominal kekurangan RAB atau hapus baris yang dipilih.')
                 previous.amount = amountWithDelta(previous.amount, changed.amount)
@@ -2371,7 +2378,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 previous.b3Amount = ''
                 previous.b3Enabled = false
                 previous.b3ProductTypes = []
-              } else if (historySaveType === 'KEKURANGAN') {
+              } else if (isShortage(key)) {
                 const delta = parseAmount(changed.b3Amount)
                 if (delta <= 0) throw new Error('Isi nominal kekurangan RAB B3 atau hapus baris yang dipilih.')
                 previous.b3Amount = amountWithDelta(previous.b3Amount ?? '', changed.b3Amount ?? '')
@@ -2407,7 +2414,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           }
 
           let merged: typeof changed
-          if (historySaveType === 'KEKURANGAN') {
+          if (isShortage(key)) {
             if (parseAmount(changed.amount) <= 0) {
               throw new Error('Isi nominal kekurangan untuk transaksi yang dipilih, atau hapus barisnya.')
             }
@@ -2479,7 +2486,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         if (JSON.stringify(before[key]) !== JSON.stringify(snapshot[key])) delta[key] = snapshot[key] ?? null
       }
 
-      const incrementalOutput = getTransactionOutput(incrementalTransaction, historySaveType).join('\n')
+      delta.shortage_keys = [...shortageKeys]
+      const incrementalOutput = getTransactionOutput(incrementalTransaction, 'REVISI').join('\n')
       delta.incremental_output = incrementalOutput
 
       if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
@@ -2488,7 +2496,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           action: 'change',
           draft_id: existing.id,
           expected_version: detailData.history.version,
-          event_type: historySaveType,
+          event_type: 'REVISI',
           summary: historySaveSummary,
           delta,
           snapshot
@@ -2625,7 +2633,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                       <div className="mt-2 flex min-h-[135px] flex-1 flex-col gap-2">
                         <pre className="max-h-[30vh] flex-1 overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20">{output}</pre>
                         <div className="flex flex-wrap items-center gap-2">
-                          <button type="button" disabled={!output.trim() || historySaveBusy} onClick={() => void copyOutputOnly()} className="self-start rounded-lg border border-sky-700 bg-sky-950/50 px-3 py-2 text-[11px] font-semibold text-sky-200 hover:bg-sky-900/60 disabled:opacity-40">Copy Output</button>
                           <button type="button" disabled={(!output && !historyChangeBase) || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
                         </div>
                       </div>
@@ -3286,7 +3293,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           onStartChange={(payload, eventType, selectedKeys) => {
             setHistoryChangeBase(payload)
             setHistorySelectedKeys(selectedKeys)
-            setHistorySaveType(eventType)
+            setHistoryShortageKeys([])
+            setHistorySaveType('REVISI')
             setHistorySaveSummary('')
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
@@ -3332,11 +3340,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             setHistoryOpen(false)
             setHistorySaveOpen(false)
             persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
-            setHistoryMessage(eventType === 'KEKURANGAN'
-              ? 'KEKURANGAN: isi nominal kekurangan saja. Saat disimpan, nominal ini ditambahkan ke nominal sebelumnya.'
-              : eventType === 'TAMBAHAN'
-                ? 'TAMBAHAN: isi nominal tambahan. Sistem akan menambahkannya ke nominal sebelumnya.'
-                : 'REVISI: isi nominal pengganti sebagai nilai akhir. Form dan output hanya menampilkan transaksi yang dicentang.')
+            setHistoryMessage('REVISI: isi nominal pengganti sebagai nilai akhir. Untuk Kekurangan, aktifkan toggle pada baris terkait lalu masukkan nominal selisihnya.')
           }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
