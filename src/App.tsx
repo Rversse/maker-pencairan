@@ -2775,7 +2775,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   </div>
                                 )}
                             </div>
-<div className="flex min-w-0 items-center justify-end gap-1.5"><input
+<div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input
                               id={'rab-' + activeTransaction.id + '-' + rule.account_id}
                               type="text"
                               inputMode="numeric"
@@ -2839,7 +2839,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         </button>
                                       )
                                     })}
-<div className="ml-auto flex min-w-0 items-center justify-end gap-1.5"><input
+<div className="mp-payment-nominal ml-auto flex min-w-0 items-center justify-end gap-1.5"><input
                                       type="text"
                                       inputMode="numeric"
                                       value={formatNumber(entry.b3Amount ?? '')}
