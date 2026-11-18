@@ -2205,3 +2205,32 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     transition-duration: .01ms !important;
   }
 }
+
+
+/* Calendar/date-range picker — shared form control surface */
+.mp-date-range-trigger {
+  border-color: rgb(71 85 105 / 72%) !important;
+  background: #0b1422 !important;
+  box-shadow: none !important;
+}
+.mp-date-range-trigger:hover:not(:disabled) {
+  border-color: rgb(45 212 191 / 62%) !important;
+  background: #111c2b !important;
+}
+.mp-date-range-popover {
+  border-color: rgb(71 85 105 / 74%) !important;
+  background: #0b1422 !important;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 42%) !important;
+  animation: mp-history-enter 140ms ease-out both;
+}
+.mp-date-range-popover button:focus-visible,
+.mp-date-range-popover select:focus-visible {
+  outline: 2px solid rgb(45 212 191 / 55%);
+  outline-offset: 2px;
+}
+.mp-date-range-popover [data-calendar-day="true"]:disabled {
+  background: transparent;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-date-range-popover { animation: none !important; }
+}
