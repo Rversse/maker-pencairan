@@ -1089,3 +1089,152 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   .mp-salary-flex-row > :nth-child(3) { max-width: 6rem; }
   .mp-salary-flex-row > :nth-child(4) { max-width: 12rem; }
 }
+
+
+/* Final fixed-nominal / content-fit layout for all payment sections.
+   Only the fields before Nominal size to their content; Nominal and
+   trailing action controls keep stable widths and never get squeezed. */
+@media (min-width: 1024px) {
+  /* RAB: flexible product/details area, fixed right-aligned nominal area. */
+  .mp-rab-row {
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    align-items: center !important;
+  }
+  .mp-rab-row > :first-child { min-width: 0; }
+  .mp-rab-row > :nth-child(2) {
+    width: max-content;
+    min-width: 180px;
+    justify-self: end;
+  }
+  .mp-rab-row > :nth-child(2) > input {
+    width: 180px !important;
+    min-width: 180px !important;
+    flex: 0 0 180px !important;
+  }
+
+  /* GAS: fixed amount column and fixed delete button; account fields fit. */
+  .mp-gas-flex-row {
+    grid-template-columns: 62px fit-content(18rem) fit-content(6rem) fit-content(12rem) 76px 108px 180px 36px !important;
+    align-items: center !important;
+  }
+  .mp-gas-flex-row > :nth-child(2) { width: max-content; max-width: 18rem; }
+  .mp-gas-flex-row > :nth-child(3) { width: max-content; max-width: 6rem; }
+  .mp-gas-flex-row > :nth-child(4) { width: max-content; max-width: 12rem; }
+  .mp-gas-flex-row > :nth-child(7) {
+    width: max-content !important;
+    min-width: 180px !important;
+    justify-self: end;
+    flex: 0 0 180px;
+  }
+  .mp-gas-flex-row > :nth-child(7) input {
+    width: 180px !important;
+    min-width: 180px !important;
+    flex: 0 0 180px !important;
+  }
+  .mp-gas-flex-row > :nth-child(8) {
+    width: 36px !important;
+    min-width: 36px !important;
+    flex: 0 0 36px !important;
+    justify-self: end;
+  }
+
+  /* Standard Ops rows: label/account columns fit content, note fills,
+     nominal remains 180px, delete remains 36px. */
+  .mp-ops-flex-row {
+    grid-template-columns: fit-content(10rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) minmax(100px, 1fr) 180px 36px !important;
+    align-items: center !important;
+  }
+  .mp-ops-flex-row > :nth-child(1) { width: max-content; max-width: 10rem; }
+  .mp-ops-flex-row > :nth-child(2) { width: max-content; max-width: 18rem; }
+  .mp-ops-flex-row > :nth-child(3) { width: max-content; max-width: 6rem; }
+  .mp-ops-flex-row > :nth-child(4) { width: max-content; max-width: 12rem; }
+  .mp-ops-flex-row > :nth-child(5) { min-width: 0; }
+  .mp-ops-flex-row > :nth-child(6) {
+    width: max-content !important;
+    min-width: 180px !important;
+    justify-self: end;
+    flex: 0 0 180px;
+  }
+  .mp-ops-flex-row > :nth-child(6) input {
+    width: 180px !important;
+    min-width: 180px !important;
+    flex: 0 0 180px !important;
+  }
+  .mp-ops-flex-row > :last-child {
+    width: 36px !important;
+    min-width: 36px !important;
+    flex: 0 0 36px !important;
+    justify-self: end;
+  }
+
+  /* VA rows: reserve its own 54px track in both checked and unchecked
+     states. The remaining columns shift, but the close button cannot shrink. */
+  .mp-ops-flex-row:has(> label) {
+    grid-template-columns: fit-content(10rem) 54px fit-content(18rem) fit-content(6rem) fit-content(12rem) minmax(100px, 1fr) 180px 36px !important;
+  }
+  .mp-ops-flex-row:has(> label input:checked) {
+    grid-template-columns: fit-content(10rem) 54px fit-content(6rem) fit-content(12rem) minmax(100px, 1fr) 180px 36px !important;
+  }
+  .mp-ops-flex-row:has(> label) > :nth-child(2) {
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+    flex: 0 0 54px !important;
+  }
+  .mp-ops-flex-row:has(> label) > :nth-child(7),
+  .mp-ops-flex-row:has(> label input:checked) > :nth-child(6) {
+    width: max-content !important;
+    min-width: 180px !important;
+    justify-self: end;
+    flex: 0 0 180px;
+  }
+  .mp-ops-flex-row:has(> label) > :nth-child(7) input,
+  .mp-ops-flex-row:has(> label input:checked) > :nth-child(6) input {
+    width: 180px !important;
+    min-width: 180px !important;
+    flex: 0 0 180px !important;
+  }
+
+  /* Salary/PIC: content-fit identity fields; fixed nominal column. */
+  .mp-salary-flex-row {
+    grid-template-columns: fit-content(18rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) 180px !important;
+    align-items: center !important;
+  }
+  .mp-salary-flex-row > :nth-child(1),
+  .mp-salary-flex-row > :nth-child(2) { width: max-content; max-width: 18rem; }
+  .mp-salary-flex-row > :nth-child(3) { width: max-content; max-width: 6rem; }
+  .mp-salary-flex-row > :nth-child(4) { width: max-content; max-width: 12rem; }
+  .mp-salary-flex-row > :last-child {
+    width: max-content !important;
+    min-width: 180px !important;
+    justify-self: end;
+    flex: 0 0 180px;
+  }
+  .mp-salary-flex-row > :last-child input {
+    width: 180px !important;
+    min-width: 180px !important;
+    flex: 0 0 180px !important;
+  }
+}
+
+/* Prevent grid/flex children and the VA control from shrinking below their
+   intended hit target when the available row width becomes constrained. */
+.mp-ops-flex-row > button:last-child,
+.mp-gas-flex-row > button:last-child {
+  box-sizing: border-box;
+}
+.mp-ops-flex-row > label:has(input[type='checkbox']) {
+  width: 54px;
+  min-width: 54px;
+  flex: 0 0 54px;
+  white-space: nowrap;
+}
+.mp-ops-flex-row > label input[type='checkbox'] { flex: 0 0 auto; }
+
+@media (max-width: 1023px) {
+  .mp-rab-row > :nth-child(2) { width: 100%; }
+  .mp-rab-row > :nth-child(2) > input { width: 100%; min-width: 0; }
+  .mp-ops-flex-row,
+  .mp-gas-flex-row,
+  .mp-salary-flex-row { min-width: 0; }
+}
