@@ -937,11 +937,45 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     const rows = base[field as keyof TransactionGroup] as Array<{ id: number; amount: string }> | undefined
     return rows?.find(row => String(row.id) === id)?.amount ?? ''
   }
-  const renderHistoryShortageButton = (key: string, onEnable: () => void) => {
+  const historyPreviousGasQuantity = (id: number) => {
+    const base = historyChangeBase?.transaction as TransactionGroup | undefined
+    return base?.gas?.find(row => row.id === id)?.gasQuantity ?? ''
+  }
+  const hasHistoryPreviousAmount = (key: string) => {
+    if (!historyChangeActive || !historyEntryKeys.includes(key)) return false
+    return Number(historyPreviousAmount(key).replace(/\D/g, '')) > 0
+  }
+  const renderHistoryPreviousAmount = (key: string) => {
+    if (!hasHistoryPreviousAmount(key)) return null
+    return <span className="mp-history-previous-amount">Awal: Rp {formatNumber(historyPreviousAmount(key))}</span>
+  }
+  const renderHistoryPreviousGasQuantity = (id: number) => {
+    if (!historyChangeActive || !historyEntryKeys.includes('gas:' + id)) return null
+    const previous = historyPreviousGasQuantity(id)
+    if (!previous || Number(previous) <= 0) return null
+    return <span className="mp-history-previous-amount">Awal: {previous} tabung</span>
+  }
+  const renderHistoryShortageButton = (key: string, onEnable: () => void, onDisable: () => void) => {
     if (!historyChangeActive || !historyEntryKeys.includes(key)) return null
     const enabled = isHistoryShortage(key)
     const previous = historyPreviousAmount(key)
-    return <button type="button" aria-pressed={enabled} title={`Nominal sebelumnya: Rp ${formatNumber(previous) || '0'}`} onClick={() => { toggleHistoryShortage(key, !enabled); if (!enabled) onEnable() }} className={`h-10 shrink-0 rounded-md border px-3 text-xs font-semibold transition ${enabled ? 'border-amber-500 bg-amber-500/15 text-amber-200' : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-amber-500/70 hover:text-amber-200'}`}>Kekurangan</button>
+    return (
+      <button
+        type="button"
+        aria-pressed={enabled}
+        title={enabled ? 'Matikan Kekurangan dan pulihkan nominal awal' : `Aktifkan Kekurangan. Nominal awal: Rp ${formatNumber(previous) || '0'}`}
+        onClick={() => {
+          const nextEnabled = !enabled
+          toggleHistoryShortage(key, nextEnabled)
+          if (nextEnabled) onEnable()
+          else onDisable()
+        }}
+        className={`mp-history-shortage-toggle h-10 shrink-0 rounded-md px-3 text-xs font-semibold transition ${enabled ? 'is-active' : ''}`}
+      >
+        <span>Kekurangan</span>
+        <span className="mp-history-shortage-switch" aria-hidden="true"><span /></span>
+      </button>
+    )
   }
   const getHistoryEntryKeys = (transaction: TransactionGroup) => [
     ...transaction.rab.flatMap(row => [
