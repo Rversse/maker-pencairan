@@ -1107,29 +1107,29 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   }
   .mp-ops-flex-row > label input[type='checkbox'] { flex: 0 0 auto; }
   .mp-ops-flex-row > :nth-last-child(2) {
-    grid-column: 8;
+    grid-column: 7;
     width: max-content;
     min-width: 180px;
     justify-self: end;
     flex: 0 0 auto;
   }
   .mp-ops-flex-row:has(> label) > :nth-last-child(2) { grid-column: 8; }
-  .mp-ops-flex-row:has(> label input:checked) > :nth-last-child(2) { grid-column: 8; }
+  .mp-ops-flex-row:has(> label input:checked) > :nth-last-child(2) { grid-column: 7; }
   .mp-ops-flex-row > :nth-last-child(2) input {
     width: 180px !important;
     min-width: 180px !important;
     flex: 0 0 180px !important;
   }
   .mp-ops-flex-row > :last-child {
-    grid-column: 9;
+    grid-column: 8;
     width: 36px !important;
     min-width: 36px !important;
     max-width: 36px !important;
     justify-self: end;
     flex: 0 0 36px !important;
   }
+  .mp-ops-flex-row:has(> label) > :last-child { grid-column: 9; }
   .mp-ops-flex-row:has(> label input:checked) > :last-child { grid-column: 8; }
-  .mp-ops-flex-row:has(> label input:checked) > :nth-last-child(2) { grid-column: 7; }
 
   /* Salary/PIC: four fields fit content; spacer pushes fixed nominal group
      to the right edge. The header uses the same six-column geometry. */
