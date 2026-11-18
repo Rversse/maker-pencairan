@@ -444,16 +444,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
         <div className="mp-history-body min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
           {!detail ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-100">Transaksi harian</h3>
-                  <p className="mt-0.5 text-[11px] text-slate-500">{formatDate(selectedDate)}</p>
-                </div>
-                <span className="rounded-full border border-slate-700/70 bg-slate-900/70 px-2.5 py-1 text-[10px] font-semibold tabular-nums text-slate-400">
-                  {rows.length} transaksi
-                </span>
-              </div>
+            <div className="space-y-2">
 
               {busy && (
                 <div className="flex items-center gap-2 rounded-xl border border-slate-800/80 bg-slate-900/40 px-3 py-3 text-xs text-slate-400">
@@ -491,21 +482,20 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-semibold text-slate-100">{formatDate(row.transaction_date)}</span>
-                        <span className="mt-1 block text-[11px] text-slate-500">Disimpan {dateTime(row.created_at)}</span>
                       </span>
                     </span>
                     <span className="mp-history-list-totals grid w-full grid-cols-3 gap-2 border-t border-slate-800/70 pt-2 text-left sm:w-auto sm:min-w-[330px] sm:border-0 sm:pt-0">
                       <span className="min-w-0">
-                        <span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-500">RAB</span>
-                        <span className="mt-0.5 block truncate text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalRab)}</span>
+                        <span className="block text-right text-[9px] font-semibold uppercase tracking-wide text-slate-500">RAB</span>
+                        <span className="mt-0.5 block truncate text-right text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalRab)}</span>
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-500">Ops harian</span>
-                        <span className="mt-0.5 block truncate text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalOpsHarian)}</span>
+                        <span className="block text-right text-[9px] font-semibold uppercase tracking-wide text-slate-500">Ops harian</span>
+                        <span className="mt-0.5 block truncate text-right text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalOpsHarian)}</span>
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-[9px] font-semibold uppercase tracking-wide text-slate-500">Total</span>
-                        <span className="mt-0.5 block truncate text-xs font-bold tabular-nums text-teal-200">Rp {money(row.payload?.totalOverall)}</span>
+                        <span className="block text-right text-[9px] font-semibold uppercase tracking-wide text-slate-500">Total</span>
+                        <span className="mt-0.5 block truncate text-right text-xs font-bold tabular-nums text-teal-200">Rp {money(row.payload?.totalOverall)}</span>
                       </span>
                     </span>
                     <svg viewBox="0 0 24 24" className="hidden h-4 w-4 shrink-0 text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-teal-300 sm:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
