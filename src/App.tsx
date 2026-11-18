@@ -2263,78 +2263,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const shortageKeys = new Set(historyShortageKeys)
       const isShortage = (key: string) => shortageKeys.has(key)
 
-      if (false) {
-        const incrementalRab: RabEntry[] = []
-        const mergedRab = baseTransaction.rab.map(previous => {
-          const changed = currentTransaction.rab.find(row => row.accountId === previous.accountId)
-          if (!changed) return previous
-
-          const addedProducts = changed.productTypes.filter(product => !previous.productTypes.includes(product))
-          const addedAmount = parseAmount(changed.amount)
-          const previousB3Products = previous.b3ProductTypes ?? []
-          const changedB3Products = changed.b3ProductTypes ?? []
-          const addedB3Products = changedB3Products.filter(product => !previousB3Products.includes(product))
-          const addedB3Amount = parseAmount(changed.b3Amount)
-
-          if (addedProducts.length > 0 && addedAmount <= 0) {
-            throw new Error('Isi nominal tambahan RAB untuk item ' + addedProducts.join(', ') + '.')
-          }
-          if (addedB3Products.length > 0 && addedB3Amount <= 0) {
-            throw new Error('Isi nominal tambahan RAB B3 untuk item ' + addedB3Products.join(', ') + '.')
-          }
-
-          if (addedAmount > 0 || addedB3Amount > 0) {
-            incrementalRab.push({
-              ...changed,
-              productTypes: addedProducts.length > 0 ? addedProducts : changed.productTypes,
-              amount: addedAmount > 0 ? String(addedAmount) : '',
-              b3Enabled: addedB3Amount > 0,
-              b3ProductTypes: addedB3Products.length > 0 ? addedB3Products : (addedB3Amount > 0 ? changedB3Products : []),
-              b3Amount: addedB3Amount > 0 ? String(addedB3Amount) : ''
-            })
-          }
-
-          return {
-            ...previous,
-            productTypes: sortStrings([...previous.productTypes, ...addedProducts]),
-            amount: addedAmount > 0 ? amountWithDelta(previous.amount, String(addedAmount)) : previous.amount,
-            b3Enabled: Boolean(previous.b3Enabled || addedB3Amount > 0),
-            b3ProductTypes: sortStrings([...previousB3Products, ...addedB3Products]),
-            b3Amount: addedB3Amount > 0
-              ? amountWithDelta(previous.b3Amount ?? '', String(addedB3Amount))
-              : (previous.b3Amount ?? '')
-          }
-        })
-
-        const knownRabIds = new Set(baseTransaction.rab.map(row => row.accountId))
-        const newRab = currentTransaction.rab.filter(row => !knownRabIds.has(row.accountId)).filter(row => {
-          const hasNormal = parseAmount(row.amount) > 0
-          const hasB3 = parseAmount(row.b3Amount) > 0
-          if ((row.productTypes.length > 0 && !hasNormal) || ((row.b3ProductTypes ?? []).length > 0 && !hasB3)) {
-            throw new Error('Isi nominal untuk item RAB baru sebelum menyimpan TAMBAHAN.')
-          }
-          return hasNormal || hasB3
-        })
-        nextTransaction.rab = [...mergedRab, ...newRab]
-        incrementalRab.push(...newRab)
-        incrementalTransaction.rab = incrementalRab
-
-        for (const field of fields) {
-          const beforeRows = baseTransaction[field] ?? []
-          const currentRows = currentTransaction[field] ?? []
-          const enteredRows = currentRows.filter(row => parseAmount(row.amount) > 0)
-          const enteredById = new Map(enteredRows.map(row => [String(row.id), row]))
-          const mergedRows = beforeRows.map(previous => {
-            const entered = enteredById.get(String(previous.id))
-            if (!entered) return previous
-            return { ...entered, amount: amountWithDelta(previous.amount, entered.amount) }
-          })
-          const knownIds = new Set(beforeRows.map(row => String(row.id)))
-          const newRows = enteredRows.filter(row => !knownIds.has(String(row.id)))
-          ;(nextTransaction as unknown as Record<string, unknown>)[field] = [...mergedRows, ...newRows]
-          ;(incrementalTransaction as unknown as Record<string, unknown>)[field] = enteredRows
-        }
-      } else {
+{
         const selected = new Set(historySelectedKeys)
         const rabById = new Map(baseTransaction.rab.map(row => [row.accountId, { ...row }]))
         const changedRabById = new Map(currentTransaction.rab.map(row => [row.accountId, row]))
@@ -3306,40 +3235,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
             const restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
-            const clearAmounts = <T extends { amount: string }>(rows: T[] | undefined) =>
-              (rows ?? []).map(row => ({ ...row, amount: '' }))
-            if (eventType === 'TAMBAHAN') {
-              restored.rab = clearAmounts(restored.rab).map(row => ({ ...row, b3Amount: '' }))
-              restored.gas = clearAmounts(restored.gas)
-              restored.operasional = clearAmounts(restored.operasional)
-              restored.pencairan_harian = clearAmounts(restored.pencairan_harian)
-              restored.lain_lain = clearAmounts(restored.lain_lain)
-              restored.arutala_lain_lain = clearAmounts(restored.arutala_lain_lain)
-              restored.arutala_by_date = Object.fromEntries(
-                Object.entries(restored.arutala_by_date ?? {}).map(([date, bucket]) => [
-                  date,
-                  {
-                    ...bucket,
-                    gas: clearAmounts(bucket.gas),
-                    lain_lain: clearAmounts(bucket.lain_lain)
-                  }
-                ])
-              )
-            } else if (eventType === 'KEKURANGAN') {
-              const selected = new Set(selectedKeys)
-              restored.rab = restored.rab.map(row => ({
-                ...row,
-                amount: selected.has('rab:' + row.accountId) ? '' : row.amount,
-                b3Amount: selected.has('rab_b3:' + row.accountId) ? '' : (row.b3Amount ?? '')
-              }))
-              const clearSelected = <T extends { id: number; amount: string }>(field: string, rows: T[] | undefined) =>
-                (rows ?? []).map(row => selected.has(field + ':' + row.id) ? { ...row, amount: '' } : row)
-              restored.gas = clearSelected('gas', restored.gas)
-              restored.operasional = clearSelected('operasional', restored.operasional)
-              restored.pencairan_harian = clearSelected('pencairan_harian', restored.pencairan_harian)
-              restored.lain_lain = clearSelected('lain_lain', restored.lain_lain)
-              restored.arutala_lain_lain = clearSelected('arutala_lain_lain', restored.arutala_lain_lain)
-            }
             const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
             setKitchenId(restoredKitchenId)
             setTransactions([restored])
