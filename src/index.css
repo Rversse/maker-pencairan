@@ -1026,3 +1026,66 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   border-color: rgb(71 85 105 / 72%) !important;
   background-color: #0b1422 !important;
 }
+
+
+/* Content-fit columns for Operational, GAS and Salary/PIC rows.
+   Account fields size to their actual values (with sensible caps);
+   notes absorb remaining space and nominal stays anchored to the right. */
+@media (min-width: 1280px) {
+  .mp-gas-flex-row {
+    grid-template-columns: 62px fit-content(18rem) fit-content(6rem) fit-content(12rem) 76px 108px max-content 36px !important;
+  }
+  .mp-gas-flex-row > :nth-child(2) { max-width: 18rem; }
+  .mp-gas-flex-row > :nth-child(3) { max-width: 6rem; }
+  .mp-gas-flex-row > :nth-child(4) { max-width: 12rem; }
+  .mp-gas-flex-row > :nth-child(7) {
+    width: max-content;
+    justify-self: end;
+  }
+  .mp-gas-flex-row > :nth-child(7) input { width: 180px; }
+
+  .mp-ops-flex-row {
+    grid-template-columns: fit-content(10rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) minmax(160px, 1fr) max-content 36px !important;
+  }
+  .mp-ops-flex-row > :nth-child(1) { max-width: 10rem; }
+  .mp-ops-flex-row > :nth-child(2) { max-width: 18rem; }
+  .mp-ops-flex-row > :nth-child(3) { max-width: 6rem; }
+  .mp-ops-flex-row > :nth-child(4) { max-width: 12rem; }
+  .mp-ops-flex-row > :nth-child(5) { min-width: 0; }
+  .mp-ops-flex-row > :nth-child(6) {
+    width: max-content;
+    justify-self: end;
+  }
+  .mp-ops-flex-row > :nth-child(6) input { width: 180px; }
+
+  /* Custom rows that include a Virtual Account toggle. */
+  .mp-ops-flex-row:has(> label) {
+    grid-template-columns: fit-content(10rem) 54px fit-content(18rem) fit-content(6rem) fit-content(12rem) minmax(140px, 1fr) max-content 36px !important;
+  }
+  .mp-ops-flex-row:has(> label input:checked) {
+    grid-template-columns: fit-content(10rem) 54px fit-content(6rem) fit-content(12rem) minmax(160px, 1fr) max-content 36px !important;
+  }
+  .mp-ops-flex-row:has(> label) > :nth-child(7) {
+    width: max-content;
+    justify-self: end;
+  }
+  .mp-ops-flex-row:has(> label) > :nth-child(7) input { width: 180px; }
+  .mp-ops-flex-row:has(> label input:checked) > :nth-child(6) {
+    width: max-content;
+    justify-self: end;
+  }
+  .mp-ops-flex-row:has(> label input:checked) > :nth-child(6) input { width: 180px; }
+
+  .mp-salary-flex-row {
+    grid-template-columns: fit-content(18rem) fit-content(18rem) fit-content(6rem) fit-content(12rem) 180px !important;
+  }
+  .mp-salary-flex-row > :last-child {
+    width: max-content;
+    justify-self: end;
+  }
+  .mp-salary-flex-row > :last-child input { width: 180px; }
+  .mp-salary-flex-row > :nth-child(1),
+  .mp-salary-flex-row > :nth-child(2) { max-width: 18rem; }
+  .mp-salary-flex-row > :nth-child(3) { max-width: 6rem; }
+  .mp-salary-flex-row > :nth-child(4) { max-width: 12rem; }
+}
