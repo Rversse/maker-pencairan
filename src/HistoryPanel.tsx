@@ -367,7 +367,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
   const eventLabel = (eventType: string) => {
-    if (eventType === 'NORMAL') return 'Pencairan awal'
+    if (eventType === 'NORMAL') return 'Pencairan'
     if (eventType === 'REVISI') return 'Revisi'
     if (eventType === 'KEKURANGAN') return 'Kekurangan'
     if (eventType === 'TAMBAHAN') return 'Tambahan'
@@ -379,12 +379,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const difference = currentValue - previousValue
     const hasPrevious = Boolean(previousPayload)
     const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-500'
-    const indicator = !hasPrevious ? 'Nilai awal' : difference > 0 ? `↑ +Rp ${money(difference)}` : difference < 0 ? `↓ -Rp ${money(Math.abs(difference))}` : 'Tidak berubah'
+    const indicator = !hasPrevious || difference === 0 ? '' : difference > 0 ? `↑ +Rp ${money(difference)}` : `↓ -Rp ${money(Math.abs(difference))}`
     return (
       <div className="mp-history-metric min-w-0 rounded-xl px-3 py-3">
         <p className="text-[10px] font-semibold uppercase tracking-[.08em] text-slate-400">{label}</p>
         <p className="mt-1 break-words text-lg font-bold tabular-nums text-slate-50">Rp {money(currentValue)}</p>
-        <p className={`mt-1 text-[10px] font-semibold tabular-nums ${indicatorClass}`}>{indicator}</p>
+        {indicator && <p className={`mt-1 text-[10px] font-semibold tabular-nums ${indicatorClass}`}>{indicator}</p>}
       </div>
     )
   }
@@ -569,7 +569,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="mp-history-event-badge">{eventLabel(activeEvent?.event_type ?? 'NORMAL')}</span>
-                    {activeEvent?.summary && <span className="min-w-0 truncate text-xs text-slate-400">{activeEvent.summary}</span>}
+                    {activeEvent && activeEvent.event_type !== 'NORMAL' && activeEvent.summary && <span className="min-w-0 truncate text-xs text-slate-400">{activeEvent.summary}</span>}
                   </div>
                   <span className="shrink-0 text-[10px] tabular-nums text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : dateTime(detail.history.updated_at)}</span>
                 </div>
@@ -633,7 +633,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                             </span>
                             <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
                           </div>
-                          <p className="mt-1 break-words text-xs text-slate-300">{event.summary || (event.event_type === 'NORMAL' ? 'Pencairan awal' : 'Perubahan tersimpan')}</p>
+                          {event.event_type !== 'NORMAL' && <p className="mt-1 break-words text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p>}
                         </div>
                         <div className="flex shrink-0 items-center gap-1.5">
                           <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
