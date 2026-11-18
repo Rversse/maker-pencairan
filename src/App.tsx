@@ -919,7 +919,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [historySaveType, setHistorySaveType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN'>('REVISI')
   const [historySaveSummary, setHistorySaveSummary] = useState('')
   const [historyChangeBase, setHistoryChangeBase] = useState<Record<string, unknown> | null>(null)
-  const [historySelectedKeys, setHistorySelectedKeys] = useState<string[]>([])
+  const [historyEntryKeys, setHistoryEntryKeys] = useState<string[]>([])
   const [historyShortageKeys, setHistoryShortageKeys] = useState<string[]>([])
   const historyChangeActive = Boolean(historyChangeBase)
   const isHistoryShortage = (key: string) => historyShortageKeys.includes(key)
@@ -937,13 +937,22 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     const rows = base[field as keyof TransactionGroup] as Array<{ id: number; amount: string }> | undefined
     return rows?.find(row => String(row.id) === id)?.amount ?? ''
   }
-  const isHistoryEntryEnabled = (key: string) => !historyChangeActive || historySelectedKeys.includes(key)
+  const getHistoryEntryKeys = (transaction: TransactionGroup) => [
+    ...transaction.rab.flatMap(row => [
+      'rab:' + row.accountId,
+      ...(row.b3Enabled || isCompleteAmount(row.b3Amount ?? '') ? ['rab_b3:' + row.accountId] : [])
+    ]),
+    ...(['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const).flatMap(field =>
+      (transaction[field] ?? []).map(row => field + ':' + row.id)
+    )
+  ]
+  const isHistoryEntryEnabled = (key: string) => !historyChangeActive || historyEntryKeys.includes(key)
   const isHistoryRabEnabled = (accountId: string) => isHistoryEntryEnabled('rab:' + accountId)
   const isHistoryRabB3Enabled = (accountId: string) => isHistoryEntryEnabled('rab_b3:' + accountId)
   const isHistoryRowEnabled = (field: string, id: number) => {
     if (!historyChangeActive) return true
     const key = field + ':' + id
-    if (historySelectedKeys.includes(key)) return true
+    if (historyEntryKeys.includes(key)) return true
     const base = historyChangeBase?.transaction as TransactionGroup | undefined
     const baseRows = (base as unknown as Record<string, Array<{ id: number }> | undefined> | undefined)?.[field]
     return !(baseRows ?? []).some(row => String(row.id) === String(id))
@@ -1641,7 +1650,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       masterData
     )
     setHistoryChangeBase(null)
-    setHistorySelectedKeys([])
+    setHistoryEntryKeys([])
     setTransactions(nextTransaction.date ? [nextTransaction] : [])
     setActiveTransactionId(1)
     setCopyMessage('')
@@ -1971,7 +1980,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).map(row => isHistoryRowEnabled('arutala_lain_lain', row.id) ? row : { ...row, amount: '' }),
     }
     return next
-  }, [activeTransaction, historyChangeActive, historySelectedKeys, historyChangeBase])
+  }, [activeTransaction, historyChangeActive, historyEntryKeys, historyChangeBase])
   const output = outputTransaction
     ? getTransactionOutput(outputTransaction).join('\n')
     : ''
@@ -2206,15 +2215,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         if (!previous) throw new Error('Snapshot Riwayat tidak valid.')
         setHistoryChangeBase(existing.payload as Record<string, unknown>)
         setHistorySaveType('REVISI')
-        setHistorySelectedKeys([
-          ...previous.rab.flatMap(row => [
-            'rab:' + row.accountId,
-            ...(isCompleteAmount(row.b3Amount ?? '') ? ['rab_b3:' + row.accountId] : [])
-          ]),
-          ...(['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const).flatMap(field =>
-            (previous[field] ?? []).map(row => field + ':' + row.id)
-          )
-        ])
+        setHistoryEntryKeys(getHistoryEntryKeys(previous))
         setHistorySaveOpen(true)
         setHistorySaveBusy(false)
         return
@@ -2270,7 +2271,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const isShortage = (key: string) => shortageKeys.has(key)
 
 {
-        const selected = new Set(historySelectedKeys)
+        const selected = new Set(historyEntryKeys)
         const rabById = new Map(baseTransaction.rab.map(row => [row.accountId, { ...row }]))
         const changedRabById = new Map(currentTransaction.rab.map(row => [row.accountId, row]))
         const incrementalRabById = new Map<string, RabEntry>()
@@ -2471,7 +2472,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       setActiveTransactionId(savedTransaction.id)
       persistWorkspace({ kitchenId, activeTransactionId: savedTransaction.id, transactions: [savedTransaction] })
       setHistoryChangeBase(null)
-      setHistorySelectedKeys([])
+      setHistoryEntryKeys([])
       setHistoryShortageKeys([])
       setHistorySaveType('REVISI')
       setHistorySaveOpen(false)
@@ -2769,7 +2770,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 )}
                             </div>
 
-{historyChangeActive && historySelectedKeys.includes(('rab:' + rule.account_id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('rab:' + rule.account_id))} onChange={event => { toggleHistoryShortage(('rab:' + rule.account_id), event.target.checked); if (event.target.checked) { updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('rab:' + rule.account_id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('rab:' + rule.account_id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
+{historyChangeActive && historyEntryKeys.includes(('rab:' + rule.account_id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('rab:' + rule.account_id))} onChange={event => { toggleHistoryShortage(('rab:' + rule.account_id), event.target.checked); if (event.target.checked) { updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('rab:' + rule.account_id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('rab:' + rule.account_id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
                             <input
                               id={'rab-' + activeTransaction.id + '-' + rule.account_id}
                               type="text"
@@ -2834,7 +2835,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         </button>
                                       )
                                     })}
-{historyChangeActive && historySelectedKeys.includes(('rab_b3:' + rule.account_id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('rab_b3:' + rule.account_id))} onChange={event => { toggleHistoryShortage(('rab_b3:' + rule.account_id), event.target.checked); if (event.target.checked) { updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('rab_b3:' + rule.account_id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('rab_b3:' + rule.account_id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
+{historyChangeActive && historyEntryKeys.includes(('rab_b3:' + rule.account_id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('rab_b3:' + rule.account_id))} onChange={event => { toggleHistoryShortage(('rab_b3:' + rule.account_id), event.target.checked); if (event.target.checked) { updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('rab_b3:' + rule.account_id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('rab_b3:' + rule.account_id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
                                     <input
                                       type="text"
                                       inputMode="numeric"
@@ -2858,7 +2859,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                       return (
                         <div className="mt-2 space-y-3">
-                          {sortedRabRules.filter(rule => !historyChangeActive || historySelectedKeys.includes('rab:' + rule.account_id) || historySelectedKeys.includes('rab_b3:' + rule.account_id)).map((rule, index) =>
+                          {sortedRabRules.filter(rule => !historyChangeActive || historyEntryKeys.includes('rab:' + rule.account_id) || historyEntryKeys.includes('rab_b3:' + rule.account_id)).map((rule, index) =>
                             renderRabRow(rule, index)
                           )}
                         </div>
@@ -2916,7 +2917,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
                                     <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-{historyChangeActive && historySelectedKeys.includes(('gas:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('gas:' + entry.id))} onChange={event => { toggleHistoryShortage(('gas:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('gas:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('gas:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
+{historyChangeActive && historyEntryKeys.includes(('gas:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('gas:' + entry.id))} onChange={event => { toggleHistoryShortage(('gas:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('gas:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('gas:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
                                     <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={isHistoryShortage('gas:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'} aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
                                     <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                   </div>
@@ -3054,7 +3055,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     aria-label="Catatan Operasional Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
-{historyChangeActive && historySelectedKeys.includes(('operasional:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('operasional:' + entry.id))} onChange={event => { toggleHistoryShortage(('operasional:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('operasional:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('operasional:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
+{historyChangeActive && historyEntryKeys.includes(('operasional:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('operasional:' + entry.id))} onChange={event => { toggleHistoryShortage(('operasional:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('operasional:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('operasional:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
                                   <input
                                     type="text"
                                     inputMode="numeric"
@@ -3112,7 +3113,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                   </div>
-{historyChangeActive && historySelectedKeys.includes(('pencairan_harian:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('pencairan_harian:' + entry.id))} onChange={event => { toggleHistoryShortage(('pencairan_harian:' + entry.id), event.target.checked); if (event.target.checked) { updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('pencairan_harian:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('pencairan_harian:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
+{historyChangeActive && historyEntryKeys.includes(('pencairan_harian:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('pencairan_harian:' + entry.id))} onChange={event => { toggleHistoryShortage(('pencairan_harian:' + entry.id), event.target.checked); if (event.target.checked) { updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('pencairan_harian:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('pencairan_harian:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
                                   <input
                                     type="text"
                                     inputMode="numeric"
@@ -3192,7 +3193,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                                   </div>
-{historyChangeActive && historySelectedKeys.includes(('lain_lain:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('lain_lain:' + entry.id))} onChange={event => { toggleHistoryShortage(('lain_lain:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'lain_lain', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('lain_lain:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('lain_lain:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
+{historyChangeActive && historyEntryKeys.includes(('lain_lain:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('lain_lain:' + entry.id))} onChange={event => { toggleHistoryShortage(('lain_lain:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'lain_lain', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('lain_lain:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('lain_lain:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
                                   <input
                                     type="text"
                                     inputMode="numeric"
@@ -3234,7 +3235,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           <section className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
             <h3 className="text-sm font-bold">Simpan perubahan pencairan</h3>
             <p className="mt-1 text-xs text-slate-400">Periksa perubahan, lalu simpan dan salin output.</p>
-            <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>{historySaveType !== 'TAMBAHAN' && <p className="mt-2 text-xs text-slate-400">Transaksi terpilih: {historySelectedKeys.length}</p>}
+            <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>{historyChangeActive && <p className="mt-2 text-xs text-slate-400">Seluruh transaksi dari snapshot sedang diedit di Form Utama.</p>}
             <label className="mt-3 block text-xs text-slate-300">Catatan {historySaveType === 'REVISI' ? 'revisi' : historySaveType === 'KEKURANGAN' ? 'kekurangan' : 'tambahan'} (opsional)
               <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder={historySaveType === 'REVISI' ? 'Apa yang direvisi?' : historySaveType === 'KEKURANGAN' ? 'Apa yang menjadi kekurangan?' : 'Apa yang ditambahkan?'} />
             </label>
@@ -3252,23 +3253,24 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           kitchenId={kitchenId}
           kitchenName={selectedKitchen.name}
           transactionDate={activeDate}
-          onStartChange={(payload, _eventType, selectedKeys) => {
-            setHistoryChangeBase(payload)
-            setHistorySelectedKeys(selectedKeys)
-            setHistoryShortageKeys([])
-            setHistorySaveType('REVISI')
-            setHistorySaveSummary('')
+          onStartChange={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
             if (!source || !Array.isArray(source.rab) || !Array.isArray(source.pencairan_harian)) return
             const restored = normalizeTransaction({ ...source, id: 1 }, String(payload.transactionDate ?? source.date ?? today))
             const restoredKitchenId = String(payload.kitchenId ?? kitchenId)
+
+            setHistoryChangeBase(payload)
+            setHistoryEntryKeys(getHistoryEntryKeys(restored))
+            setHistoryShortageKeys([])
+            setHistorySaveType('REVISI')
+            setHistorySaveSummary('')
             setKitchenId(restoredKitchenId)
             setTransactions([restored])
             setActiveTransactionId(1)
             setHistoryOpen(false)
             setHistorySaveOpen(false)
             persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
-            setHistoryMessage('REVISI: isi nominal pengganti sebagai nilai akhir. Untuk Kekurangan, aktifkan toggle pada baris terkait lalu masukkan nominal selisihnya.')
+            setHistoryMessage('Seluruh snapshot dimuat ke Form Utama. Revisi nominal, tandai Kekurangan pada baris terkait, atau tambahkan transaksi baru di Form.')
           }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
