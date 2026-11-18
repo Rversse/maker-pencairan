@@ -1961,8 +1961,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       ...activeTransaction,
       rab: activeTransaction.rab.map(row => ({
         ...row,
-        amount: enabled.has('rab:' + row.accountId) ? row.amount : '',
-        b3Amount: enabled.has('rab_b3:' + row.accountId) ? (row.b3Amount ?? '') : ''
+        amount: isHistoryRabEnabled(row.accountId) ? row.amount : '',
+        b3Amount: isHistoryRabB3Enabled(row.accountId) ? (row.b3Amount ?? '') : ''
       })),
       gas: (activeTransaction.gas ?? []).map(row => isHistoryRowEnabled('gas', row.id) ? row : { ...row, amount: '' }),
       operasional: (activeTransaction.operasional ?? []).map(row => isHistoryRowEnabled('operasional', row.id) ? row : { ...row, amount: '' }),
