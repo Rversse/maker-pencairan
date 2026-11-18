@@ -364,6 +364,23 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
+  const getRevisionKeys = () => {
+    const transaction = detail?.history.payload.transaction as Record<string, unknown> | undefined
+    if (!transaction) return []
+    const keys: string[] = []
+    const rab = Array.isArray(transaction.rab) ? transaction.rab as Array<Record<string, unknown>> : []
+    rab.forEach(entry => {
+      const accountId = String(entry.accountId)
+      keys.push('rab:' + accountId)
+      if (Number(String(entry.b3Amount ?? '').replace(/[^0-9]/g, '')) > 0) keys.push('rab_b3:' + accountId)
+    })
+    const sections = ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain']
+    sections.forEach(field => {
+      const rows = Array.isArray(transaction[field]) ? transaction[field] as Array<Record<string, unknown>> : []
+      rows.forEach(entry => keys.push(field + ':' + String(entry.id)))
+    })
+    return keys
+  }
   const metric = (label: string, value: unknown, previous: unknown) => {
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
@@ -419,7 +436,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
           <p className="mt-1 text-[11px] text-slate-400">Klik Revisi untuk memuat seluruh transaksi ke Form Utama. Ubah hanya nominal yang direvisi, aktifkan Kekurangan pada baris yang perlu ditambahkan, atau buat transaksi tambahan langsung dari Form.</p>
           <div className="mt-3 flex justify-center">
-            <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload, 'REVISI', selectableEntries.map(entry => entry.key))} className="rounded-lg bg-emerald-700 px-5 py-2 text-xs font-semibold text-white disabled:opacity-40">Revisi</button>
+            <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload, 'REVISI', getRevisionKeys())} className="rounded-lg bg-emerald-700 px-5 py-2 text-xs font-semibold text-white disabled:opacity-40">Revisi</button>
           </div>
         </section>}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
