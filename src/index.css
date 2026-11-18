@@ -801,3 +801,33 @@ main button[data-option-button='true'][data-selected='true']:not(:disabled) {
     transition: none !important;
   }
 }
+
+
+/* Unified row primitives across RAB, GAS, Ops, and Insentif/Gaji. */
+.mp-static-field {
+  min-width: 0;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(71 85 105 / 38%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.mp-payment-row {
+  padding: 8px 2px;
+  border-bottom: 1px solid rgb(100 116 139 / 28%);
+}
+.mp-payment-row:last-child { border-bottom-color: transparent; }
+.mp-ops-kind {
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: rgb(45 212 191 / 9%) !important;
+  color: #99f6e4 !important;
+  box-shadow: inset 2px 0 0 rgb(45 212 191 / 72%) !important;
+  letter-spacing: .01em;
+}
+.mp-card .mp-ops-row .mp-ops-kind {
+  border-bottom: 0 !important;
+}
+@media (max-width: 639px) {
+  .mp-payment-row { padding: 10px 0; }
+}
