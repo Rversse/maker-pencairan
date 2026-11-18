@@ -940,7 +940,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const isHistoryEntryEnabled = (key: string) => !historyChangeActive || historySelectedKeys.includes(key)
   const isHistoryRabEnabled = (accountId: string) => isHistoryEntryEnabled('rab:' + accountId)
   const isHistoryRabB3Enabled = (accountId: string) => isHistoryEntryEnabled('rab_b3:' + accountId)
-  const isHistoryRowEnabled = (field: string, id: number) => isHistoryEntryEnabled(field + ':' + id)
+  const isHistoryRowEnabled = (field: string, id: number) => {
+    if (!historyChangeActive) return true
+    const key = field + ':' + id
+    if (historySelectedKeys.includes(key)) return true
+    const base = historyChangeBase?.transaction as TransactionGroup | undefined
+    const baseRows = base?.[field as keyof TransactionGroup] as Array<{ id: number }> | undefined
+    return !(baseRows ?? []).some(row => String(row.id) === String(id))
+  }
   const [historySaveBusy, setHistorySaveBusy] = useState(false)
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
@@ -1958,11 +1965,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         amount: enabled.has('rab:' + row.accountId) ? row.amount : '',
         b3Amount: enabled.has('rab_b3:' + row.accountId) ? (row.b3Amount ?? '') : ''
       })),
-      gas: (activeTransaction.gas ?? []).map(row => enabled.has('gas:' + row.id) ? row : { ...row, amount: '' }),
-      operasional: (activeTransaction.operasional ?? []).map(row => enabled.has('operasional:' + row.id) ? row : { ...row, amount: '' }),
-      pencairan_harian: (activeTransaction.pencairan_harian ?? []).map(row => enabled.has('pencairan_harian:' + row.id) ? row : { ...row, amount: '' }),
-      lain_lain: (activeTransaction.lain_lain ?? []).map(row => enabled.has('lain_lain:' + row.id) ? row : { ...row, amount: '' }),
-      arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).map(row => enabled.has('arutala_lain_lain:' + row.id) ? row : { ...row, amount: '' }),
+      gas: (activeTransaction.gas ?? []).map(row => isHistoryRowEnabled('gas', row.id) ? row : { ...row, amount: '' }),
+      operasional: (activeTransaction.operasional ?? []).map(row => isHistoryRowEnabled('operasional', row.id) ? row : { ...row, amount: '' }),
+      pencairan_harian: (activeTransaction.pencairan_harian ?? []).map(row => isHistoryRowEnabled('pencairan_harian', row.id) ? row : { ...row, amount: '' }),
+      lain_lain: (activeTransaction.lain_lain ?? []).map(row => isHistoryRowEnabled('lain_lain', row.id) ? row : { ...row, amount: '' }),
+      arutala_lain_lain: (activeTransaction.arutala_lain_lain ?? []).map(row => isHistoryRowEnabled('arutala_lain_lain', row.id) ? row : { ...row, amount: '' }),
     }
     return next
   }, [activeTransaction, historyChangeActive, historySelectedKeys, historyChangeBase])
@@ -2278,6 +2285,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             const previous = rabById.get(id)
             if (!previous) continue
             const changed = changedRabById.get(id)
+            if (changed && !isShortage(key)) {
+              const unchanged = field === 'rab'
+                ? changed.amount === previous.amount && JSON.stringify(changed.productTypes ?? []) === JSON.stringify(previous.productTypes ?? [])
+                : (changed.b3Amount ?? '') === (previous.b3Amount ?? '') && JSON.stringify(changed.b3ProductTypes ?? []) === JSON.stringify(previous.b3ProductTypes ?? [])
+              if (unchanged) continue
+            }
             const incremental = incrementalRabById.get(id) ?? {
               ...previous,
               amount: '',
@@ -2342,6 +2355,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             continue
           }
 
+          if (!isShortage(key) && JSON.stringify(changed) === JSON.stringify(previous)) continue
+
           let merged: typeof changed
           if (isShortage(key)) {
             if (parseAmount(changed.amount) <= 0) {
@@ -2363,6 +2378,24 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
         nextTransaction.rab = [...rabById.values()]
         incrementalTransaction.rab = [...incrementalRabById.values()]
+
+        // Rows created from the Form during a change are appended as new transactions.
+        for (const section of fields) {
+          const baseRows = (baseTransaction[section] ?? []) as Array<{ id: number }>
+          const currentRows = (currentTransaction[section] ?? []) as SimpleEntry[] | DailyPaymentEntry[]
+          const baseIds = new Set(baseRows.map(row => String(row.id)))
+          const addedRows = currentRows.filter(row => !baseIds.has(String(row.id)) && parseAmount(row.amount) > 0)
+          if (addedRows.length) {
+            ;(nextTransaction as unknown as Record<string, unknown>)[section] = [
+              ...((nextTransaction[section] ?? []) as typeof currentRows),
+              ...addedRows
+            ]
+            ;(incrementalTransaction as unknown as Record<string, unknown>)[section] = [
+              ...((incrementalTransaction[section] ?? []) as typeof currentRows),
+              ...addedRows
+            ]
+          }
+        }
       }
 
       // GAS and Arutala date buckets are a mirror of the active transaction rows.
@@ -2839,7 +2872,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Operasional Harian</h2>
                       <div className="relative">
-                        <button type="button" disabled={historyChangeActive} aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
+                        <button type="button" aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
                         {operationalAddMenuOpen && (
                           <div className="absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
                             {opsMappings.map((rule) => {
@@ -2871,7 +2904,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <div className="space-y-2">
                             {(activeTransaction.gas ?? []).map((entry) => {
                               const historyEnabled = isHistoryRowEnabled('gas', entry.id)
-                              if (historyChangeActive && !historyEnabled) return null
+                              if (historyChangeActive && !historyEnabled && !isHistoryRowEnabled('gas', entry.id)) return null
                               const rule = arutalaGasRule
                               const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
                               const bank = rule?.accounts?.bank ?? '-'
@@ -2903,7 +2936,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           )}
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
-                            if (historyChangeActive && !historyEnabled) return null
+                            if (historyChangeActive && !historyEnabled && !isHistoryRowEnabled('operasional', entry.id)) return null
                             const isMappedOps = entry.operationalRuleType === 'ops_harian'
                             const custom = !isMappedOps && (index > 0 || Boolean(entry.customAccount))
                             const isArutala = Boolean(entry.useArutalaAccount)
