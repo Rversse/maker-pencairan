@@ -2063,3 +2063,145 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     justify-self: start;
   }
 }
+
+
+/* ── Batch 3 · Admin, authentication and application shell ───────────── */
+.mp-auth-screen {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #080f1b !important;
+}
+.mp-auth-screen::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(20 184 166 / 11%), transparent 42%),
+    linear-gradient(180deg, #0b1422 0%, #080f1b 100%);
+}
+.mp-auth-card {
+  border-color: rgb(71 85 105 / 58%) !important;
+  background: rgb(15 23 42 / 88%) !important;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 32%) !important;
+  backdrop-filter: blur(18px);
+}
+.mp-auth-card h1,
+.mp-auth-card p,
+.mp-auth-card label {
+  text-wrap: pretty;
+}
+.mp-auth-card input,
+.mp-auth-card select,
+.mp-admin-panel input,
+.mp-admin-panel select {
+  min-height: 42px;
+  border-color: rgb(71 85 105 / 72%);
+  background-color: #0b1422;
+  color: #e2e8f0;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+.mp-auth-card input:focus-visible,
+.mp-auth-card select:focus-visible,
+.mp-admin-panel input:focus-visible,
+.mp-admin-panel select:focus-visible,
+.mp-admin-panel button:focus-visible {
+  border-color: #5eead4 !important;
+  outline: 2px solid rgb(45 212 191 / 28%);
+  outline-offset: 2px;
+}
+.mp-auth-card input:disabled,
+.mp-auth-card select:disabled,
+.mp-admin-panel input:disabled,
+.mp-admin-panel select:disabled {
+  border-color: rgb(71 85 105 / 35%);
+  background: #111c2b;
+  color: #64748b;
+  cursor: not-allowed;
+}
+.mp-app-header {
+  background: rgb(8 15 27 / 92%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+}
+.mp-admin-panel {
+  color: #e2e8f0;
+}
+.mp-admin-card {
+  border-color: rgb(71 85 105 / 54%) !important;
+  background: rgb(15 23 42 / 58%) !important;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 12%);
+}
+.mp-admin-card article {
+  border-color: rgb(71 85 105 / 55%) !important;
+  background: rgb(8 15 27 / 52%) !important;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.mp-admin-card article:hover {
+  border-color: rgb(100 116 139 / 76%) !important;
+  background: rgb(11 20 34 / 78%) !important;
+}
+.mp-admin-credential-notice {
+  border-color: rgb(13 148 136 / 52%) !important;
+  background: rgb(13 148 136 / 8%) !important;
+}
+.mp-admin-toast {
+  box-shadow: 0 14px 40px rgb(0 0 0 / 34%);
+}
+.mp-app-header button,
+.mp-auth-card button,
+.mp-admin-panel button {
+  transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease, opacity 140ms ease;
+}
+.mp-app-header button:hover:not(:disabled),
+.mp-admin-panel button:hover:not(:disabled) {
+  border-color: rgb(45 212 191 / 62%);
+}
+.mp-app-header button:disabled,
+.mp-admin-panel button:disabled {
+  cursor: not-allowed;
+}
+@media (max-width: 639px) {
+  .mp-auth-screen {
+    min-height: 100svh;
+    padding: 20px 14px calc(20px + env(safe-area-inset-bottom));
+  }
+  .mp-auth-card {
+    border-radius: 18px !important;
+    padding: 22px 18px !important;
+  }
+  .mp-app-header {
+    position: sticky;
+    top: 0;
+  }
+  .mp-app-header > div {
+    align-items: center;
+    gap: 10px;
+  }
+  .mp-app-header > div > div:last-child {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+  .mp-app-header > div > div:last-child button {
+    min-height: 40px;
+    padding-inline: 10px;
+  }
+  .mp-admin-panel {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mp-admin-card {
+    border-radius: 16px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-auth-card *,
+  .mp-admin-panel *,
+  .mp-app-header * {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
