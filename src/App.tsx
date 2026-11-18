@@ -3078,9 +3078,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                   <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
                     <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
-                    <div role="note" className="mt-2 rounded-lg border border-amber-700/50 bg-amber-950/20 px-3 py-2 text-xs leading-5 text-amber-100">
-                      <span className="font-bold">Periksa kategori sebelum mengisi nominal.</span>
-                    </div>
+                    <p role="note" className="mt-2 px-1 text-xs font-semibold leading-5 text-amber-200">
+                      Periksa kategori sebelum mengisi nominal.
+                    </p>
                     <div className="mt-3 space-y-1.5">
                       
                         {activeTransaction.pencairan_harian
