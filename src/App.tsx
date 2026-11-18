@@ -2914,7 +2914,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
                                   <div className="mp-gas-flex-row grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[62px_minmax(130px,1.05fr)_72px_minmax(120px,0.95fr)_76px_108px_minmax(180px,1.6fr)_36px]">
-                                    <div className="mp-ops-kind mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-bold">GAS</div>
+                                    <div className="mp-ops-kind flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-bold">GAS</div>
                                     <div title={accountName} className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank}</div>
                                     <div title={accountNumber} className="mp-ops-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
@@ -3106,13 +3106,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     Insentif Fasilitas SPPG
                                   </div>
-                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div title={rental?.bank ?? '-'} className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div title={rental?.bank ?? '-'} className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     {rental?.bank ?? '-'}
                                   </div>
-                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                   </div>
                                   <div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input
@@ -3167,23 +3167,23 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 <div className="mp-payment-row mp-salary-flex-row grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                                   <div
                                     title={label}
-                                    className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
+                                    className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
                                   >
                                     <span title={label} className="truncate">{label}</span>
                                   </div>
                                   <div
                                     title={mapping?.ownerName ?? 'Mapping belum tersedia'}
-                                    className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
+                                    className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
                                   >
                                     <span title={mapping?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                                   </div>
-                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     {mapping?.bank ?? '-'}
                                   </div>
-                                  <div className="mp-static-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                  <div className="mp-static-field mp-payment-detail flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                                   </div>
-                                  <div className="flex min-w-0 items-center justify-end gap-1.5"><input
+                                  <div className="mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5"><input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
@@ -3197,7 +3197,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className={`h-10 w-full max-w-[180px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`h-10 w-full max-w-[180px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-right text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }))}</div>
                                 </div>
                               </div>
