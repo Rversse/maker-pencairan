@@ -277,12 +277,12 @@ export function DateRangePicker({
   return (
     <div
       ref={rootRef}
-      className={`relative min-w-0 w-full ${open ? 'z-50' : 'z-0'}`}
+      className={`mp-date-range relative min-w-0 w-full ${open ? 'z-50' : 'z-0'}`}
     >
       <button
         ref={triggerRef}
         type="button"
-        className={`flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-left text-sm font-medium shadow-inner shadow-black/20 text-slate-100 outline-none transition hover:border-emerald-500/70 hover:bg-slate-800 focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500/30 ${active ? 'mp-field--has-output' : ''}`}
+        className={`mp-date-range-trigger flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-slate-700/90 bg-slate-900 px-3 text-left text-sm font-medium text-slate-100 outline-none transition hover:border-teal-500/70 hover:bg-slate-800 focus-visible:border-teal-500 focus-visible:ring-1 focus-visible:ring-teal-500/30 ${active ? 'mp-field--has-output' : ''}`}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={handleTriggerClick}
@@ -301,7 +301,7 @@ export function DateRangePicker({
         <div
           ref={popoverRef}
           className={[
-            'fixed z-[9999] w-[min(280px,calc(100vw-24px))] overflow-hidden rounded-xl border border-slate-600 bg-slate-800 text-slate-100 shadow-2xl',
+            'mp-date-range-popover fixed z-[9999] w-[min(280px,calc(100vw-24px))] overflow-hidden rounded-xl border border-slate-700 bg-slate-900 text-slate-100 shadow-xl',
             density === 'normal' ? '' : density === 'compact' ? 'text-[12px]' : 'text-[11px]'
           ].join(' ')}
           style={{
@@ -311,7 +311,7 @@ export function DateRangePicker({
           }}
           data-placement={popupPosition?.placement ?? 'measuring'}
           role="dialog"
-          aria-label="Pilih rentang tanggal sewa kendaraan"
+          aria-label="Pilih rentang tanggal"
         >
           <div className={[
             'grid grid-cols-[30px_minmax(0,1fr)_30px] items-center gap-2 border-b border-slate-700 px-2',
