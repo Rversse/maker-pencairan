@@ -619,3 +619,185 @@ aside [title='Belum diisi']::before {
 @media (max-width: 639px) {
   .mp-ops-row { padding: 10px 2px; }
 }
+
+
+/* ==========================================================================
+   Unified interaction system
+   One visual language for workspace, history, admin and authentication.
+   Editable controls use an underline; actions retain a distinct button shape.
+   ========================================================================== */
+
+/* Editable fields: underline instead of a full rectangular border. */
+main input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']),
+main select,
+main textarea {
+  min-width: 0;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 62%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+main input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):hover:not(:disabled):not([readonly]),
+main select:hover:not(:disabled),
+main textarea:hover:not(:disabled):not([readonly]) {
+  border-bottom-color: rgb(148 163 184 / 90%) !important;
+}
+
+main input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus,
+main select:focus,
+main textarea:focus {
+  border-bottom-color: #2dd4bf !important;
+  box-shadow: 0 1px 0 rgb(45 212 191 / 72%) !important;
+  outline: none;
+}
+
+main input:disabled,
+main select:disabled,
+main textarea:disabled,
+main input[readonly],
+main textarea[readonly] {
+  border-bottom-color: rgb(71 85 105 / 38%) !important;
+  color: rgb(148 163 184 / 62%) !important;
+  cursor: not-allowed;
+  opacity: .68;
+  box-shadow: none !important;
+}
+
+main input[class*='border-rose']:not(:disabled),
+main select[class*='border-rose']:not(:disabled),
+main textarea[class*='border-rose']:not(:disabled) {
+  border-bottom-color: rgb(251 113 133 / 88%) !important;
+}
+
+/* Preserve the separate, recognizable checkbox and radio affordance. */
+main input[type='checkbox'],
+main input[type='radio'] {
+  accent-color: #2dd4bf;
+  cursor: pointer;
+}
+main input[type='checkbox']:disabled,
+main input[type='radio']:disabled {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+/* Static account values: readable, but never mistaken for editable fields. */
+.mp-card .mp-ops-field:not(input):not(select):not(textarea) {
+  border: 0 !important;
+  border-bottom: 1px solid rgb(71 85 105 / 38%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Clickable actions: solid hit area and clear hover/focus feedback. */
+main button:not(.theme-switch):not([data-option-button='true']):not([data-calendar-day]):not(:disabled):not([aria-disabled='true']) {
+  cursor: pointer;
+  border-color: rgb(100 116 139 / 48%) !important;
+  background: linear-gradient(145deg, #172235, #101a2a) !important;
+  color: #e7edf7 !important;
+  box-shadow: 0 2px 7px rgb(0 0 0 / 12%), inset 0 1px 0 rgb(255 255 255 / 4%);
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+main button:not(.theme-switch):not([data-option-button='true']):not([data-calendar-day]):hover:not(:disabled):not([aria-disabled='true']) {
+  border-color: rgb(45 212 191 / 76%) !important;
+  background: linear-gradient(145deg, rgb(13 148 136 / 24%), rgb(15 23 42 / 96%)) !important;
+  color: #f0fdfa !important;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%), 0 0 0 1px rgb(45 212 191 / 8%);
+  transform: translateY(-1px);
+}
+
+main button:not(.theme-switch):not([data-option-button='true']):focus-visible {
+  outline: 2px solid rgb(45 212 191 / 88%);
+  outline-offset: 3px;
+}
+
+/* Disabled actions are visibly inert, not merely lower-opacity active buttons. */
+main button:disabled,
+main button[aria-disabled='true'] {
+  cursor: not-allowed !important;
+  border-color: rgb(71 85 105 / 24%) !important;
+  background: rgb(51 65 85 / 18%) !important;
+  color: rgb(148 163 184 / 48%) !important;
+  box-shadow: none !important;
+  filter: grayscale(.72);
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+main button[data-option-button='true']:disabled {
+  border-color: rgb(71 85 105 / 24%) !important;
+  background: rgb(51 65 85 / 18%) !important;
+  color: rgb(148 163 184 / 48%) !important;
+  box-shadow: none !important;
+  filter: grayscale(.72);
+  opacity: 1 !important;
+}
+
+/* Keep primary actions distinct from secondary actions. */
+main button[data-button-kind='primary']:not(:disabled) {
+  border-color: #059669 !important;
+  background: linear-gradient(145deg, #10b981, #047857) !important;
+  color: #f0fdf4 !important;
+  box-shadow: 0 4px 12px rgb(5 150 105 / 22%), inset 0 1px 0 rgb(255 255 255 / 12%);
+}
+main button[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: #34d399 !important;
+  background: linear-gradient(145deg, #059669, #065f46) !important;
+  color: #ffffff !important;
+}
+
+/* Destructive actions keep a restrained red identity. */
+main button[class*='border-rose']:not(:disabled):not([data-option-button='true']) {
+  border-color: rgb(244 63 94 / 42%) !important;
+  background: rgb(159 18 57 / 12%) !important;
+  color: #fda4af !important;
+}
+main button[class*='border-rose']:hover:not(:disabled):not([data-option-button='true']) {
+  border-color: rgb(251 113 133 / 82%) !important;
+  background: rgb(159 18 57 / 26%) !important;
+  color: #ffe4e6 !important;
+}
+
+/* Choice chips distinguish selected, unselected and unavailable states. */
+main button[data-option-button='true'][data-selected='false']:not(:disabled) {
+  cursor: pointer;
+  border-color: rgb(100 116 139 / 44%) !important;
+  background: rgb(15 23 42 / 76%) !important;
+  color: #cbd5e1 !important;
+}
+main button[data-option-button='true'][data-selected='true']:not(:disabled) {
+  cursor: pointer;
+  border-color: rgb(16 185 129 / 78%) !important;
+  background: linear-gradient(145deg, #059669, #065f46) !important;
+  color: #ffffff !important;
+}
+
+/* Transaction and history rows read as ledgers, not nested cards. */
+.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/60']:not([role='alert']):not([role='note']),
+.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/40']:not([role='alert']):not([role='note']) {
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 28%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/60']:not([role='alert']):not([role='note']):last-child,
+.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/40']:not([role='alert']):not([role='note']):last-child {
+  border-bottom-color: transparent !important;
+}
+
+/* Respect reduced-motion preferences across the shared interaction layer. */
+@media (prefers-reduced-motion: reduce) {
+  main input,
+  main select,
+  main textarea,
+  main button {
+    transition: none !important;
+  }
+}
