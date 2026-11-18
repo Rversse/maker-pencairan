@@ -190,7 +190,7 @@ function ChangePasswordScreen({ onSave }: { onSave: (password: string, confirmPa
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
       <div className="w-full max-w-md rounded-2xl border border-amber-700/50 bg-slate-900 p-6 shadow-2xl sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">Keamanan akun</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-300">Keamanan akun</p>
         <h1 className="mt-2 text-2xl font-bold">Buat password baru</h1>
         
         <form onSubmit={(event) => void submit(event)} className="mt-6 space-y-4">
