@@ -382,7 +382,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         <div className="min-w-0"><h2 className="text-lg font-bold">Riwayat Pencairan</h2><p className="mt-1 text-xs text-slate-400">{kitchenName}</p></div>
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {!detail && <input type="date" aria-label="Pilih tanggal riwayat" value={selectedDate} onClick={event => event.currentTarget.showPicker?.()} onChange={event => setSelectedDate(event.target.value)} className="min-h-9 cursor-pointer rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-100 [color-scheme:dark]" />}
-          <button onClick={onClose} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Tutup</button>
+          <button type="button" onClick={onClose} title="Tutup riwayat" aria-label="Tutup riwayat" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
         </div>
       </header>
       {error && <p role="alert" className="mt-3 rounded-lg border border-rose-800 bg-rose-950/40 p-3 text-xs text-rose-200">{error}</p>}
@@ -396,12 +396,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           <span className="flex flex-wrap items-center gap-3 text-[11px] text-slate-300 transition-colors group-hover:text-slate-700"><span>RAB Rp {money(row.payload?.totalRab)}</span><span>OPS Rp {money(row.payload?.totalOpsHarian)}</span><span>Total Rp {money(row.payload?.totalOverall)}</span></span>
         </button>)}
       </div> : <div className="mt-4 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatTitle(detail.history.title) || 'Pencairan'}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {lockCountdown}</p></div>
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold">{formatDate(detail.history.transaction_date)}</h3><p className="mt-1 text-[11px] text-slate-400">{detail.locked && role !== 'admin' ? 'Terkunci' : 'Dapat diperbarui'} · {lockCountdown}</p></div>
           <div className="flex flex-wrap gap-2">
             <button type="button" disabled={busy} onClick={() => void refreshDetail()} title="Muat ulang snapshot terbaru" aria-label="Muat ulang snapshot terbaru" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-emerald-600 disabled:opacity-40"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2"/></svg></button>
             {canEdit && role === 'admin' && <button disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Load ke Form</button>}
             {role === 'admin' && <button disabled={busy} onClick={() => void deleteHistory()} className="rounded-lg border border-rose-800 bg-rose-950/40 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus transaksi</button>}
-          <button onClick={() => { setDetail(null); void load() }} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Kembali</button>
+          <button type="button" onClick={() => { setDetail(null); void load() }} title="Kembali ke daftar riwayat" aria-label="Kembali ke daftar riwayat" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-700 text-slate-300 hover:border-slate-500 hover:text-white"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/><path d="M9 12h11"/></svg></button>
           </div>
         </div>
         <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-3">
@@ -415,15 +415,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             {metric('Total Keseluruhan', activePayload?.totalOverall, previousPayload?.totalOverall)}
           </div>
         </div>
-        {canEdit && <section className="rounded-xl border border-emerald-800/70 bg-emerald-950/15 p-3">
-          <h4 className="text-xs font-semibold">Perubahan pencairan</h4>
-          <p className="mt-1 text-[11px] text-slate-400">Klik Revisi untuk memuat seluruh transaksi ke Form Utama. Ubah hanya nominal yang direvisi, aktifkan Kekurangan pada baris yang perlu ditambahkan, atau buat transaksi tambahan langsung dari Form.</p>
-          <div className="mt-3 flex justify-center">
-            <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload)} className="rounded-lg bg-emerald-700 px-5 py-2 text-xs font-semibold text-white disabled:opacity-40">Revisi</button>
-          </div>
-        </section>}
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div><button type="button" disabled={busy || (!String(activePayload?.output ?? '').trim() && !String(activeEvent?.snapshot.delta?.incremental_output ?? '').trim())} onClick={() => void copyActiveHistoryOutput()} title={activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin hanya perubahan pada riwayat ini' : 'Salin output snapshot awal'} className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">{activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin Perubahan' : 'Salin Output'}</button></div>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2"><div><h4 className="text-xs font-semibold">Output</h4><span className="text-[10px] text-slate-500">{activeEvent?.event_type ?? 'SNAPSHOT TERBARU'}</span></div><div className="flex items-center gap-2">{canEdit && <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload)} className="rounded-lg border border-emerald-700 bg-emerald-950/40 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-900/50 disabled:opacity-40">Revisi</button>}<button type="button" disabled={busy || (!String(activePayload?.output ?? '').trim() && !String(activeEvent?.snapshot.delta?.incremental_output ?? '').trim())} onClick={() => void copyActiveHistoryOutput()} title={activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin hanya perubahan pada riwayat ini' : 'Salin output snapshot awal'} className="rounded-lg border border-sky-700 bg-sky-950/40 px-3 py-2 text-xs font-semibold text-sky-200 hover:bg-sky-900/50 disabled:opacity-40">{activeEvent && activeEvent.event_type !== 'NORMAL' ? 'Salin Perubahan' : 'Salin Output'}</button></div></div>
           <div className="max-h-64 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-slate-300">
             {outputDiff.lines.map((fragments, lineIndex) => (
               <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
@@ -435,7 +428,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           </div>
         </div>
         <div>
-          <h4 className="mb-2 text-xs font-semibold">Riwayat</h4>
+          <h4 className="mb-2 text-xs font-semibold">Riwayat Perubahan</h4>
           <div className="overflow-hidden rounded-lg border border-slate-800 divide-y divide-slate-800/90">
             {selectedEvent.map(event => (
               <div key={event.id} className={`flex min-h-11 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 transition-colors ${activeEventId === event.id ? 'bg-slate-800/70' : 'bg-slate-950/40 hover:bg-slate-900/80'}`}>
