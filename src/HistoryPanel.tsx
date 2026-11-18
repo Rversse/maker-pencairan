@@ -31,7 +31,6 @@ type Props = {
   kitchenId: string
   kitchenName: string
   transactionDate: string
-  rabLabels: Record<string, string>
   onLoadSnapshot: (payload: Record<string, unknown>) => void
   onRefreshSnapshot: (payload: Record<string, unknown>) => void
   onStartChange: (payload: Record<string, unknown>, eventType: 'REVISI', selectedKeys: string[]) => void
@@ -58,7 +57,7 @@ async function historyRequest<T>(token: string, body: Record<string, unknown>): 
   if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Riwayat gagal dimuat.')
   return data as T
 }
-export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, rabLabels, onLoadSnapshot, onRefreshSnapshot, onStartChange, onClose }: Props) {
+export default function HistoryPanel({ token, role, kitchenId, kitchenName, transactionDate, onLoadSnapshot, onRefreshSnapshot, onStartChange, onClose }: Props) {
   const [selectedDate, setSelectedDate] = useState(transactionDate)
   const [rows, setRows] = useState<HistoryRow[]>([])
   const [detail, setDetail] = useState<HistoryDetail | null>(null)
