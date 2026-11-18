@@ -937,6 +937,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     const rows = base[field as keyof TransactionGroup] as Array<{ id: number; amount: string }> | undefined
     return rows?.find(row => String(row.id) === id)?.amount ?? ''
   }
+  const renderHistoryShortageButton = (key: string, onEnable: () => void) => {
+    if (!historyChangeActive || !historyEntryKeys.includes(key)) return null
+    const enabled = isHistoryShortage(key)
+    const previous = historyPreviousAmount(key)
+    return <button type="button" aria-pressed={enabled} title={`Nominal sebelumnya: Rp ${formatNumber(previous) || '0'}`} onClick={() => { toggleHistoryShortage(key, !enabled); if (!enabled) onEnable() }} className={`h-10 shrink-0 rounded-md border px-3 text-xs font-semibold transition ${enabled ? 'border-amber-500 bg-amber-500/15 text-amber-200' : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-amber-500/70 hover:text-amber-200'}`}>Kekurangan</button>
+  }
   const getHistoryEntryKeys = (transaction: TransactionGroup) => [
     ...transaction.rab.flatMap(row => [
       'rab:' + row.accountId,
@@ -2505,7 +2511,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
   return (
     <main className="min-h-screen overflow-x-clip bg-slate-950 p-2 text-white sm:p-3 md:p-4">
-      <div className="mx-auto w-full max-w-[960px]">
+      <div className="mx-auto w-full max-w-[1120px]">
         <>
           <header className="flex w-full items-center justify-between gap-3 py-1">
             <div className="flex min-w-0 items-center gap-3">
@@ -2686,7 +2692,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         return (
                           <div
                             key={rule.account_id}
-                            className={`grid min-w-0 grid-cols-[minmax(0,1fr)_140px] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3 ${!historyEnabled ? "opacity-45" : ""}`}
+                            className={`grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(220px,auto)] items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/60 p-2.5 sm:gap-3 ${!historyEnabled ? "opacity-45" : ""}`}
                           >
                             <div className="min-w-0">
                               <div title={`${index + 1}. ${rule.supplier?.business_name ?? rule.accounts?.name ?? 'Tanpa nama'} - ${rule.accounts?.bank ?? '-'} (${rule.accounts?.account_number ?? '-'})`} className="truncate text-sm font-semibold text-white">
@@ -2769,9 +2775,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   </div>
                                 )}
                             </div>
-
-{historyChangeActive && historyEntryKeys.includes(('rab:' + rule.account_id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('rab:' + rule.account_id))} onChange={event => { toggleHistoryShortage(('rab:' + rule.account_id), event.target.checked); if (event.target.checked) { updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('rab:' + rule.account_id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('rab:' + rule.account_id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
-                            <input
+<div className="flex min-w-0 items-center gap-1.5"><input
                               id={'rab-' + activeTransaction.id + '-' + rule.account_id}
                               type="text"
                               inputMode="numeric"
@@ -2788,7 +2792,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               }
                               placeholder={isHistoryShortage('rab:' + rule.account_id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
                               className={`h-10 w-full max-w-[140px] rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
-                            />
+                            />{renderHistoryShortageButton('rab:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }))}</div>
                             {isWarungbitungArumikata && (
                               <div className="col-span-2 rounded-lg border border-amber-800/50 bg-amber-950/15 p-2">
                                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -2835,8 +2839,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         </button>
                                       )
                                     })}
-{historyChangeActive && historyEntryKeys.includes(('rab_b3:' + rule.account_id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('rab_b3:' + rule.account_id))} onChange={event => { toggleHistoryShortage(('rab_b3:' + rule.account_id), event.target.checked); if (event.target.checked) { updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('rab_b3:' + rule.account_id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('rab_b3:' + rule.account_id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
-                                    <input
+<div className="flex min-w-0 items-center gap-1.5"><input
                                       type="text"
                                       inputMode="numeric"
                                       value={formatNumber(entry.b3Amount ?? '')}
@@ -2848,7 +2851,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       placeholder={isHistoryShortage('rab_b3:' + rule.account_id) ? 'Masukkan nominal kekurangan' : 'Nominal B3'}
                                       aria-label="Nominal RAB B3 Toko Arumikata"
                                       className="h-9 w-[150px] rounded-md border border-amber-700/50 bg-slate-950 px-2.5 text-xs font-semibold text-white placeholder:text-slate-500"
-                                    />
+                                    />{renderHistoryShortageButton('rab_b3:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }))}</div>
                                   </div>
                                 )}
                               </div>
@@ -2917,8 +2920,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={accountNumber} className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
                                     <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white" />
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-white"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-{historyChangeActive && historyEntryKeys.includes(('gas:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('gas:' + entry.id))} onChange={event => { toggleHistoryShortage(('gas:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('gas:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('gas:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
-                                    <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={isHistoryShortage('gas:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'} aria-label="Nominal GAS" className="h-10 min-w-0 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />
+                                    <div className="col-span-2 flex min-w-0 items-center gap-1.5"><input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder={isHistoryShortage('gas:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'} aria-label="Nominal GAS" className="h-10 min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-950 px-2 text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }))}</div>
                                     <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="h-10 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                   </div>
                                 </div>
@@ -2929,7 +2931,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                       </div>
                       <div className="mt-3 space-y-1.5">
                           {entries.some(entry => !historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) && (
-                            <div className="hidden lg:grid min-w-0 grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px] items-center gap-2 border-b border-slate-700/70 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300">
+                            <div className="hidden lg:grid min-w-0 grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_minmax(190px,1.2fr)_30px] items-center gap-2 border-b border-slate-700/70 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300">
                               <span></span><span>Nama rekening</span><span>Bank</span><span>Nomor rekening</span><span>Catatan</span><span>Nominal</span><span></span>
                             </div>
                           )}
@@ -2983,7 +2985,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 <div className={'grid min-w-0 items-end gap-2 ' + (showVirtualAccount
                                   ? entry.isVirtualAccount
                                     ? 'lg:grid-cols-[62px_54px_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]'
-                                    : 'lg:grid-cols-[62px_54px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_120px_30px]'
+                                    : 'lg:grid-cols-[62px_54px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(170px,1.1fr)_minmax(190px,1.2fr)_30px]'
                                   : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_120px_30px]')}>
                                   {isMappedOps ? (
                                     <div className="flex h-10 w-full items-center justify-center rounded-md border border-teal-700/60 bg-teal-950/30 px-2 text-center text-[10px] font-semibold text-teal-100">Ops Harian</div>
@@ -3055,8 +3057,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     aria-label="Catatan Operasional Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 ${custom ? 'bg-gradient-to-b from-slate-900 to-slate-950 text-slate-100' : 'bg-slate-800 text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
-{historyChangeActive && historyEntryKeys.includes(('operasional:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('operasional:' + entry.id))} onChange={event => { toggleHistoryShortage(('operasional:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('operasional:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('operasional:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
-                                  <input
+                                  <div className="col-span-2 flex min-w-0 items-center gap-1.5"><input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
@@ -3065,7 +3066,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder={isHistoryShortage('operasional:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
                                     aria-label="Nominal Ops Harian"
                                     className={`h-10 w-full min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-2.5 text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />
+                                  />{renderHistoryShortageButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }))}</div>
                                   <button
                                     type="button"
                                     onClick={() => removeOperationalEntry(entry.id)}
@@ -3088,7 +3089,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-sky-950/10 p-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Insentif Fasilitas SPPG</h2>
                       <div className="mt-2 space-y-1.5">
-                        <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px]">
+                        <div className="hidden sm:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                           <span>Nama rekening</span>
                           <span>Bank</span>
                           <span>Nomor rekening</span>
@@ -3102,7 +3103,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             return (
                               <div
                                 key={entry.id}
-                                className={`grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_140px] ${!historyEnabled ? "opacity-45" : ""}`}
+                                className={`grid min-w-0 items-stretch gap-2 sm:grid-cols-[minmax(180px,1.2fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)] ${!historyEnabled ? "opacity-45" : ""}`}
                               >
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
@@ -3113,8 +3114,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                   </div>
-{historyChangeActive && historyEntryKeys.includes(('pencairan_harian:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('pencairan_harian:' + entry.id))} onChange={event => { toggleHistoryShortage(('pencairan_harian:' + entry.id), event.target.checked); if (event.target.checked) { updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('pencairan_harian:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('pencairan_harian:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
-                                  <input
+                                  <div className="flex min-w-0 items-center gap-1.5"><input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
@@ -3129,7 +3129,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder={isHistoryShortage('pencairan_harian:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
                                     aria-label="Nominal Insentif Fasilitas SPPG"
                                     className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />
+                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }))}</div>
                               </div>
                             )
                           })}
@@ -3151,7 +3151,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                       )}
 
                       <div className="mt-2 space-y-1.5">
-                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
+                        <div className="hidden lg:grid min-w-0 items-center gap-2 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300 border-b border-slate-700/70 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                           <span>Jenis pencairan</span>
                           <span>Nama rekening</span>
                           <span>Bank</span>
@@ -3174,7 +3174,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                             return (
                               <div key={entry.id} className={!historyEnabled ? 'opacity-45' : ''}>
-                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_140px]">
+                                <div className="grid min-w-0 items-stretch gap-2 lg:grid-cols-[minmax(180px,1.05fr)_minmax(180px,1.1fr)_90px_minmax(130px,0.9fr)_minmax(220px,1.2fr)]">
                                   <div
                                     title={label}
                                     className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100"
@@ -3193,8 +3193,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div className="flex h-10 min-w-0 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-3 text-center text-sm font-semibold text-slate-100">
                                     <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                                   </div>
-{historyChangeActive && historyEntryKeys.includes(('lain_lain:' + entry.id)) && <div className="col-span-full rounded-md border border-slate-800 bg-slate-900/70 px-2 py-1.5"><label className="flex items-center gap-2 text-[11px] text-slate-300"><input type="checkbox" checked={isHistoryShortage(('lain_lain:' + entry.id))} onChange={event => { toggleHistoryShortage(('lain_lain:' + entry.id), event.target.checked); if (event.target.checked) { updateSimpleEntry(activeTransaction.id, 'lain_lain', entry.id, { amount: '' }) } }} />Jadikan Kekurangan</label>{isHistoryShortage(('lain_lain:' + entry.id)) && <div className="mt-1 text-[11px] text-amber-200">Nominal sebelumnya: Rp {formatNumber(historyPreviousAmount(('lain_lain:' + entry.id))) || '0'} <span className="text-slate-400">· Nominal ini akan ditambahkan ke nominal sebelumnya.</span></div>}</div>}
-                                  <input
+                                  <div className="flex min-w-0 items-center gap-1.5"><input
                                     type="text"
                                     inputMode="numeric"
                                     value={formatNumber(entry.amount)}
@@ -3206,10 +3205,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         { amount: event.target.value.replace(/\D/g, '') }
                                       )
                                     }
-                                    placeholder={isHistoryShortage('lain_lain:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
+                                    placeholder={isHistoryShortage('pencairan_harian:' + entry.id) ? 'Masukkan nominal kekurangan' : 'Nominal'}
                                     aria-label={'Nominal ' + label}
                                     className={`h-10 w-full max-w-[140px] min-w-0 rounded-md border border-slate-700/90 bg-gradient-to-b from-slate-900 to-slate-950 px-3 text-sm shadow-inner shadow-black/20 font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition hover:border-emerald-500/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/25 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />
+                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }))}</div>
                                 </div>
                               </div>
                             )
