@@ -2914,7 +2914,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
                                   <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(110px,0.85fr)_minmax(130px,1.05fr)_72px_minmax(120px,0.95fr)_76px_108px_minmax(250px,1.6fr)_36px]">
-                                    <div className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">GAS</div>
+                                    <div className="mp-ops-kind flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-bold">GAS</div>
                                     <div title={accountName} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-xs font-semibold text-slate-100">{bank}</div>
                                     <div title={accountNumber} className="mp-ops-field flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
@@ -2930,11 +2930,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         ) : null}
                       </div>
                       <div className="mt-3 space-y-1.5">
-                          {entries.some(entry => !historyChangeActive || isHistoryRowEnabled('operasional', entry.id)) && (
-                            <div className="hidden lg:grid min-w-0 grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(220px,1.4fr)_minmax(260px,1.6fr)_36px] items-center gap-2 border-b border-slate-700/70 px-0.5 pb-1 text-center text-[10px] font-bold uppercase tracking-wide text-slate-300">
-                              <span></span><span>Nama rekening</span><span>Bank</span><span>Nomor rekening</span><span>Catatan</span><span>Nominal</span><span></span>
-                            </div>
-                          )}
                           {entries.map((entry, index) => {
                             const historyEnabled = isHistoryRowEnabled('operasional', entry.id)
                                                         const isMappedOps = entry.operationalRuleType === 'ops_harian'
@@ -2954,7 +2949,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const selectedMapping = selectedRuleType
                               ? getOperationalMapping(selectedKitchen?.name ?? '', masterData, selectedRuleType)
                               : null
-                            const isMappedSalary = selectedType === 'gaji_akuntan' || selectedType === 'gaji_ahli_gizi'
+                            const isMappedSalary = (selectedType === 'gaji_akuntan' || selectedType === 'gaji_ahli_gizi') && Boolean(selectedMapping)
                             const showVirtualAccount = custom && !isArutala && !isMappedSalary
                             const ownerName = isArutala
                               ? arutalaOwnerName
@@ -2988,7 +2983,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     : 'lg:grid-cols-[62px_54px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(160px,1fr)_minmax(260px,1.6fr)_36px]'
                                   : 'lg:grid-cols-[62px_minmax(130px,0.95fr)_90px_minmax(105px,0.75fr)_minmax(240px,1.6fr)_minmax(260px,1.6fr)_36px]')}>
                                   {isMappedOps ? (
-                                    <div className="mp-ops-field flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-teal-100">Ops Harian</div>
+                                    <div className="mp-ops-kind flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-bold">Ops Harian</div>
                                   ) : custom ? (isArutala ? (
                                     <div className="mp-ops-field flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-cyan-100">Koperasi Arutala</div>
                                   ) : (
@@ -3017,8 +3012,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       className="mp-ops-field h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-semibold text-slate-100 outline-none transition focus:border-teal-500"
                                     >
                                       <option value="">Custom</option>
-                                      {availableAccountant && <option value="gaji_akuntan">Gaji AK</option>}
-                                      {availableNutritionist && <option value="gaji_ahli_gizi">Gaji AG</option>}
+                                      <option value="gaji_akuntan">Gaji AK{!availableAccountant ? ' · Isi rekening manual' : ''}</option>
+                                      <option value="gaji_ahli_gizi">Gaji AG{!availableNutritionist ? ' · Isi rekening manual' : ''}</option>
                                     </select>
                                   )) : (
                                     <div className="mp-ops-field flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-slate-200">Ops Harian</div>
