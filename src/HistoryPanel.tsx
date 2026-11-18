@@ -421,7 +421,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             {outputDiff.lines.map((fragments, lineIndex) => (
               <div key={lineIndex}>{fragments.map((fragment, partIndex) =>
                 fragment.highlighted
-                  ? <span key={partIndex} className="text-sky-200 underline decoration-sky-400 decoration-2 underline-offset-4">{fragment.text}</span>
+                  ? <span key={partIndex} className="text-teal-200 underline decoration-teal-400 decoration-2 underline-offset-4">{fragment.text}</span>
                   : fragment.text
               )}</div>
             ))}
