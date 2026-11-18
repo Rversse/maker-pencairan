@@ -591,3 +591,31 @@ aside [title='Belum diisi']::before {
 @media (prefers-reduced-motion: reduce) {
   .maker-pin-shake { animation: none !important; }
 }
+
+
+/* Operational transaction rows: clean ledger treatment, no nested boxes. */
+.mp-ops-row {
+  min-width: 0;
+  padding: 9px 6px;
+  border-bottom: 1px solid rgb(100 116 139 / 28%);
+  background: transparent;
+}
+.mp-ops-row:last-child { border-bottom-color: transparent; }
+.mp-ops-field {
+  min-width: 0;
+  border: 0 !important;
+  border-bottom: 1px solid rgb(100 116 139 / 48%) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.mp-ops-field:focus,
+.mp-ops-field:focus-visible {
+  border-bottom-color: rgb(45 212 191 / 90%) !important;
+  box-shadow: 0 1px 0 rgb(45 212 191 / 55%) !important;
+  outline: none;
+}
+.mp-ops-field:disabled { opacity: .72; }
+@media (max-width: 639px) {
+  .mp-ops-row { padding: 10px 2px; }
+}
