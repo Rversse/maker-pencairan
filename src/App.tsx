@@ -2985,7 +2985,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   {isMappedOps ? (
                                     <div className="mp-ops-kind flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-bold">Ops Harian</div>
                                   ) : custom ? (isArutala ? (
-                                    <div className="mp-ops-field flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-cyan-100">Koperasi Arutala</div>
+                                    <div className="mp-ops-field flex h-10 w-full items-center justify-center px-2 text-center text-[10px] font-semibold text-teal-100">Koperasi Arutala</div>
                                   ) : (
                                     <select
                                       value={selectedType}
@@ -3020,7 +3020,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   )}
                                   {showVirtualAccount && (
                                     <label className="flex h-10 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
-                                      <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-cyan-400" />
+                                      <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-teal-400" />
                                       <span>VA</span>
                                     </label>
                                   )}
@@ -3080,7 +3080,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     })()}
                   </section>
 
-                  <section className="mp-card w-full min-w-0 rounded-xl border border-sky-600/60 bg-slate-950/35 p-3">
+                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
                     <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
                     <div role="note" className="mt-2 rounded-lg border border-amber-700/50 bg-amber-950/20 px-3 py-2 text-xs leading-5 text-amber-100">
                       <span className="font-bold">Periksa kategori sebelum mengisi nominal.</span>
