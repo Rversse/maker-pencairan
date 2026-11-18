@@ -1164,19 +1164,35 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 }
 
 
-/* Consistent alignment and readable text across payment detail fields.
-   Nominal inputs intentionally retain their normal left-aligned entry text. */
-.mp-gas-flex-row > :not(:nth-last-child(2)):not(:last-child),
-.mp-ops-flex-row > :not(:nth-last-child(2)):not(:last-child),
-.mp-salary-flex-row:not(.hidden) > :not(:last-child) {
-  text-align: center !important;
+/* Explicit payment-field hooks. Avoid positional selectors: Ops rows have
+   optional VA and conditional owner fields, so child indexes are unstable. */
+.mp-payment-detail {
   color: #e2e8f0 !important;
+  text-align: center !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
 }
-
-/* GAS quantity and size are editable controls; keep their text visually
-   consistent with the account fields instead of inheriting muted styling. */
-.mp-gas-flex-row > input:not(:nth-last-child(2)),
-.mp-gas-flex-row > select {
+.mp-payment-detail::placeholder {
+  color: rgb(148 163 184 / 72%) !important;
+  -webkit-text-fill-color: rgb(148 163 184 / 72%) !important;
+  text-align: center !important;
+}
+.mp-payment-detail select,
+select.mp-payment-detail,
+input.mp-payment-detail {
   color: #e2e8f0 !important;
   text-align: center !important;
+  -webkit-text-fill-color: #e2e8f0 !important;
+}
+.mp-payment-nominal {
+  justify-content: flex-end !important;
+  text-align: right !important;
+}
+.mp-payment-nominal > input {
+  text-align: right !important;
+}
+.mp-rab-amount {
+  text-align: right !important;
+}
+.mp-salary-flex-row.hidden > span:last-child {
+  text-align: right !important;
 }
