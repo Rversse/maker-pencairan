@@ -348,7 +348,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const latestView = activeEventId === null
   const viewPayload = latestView ? latestPayload : activeEvent?.snapshot.payload ?? latestPayload
   const viewPreviousPayload = latestView ? latestPreviousPayload : previousActiveEvent?.snapshot.payload
-  const activeEventTags = activeEvent ? historyEventTags(activeEvent, previousActiveEvent) : []
   const activeEventLines = activeEvent ? auditedEventLines(activeEvent, previousActiveEvent) : []
   const outputDisplayLines: AuditDisplayLine[] = latestView ? latestOutput.split('\n').map(text => ({ text })) : activeEventLines
   const activeEventCopy = activeEvent ? auditCopyText(activeEvent, previousActiveEvent) : ''
