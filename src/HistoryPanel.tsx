@@ -263,7 +263,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
     const difference = currentValue - previousValue
-    const hasPrevious = Boolean(previousPayload)
+    const hasPrevious = Boolean(latestPreviousPayload)
     const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-500'
     const indicator = !hasPrevious || difference === 0 ? '' : difference > 0 ? `↑ +Rp ${money(difference)}` : `↓ -Rp ${money(Math.abs(difference))}`
     return (
