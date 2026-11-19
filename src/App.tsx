@@ -328,7 +328,7 @@ function sortDailyPaymentKinds(values: DailyPaymentKind[]) {
 function getPreferredBank(kitchenName: string) {
   const normalized = kitchenName.trim().toLowerCase()
 
-  if (normalized === 'cihaur' || normalized === 'sukaraja') {
+  if (normalized === 'cihaur' || normalized === 'sukaraharja') {
     return 'BRI'
   }
 
@@ -343,11 +343,11 @@ function getOutputCategoryRank(
     | 'gas'
     | 'lain_lain'
 ) {
-  if (kind === 'gas') return 0
-  if (kind === 'rab') return 1
-  if (kind === 'operasional_harian') return 2
-  if (kind === 'pencairan_harian') return 3
-  return 4
+  if (kind === 'rab') return 0
+  if (kind === 'operasional_harian') return 1
+  if (kind === 'gas') return 1
+  if (kind === 'pencairan_harian') return 2
+  return 3
 }
 
 function isValidSavedWorkspace(value: unknown): value is SavedWorkspace {
@@ -1782,7 +1782,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             : custom
               ? operationalEntry.ownerName ?? ''
               : mappedOperationalAccount?.ownerName ?? '').trim()
-      const note = (operationalEntry.need ?? (isMappedOps ? 'Ops Harian' : '')).trim()
+      const note = (operationalEntry.need?.trim() || (isMappedOps || isArutala ? 'Ops Harian' : '')).trim()
       const outputOwnerName = ownerName ? capitalizeEachWord(ownerName) : '-'
       const outputBank = bank || '-'
       const outputAccountNumber = accountNumber || '-'
@@ -1795,7 +1795,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           outputBank +
           ' / ' +
           outputAccountNumber +
-          (note && !isArutala ? ' · ' + note : '') +
+          (note ? ' · ' + note : '') +
           (custom && !isArutala && operationalEntry.isVirtualAccount ? ' · VA' : '') +
           ' · ' +
           formatNumber(operationalEntry.amount),
@@ -3174,7 +3174,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 : custom
                                   ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
                                   : mapping?.accountNumber ?? ''
-                            const note = entry.need ?? (isMappedOps ? 'Ops Harian' : '')
+                            const note = entry.need?.trim() || ((isMappedOps || isArutala) ? 'Ops Harian' : '')
                             return (
                               <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={`mp-ops-flex-row grid min-w-0 items-center gap-2 ${showVirtualAccount ? (entry.isVirtualAccount ? 'is-va' : 'has-va') : 'is-standard'}`}>
@@ -3247,7 +3247,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     disabled={!historyEnabled}
                                     value={note}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value })}
-                                    placeholder="Catatan"
+                                    placeholder={isArutala ? 'Ops Harian' : 'Catatan'}
                                     aria-label="Catatan Operasional Harian"
                                     className={`mp-ops-field mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
