@@ -2839,15 +2839,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <span
                             key={label}
                             title={complete ? 'Sudah diisi' : 'Belum diisi'}
-                            className="mp-summary-check text-center text-[10px] font-semibold leading-4"
+                            className="text-center text-[10px] font-semibold leading-4"
                             style={{
                               display: 'inline',
                               padding: 0,
                               margin: 0,
-                              border: 'none',
-                              outline: 'none',
+                              border: 0,
+                              outline: 0,
                               borderRadius: 0,
                               background: 'transparent',
+                              backgroundColor: 'transparent',
                               boxShadow: 'none',
                               textDecoration: 'none',
                               color: complete ? '#bac9b6' : '#778477',
