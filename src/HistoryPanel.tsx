@@ -137,23 +137,23 @@ function auditSuffix(row: StoredAuditRow): string {
   if (!row.before || !row.after) return ''
   const before = splitOutputLine(row.before)
   const after = splitOutputLine(row.after)
-  const beforeAmount = row.beforeAmount ?? Number(before.amount.replace(/\D/g, '')) || 0
-  const afterAmount = row.afterAmount ?? Number(after.amount.replace(/\D/g, '')) || 0
-  const deltaAmount = row.deltaAmount ?? afterAmount - beforeAmount
+  const beforeAmount = row.beforeAmount ?? (Number(before.amount.replace(/\D/g, '')) || 0)
+  const afterAmount = row.afterAmount ?? (Number(after.amount.replace(/\D/g, '')) || 0)
+  const deltaAmount = row.deltaAmount ?? (afterAmount - beforeAmount)
 
   if (row.kind === 'shortage' && deltaAmount > 0) {
-    return \`(\${money(beforeAmount)} + \${money(deltaAmount)})\`
+    return `(${money(beforeAmount)} + ${money(deltaAmount)})`
   }
   if (beforeAmount !== afterAmount) {
     if (before.prefix === after.prefix && before.detail === after.detail) {
-      return \`(\${money(beforeAmount)} → \${money(afterAmount)})\`
+      return `(${money(beforeAmount)} → ${money(afterAmount)})`
     }
     const beforeDescription = [before.detail, money(beforeAmount)].filter(Boolean).join(' · ')
     const afterDescription = [after.detail, money(afterAmount)].filter(Boolean).join(' · ')
-    return \`(\${beforeDescription || row.before} → \${afterDescription || row.after})\`
+    return `(${beforeDescription || row.before} → ${afterDescription || row.after})`
   }
-  if (before.detail !== after.detail) return \`(\${before.detail || before.prefix} → \${after.detail || after.prefix})\`
-  return \`(\${before.prefix} → \${after.prefix})\`
+  if (before.detail !== after.detail) return `(${before.detail || before.prefix} → ${after.detail || after.prefix})`
+  return `(${before.prefix} → ${after.prefix})`
 }
 
 function auditedEventLines(event: HistoryEvent, previous?: HistoryEvent | null): AuditDisplayLine[] {
@@ -183,13 +183,13 @@ function auditedEventLines(event: HistoryEvent, previous?: HistoryEvent | null):
     }
   })
   auditRows.filter(row => row.kind === 'removal' && row.before).forEach(row => {
-    displayLines.push({ text: \`Dihapus: \${row.before}\`, kind: 'removal' })
+    displayLines.push({ text: `Dihapus: ${row.before}`, kind: 'removal' })
   })
   return displayLines
 }
 
 function auditCopyText(event: HistoryEvent, previous?: HistoryEvent | null): string {
-  return auditedEventLines(event, previous).map(line => line.suffix ? \`\${line.text} \${line.suffix}\` : line.text).join('\n')
+  return auditedEventLines(event, previous).map(line => line.suffix ? `${line.text} ${line.suffix}` : line.text).join('\n')
 }
 
 async function historyRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
