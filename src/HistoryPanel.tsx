@@ -646,12 +646,13 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                             </div>
                           </div>
                           <div className="flex shrink-0 items-center gap-1.5">
-                            <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
-                              {isSelectedEvent(event) ? 'Pilih' : 'Lihat'}
-                            </button>
-                            {isSelectedEvent(event) && event.event_type !== 'NORMAL' && (
+                            {isSelectedEvent(event) ? (
                               <button type="button" onClick={() => void copyEventOutput(event)} className="mp-history-timeline-copy rounded-md border border-slate-700/80 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300">
                                 Salin
+                              </button>
+                            ) : (
+                              <button type="button" onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
+                                Pilih
                               </button>
                             )}
                           </div>
