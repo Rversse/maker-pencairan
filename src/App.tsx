@@ -3284,7 +3284,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     value={formatNumber(entry.amount)}
                                     disabled={!historyEnabled}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: event.target.value.replace(/\D/g, '') })}
-                                    placeholder="Nominal"
                                     aria-label="Nominal Ops Harian"
                                     required={isRequiredOther}
                                     placeholder={isRequiredOther ? "Nominal *" : "Nominal"}
