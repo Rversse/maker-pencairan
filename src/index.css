@@ -3828,3 +3828,84 @@ aside [title='Sudah diisi']::before, aside [title='Belum diisi']::before { box-s
   font-family: var(--mp-font-mono) !important;
   font-variant-numeric: tabular-nums;
 }
+
+/* Final user feedback: date capsule matches the kitchen control surface. */
+main .mp-date-control {
+  min-height: 36px !important;
+  border: 1px solid #465347 !important;
+  border-radius: 8px !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
+  color: #e2e9e1 !important;
+  box-shadow: none !important;
+}
+main .mp-date-control:hover {
+  border-color: #718272 !important;
+  background: #252c27 !important;
+}
+main .mp-date-control:focus-within {
+  border-color: #a0b49c !important;
+  background: #252c27 !important;
+  box-shadow: 0 0 0 2px rgb(160 180 156 / 13%) !important;
+}
+main .mp-date-control .mp-date-label {
+  color: #aeb9ac !important;
+  -webkit-text-fill-color: #aeb9ac !important;
+}
+main .mp-date-control .mp-date-value {
+  color: #e2e9e1 !important;
+  -webkit-text-fill-color: #e2e9e1 !important;
+}
+
+/* Summary status labels are colored text only: no chip border or fill. */
+main .mp-summary-checks .mp-summary-check,
+main .mp-summary-checks .mp-summary-check:hover {
+  display: inline !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  font-size: 10px !important;
+  font-weight: 550 !important;
+}
+main .mp-summary-checks .mp-summary-check.is-complete {
+  color: #bac9b6 !important;
+  -webkit-text-fill-color: #bac9b6 !important;
+}
+main .mp-summary-checks .mp-summary-check.is-incomplete {
+  color: #c2a49a !important;
+  -webkit-text-fill-color: #c2a49a !important;
+}
+
+/* VA label stays unboxed, including hover. Only the checkbox gets hover feedback. */
+main .mp-form-stack .mp-va-toggle,
+main .mp-form-stack .mp-va-toggle:hover,
+main .mp-form-stack .mp-va-toggle:focus-within {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  padding: 0 3px !important;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #c2cdc0 !important;
+  box-shadow: none !important;
+}
+main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
+  width: 15px !important;
+  height: 15px !important;
+  accent-color: #91a894 !important;
+  outline: 1px solid transparent;
+  outline-offset: 1px;
+}
+main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
+  outline-color: #a7b5a5;
+}
