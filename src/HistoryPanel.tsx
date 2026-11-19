@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from './lib/supabase'
 
 type HistoryRow = {
@@ -65,6 +65,19 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [notice, setNotice] = useState('')
   const [activeEventId, setActiveEventId] = useState<string | null>(null)
   const [clockNow, setClockNow] = useState(Date.now())
+  const dialogRef = useRef<HTMLElement>(null)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+  useEffect(() => {
+    const previouslyFocused = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null
+    const frame = window.requestAnimationFrame(() => dialogRef.current?.focus())
+    return () => {
+      window.cancelAnimationFrame(frame)
+      if (previouslyFocused?.isConnected) previouslyFocused.focus()
+    }
+  }, [])
   useEffect(() => { const timer = window.setInterval(() => setClockNow(Date.now()), 1000); return () => window.clearInterval(timer) }, [])
   const canEdit = role === 'admin' || Boolean(detail && !detail.locked)
 
@@ -394,9 +407,36 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   return (
     <div className="mp-history-overlay fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-2 backdrop-blur-sm sm:p-5">
       <section
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="mp-history-title"
+        tabIndex={-1}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault()
+            onCloseRef.current()
+            return
+          }
+          if (event.key !== 'Tab') return
+          const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+          )).filter(element => element.offsetParent !== null && element.getAttribute('aria-hidden') !== 'true')
+          if (!focusable.length) {
+            event.preventDefault()
+            event.currentTarget.focus()
+            return
+          }
+          const first = focusable[0]
+          const last = focusable[focusable.length - 1]
+          if (event.shiftKey && (document.activeElement === first || !event.currentTarget.contains(document.activeElement))) {
+            event.preventDefault()
+            last.focus()
+          } else if (!event.shiftKey && (document.activeElement === last || !event.currentTarget.contains(document.activeElement))) {
+            event.preventDefault()
+            first.focus()
+          }
+        }}
         className="mp-history-dialog flex min-w-0 max-h-[min(94dvh,900px)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-[#0b1422] shadow-2xl shadow-black/50"
       >
         <header className="mp-history-header flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 px-4 py-3.5 sm:px-5">
