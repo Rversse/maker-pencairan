@@ -3544,3 +3544,287 @@ aside [title='Sudah diisi']::before, aside [title='Belum diisi']::before { box-s
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/* ==========================================================================
+   Paper & Ink · operational alignment and application polish
+   ========================================================================== */
+
+/* Active transaction is highlighted as one coherent row, not as one input.
+   Input backgrounds remain transparent; the category tag marks the active row. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
+  border-radius: 9px !important;
+  background: #2c362e !important;
+  box-shadow: inset 0 0 0 1px #596e5b !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-tag,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-tag,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-tag {
+  border-color: #8ba28a !important;
+  border-left-color: #8ba28a !important;
+  background: #405343 !important;
+  color: #f0f4ed !important;
+  -webkit-text-fill-color: #f0f4ed !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus {
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-left: 0 !important;
+  border-bottom: 2px solid #b0c5ac !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #f0f4ed !important;
+  -webkit-text-fill-color: #f0f4ed !important;
+  caret-color: #c2d4bd !important;
+  font-weight: 650 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:focus::placeholder,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus::placeholder {
+  color: #bdcbb9 !important;
+  -webkit-text-fill-color: #bdcbb9 !important;
+}
+
+/* Tags and read-only data fields share a 40px control height. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom {
+  height: 40px !important;
+  min-height: 40px !important;
+  line-height: 1.2 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-static-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-salary-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
+  height: 40px !important;
+  min-height: 40px !important;
+}
+
+/* GAS row now includes a note field immediately after the size selector. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row {
+  grid-template-columns:
+    max-content max-content max-content max-content
+    minmax(64px, .42fr) minmax(90px, .55fr)
+    minmax(110px, .72fr) minmax(150px, .9fr) 36px !important;
+  align-items: center !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row .mp-gas-note {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  text-align: center !important;
+}
+@media (min-width: 1024px) {
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
+    grid-column: 7;
+  }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal {
+    grid-column: 8;
+  }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
+    grid-column: 9;
+  }
+}
+@media (max-width: 1023px) {
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
+    row-gap: 8px !important;
+  }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 3; grid-row: 1; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 4; grid-row: 1; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 2; max-width: none; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 2; max-width: none; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 3 / 5; grid-row: 2; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 5; grid-row: 3; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 5; grid-row: 1 / span 3; }
+}
+@media (max-width: 639px) {
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important;
+    row-gap: 8px !important;
+  }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 1; grid-row: 2; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 2; grid-row: 2; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 3; max-width: none; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 3; max-width: none; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 1 / 3; grid-row: 4; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 3; grid-row: 5; }
+  :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 5; }
+}
+
+/* VA remains a label + checkbox only; no enclosing button-like border. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle:hover {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-content: center !important;
+  padding: 0 3px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #c2cdc0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  accent-color: #91a894 !important;
+}
+
+/* Date and kitchen selectors use the same graphite control surface. */
+:root[data-theme='dark'] .mp-app-shell .mp-date-control {
+  border: 1px solid #465347 !important;
+  border-radius: 8px !important;
+  background: #252c27 !important;
+  box-shadow: none !important;
+  transition: border-color 140ms ease, background-color 140ms ease !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-date-control:hover {
+  border-color: #718272 !important;
+  background: #2a322b !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-date-control:focus-within {
+  border-color: #a0b49c !important;
+  background: #252c27 !important;
+  box-shadow: 0 0 0 2px rgb(160 180 156 / 13%) !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-date-control input[type='date'] {
+  color-scheme: dark;
+  accent-color: #91a894;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-kitchen-select,
+:root[data-theme='dark'] .mp-app-shell select#workspace-kitchen {
+  border: 1px solid #465347 !important;
+  border-radius: 8px !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
+  color: #e2e9e1 !important;
+  -webkit-text-fill-color: #e2e9e1 !important;
+  color-scheme: dark;
+  accent-color: #91a894;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-kitchen-select:hover,
+:root[data-theme='dark'] .mp-app-shell select#workspace-kitchen:hover {
+  border-color: #718272 !important;
+  background: #2a322b !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-kitchen-select:focus,
+:root[data-theme='dark'] .mp-app-shell select#workspace-kitchen:focus {
+  border-color: #a0b49c !important;
+  outline: 2px solid rgb(160 180 156 / 12%) !important;
+  outline-offset: 1px;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-kitchen-select option,
+:root[data-theme='dark'] .mp-app-shell select#workspace-kitchen option {
+  background: #29332c !important;
+  color: #e2e9e1 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-kitchen-select option:checked,
+:root[data-theme='dark'] .mp-app-shell select#workspace-kitchen option:checked {
+  background: #435645 !important;
+  color: #f2f5ef !important;
+}
+
+/* Output header: title, count and review note share the same vertical center. */
+:root[data-theme='dark'] .mp-app-shell .mp-output-header {
+  min-height: 34px !important;
+  align-items: center !important;
+  padding-top: 4px !important;
+  padding-bottom: 2px;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-output-header > div {
+  min-height: 24px;
+  align-items: center !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-output-header [role='note'] {
+  display: flex;
+  min-height: 22px;
+  align-items: center;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-output-count {
+  width: 20px !important;
+  height: 20px !important;
+  border: 1px solid #617a62 !important;
+  border-radius: 50% !important;
+  background: #344438 !important;
+  color: #c5d5c1 !important;
+  -webkit-text-fill-color: #c5d5c1 !important;
+  box-shadow: none !important;
+}
+
+/* Facility, salary and incentive summary are plain status text, not pills. */
+:root[data-theme='dark'] .mp-app-shell .mp-summary-checks {
+  border: 0 !important;
+  padding-top: 10px !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-summary-checks .mp-summary-check {
+  display: inline !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 10px !important;
+  font-weight: 550 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-summary-checks .mp-summary-check::before {
+  content: none !important;
+  display: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-summary-checks .mp-summary-check.is-complete {
+  color: #bac9b6 !important;
+  -webkit-text-fill-color: #bac9b6 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-summary-checks .mp-summary-check.is-incomplete {
+  color: #c2a49a !important;
+  -webkit-text-fill-color: #c2a49a !important;
+}
+
+/* History loading state no longer uses the old navy panel or cyan spinner. */
+:root[data-theme='dark'] .mp-history-dialog .mp-history-loading {
+  border: 1px solid #465047 !important;
+  border-radius: 9px !important;
+  background: #252c27 !important;
+  color: #aeb9ac !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .mp-history-loading .mp-history-spinner {
+  border-color: #566557 !important;
+  border-top-color: #a0b49c !important;
+}
+
+/* Consistent IBM Plex typography across main workspace and history. */
+:root[data-theme='dark'] .mp-app-shell,
+:root[data-theme='dark'] .mp-app-shell :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea),
+:root[data-theme='dark'] .mp-history-dialog,
+:root[data-theme='dark'] .mp-history-dialog :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea) {
+  font-family: var(--mp-font-sans) !important;
+  font-synthesis: none;
+}
+:root[data-theme='dark'] .mp-app-shell :is(h1,h2,h3,h4),
+:root[data-theme='dark'] .mp-history-dialog :is(h1,h2,h3,h4) {
+  font-weight: 650;
+  letter-spacing: -0.018em;
+}
+:root[data-theme='dark'] .mp-app-shell :is(label,p),
+:root[data-theme='dark'] .mp-history-dialog :is(label,p) {
+  font-feature-settings: 'cv11', 'ss01';
+}
+:root[data-theme='dark'] .mp-app-shell .mp-output-copy {
+  font-family: var(--mp-font-mono) !important;
+  font-variant-numeric: tabular-nums;
+}
