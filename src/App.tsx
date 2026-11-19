@@ -2253,24 +2253,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     if (!output) return
     try {
       await navigator.clipboard.writeText(output)
-      setCopyMessage('Output Maker berhasil disalin')
+      setCopyMessage('Output berhasil disalin')
       window.setTimeout(() => setCopyMessage(''), 2200)
     } catch {
       setCopyMessage('Gagal menyalin output. Periksa izin clipboard browser.')
-      window.setTimeout(() => setCopyMessage(''), 3000)
-    }
-  }
-
-  async function copyOutputForSimSppg() {
-    if (!output) return
-    try {
-      // The Maker document is the canonical import format. Arutala OPS rows
-      // intentionally omit the optional details segment and stay categorized as OPS.
-      await navigator.clipboard.writeText(output)
-      setCopyMessage('Format SIM-SPPG berhasil disalin')
-      window.setTimeout(() => setCopyMessage(''), 2200)
-    } catch {
-      setCopyMessage('Gagal menyalin format SIM-SPPG. Periksa izin clipboard browser.')
       window.setTimeout(() => setCopyMessage(''), 3000)
     }
   }
@@ -2798,7 +2784,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             Periksa kembali seluruh pencairan sebelum disimpan.
                           </p>
                           {copyMessage && <span role="status" className="text-[10px] font-semibold text-emerald-300">{copyMessage}</span>}
-                          <button type="button" onClick={() => void copyOutputForSimSppg()} disabled={!output} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Copy untuk SIM-SPPG</button>
                         </div>
                       </div>
 
