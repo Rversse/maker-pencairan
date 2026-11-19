@@ -2454,3 +2454,31 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
 .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
   color: #5eead4 !important;
 }
+
+
+/* Batch 4 · small-screen row fit (320–639px).
+   Keep long labels and notes inside their grid tracks instead of forcing
+   horizontal overflow on narrow phones. */
+@media (max-width: 639px) {
+  .mp-form-stack .mp-ops-flex-row .mp-ops-note {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .mp-form-stack .mp-salary-flex-row > .mp-tag--salary {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-inline: 8px !important;
+  }
+
+  .mp-form-stack .mp-salary-flex-row > .mp-tag--salary > span {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
