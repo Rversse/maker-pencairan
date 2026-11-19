@@ -100,7 +100,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     } catch (err) { setError(err instanceof Error ? err.message : 'Riwayat gagal dimuat.') }
     finally { setBusy(false) }
   }, [token, kitchenId, selectedDate])
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void load() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [load])
 
   async function refreshDetail() {
     if (!detail) return
@@ -385,6 +388,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       return mergeFragments(fragments)
     })
     return { lines, changedCount }
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- Preserve memoization for the expensive output-diff accumulator.
   }, [activeEvent, activeEventIndex, selectedEvent, detail])
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
