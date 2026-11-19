@@ -350,6 +350,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const viewPreviousPayload = latestView ? latestPreviousPayload : previousActiveEvent?.snapshot.payload
   const activeEventTags = activeEvent ? historyEventTags(activeEvent, previousActiveEvent) : []
   const activeEventLines = activeEvent ? auditedEventLines(activeEvent, previousActiveEvent) : []
+  const outputDisplayLines: AuditDisplayLine[] = latestView ? latestOutput.split('\n').map(text => ({ text })) : activeEventLines
   const activeEventCopy = activeEvent ? auditCopyText(activeEvent, previousActiveEvent) : ''
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
@@ -594,45 +595,28 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   </div>
                 </div>
                 <div className="max-h-[34vh] min-h-[120px] overflow-auto break-words px-3 py-3 text-xs leading-5 text-slate-300 sm:px-4">
-                  {latestView ? (
-                    <pre className="whitespace-pre-wrap font-sans">{latestOutput || 'Belum ada output pada snapshot terakhir.'}</pre>
-                  ) : activeEvent?.event_type === 'NORMAL' ? (
-                    <pre className="whitespace-pre-wrap font-sans">{displayedOutput || 'Snapshot pencairan awal belum memiliki output.'}</pre>
-                  ) : activeEventChanges.length ? (
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {activeEventTags.map(tag => (
-                          <span key={tag} className={`mp-history-event-tag ${tag === 'Revisi' ? 'is-revision' : tag === 'Kekurangan' ? 'is-shortage' : tag === 'Tambahan' ? 'is-addition' : ''}`}>{tag}</span>
-                        ))}
-                        <span className="ml-1 text-[10px] text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : ''}</span>
-                      </div>
-                      {activeEventChanges.map((change, index) => (
-                        <div key={index} className="space-y-1 border-b border-slate-800/70 pb-2 last:border-0">
-                          {change.kind === 'updated' ? (
-                            <>
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Sebelumnya</p>
-                              <p className="whitespace-pre-wrap font-sans text-slate-400">{change.before}</p>
-                              <p className="pt-0.5 text-[10px] font-bold uppercase tracking-wide text-teal-300">Menjadi</p>
-                              <p className="whitespace-pre-wrap font-sans font-semibold text-teal-200">{change.after}</p>
-                            </>
-                          ) : change.kind === 'added' ? (
-                            <>
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-300">Ditambahkan</p>
-                              <p className="whitespace-pre-wrap font-sans font-semibold text-emerald-200">{change.after}</p>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-rose-300">Dihapus</p>
-                              <p className="whitespace-pre-wrap font-sans text-rose-200">{change.before}</p>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : activeEventFallbackOutput.trim() ? (
-                    <div className="whitespace-pre-wrap font-sans text-teal-200">{activeEventFallbackOutput}</div>
+                  {latestView && !latestOutput.trim() ? (
+                    <p className="text-slate-500">Belum ada output pada snapshot terbaru.</p>
+                  ) : !outputDisplayLines.length ? (
+                    <p className="text-slate-500">Snapshot event ini belum memiliki output.</p>
                   ) : (
-                    <p className="text-slate-500">Tidak ada perubahan output yang bisa dibandingkan pada event ini.</p>
+                    <div className="whitespace-pre-wrap font-sans">
+                      {outputDisplayLines.map((line, index) => {
+                        const highlightClass = line.kind === 'shortage'
+                          ? 'text-amber-200 underline decoration-amber-400/80 decoration-2 underline-offset-4'
+                          : line.kind === 'addition'
+                            ? 'text-emerald-200 underline decoration-emerald-400/80 decoration-2 underline-offset-4'
+                            : line.kind === 'removal'
+                              ? 'text-rose-200 line-through decoration-rose-400/80'
+                              : 'text-teal-200 underline decoration-teal-400/80 decoration-2 underline-offset-4'
+                        return (
+                          <div key={index} className={line.kind ? 'py-0.5' : ''}>
+                            <span className={line.kind ? highlightClass : ''}>{line.text}</span>
+                            {line.suffix && <span className={line.kind === 'shortage' ? 'ml-1 text-amber-300' : 'ml-1 text-teal-300'}>{line.suffix}</span>}
+                          </div>
+                        )
+                      })}
+                    </div>
                   )}
                 </div>
               </section>
