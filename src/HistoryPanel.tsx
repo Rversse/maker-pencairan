@@ -50,6 +50,152 @@ const dateTime = (value: string) => {
   return `${formatDate(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`)} · ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
 }
 
+type AuditChange = {
+  kind: 'updated' | 'added' | 'removed'
+  before?: string
+  after?: string
+}
+
+type HistoryTransactionShape = Record<string, unknown> & {
+  rab?: Array<Record<string, unknown>>
+  gas?: Array<Record<string, unknown>>
+  operasional?: Array<Record<string, unknown>>
+  pencairan_harian?: Array<Record<string, unknown>>
+  lain_lain?: Array<Record<string, unknown>>
+  arutala_lain_lain?: Array<Record<string, unknown>>
+}
+
+function transactionOf(event?: HistoryEvent | null): HistoryTransactionShape | undefined {
+  const value = event?.snapshot.payload?.transaction
+  return value && typeof value === 'object' ? value as HistoryTransactionShape : undefined
+}
+
+function amountOf(row?: Record<string, unknown>): number {
+  return Number(String(row?.amount ?? '').replace(/[^0-9]/g, '')) || 0
+}
+
+function eventAuditChanges(event: HistoryEvent, previous?: HistoryEvent | null): AuditChange[] {
+  const currentOutput = String(event.snapshot.payload?.output ?? '').split('\\n').slice(1).filter(Boolean)
+  const previousOutput = String(previous?.snapshot.payload?.output ?? '').split('\\n').slice(1).filter(Boolean)
+  const keyOf = (line: string) => {
+    const amountSeparator = line.lastIndexOf(' · ')
+    const body = amountSeparator >= 0 ? line.slice(0, amountSeparator) : line
+    const detailSeparator = body.indexOf(' · ')
+    return (detailSeparator >= 0 ? body.slice(0, detailSeparator) : body).trim().toLocaleLowerCase('id-ID')
+  }
+
+  const previousByKey = new Map<string, string[]>()
+  previousOutput.forEach(line => {
+    const key = keyOf(line)
+    const queue = previousByKey.get(key) ?? []
+    queue.push(line)
+    previousByKey.set(key, queue)
+  })
+
+  const changes: AuditChange[] = []
+  currentOutput.forEach(after => {
+    const key = keyOf(after)
+    const queue = previousByKey.get(key) ?? []
+    const before = queue.shift()
+    previousByKey.set(key, queue)
+    if (!before) changes.push({ kind: 'added', after })
+    else if (before !== after) changes.push({ kind: 'updated', before, after })
+  })
+  previousByKey.forEach(queue => queue.forEach(before => changes.push({ kind: 'removed', before })))
+  return changes
+}
+
+function historyEventTags(event: HistoryEvent, previous?: HistoryEvent | null): string[] {
+  if (event.event_type === 'NORMAL') return ['Pencairan Awal']
+  const current = transactionOf(event)
+  const before = transactionOf(previous)
+  const shortageKeys = new Set(
+    Array.isArray(event.snapshot.delta?.shortage_keys)
+      ? (event.snapshot.delta?.shortage_keys as unknown[]).map(String)
+      : []
+  )
+  let hasRevision = false
+  let hasShortage = shortageKeys.size > 0
+  let hasAddition = false
+
+  const rabRows = current?.rab ?? []
+  const previousRab = before?.rab ?? []
+  const previousRabById = new Map(previousRab.map(row => [String(row.accountId ?? ''), row]))
+  rabRows.forEach(row => {
+    const id = String(row.accountId ?? '')
+    const old = previousRabById.get(id)
+    if (!old) {
+      if (amountOf(row) > 0 || amountOf({ amount: row.b3Amount }) > 0) hasAddition = true
+      return
+    }
+    if (JSON.stringify(old.amount ?? '') !== JSON.stringify(row.amount ?? '')) {
+      if (shortageKeys.has('rab:' + id)) hasShortage = true
+      else hasRevision = true
+    }
+    if (JSON.stringify(old.productTypes ?? []) !== JSON.stringify(row.productTypes ?? [])) hasRevision = true
+    if (JSON.stringify(old.b3Amount ?? '') !== JSON.stringify(row.b3Amount ?? '')) {
+      if (shortageKeys.has('rab_b3:' + id)) hasShortage = true
+      else if (amountOf({ amount: row.b3Amount }) > 0 && amountOf({ amount: old.b3Amount }) === 0) hasAddition = true
+      else hasRevision = true
+    }
+    if (JSON.stringify(old.b3ProductTypes ?? []) !== JSON.stringify(row.b3ProductTypes ?? [])) hasRevision = true
+  })
+
+  const sections = ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const
+  sections.forEach(section => {
+    const currentRows = current?.[section] ?? []
+    const previousRows = before?.[section] ?? []
+    const oldById = new Map(previousRows.map(row => [String(row.id ?? ''), row]))
+    const currentIds = new Set(currentRows.map(row => String(row.id ?? '')))
+    currentRows.forEach(row => {
+      const id = String(row.id ?? '')
+      const old = oldById.get(id)
+      if (!old) {
+        if (amountOf(row) > 0) hasAddition = true
+        return
+      }
+      if (JSON.stringify(old) === JSON.stringify(row)) return
+      const shortageKey = section + ':' + id
+      const onlyAmountChanged = Object.keys({ ...old, ...row }).every(key =>
+        key === 'amount' || JSON.stringify(old[key]) === JSON.stringify(row[key])
+      )
+      if (shortageKeys.has(shortageKey) && onlyAmountChanged) hasShortage = true
+      else hasRevision = true
+    })
+    previousRows.forEach(row => {
+      if (!currentIds.has(String(row.id ?? '')) && amountOf(row) > 0) hasRevision = true
+    })
+  })
+
+  const tags: string[] = []
+  if (hasRevision) tags.push('Revisi')
+  if (hasShortage) tags.push('Kekurangan')
+  if (hasAddition) tags.push('Tambahan')
+  if (tags.length) return tags
+
+  if (event.event_type === 'KEKURANGAN') return ['Kekurangan']
+  if (event.event_type === 'TAMBAHAN') return ['Tambahan']
+  return ['Revisi']
+}
+
+function auditCopyText(event: HistoryEvent, previous?: HistoryEvent | null): string {
+  if (event.event_type === 'NORMAL') return String(event.snapshot.payload?.output ?? '')
+  const changes = eventAuditChanges(event, previous)
+  if (!changes.length) {
+    const fallback = event.snapshot.delta?.incremental_output
+    return typeof fallback === 'string' ? fallback : ''
+  }
+  const lines = changes.flatMap(change => {
+    if (change.kind === 'updated') return [
+      'SEBELUMNYA: ' + (change.before ?? ''),
+      'MENJADI: ' + (change.after ?? '')
+    ]
+    if (change.kind === 'added') return ['TAMBAHAN: ' + (change.after ?? '')]
+    return ['DIHAPUS: ' + (change.before ?? '')]
+  })
+  return [historyEventTags(event, previous).join(' + '), ...lines].join('\\n')
+}
+
 async function historyRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke('maker-history', {
     body,
@@ -136,74 +282,17 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     setNotice('')
   }
   async function copyEventOutput(event: HistoryEvent) {
-    const storedOutput = event.snapshot.delta?.incremental_output
-    if (typeof storedOutput === 'string') {
-      if (!storedOutput.trim()) {
-        setNotice(`Perubahan ${event.event_type} tersimpan. Tidak ada baris bernominal untuk disalin.`)
-        setError('')
-        return
-      }
-      try {
-        await navigator.clipboard.writeText(storedOutput)
-        setNotice(`Output ${event.event_type} berhasil disalin.`)
-        setError('')
-      } catch {
-        setError('Clipboard tidak tersedia di browser ini.')
-      }
-      return
-    }
-
-    // Compatibility fallback for older events created before incremental_output
-    // was stored. Compare complete output lines using their stable account/category
-    // identity; only the amount/detail delta is copied for additive event types.
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
-    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
-    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
-    const parseLine = (line: string) => {
-      const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      if (!match) return null
-      const prefix = match[1]
-      const identity = prefix.split(' · ')[0]
-      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
-    }
-    const previousByIdentity = new Map<string, Array<NonNullable<ReturnType<typeof parseLine>>>>()
-    previousLines.forEach(line => {
-      const parsed = parseLine(line)
-      if (!parsed) return
-      const matches = previousByIdentity.get(parsed.identity) ?? []
-      matches.push(parsed)
-      previousByIdentity.set(parsed.identity, matches)
-    })
-
-    const changed = currentLines.flatMap(line => {
-      const current = parseLine(line)
-      if (!current) return []
-      const matches = previousByIdentity.get(current.identity) ?? []
-      const before = matches.shift()
-      previousByIdentity.set(current.identity, matches)
-      if (!before) return [`${current.prefix} · ${money(current.amount)}`]
-      if (event.event_type === 'REVISI') {
-        return before.amount !== current.amount || before.prefix !== current.prefix
-          ? [`${current.prefix} · ${money(current.amount)}`]
-          : []
-      }
-      if (event.event_type === 'KEKURANGAN' || event.event_type === 'TAMBAHAN') {
-        const difference = current.amount - before.amount
-        return difference > 0 ? [`${current.identity} · ${money(difference)}`] : []
-      }
-      return []
-    })
-
-    if (!changed.length) {
-      setNotice(`Perubahan ${event.event_type} tersimpan. Tidak ada baris bernominal untuk disalin.`)
+    const output = auditCopyText(event, previous)
+    if (!output.trim()) {
+      setNotice(`Tidak ada perubahan output yang dapat disalin untuk aktivitas ${event.event_type}.`)
       setError('')
       return
     }
-    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\n')
     try {
       await navigator.clipboard.writeText(output)
-      setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`)
+      setNotice(event.event_type === 'NORMAL' ? 'Output pencairan awal berhasil disalin.' : 'Audit perubahan berhasil disalin.')
       setError('')
     } catch {
       setError('Clipboard tidak tersedia di browser ini.')
@@ -226,6 +315,14 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     }
   }
 
+  async function copyCurrentOutput() {
+    if (latestView) {
+      await copyLatestHistoryOutput()
+      return
+    }
+    if (activeEvent) await copyEventOutput(activeEvent)
+  }
+
   async function deleteHistory() {
     if (!detail || role !== "admin") return
     const confirmed = window.confirm("Hapus transaksi Riwayat ini? Transaksi tidak akan tampil lagi di daftar. Tindakan ini berlaku untuk status terkunci maupun belum terkunci.")
@@ -241,24 +338,34 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   }
 
   const selectedEvent = detail?.events ?? EMPTY_HISTORY_EVENTS
-  const activeEvent = selectedEvent.find(event => event.id === activeEventId) ?? selectedEvent[selectedEvent.length - 1] ?? null
   const latestEvent = selectedEvent[selectedEvent.length - 1] ?? null
+  const activeEvent = activeEventId
+    ? selectedEvent.find(event => event.id === activeEventId) ?? null
+    : null
+  const activeEventIndex = activeEvent ? selectedEvent.findIndex(event => event.id === activeEvent.id) : -1
+  const previousActiveEvent = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1] : null
   const latestPayload = detail?.history.payload ?? latestEvent?.snapshot.payload
   const latestPreviousPayload = selectedEvent.length > 1
     ? selectedEvent[selectedEvent.length - 2]?.snapshot.payload
     : undefined
   const latestOutput = String(latestPayload?.output ?? '')
+  const latestView = activeEventId === null
+  const activeEventOutput = String(activeEvent?.snapshot.payload?.output ?? '')
+  const activeEventChanges = activeEvent && activeEvent.event_type !== 'NORMAL'
+    ? eventAuditChanges(activeEvent, previousActiveEvent)
+    : []
+  const activeEventTags = activeEvent ? historyEventTags(activeEvent, previousActiveEvent) : []
+  const activeEventCopy = activeEvent ? auditCopyText(activeEvent, previousActiveEvent) : ''
+  const activeEventFallbackOutput = String(activeEvent?.snapshot.delta?.incremental_output ?? '')
+  const displayedOutput = latestView
+    ? latestOutput
+    : activeEvent?.event_type === 'NORMAL'
+      ? activeEventOutput
+      : ''
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
-  const eventLabel = (eventType: string) => {
-    if (eventType === 'NORMAL') return 'Pencairan Awal'
-    if (eventType === 'REVISI') return 'Revisi'
-    if (eventType === 'KEKURANGAN') return 'Kekurangan'
-    if (eventType === 'TAMBAHAN') return 'Tambahan'
-    return eventType
-  }
   const metric = (label: string, value: unknown, previous: unknown) => {
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
@@ -275,7 +382,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     )
   }
 
-  const isSelectedEvent = (event: HistoryEvent) => activeEvent?.id === event.id
+  const isSelectedEvent = (event: HistoryEvent) => activeEventId === event.id
 
   return (
     <div className="mp-history-overlay fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-2 backdrop-blur-sm sm:p-5">
@@ -432,27 +539,14 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void refreshDetail()}
-                    title="Muat ulang data terakhir"
-                    aria-label="Muat ulang data terakhir"
-                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-teal-100 disabled:opacity-40"
-                  >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M20 7v5h-5M4 17v-5h5" />
-                      <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
-                    </svg>
-                  </button>
                   {canEdit && role === 'admin' && (
                     <button type="button" disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">
-                      Load ke Form
+                      Load
                     </button>
                   )}
                   {role === 'admin' && (
                     <button type="button" disabled={busy} onClick={() => void deleteHistory()} className="mp-history-danger-button rounded-lg border border-rose-800/70 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">
-                      Hapus transaksi
+                      Hapus
                     </button>
                   )}
                   <button
@@ -488,17 +582,69 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                     )}
                     <button
                       type="button"
-                      disabled={busy || !latestOutput.trim()}
-                      onClick={() => void copyLatestHistoryOutput()}
-                      title="Salin output lengkap dari snapshot terakhir"
+                      disabled={busy || (latestView ? !latestOutput.trim() : !activeEventCopy.trim())}
+                      onClick={() => void copyCurrentOutput()}
+                      title={latestView ? 'Salin output lengkap dari snapshot terbaru' : 'Salin audit perubahan pada event terpilih'}
                       className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40"
                     >
                       Salin
                     </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void refreshDetail()}
+                      title="Reset ke output terbaru dan muat ulang snapshot"
+                      aria-label="Reset ke output terbaru"
+                      className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-teal-100 disabled:opacity-40"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M20 7v5h-5M4 17v-5h5" />
+                        <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
-                <div className="max-h-[34vh] min-h-[120px] overflow-auto whitespace-pre-wrap break-words px-3 py-3 text-xs leading-5 text-slate-300 sm:px-4">
-                  {latestOutput || 'Belum ada output pada snapshot terakhir.'}
+                <div className="max-h-[34vh] min-h-[120px] overflow-auto break-words px-3 py-3 text-xs leading-5 text-slate-300 sm:px-4">
+                  {latestView ? (
+                    <pre className="whitespace-pre-wrap font-sans">{latestOutput || 'Belum ada output pada snapshot terakhir.'}</pre>
+                  ) : activeEvent?.event_type === 'NORMAL' ? (
+                    <pre className="whitespace-pre-wrap font-sans">{displayedOutput || 'Snapshot pencairan awal belum memiliki output.'}</pre>
+                  ) : activeEventChanges.length ? (
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {activeEventTags.map(tag => (
+                          <span key={tag} className={`mp-history-event-tag ${tag === 'Revisi' ? 'is-revision' : tag === 'Kekurangan' ? 'is-shortage' : tag === 'Tambahan' ? 'is-addition' : ''}`}>{tag}</span>
+                        ))}
+                        <span className="ml-1 text-[10px] text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : ''}</span>
+                      </div>
+                      {activeEventChanges.map((change, index) => (
+                        <div key={index} className="space-y-1 border-b border-slate-800/70 pb-2 last:border-0">
+                          {change.kind === 'updated' ? (
+                            <>
+                              <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Sebelumnya</p>
+                              <p className="whitespace-pre-wrap font-sans text-slate-400">{change.before}</p>
+                              <p className="pt-0.5 text-[10px] font-bold uppercase tracking-wide text-teal-300">Menjadi</p>
+                              <p className="whitespace-pre-wrap font-sans font-semibold text-teal-200">{change.after}</p>
+                            </>
+                          ) : change.kind === 'added' ? (
+                            <>
+                              <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-300">Ditambahkan</p>
+                              <p className="whitespace-pre-wrap font-sans font-semibold text-emerald-200">{change.after}</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-[10px] font-bold uppercase tracking-wide text-rose-300">Dihapus</p>
+                              <p className="whitespace-pre-wrap font-sans text-rose-200">{change.before}</p>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : activeEventFallbackOutput.trim() ? (
+                    <div className="whitespace-pre-wrap font-sans text-teal-200">{activeEventFallbackOutput}</div>
+                  ) : (
+                    <p className="text-slate-500">Tidak ada perubahan output yang bisa dibandingkan pada event ini.</p>
+                  )}
                 </div>
               </section>
 
@@ -511,30 +657,34 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   <p className="rounded-lg border border-dashed border-slate-700/80 px-3 py-4 text-xs text-slate-500">Belum ada aktivitas.</p>
                 ) : (
                   <div className="space-y-2">
-                    {[...selectedEvent].reverse().map(event => (
-                      <div key={event.id} className={isSelectedEvent(event) ? 'mp-history-timeline-item is-active' : 'mp-history-timeline-item'}>
-                        <span className="mp-history-timeline-marker" aria-hidden="true" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className={event.event_type === 'NORMAL' ? 'mp-history-event-type is-normal' : 'mp-history-event-type'}>
-                              {eventLabel(event.event_type)}
-                            </span>
-                            <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
+                    {[...selectedEvent].reverse().map(event => {
+                      const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
+                      const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
+                      const tags = historyEventTags(event, previous)
+                      return (
+                        <div key={event.id} className={isSelectedEvent(event) ? 'mp-history-timeline-item is-active' : 'mp-history-timeline-item'}>
+                          <span className="mp-history-timeline-marker" aria-hidden="true" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              {tags.map(tag => (
+                                <span key={tag} className={`mp-history-event-tag ${tag === 'Pencairan Awal' ? 'is-normal' : tag === 'Revisi' ? 'is-revision' : tag === 'Kekurangan' ? 'is-shortage' : 'is-addition'}`}>{tag}</span>
+                              ))}
+                              <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
+                            </div>
                           </div>
-                          {event.event_type !== 'NORMAL' && <p className="mt-1 break-words text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p>}
-                        </div>
-                        <div className="flex shrink-0 items-center gap-1.5">
-                          <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
-                            {isSelectedEvent(event) ? 'Dipilih' : 'Lihat'}
-                          </button>
-                          {isSelectedEvent(event) && event.event_type !== 'NORMAL' && (
-                            <button type="button" onClick={() => void copyEventOutput(event)} className="mp-history-timeline-copy rounded-md border border-slate-700/80 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300">
-                              Salin
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
+                              {isSelectedEvent(event) ? 'Pilih' : 'Lihat'}
                             </button>
-                          )}
+                            {isSelectedEvent(event) && event.event_type !== 'NORMAL' && (
+                              <button type="button" onClick={() => void copyEventOutput(event)} className="mp-history-timeline-copy rounded-md border border-slate-700/80 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300">
+                                Salin
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </section>
