@@ -406,18 +406,19 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           </div>
           <div className="ml-auto flex shrink-0 items-center gap-2">
             {!detail && (
-              <label className="mp-history-date flex h-9 items-center gap-2 rounded-lg border border-slate-700/80 bg-slate-900/70 px-2.5">
+              <label className="mp-history-date relative flex h-9 min-w-[168px] items-center gap-2 overflow-hidden rounded-lg border border-slate-700/80 bg-slate-900/70 px-2.5">
                 <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-teal-300" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3.5" y="5" width="17" height="15" rx="2.2" />
                   <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9.5h17" />
                 </svg>
+                <span aria-hidden="true" className="min-w-[126px] text-xs font-semibold tabular-nums text-slate-100">{formatDate(selectedDate)}</span>
                 <input
                   type="date"
                   aria-label="Pilih tanggal riwayat"
                   value={selectedDate}
                   onClick={event => event.currentTarget.showPicker?.()}
                   onChange={event => setSelectedDate(event.target.value)}
-                  className="h-8 w-[126px] cursor-pointer border-0 bg-transparent p-0 text-xs font-semibold text-slate-100 [color-scheme:dark] outline-none"
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
                 />
               </label>
             )}
