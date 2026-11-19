@@ -921,6 +921,18 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [historySaveOpen, setHistorySaveOpen] = useState(false)
   const [historySaveType, setHistorySaveType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN'>('REVISI')
   const [historySaveSummary, setHistorySaveSummary] = useState('')
+  const historySavePreviousFocusRef = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    if (historySaveOpen) {
+      const frame = window.requestAnimationFrame(() => {
+        document.getElementById('mp-history-save-summary')?.focus()
+      })
+      return () => window.cancelAnimationFrame(frame)
+    }
+    const previous = historySavePreviousFocusRef.current
+    if (previous?.isConnected) previous.focus()
+    historySavePreviousFocusRef.current = null
+  }, [historySaveOpen])
   const [historyChangeBase, setHistoryChangeBase] = useState<Record<string, unknown> | null>(null)
   const [historyEntryKeys, setHistoryEntryKeys] = useState<string[]>([])
   const [historyShortageKeys, setHistoryShortageKeys] = useState<string[]>([])
@@ -2241,6 +2253,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const snapshot = getHistorySnapshot()
       if (!snapshot) return
       if (historyChangeBase) {
+        historySavePreviousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
         setHistorySaveOpen(true)
         setHistorySaveBusy(false)
         return
@@ -2260,6 +2273,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         setHistoryChangeBase(existing.payload as Record<string, unknown>)
         setHistorySaveType('REVISI')
         setHistoryEntryKeys(getHistoryEntryKeys(previous))
+        historySavePreviousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
         setHistorySaveOpen(true)
         setHistorySaveBusy(false)
         return
@@ -3270,12 +3284,43 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       </div>
       {historySaveOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4">
-          <section className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-2xl">
-            <h3 className="text-sm font-bold">Simpan perubahan pencairan</h3>
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mp-history-save-title"
+            tabIndex={-1}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape' && !historySaveBusy) {
+                event.preventDefault()
+                setHistorySaveOpen(false)
+                return
+              }
+              if (event.key !== 'Tab') return
+              const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
+                'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+              )).filter(element => element.offsetParent !== null)
+              if (!focusable.length) {
+                event.preventDefault()
+                event.currentTarget.focus()
+                return
+              }
+              const first = focusable[0]
+              const last = focusable[focusable.length - 1]
+              if (event.shiftKey && (document.activeElement === first || !event.currentTarget.contains(document.activeElement))) {
+                event.preventDefault()
+                last.focus()
+              } else if (!event.shiftKey && (document.activeElement === last || !event.currentTarget.contains(document.activeElement))) {
+                event.preventDefault()
+                first.focus()
+              }
+            }}
+            className="w-full max-w-md rounded-xl border border-slate-700 bg-slate-950 p-4 shadow-2xl"
+          >
+            <h3 id="mp-history-save-title" className="text-sm font-bold">Simpan perubahan pencairan</h3>
             <p className="mt-1 text-xs text-slate-400">Periksa perubahan, lalu simpan dan salin output.</p>
             <p className="mt-2 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 text-xs font-semibold text-emerald-200">Jenis perubahan: {historySaveType}</p>{historyChangeActive && <p className="mt-2 text-xs text-slate-400">Seluruh transaksi dari snapshot sedang diedit di Form Utama.</p>}
             <label className="mt-3 block text-xs text-slate-300">Catatan {historySaveType === 'REVISI' ? 'revisi' : historySaveType === 'KEKURANGAN' ? 'kekurangan' : 'tambahan'} (opsional)
-              <input value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder={historySaveType === 'REVISI' ? 'Apa yang direvisi?' : historySaveType === 'KEKURANGAN' ? 'Apa yang menjadi kekurangan?' : 'Apa yang ditambahkan?'} />
+              <input autoFocus id="mp-history-save-summary" value={historySaveSummary} onChange={event => setHistorySaveSummary(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-xs" placeholder={historySaveType === 'REVISI' ? 'Apa yang direvisi?' : historySaveType === 'KEKURANGAN' ? 'Apa yang menjadi kekurangan?' : 'Apa yang ditambahkan?'} />
             </label>
             <div className="mt-4 flex justify-end gap-2">
               <button type="button" disabled={historySaveBusy} onClick={() => setHistorySaveOpen(false)} className="rounded-lg border border-slate-700 px-3 py-2 text-xs">Batal</button>
