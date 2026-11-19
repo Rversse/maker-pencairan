@@ -1919,11 +1919,11 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 /* ── History editing controls and compact history list ─────────────────── */
 .mp-form-stack .mp-history-shortage-toggle {
   display: inline-flex;
-  min-height: 36px;
+  min-height: 32px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 6px;
   border: 1px solid rgb(100 116 139 / 48%) !important;
   border-radius: 8px !important;
   background: rgb(30 41 59 / 38%) !important;
@@ -1943,9 +1943,9 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 .mp-history-shortage-switch {
   position: relative;
   display: inline-flex;
-  width: 27px;
-  height: 16px;
-  flex: 0 0 27px;
+  width: 23px;
+  height: 14px;
+  flex: 0 0 23px;
   align-items: center;
   border: 1px solid rgb(100 116 139 / 58%);
   border-radius: 999px;
@@ -1955,8 +1955,8 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 }
 .mp-history-shortage-switch > span {
   display: block;
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 999px;
   background: #cbd5e1;
   transform: translateX(0);
@@ -1968,7 +1968,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 }
 .mp-history-shortage-toggle.is-active .mp-history-shortage-switch > span {
   background: #ecfeff;
-  transform: translateX(11px);
+  transform: translateX(9px);
 }
 
 /* Show the original value above the editable field only while a History
@@ -1992,7 +1992,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   font-size: 9px;
   font-weight: 600;
   line-height: 12px;
-  text-align: right;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
