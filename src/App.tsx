@@ -2573,7 +2573,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               {!fixedKitchen && (
                 <div className="w-[190px] shrink-0">
                   <label htmlFor="workspace-kitchen" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Dapur</label>
-                  <select id="workspace-kitchen" value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} className="h-9 w-full rounded-lg border border-slate-700 bg-slate-950 px-2.5 text-xs font-semibold text-white">
+                  <select id="workspace-kitchen" value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} className="mp-control-surface h-9 w-full px-2.5 text-xs font-semibold text-white">
                     <option value="">Pilih dapur</option>
                     {masterData?.kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
                   </select>
