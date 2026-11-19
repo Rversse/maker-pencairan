@@ -114,10 +114,7 @@ export function DateRangePicker({
   const [showMonthYearPicker, setShowMonthYearPicker] = useState(false)
 
   useLayoutEffect(() => {
-    if (!open) {
-      setPopupPosition(null)
-      return
-    }
+    if (!open) return
 
     function updatePopupPosition() {
       const trigger = triggerRef.current
