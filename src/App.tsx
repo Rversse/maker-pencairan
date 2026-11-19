@@ -3059,8 +3059,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       className="mp-tag mp-tag--custom mp-payment-detail h-9 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-extrabold uppercase outline-none transition focus:border-teal-500"
                                     >
                                       <option value="">Custom</option>
-                                      <option value="gaji_akuntan">Gaji AK{!availableAccountant ? ' · Isi rekening manual' : ''}</option>
-                                      <option value="gaji_ahli_gizi">Gaji AG{!availableNutritionist ? ' · Isi rekening manual' : ''}</option>
+                                      <option value="gaji_akuntan">Gaji AK</option>
+                                      <option value="gaji_ahli_gizi">Gaji AG</option>
                                     </select>
                                   )) : (
                                     <div className="mp-tag mp-tag--ops">OPS HARIAN</div>
