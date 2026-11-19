@@ -282,74 +282,17 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     setNotice('')
   }
   async function copyEventOutput(event: HistoryEvent) {
-    const storedOutput = event.snapshot.delta?.incremental_output
-    if (typeof storedOutput === 'string') {
-      if (!storedOutput.trim()) {
-        setNotice(`Perubahan ${event.event_type} tersimpan. Tidak ada baris bernominal untuk disalin.`)
-        setError('')
-        return
-      }
-      try {
-        await navigator.clipboard.writeText(storedOutput)
-        setNotice(`Output ${event.event_type} berhasil disalin.`)
-        setError('')
-      } catch {
-        setError('Clipboard tidak tersedia di browser ini.')
-      }
-      return
-    }
-
-    // Compatibility fallback for older events created before incremental_output
-    // was stored. Compare complete output lines using their stable account/category
-    // identity; only the amount/detail delta is copied for additive event types.
     const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
     const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
-    const currentLines = String(event.snapshot.payload?.output ?? '').split('\n')
-    const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n')
-    const parseLine = (line: string) => {
-      const match = /^(.*) · ([0-9.,]+)$/.exec(line)
-      if (!match) return null
-      const prefix = match[1]
-      const identity = prefix.split(' · ')[0]
-      return { identity, amount: Number(match[2].replace(/\D/g, '')) || 0, prefix }
-    }
-    const previousByIdentity = new Map<string, Array<NonNullable<ReturnType<typeof parseLine>>>>()
-    previousLines.forEach(line => {
-      const parsed = parseLine(line)
-      if (!parsed) return
-      const matches = previousByIdentity.get(parsed.identity) ?? []
-      matches.push(parsed)
-      previousByIdentity.set(parsed.identity, matches)
-    })
-
-    const changed = currentLines.flatMap(line => {
-      const current = parseLine(line)
-      if (!current) return []
-      const matches = previousByIdentity.get(current.identity) ?? []
-      const before = matches.shift()
-      previousByIdentity.set(current.identity, matches)
-      if (!before) return [`${current.prefix} · ${money(current.amount)}`]
-      if (event.event_type === 'REVISI') {
-        return before.amount !== current.amount || before.prefix !== current.prefix
-          ? [`${current.prefix} · ${money(current.amount)}`]
-          : []
-      }
-      if (event.event_type === 'KEKURANGAN' || event.event_type === 'TAMBAHAN') {
-        const difference = current.amount - before.amount
-        return difference > 0 ? [`${current.identity} · ${money(difference)}`] : []
-      }
-      return []
-    })
-
-    if (!changed.length) {
-      setNotice(`Perubahan ${event.event_type} tersimpan. Tidak ada baris bernominal untuk disalin.`)
+    const output = auditCopyText(event, previous)
+    if (!output.trim()) {
+      setNotice(`Tidak ada perubahan output yang dapat disalin untuk aktivitas ${event.event_type}.`)
       setError('')
       return
     }
-    const output = [`${event.event_type} - ${currentLines[0] ?? ''}`, ...changed].join('\n')
     try {
       await navigator.clipboard.writeText(output)
-      setNotice(`Output ${event.event_type} berhasil disalin (${changed.length} baris).`)
+      setNotice(event.event_type === 'NORMAL' ? 'Output pencairan awal berhasil disalin.' : 'Audit perubahan berhasil disalin.')
       setError('')
     } catch {
       setError('Clipboard tidak tersedia di browser ini.')
@@ -372,6 +315,14 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     }
   }
 
+  async function copyCurrentOutput() {
+    if (latestView) {
+      await copyLatestHistoryOutput()
+      return
+    }
+    if (activeEvent) await copyEventOutput(activeEvent)
+  }
+
   async function deleteHistory() {
     if (!detail || role !== "admin") return
     const confirmed = window.confirm("Hapus transaksi Riwayat ini? Transaksi tidak akan tampil lagi di daftar. Tindakan ini berlaku untuk status terkunci maupun belum terkunci.")
@@ -387,13 +338,29 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   }
 
   const selectedEvent = detail?.events ?? EMPTY_HISTORY_EVENTS
-  const activeEvent = selectedEvent.find(event => event.id === activeEventId) ?? selectedEvent[selectedEvent.length - 1] ?? null
   const latestEvent = selectedEvent[selectedEvent.length - 1] ?? null
+  const activeEvent = activeEventId
+    ? selectedEvent.find(event => event.id === activeEventId) ?? null
+    : null
+  const activeEventIndex = activeEvent ? selectedEvent.findIndex(event => event.id === activeEvent.id) : -1
+  const previousActiveEvent = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1] : null
   const latestPayload = detail?.history.payload ?? latestEvent?.snapshot.payload
   const latestPreviousPayload = selectedEvent.length > 1
     ? selectedEvent[selectedEvent.length - 2]?.snapshot.payload
     : undefined
   const latestOutput = String(latestPayload?.output ?? '')
+  const latestView = activeEventId === null
+  const activeEventOutput = String(activeEvent?.snapshot.payload?.output ?? '')
+  const activeEventChanges = activeEvent && activeEvent.event_type !== 'NORMAL'
+    ? eventAuditChanges(activeEvent, previousActiveEvent)
+    : []
+  const activeEventTags = activeEvent ? historyEventTags(activeEvent, previousActiveEvent) : []
+  const activeEventCopy = activeEvent ? auditCopyText(activeEvent, previousActiveEvent) : ''
+  const displayedOutput = latestView
+    ? latestOutput
+    : activeEvent?.event_type === 'NORMAL'
+      ? activeEventOutput
+      : ''
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
@@ -421,7 +388,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     )
   }
 
-  const isSelectedEvent = (event: HistoryEvent) => activeEvent?.id === event.id
+  const isSelectedEvent = (event: HistoryEvent) => activeEventId === event.id
 
   return (
     <div className="mp-history-overlay fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-2 backdrop-blur-sm sm:p-5">
