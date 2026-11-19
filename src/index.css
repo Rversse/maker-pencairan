@@ -2234,3 +2234,140 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 @media (prefers-reduced-motion: reduce) {
   .mp-date-range-popover { animation: none !important; }
 }
+
+
+/* ── Shared control geometry and interaction tokens ───────────────────── */
+:root {
+  --mp-radius-control: 8px;
+  --mp-radius-card: 12px;
+  --mp-radius-dialog: 16px;
+  --mp-control-surface: #0b1422;
+  --mp-control-border: rgb(71 85 105 / 72%);
+  --mp-control-focus: #10b981;
+  --mp-control-focus-glow: rgb(16 185 129 / 18%);
+}
+
+/* Use this primitive for selects and other boxed form controls. */
+.mp-control-surface,
+main select.mp-control-surface {
+  min-width: 0;
+  border: 1px solid var(--mp-control-border) !important;
+  border-radius: var(--mp-radius-control) !important;
+  background: var(--mp-control-surface) !important;
+  color: #e2e8f0 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+.mp-control-surface:hover:not(:disabled),
+main select.mp-control-surface:hover:not(:disabled) {
+  border-color: rgb(16 185 129 / 78%) !important;
+  box-shadow: 0 0 0 2px var(--mp-control-focus-glow), 0 0 12px rgb(16 185 129 / 9%);
+}
+.mp-control-surface:focus-visible,
+main select.mp-control-surface:focus-visible {
+  border-color: var(--mp-control-focus) !important;
+  outline: 2px solid rgb(16 185 129 / 22%);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--mp-control-focus-glow);
+}
+.mp-control-surface:disabled,
+main select.mp-control-surface:disabled {
+  border-color: rgb(71 85 105 / 42%) !important;
+  background: #111c2b !important;
+  color: #64748b !important;
+  cursor: not-allowed;
+}
+.mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]),
+.mp-app-header button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]),
+.mp-auth-card button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]),
+.mp-admin-panel button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
+  border-radius: var(--mp-radius-control);
+}
+button[data-option-button='true'] {
+  border-radius: var(--mp-radius-control);
+}
+.mp-form-stack .mp-tag {
+  border-radius: var(--mp-radius-control) !important;
+}
+
+/* Badge-style dropdown: keep the same tag surface and accent as GAS/Ops/Arutala. */
+.mp-form-stack select.mp-tag--custom {
+  border: 1px solid rgb(45 212 191 / 28%) !important;
+  border-left: 2px solid #2dd4bf !important;
+  border-radius: var(--mp-radius-control) !important;
+  background-color: rgb(13 148 136 / 12%) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2399f6e4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 12px 12px !important;
+  color: #99f6e4 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  padding-right: 26px !important;
+  text-align-last: center;
+  cursor: pointer;
+}
+.mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
+  border-color: rgb(45 212 191 / 72%) !important;
+  background-color: rgb(13 148 136 / 18%) !important;
+  box-shadow: 0 0 0 2px rgb(45 212 191 / 10%) !important;
+}
+.mp-form-stack select.mp-tag--custom:focus-visible {
+  border-color: #2dd4bf !important;
+  outline: 2px solid rgb(45 212 191 / 24%);
+  outline-offset: 2px;
+}
+
+/* History date selector: same bordered capsule and emerald hover/focus glow
+   as the transaction date control; remove browser date-segment underlines. */
+.mp-history-date {
+  border-radius: var(--mp-radius-control) !important;
+  background: #0b1422 !important;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+.mp-history-date:hover {
+  border-color: rgb(16 185 129 / 78%) !important;
+  box-shadow: 0 0 0 2px rgb(16 185 129 / 12%), 0 0 12px rgb(16 185 129 / 9%);
+  background: #0d1726 !important;
+}
+.mp-history-date:focus-within {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 2px rgb(16 185 129 / 20%), 0 0 12px rgb(16 185 129 / 10%);
+}
+.mp-history-date input[type="date"]::-webkit-datetime-edit,
+.mp-history-date input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+.mp-history-date input[type="date"]::-webkit-datetime-edit-text,
+.mp-history-date input[type="date"]::-webkit-datetime-edit-month-field,
+.mp-history-date input[type="date"]::-webkit-datetime-edit-day-field,
+.mp-history-date input[type="date"]::-webkit-datetime-edit-year-field {
+  border: 0 !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  text-underline-offset: 0 !important;
+}
+.mp-history-date input[type="date"]::-webkit-datetime-edit-text {
+  color: #94a3b8 !important;
+}
+.mp-history-date input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: .82;
+  filter: invert(84%) sepia(10%) saturate(290%) hue-rotate(176deg);
+}
+.mp-history-dialog {
+  border-radius: var(--mp-radius-dialog) !important;
+}
+.mp-date-range-trigger {
+  border-radius: var(--mp-radius-control) !important;
+}
+@media (max-width: 639px) {
+  .mp-history-dialog {
+    border-radius: 0 !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mp-control-surface,
+  .mp-history-date {
+    transition: none !important;
+  }
+}
