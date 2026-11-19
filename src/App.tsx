@@ -960,13 +960,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
   const renderHistoryPreviousAmount = (key: string) => {
     if (!hasHistoryPreviousAmount(key)) return null
-    return <span className="mp-history-previous-amount">Awal: Rp {formatNumber(historyPreviousAmount(key))}</span>
+    return <span className="mp-history-previous-amount">Nominal Awal: Rp {formatNumber(historyPreviousAmount(key))}</span>
   }
   const renderHistoryPreviousGasQuantity = (id: number) => {
     if (!historyChangeActive || !historyEntryKeys.includes('gas:' + id)) return null
     const previous = historyPreviousGasQuantity(id)
     if (!previous || Number(previous) <= 0) return null
-    return <span className="mp-history-previous-amount">Awal: {previous} tabung</span>
+    return <span className="mp-history-previous-amount">Jumlah Awal: {previous} tabung</span>
   }
   const renderHistoryShortageButton = (key: string, onEnable: () => void, onDisable: () => void) => {
     if (!historyChangeActive || !historyEntryKeys.includes(key)) return null
@@ -983,9 +983,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           if (nextEnabled) onEnable()
           else onDisable()
         }}
-        className={`mp-history-shortage-toggle h-10 shrink-0 rounded-md px-3 text-xs font-semibold transition ${enabled ? 'is-active' : ''}`}
+        className={`mp-history-shortage-toggle h-8 shrink-0 rounded-md px-2 text-[11px] font-semibold transition ${enabled ? 'is-active' : ''}`}
       >
-        <span>Kekurangan</span>
+        <span>Kurang</span>
         <span className="mp-history-shortage-switch" aria-hidden="true"><span /></span>
       </button>
     )
@@ -2520,7 +2520,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const auditRows: AuditRowRecord[] = []
       const outputLinesFor = (
         source: TransactionGroup,
-        section: 'rab' | 'gas' | 'operasional' | 'pencairan_harian',
+        section: 'rab' | 'gas' | 'operasional' | 'pencairan_harian' | 'lain_lain' | 'arutala_lain_lain',
         row: RabEntry | SimpleEntry | DailyPaymentEntry | null,
         rabPart?: 'rab' | 'rab_b3'
       ): string[] => {
@@ -2549,6 +2549,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           isolated.operasional = row ? [row as SimpleEntry] : []
         } else if (section === 'pencairan_harian') {
           isolated.pencairan_harian = row ? [row as DailyPaymentEntry] : []
+        } else if (section === 'lain_lain') {
+          isolated.lain_lain = row ? [row as SimpleEntry] : []
+        } else if (section === 'arutala_lain_lain') {
+          isolated.arutala_lain_lain = row ? [row as SimpleEntry] : []
         }
         return getTransactionOutput(isolated).slice(1)
       }
@@ -2612,7 +2616,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         }
       }
 
-      for (const section of ['gas', 'operasional', 'pencairan_harian'] as const) {
+      for (const section of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
         const beforeRows = (baseTransaction[section] ?? []) as Array<SimpleEntry | DailyPaymentEntry>
         const afterRows = (nextTransaction[section] ?? []) as Array<SimpleEntry | DailyPaymentEntry>
         const beforeById = new Map(beforeRows.map(row => [String(row.id), row]))
