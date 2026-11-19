@@ -1837,7 +1837,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const additionalGasNote = isGasEntry ? (entry.gasNote ?? '').trim() : ''
       const note = customNoteMode
         ? (entry.need ?? '').trim()
-        : gasDescription + (additionalGasNote ? ' + ' + additionalGasNote : '')
+        : gasDescription + (additionalGasNote ? ', ' + additionalGasNote : '')
       if (!note) continue
 
       const rule = arutalaGasRule
