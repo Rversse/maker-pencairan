@@ -2520,7 +2520,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const auditRows: AuditRowRecord[] = []
       const outputLinesFor = (
         source: TransactionGroup,
-        section: 'rab' | 'gas' | 'operasional' | 'pencairan_harian',
+        section: 'rab' | 'gas' | 'operasional' | 'pencairan_harian' | 'lain_lain' | 'arutala_lain_lain',
         row: RabEntry | SimpleEntry | DailyPaymentEntry | null,
         rabPart?: 'rab' | 'rab_b3'
       ): string[] => {
@@ -2549,6 +2549,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           isolated.operasional = row ? [row as SimpleEntry] : []
         } else if (section === 'pencairan_harian') {
           isolated.pencairan_harian = row ? [row as DailyPaymentEntry] : []
+        } else if (section === 'lain_lain') {
+          isolated.lain_lain = row ? [row as SimpleEntry] : []
+        } else if (section === 'arutala_lain_lain') {
+          isolated.arutala_lain_lain = row ? [row as SimpleEntry] : []
         }
         return getTransactionOutput(isolated).slice(1)
       }
@@ -2612,7 +2616,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         }
       }
 
-      for (const section of ['gas', 'operasional', 'pencairan_harian'] as const) {
+      for (const section of ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const) {
         const beforeRows = (baseTransaction[section] ?? []) as Array<SimpleEntry | DailyPaymentEntry>
         const afterRows = (nextTransaction[section] ?? []) as Array<SimpleEntry | DailyPaymentEntry>
         const beforeById = new Map(beforeRows.map(row => [String(row.id), row]))
