@@ -33,6 +33,7 @@ type SimpleEntry = {
   need: string
   gasQuantity?: string
   gasSize?: '' | '12kg' | '50kg'
+  gasNote?: string
   transactionType: OtherTransactionType
   useArutalaAccount?: boolean
 }
@@ -342,10 +343,10 @@ function getOutputCategoryRank(
     | 'gas'
     | 'lain_lain'
 ) {
-  if (kind === 'rab') return 0
-  if (kind === 'operasional_harian') return 1
-  if (kind === 'pencairan_harian') return 2
-  if (kind === 'gas') return 3
+  if (kind === 'gas') return 0
+  if (kind === 'rab') return 1
+  if (kind === 'operasional_harian') return 2
+  if (kind === 'pencairan_harian') return 3
   return 4
 }
 
@@ -444,6 +445,7 @@ function emptySimpleEntry(id = 1): SimpleEntry {
     need: '',
     gasQuantity: '',
     gasSize: '',
+    gasNote: '',
     transactionType: ''
   }
 }
@@ -705,6 +707,7 @@ function normalizeTransaction(
           ...entry,
           gasQuantity: typeof entry.gasQuantity === 'string' ? entry.gasQuantity.replace(/\D/g, '') : '',
           gasSize: entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : '',
+          gasNote: typeof entry.gasNote === 'string' ? entry.gasNote : '',
           ownerName: sanitizeOwnerName(entry.ownerName ?? ''),
           bank: entry.bank ?? '',
           customAccount: !isGasEntry,
@@ -716,7 +719,8 @@ function normalizeTransaction(
           ...normalizedEntry,
           need: isGasEntry ? 'Gas' : (entry.need ?? ''),
           gasQuantity: isGasEntry ? normalizedEntry.gasQuantity : '',
-          gasSize: isGasEntry ? normalizedEntry.gasSize : ''
+          gasSize: isGasEntry ? normalizedEntry.gasSize : '',
+          gasNote: isGasEntry ? normalizedEntry.gasNote : ''
         }
       }).filter((entry, index) =>
         index !== 0 || isCompleteAmount(entry.amount) ||
@@ -1827,11 +1831,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const customNoteMode = !isGasEntry
       const quantity = (entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
       const size = entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : ''
+      const gasDescription = quantity && size
+        ? 'Gas ' + size + ' (' + quantity + ' tabung)'
+        : 'Gas'
+      const additionalGasNote = isGasEntry ? (entry.gasNote ?? '').trim() : ''
       const note = customNoteMode
         ? (entry.need ?? '').trim()
-        : quantity && size
-          ? 'Gas ' + size + ' (' + quantity + ' tabung)'
-          : 'Gas'
+        : gasDescription + (additionalGasNote ? ' + ' + additionalGasNote : '')
       if (!note) continue
 
       const rule = arutalaGasRule
@@ -1841,7 +1847,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const accountNumber = (rule.accounts.account_number ?? '-').trim()
 
       items.push({
-        kind: 'operasional_harian',
+        kind: isGasEntry ? 'gas' : 'operasional_harian',
         bank,
         line: 'OPS HARIAN : ' + capitalizeEachWord(rawAccountName) +
           ' - ' + bank + ' / ' + accountNumber +
@@ -2714,7 +2720,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             <div className="mt-3 mb-2 flex w-fit max-w-full flex-wrap items-end gap-2">
               <div className="w-[180px] shrink-0">
                 <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
-                <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
+                <div className="mp-date-control relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition">
                   <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
                   <span className="ml-2 whitespace-nowrap text-xs font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
                   <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
@@ -2723,7 +2729,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               {!fixedKitchen && (
                 <div className="w-[190px] shrink-0">
                   <label htmlFor="workspace-kitchen" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Dapur</label>
-                  <select id="workspace-kitchen" value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} className="mp-control-surface h-9 w-full px-2.5 text-xs font-semibold text-white">
+                  <select id="workspace-kitchen" value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} className="mp-kitchen-select mp-control-surface h-9 w-full px-2.5 text-xs font-semibold text-white">
                     <option value="">Pilih dapur</option>
                     {masterData?.kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
                   </select>
@@ -2771,12 +2777,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5">
                   {kitchenId && activeTransaction && (
                     <>
-                      <div className="mt-0 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-slate-800/90 pt-1.5">
+                      <div className="mp-output-header mt-0 flex min-h-8 min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-slate-800/90 pt-1.5">
                         <div className="flex min-w-0 shrink-0 items-center gap-2">
                           <h2 className="text-sm font-semibold">Output</h2>
                           <span
                             aria-label={outputLineCount + ' baris output'}
-                            className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-emerald-700 bg-emerald-950/60 text-[10px] font-semibold tabular-nums text-emerald-200"
+                            className="mp-output-count inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold tabular-nums"
                           >
                             {outputLineCount}
                           </span>
@@ -2836,14 +2842,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                       </div>
                     </div>
                     {outputDisplayChecks.length > 0 && (
-                      <div className="mt-auto flex w-full min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-1 border-t border-slate-800/80 pt-2 text-center">
+                      <div className="mp-summary-checks mt-auto flex w-full min-w-0 flex-wrap items-center justify-center gap-x-3 gap-y-1 pt-2 text-center">
                         {outputDisplayChecks.map(({ label, complete }) => (
                           <span
                             key={label}
                             title={complete ? 'Sudah diisi' : 'Belum diisi'}
                             className={[
-                              'text-center text-[10px] font-semibold leading-4 transition-colors',
-                              complete ? 'text-emerald-400' : 'text-rose-400'
+                              'mp-summary-check text-center text-[10px] font-semibold leading-4 transition-colors',
+                              complete ? 'is-complete' : 'is-incomplete'
                             ].join(' ')}
                           >
                             {label}
@@ -3109,7 +3115,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             {(activeTransaction.gas ?? []).map((entry) => {
                               const historyEnabled = isHistoryRowEnabled('gas', entry.id)
                                                             const rule = arutalaGasRule
-                              const accountName = rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia'
+                              const accountName = capitalizeEachWord(rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia')
                               const bank = rule?.accounts?.bank ?? '-'
                               const accountNumber = rule?.accounts?.account_number ?? '-'
                               return (
@@ -3124,6 +3130,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="mp-ops-field mp-payment-detail mp-gas-quantity-input h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     </div>
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field mp-payment-detail mp-gas-size h-10 min-w-0 px-2 text-center text-xs text-slate-100"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
+                                    <input type="text" value={entry.gasNote ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value })} placeholder="Catatan" aria-label="Catatan tambahan GAS" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('gas:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('gas:' + entry.id)}
 <input type="text" inputMode="numeric" required value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
@@ -3227,7 +3234,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   {!(showVirtualAccount && entry.isVirtualAccount) && (custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" value={ownerName} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
-                                    <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{ownerName || 'Mapping belum tersedia'}</span></div>
+                                    <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
                                   ))}
                                   {custom && !isMappedSalary && !isArutala ? (
                                     <select value={entry.bank ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
