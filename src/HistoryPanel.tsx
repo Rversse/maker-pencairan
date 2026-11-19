@@ -50,150 +50,146 @@ const dateTime = (value: string) => {
   return `${formatDate(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`)} · ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
 }
 
-type AuditChange = {
-  kind: 'updated' | 'added' | 'removed'
-  before?: string
-  after?: string
+type AuditRowKind = 'revision' | 'shortage' | 'addition' | 'removal'
+type StoredAuditRow = {
+  key?: string
+  kind: AuditRowKind
+  before: string | null
+  after: string | null
+  beforeAmount?: number
+  afterAmount?: number
+  deltaAmount?: number
+}
+type AuditDisplayLine = {
+  text: string
+  kind?: AuditRowKind
+  suffix?: string
 }
 
-type HistoryTransactionShape = Record<string, unknown> & {
-  rab?: Array<Record<string, unknown>>
-  gas?: Array<Record<string, unknown>>
-  operasional?: Array<Record<string, unknown>>
-  pencairan_harian?: Array<Record<string, unknown>>
-  lain_lain?: Array<Record<string, unknown>>
-  arutala_lain_lain?: Array<Record<string, unknown>>
+function splitOutputLine(line: string) {
+  const amountSeparator = line.lastIndexOf(' · ')
+  const body = amountSeparator >= 0 ? line.slice(0, amountSeparator) : line
+  const amount = amountSeparator >= 0 ? line.slice(amountSeparator + 3) : ''
+  const detailSeparator = body.indexOf(' · ')
+  const identity = detailSeparator >= 0 ? body.slice(0, detailSeparator) : body
+  const detail = detailSeparator >= 0 ? body.slice(detailSeparator + 3) : ''
+  return { identity: identity.trim().toLocaleLowerCase('id-ID'), prefix: identity, detail, amount }
 }
 
-function transactionOf(event?: HistoryEvent | null): HistoryTransactionShape | undefined {
-  const value = event?.snapshot.payload?.transaction
-  return value && typeof value === 'object' ? value as HistoryTransactionShape : undefined
-}
-
-function amountOf(row?: Record<string, unknown>): number {
-  return Number(String(row?.amount ?? '').replace(/[^0-9]/g, '')) || 0
-}
-
-function eventAuditChanges(event: HistoryEvent, previous?: HistoryEvent | null): AuditChange[] {
-  const currentOutput = String(event.snapshot.payload?.output ?? '').split('\\n').slice(1).filter(Boolean)
-  const previousOutput = String(previous?.snapshot.payload?.output ?? '').split('\\n').slice(1).filter(Boolean)
-  const keyOf = (line: string) => {
-    const amountSeparator = line.lastIndexOf(' · ')
-    const body = amountSeparator >= 0 ? line.slice(0, amountSeparator) : line
-    const detailSeparator = body.indexOf(' · ')
-    return (detailSeparator >= 0 ? body.slice(0, detailSeparator) : body).trim().toLocaleLowerCase('id-ID')
-  }
-
-  const previousByKey = new Map<string, string[]>()
-  previousOutput.forEach(line => {
-    const key = keyOf(line)
-    const queue = previousByKey.get(key) ?? []
+function legacyAuditRows(event: HistoryEvent, previous?: HistoryEvent | null): StoredAuditRow[] {
+  const currentLines = String(event.snapshot.payload?.output ?? '').split('\n').slice(1).filter(Boolean)
+  const previousLines = String(previous?.snapshot.payload?.output ?? '').split('\n').slice(1).filter(Boolean)
+  const previousByIdentity = new Map<string, string[]>()
+  previousLines.forEach(line => {
+    const identity = splitOutputLine(line).identity
+    const queue = previousByIdentity.get(identity) ?? []
     queue.push(line)
-    previousByKey.set(key, queue)
+    previousByIdentity.set(identity, queue)
   })
 
-  const changes: AuditChange[] = []
-  currentOutput.forEach(after => {
-    const key = keyOf(after)
-    const queue = previousByKey.get(key) ?? []
-    const before = queue.shift()
-    previousByKey.set(key, queue)
-    if (!before) changes.push({ kind: 'added', after })
-    else if (before !== after) changes.push({ kind: 'updated', before, after })
+  const shortageKeys = Array.isArray(event.snapshot.delta?.shortage_keys)
+    ? event.snapshot.delta.shortage_keys as unknown[]
+    : []
+  const changed: StoredAuditRow[] = []
+  currentLines.forEach(after => {
+    const parts = splitOutputLine(after)
+    const queue = previousByIdentity.get(parts.identity) ?? []
+    const exactIndex = queue.findIndex(before => splitOutputLine(before).detail === parts.detail)
+    const matchIndex = exactIndex >= 0 ? exactIndex : queue.length ? 0 : -1
+    const before = matchIndex >= 0 ? queue.splice(matchIndex, 1)[0] : undefined
+    previousByIdentity.set(parts.identity, queue)
+    if (!before) {
+      changed.push({ kind: 'addition', before: null, after })
+    } else if (before !== after) {
+      changed.push({
+        kind: shortageKeys.length ? 'shortage' : 'revision',
+        before,
+        after,
+        beforeAmount: Number(splitOutputLine(before).amount.replace(/\D/g, '')) || 0,
+        afterAmount: Number(parts.amount.replace(/\D/g, '')) || 0
+      })
+    }
   })
-  previousByKey.forEach(queue => queue.forEach(before => changes.push({ kind: 'removed', before })))
-  return changes
+  previousByIdentity.forEach(queue => queue.forEach(before => changed.push({ kind: 'removal', before, after: null })))
+  return changed
+}
+
+function auditRowsForEvent(event: HistoryEvent, previous?: HistoryEvent | null): StoredAuditRow[] {
+  const stored = event.snapshot.delta?.audit_rows
+  if (Array.isArray(stored) && stored.length > 0) return stored as StoredAuditRow[]
+  return legacyAuditRows(event, previous)
 }
 
 function historyEventTags(event: HistoryEvent, previous?: HistoryEvent | null): string[] {
   if (event.event_type === 'NORMAL') return ['Pencairan Awal']
-  const current = transactionOf(event)
-  const before = transactionOf(previous)
-  const shortageKeys = new Set(
-    Array.isArray(event.snapshot.delta?.shortage_keys)
-      ? (event.snapshot.delta?.shortage_keys as unknown[]).map(String)
-      : []
-  )
-  let hasRevision = false
-  let hasShortage = shortageKeys.size > 0
-  let hasAddition = false
-
-  const rabRows = current?.rab ?? []
-  const previousRab = before?.rab ?? []
-  const previousRabById = new Map(previousRab.map(row => [String(row.accountId ?? ''), row]))
-  rabRows.forEach(row => {
-    const id = String(row.accountId ?? '')
-    const old = previousRabById.get(id)
-    if (!old) {
-      if (amountOf(row) > 0 || amountOf({ amount: row.b3Amount }) > 0) hasAddition = true
-      return
-    }
-    if (JSON.stringify(old.amount ?? '') !== JSON.stringify(row.amount ?? '')) {
-      if (shortageKeys.has('rab:' + id)) hasShortage = true
-      else hasRevision = true
-    }
-    if (JSON.stringify(old.productTypes ?? []) !== JSON.stringify(row.productTypes ?? [])) hasRevision = true
-    if (JSON.stringify(old.b3Amount ?? '') !== JSON.stringify(row.b3Amount ?? '')) {
-      if (shortageKeys.has('rab_b3:' + id)) hasShortage = true
-      else if (amountOf({ amount: row.b3Amount }) > 0 && amountOf({ amount: old.b3Amount }) === 0) hasAddition = true
-      else hasRevision = true
-    }
-    if (JSON.stringify(old.b3ProductTypes ?? []) !== JSON.stringify(row.b3ProductTypes ?? [])) hasRevision = true
-  })
-
-  const sections = ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const
-  sections.forEach(section => {
-    const currentRows = current?.[section] ?? []
-    const previousRows = before?.[section] ?? []
-    const oldById = new Map(previousRows.map(row => [String(row.id ?? ''), row]))
-    const currentIds = new Set(currentRows.map(row => String(row.id ?? '')))
-    currentRows.forEach(row => {
-      const id = String(row.id ?? '')
-      const old = oldById.get(id)
-      if (!old) {
-        if (amountOf(row) > 0) hasAddition = true
-        return
-      }
-      if (JSON.stringify(old) === JSON.stringify(row)) return
-      const shortageKey = section + ':' + id
-      const onlyAmountChanged = Object.keys({ ...old, ...row }).every(key =>
-        key === 'amount' || JSON.stringify(old[key]) === JSON.stringify(row[key])
-      )
-      if (shortageKeys.has(shortageKey) && onlyAmountChanged) hasShortage = true
-      else hasRevision = true
-    })
-    previousRows.forEach(row => {
-      if (!currentIds.has(String(row.id ?? '')) && amountOf(row) > 0) hasRevision = true
-    })
-  })
-
+  const rows = auditRowsForEvent(event, previous)
+  const hasRevision = rows.some(row => row.kind === 'revision' || row.kind === 'removal')
+  const hasShortage = rows.some(row => row.kind === 'shortage')
+  const hasAddition = rows.some(row => row.kind === 'addition')
   const tags: string[] = []
   if (hasRevision) tags.push('Revisi')
   if (hasShortage) tags.push('Kekurangan')
   if (hasAddition) tags.push('Tambahan')
-  if (tags.length) return tags
+  return tags.length ? tags : [event.event_type === 'KEKURANGAN' ? 'Kekurangan' : event.event_type === 'TAMBAHAN' ? 'Tambahan' : 'Revisi']
+}
 
-  if (event.event_type === 'KEKURANGAN') return ['Kekurangan']
-  if (event.event_type === 'TAMBAHAN') return ['Tambahan']
-  return ['Revisi']
+function auditSuffix(row: StoredAuditRow): string {
+  if (!row.before || !row.after) return ''
+  const before = splitOutputLine(row.before)
+  const after = splitOutputLine(row.after)
+  const beforeAmount = row.beforeAmount ?? (Number(before.amount.replace(/\D/g, '')) || 0)
+  const afterAmount = row.afterAmount ?? (Number(after.amount.replace(/\D/g, '')) || 0)
+  const deltaAmount = row.deltaAmount ?? (afterAmount - beforeAmount)
+
+  if (row.kind === 'shortage' && deltaAmount > 0) {
+    return `(${money(beforeAmount)} + ${money(deltaAmount)})`
+  }
+  if (beforeAmount !== afterAmount) {
+    if (before.prefix === after.prefix && before.detail === after.detail) {
+      return `(${money(beforeAmount)} → ${money(afterAmount)})`
+    }
+    const beforeDescription = [before.detail, money(beforeAmount)].filter(Boolean).join(' · ')
+    const afterDescription = [after.detail, money(afterAmount)].filter(Boolean).join(' · ')
+    return `(${beforeDescription || row.before} → ${afterDescription || row.after})`
+  }
+  if (before.detail !== after.detail) return `(${before.detail || before.prefix} → ${after.detail || after.prefix})`
+  return `(${before.prefix} → ${after.prefix})`
+}
+
+function auditedEventLines(event: HistoryEvent, previous?: HistoryEvent | null): AuditDisplayLine[] {
+  const output = String(event.snapshot.payload?.output ?? '')
+  const lines = output ? output.split('\n') : []
+  if (event.event_type === 'NORMAL' || !previous) return lines.map(text => ({ text }))
+
+  const auditRows = auditRowsForEvent(event, previous)
+  const rowsByAfter = new Map<string, StoredAuditRow[]>()
+  auditRows.forEach(row => {
+    if (!row.after) return
+    const queue = rowsByAfter.get(row.after) ?? []
+    queue.push(row)
+    rowsByAfter.set(row.after, queue)
+  })
+
+  const displayLines: AuditDisplayLine[] = lines.map((text, index) => {
+    if (index === 0) return { text }
+    const queue = rowsByAfter.get(text) ?? []
+    const row = queue.shift()
+    rowsByAfter.set(text, queue)
+    if (!row) return { text }
+    return {
+      text,
+      kind: row.kind,
+      suffix: auditSuffix(row)
+    }
+  })
+  auditRows.filter(row => row.kind === 'removal' && row.before).forEach(row => {
+    displayLines.push({ text: `Dihapus: ${row.before}`, kind: 'removal' })
+  })
+  return displayLines
 }
 
 function auditCopyText(event: HistoryEvent, previous?: HistoryEvent | null): string {
-  if (event.event_type === 'NORMAL') return String(event.snapshot.payload?.output ?? '')
-  const changes = eventAuditChanges(event, previous)
-  if (!changes.length) {
-    const fallback = event.snapshot.delta?.incremental_output
-    return typeof fallback === 'string' ? fallback : ''
-  }
-  const lines = changes.flatMap(change => {
-    if (change.kind === 'updated') return [
-      'SEBELUMNYA: ' + (change.before ?? ''),
-      'MENJADI: ' + (change.after ?? '')
-    ]
-    if (change.kind === 'added') return ['TAMBAHAN: ' + (change.after ?? '')]
-    return ['DIHAPUS: ' + (change.before ?? '')]
-  })
-  return [historyEventTags(event, previous).join(' + '), ...lines].join('\\n')
+  return auditedEventLines(event, previous).map(line => line.suffix ? `${line.text} ${line.suffix}` : line.text).join('\n')
 }
 
 async function historyRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
@@ -350,18 +346,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     : undefined
   const latestOutput = String(latestPayload?.output ?? '')
   const latestView = activeEventId === null
-  const activeEventOutput = String(activeEvent?.snapshot.payload?.output ?? '')
-  const activeEventChanges = activeEvent && activeEvent.event_type !== 'NORMAL'
-    ? eventAuditChanges(activeEvent, previousActiveEvent)
-    : []
-  const activeEventTags = activeEvent ? historyEventTags(activeEvent, previousActiveEvent) : []
+  const viewPayload = latestView ? latestPayload : activeEvent?.snapshot.payload ?? latestPayload
+  const viewPreviousPayload = latestView ? latestPreviousPayload : previousActiveEvent?.snapshot.payload
+  const activeEventLines = activeEvent ? auditedEventLines(activeEvent, previousActiveEvent) : []
+  const outputDisplayLines: AuditDisplayLine[] = latestView ? latestOutput.split('\n').map(text => ({ text })) : activeEventLines
   const activeEventCopy = activeEvent ? auditCopyText(activeEvent, previousActiveEvent) : ''
-  const activeEventFallbackOutput = String(activeEvent?.snapshot.delta?.incremental_output ?? '')
-  const displayedOutput = latestView
-    ? latestOutput
-    : activeEvent?.event_type === 'NORMAL'
-      ? activeEventOutput
-      : ''
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
@@ -370,7 +359,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
     const difference = currentValue - previousValue
-    const hasPrevious = Boolean(latestPreviousPayload)
+    const hasPrevious = Boolean(viewPreviousPayload)
     const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-500'
     const indicator = !hasPrevious || difference === 0 ? '' : difference > 0 ? `↑ +Rp ${money(difference)}` : `↓ -Rp ${money(Math.abs(difference))}`
     return (
@@ -565,9 +554,9 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
               <section className="mp-history-summary rounded-xl border border-slate-800/80 bg-slate-900/45 p-3 sm:p-4">
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                  {metric('Total RAB', latestPayload?.totalRab, latestPreviousPayload?.totalRab)}
-                  {metric('Total Ops Harian', latestPayload?.totalOpsHarian, latestPreviousPayload?.totalOpsHarian)}
-                  {metric('Total Keseluruhan', latestPayload?.totalOverall, latestPreviousPayload?.totalOverall)}
+                  {metric('Total RAB', viewPayload?.totalRab, viewPreviousPayload?.totalRab)}
+                  {metric('Total Ops Harian', viewPayload?.totalOpsHarian, viewPreviousPayload?.totalOpsHarian)}
+                  {metric('Total Keseluruhan', viewPayload?.totalOverall, viewPreviousPayload?.totalOverall)}
                 </div>
               </section>
 
@@ -605,45 +594,28 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   </div>
                 </div>
                 <div className="max-h-[34vh] min-h-[120px] overflow-auto break-words px-3 py-3 text-xs leading-5 text-slate-300 sm:px-4">
-                  {latestView ? (
-                    <pre className="whitespace-pre-wrap font-sans">{latestOutput || 'Belum ada output pada snapshot terakhir.'}</pre>
-                  ) : activeEvent?.event_type === 'NORMAL' ? (
-                    <pre className="whitespace-pre-wrap font-sans">{displayedOutput || 'Snapshot pencairan awal belum memiliki output.'}</pre>
-                  ) : activeEventChanges.length ? (
-                    <div className="space-y-3">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {activeEventTags.map(tag => (
-                          <span key={tag} className={`mp-history-event-tag ${tag === 'Revisi' ? 'is-revision' : tag === 'Kekurangan' ? 'is-shortage' : tag === 'Tambahan' ? 'is-addition' : ''}`}>{tag}</span>
-                        ))}
-                        <span className="ml-1 text-[10px] text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : ''}</span>
-                      </div>
-                      {activeEventChanges.map((change, index) => (
-                        <div key={index} className="space-y-1 border-b border-slate-800/70 pb-2 last:border-0">
-                          {change.kind === 'updated' ? (
-                            <>
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Sebelumnya</p>
-                              <p className="whitespace-pre-wrap font-sans text-slate-400">{change.before}</p>
-                              <p className="pt-0.5 text-[10px] font-bold uppercase tracking-wide text-teal-300">Menjadi</p>
-                              <p className="whitespace-pre-wrap font-sans font-semibold text-teal-200">{change.after}</p>
-                            </>
-                          ) : change.kind === 'added' ? (
-                            <>
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-300">Ditambahkan</p>
-                              <p className="whitespace-pre-wrap font-sans font-semibold text-emerald-200">{change.after}</p>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-[10px] font-bold uppercase tracking-wide text-rose-300">Dihapus</p>
-                              <p className="whitespace-pre-wrap font-sans text-rose-200">{change.before}</p>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : activeEventFallbackOutput.trim() ? (
-                    <div className="whitespace-pre-wrap font-sans text-teal-200">{activeEventFallbackOutput}</div>
+                  {latestView && !latestOutput.trim() ? (
+                    <p className="text-slate-500">Belum ada output pada snapshot terbaru.</p>
+                  ) : !outputDisplayLines.length ? (
+                    <p className="text-slate-500">Snapshot event ini belum memiliki output.</p>
                   ) : (
-                    <p className="text-slate-500">Tidak ada perubahan output yang bisa dibandingkan pada event ini.</p>
+                    <div className="whitespace-pre-wrap font-sans">
+                      {outputDisplayLines.map((line, index) => {
+                        const highlightClass = line.kind === 'shortage'
+                          ? 'text-amber-200 underline decoration-amber-400/80 decoration-2 underline-offset-4'
+                          : line.kind === 'addition'
+                            ? 'text-emerald-200 underline decoration-emerald-400/80 decoration-2 underline-offset-4'
+                            : line.kind === 'removal'
+                              ? 'text-rose-200 line-through decoration-rose-400/80'
+                              : 'text-teal-200 underline decoration-teal-400/80 decoration-2 underline-offset-4'
+                        return (
+                          <div key={index} className={line.kind ? 'py-0.5' : ''}>
+                            <span className={line.kind ? highlightClass : ''}>{line.text}</span>
+                            {line.suffix && <span className={line.kind === 'shortage' ? 'ml-1 text-amber-300' : 'ml-1 text-teal-300'}>{line.suffix}</span>}
+                          </div>
+                        )
+                      })}
+                    </div>
                   )}
                 </div>
               </section>
@@ -673,12 +645,13 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                             </div>
                           </div>
                           <div className="flex shrink-0 items-center gap-1.5">
-                            <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
-                              {isSelectedEvent(event) ? 'Pilih' : 'Lihat'}
-                            </button>
-                            {isSelectedEvent(event) && event.event_type !== 'NORMAL' && (
+                            {isSelectedEvent(event) ? (
                               <button type="button" onClick={() => void copyEventOutput(event)} className="mp-history-timeline-copy rounded-md border border-slate-700/80 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300">
                                 Salin
+                              </button>
+                            ) : (
+                              <button type="button" onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
+                                Pilih
                               </button>
                             )}
                           </div>
