@@ -921,6 +921,18 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [historySaveOpen, setHistorySaveOpen] = useState(false)
   const [historySaveType, setHistorySaveType] = useState<'REVISI' | 'KEKURANGAN' | 'TAMBAHAN'>('REVISI')
   const [historySaveSummary, setHistorySaveSummary] = useState('')
+  const historySavePreviousFocusRef = useRef<HTMLElement | null>(null)
+  useEffect(() => {
+    if (historySaveOpen) {
+      const frame = window.requestAnimationFrame(() => {
+        document.getElementById('mp-history-save-summary')?.focus()
+      })
+      return () => window.cancelAnimationFrame(frame)
+    }
+    const previous = historySavePreviousFocusRef.current
+    if (previous?.isConnected) previous.focus()
+    historySavePreviousFocusRef.current = null
+  }, [historySaveOpen])
   const [historyChangeBase, setHistoryChangeBase] = useState<Record<string, unknown> | null>(null)
   const [historyEntryKeys, setHistoryEntryKeys] = useState<string[]>([])
   const [historyShortageKeys, setHistoryShortageKeys] = useState<string[]>([])
@@ -2241,6 +2253,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const snapshot = getHistorySnapshot()
       if (!snapshot) return
       if (historyChangeBase) {
+        historySavePreviousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
         setHistorySaveOpen(true)
         setHistorySaveBusy(false)
         return
@@ -2260,6 +2273,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         setHistoryChangeBase(existing.payload as Record<string, unknown>)
         setHistorySaveType('REVISI')
         setHistoryEntryKeys(getHistoryEntryKeys(previous))
+        historySavePreviousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
         setHistorySaveOpen(true)
         setHistorySaveBusy(false)
         return
