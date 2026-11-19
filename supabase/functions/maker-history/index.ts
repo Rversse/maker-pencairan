@@ -82,6 +82,42 @@ Deno.serve(async (request: Request) => {
 
     const body = await request.json();
     const action = String(body?.action ?? "");
+
+    if (action === "admin_daily_status") {
+      if (profile.role !== "admin") {
+        return json(request, { error: "Hanya Admin yang dapat melihat status input seluruh dapur" }, 403);
+      }
+      const transactionDate = body?.transaction_date;
+      if (!validDate(transactionDate)) {
+        return json(request, { error: "Tanggal status input tidak valid" }, 400);
+      }
+      const [kitchensResult, draftsResult] = await Promise.all([
+        db.from("kitchens")
+          .select("id,name")
+          .eq("is_active", true)
+          .order("name"),
+        db.from("maker_drafts")
+          .select("kitchen_id")
+          .eq("transaction_date", transactionDate)
+          .is("deleted_at", null),
+      ]);
+      if (kitchensResult.error || draftsResult.error) {
+        return json(request, { error: "Status input harian tidak dapat dimuat" }, 503);
+      }
+      const activeKitchenIds = new Set((kitchensResult.data ?? []).map((kitchen) => kitchen.id));
+      const submittedKitchenIds = [...new Set(
+        (draftsResult.data ?? [])
+          .map((draft) => draft.kitchen_id)
+          .filter((kitchenId) => activeKitchenIds.has(kitchenId))
+      )];
+      return json(request, {
+        ok: true,
+        transaction_date: transactionDate,
+        kitchens: kitchensResult.data ?? [],
+        submitted_kitchen_ids: submittedKitchenIds,
+      });
+    }
+
     const canAccessKitchen = async (kitchenId: string): Promise<boolean> => {
       if (profile.role === "admin") return true;
       const { data: assignment, error: assignmentError } = await db.from("maker_assignments")
