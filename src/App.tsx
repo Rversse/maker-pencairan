@@ -1459,12 +1459,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       window.setTimeout(() => setHistoryMessage(''), 2200)
       return
     }
-                              const gasQuantityForNote = (entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
-                              const gasSizeForNote = entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : ''
-                              const gasDescriptionForNote = gasQuantityForNote && gasSizeForNote
-                                ? 'Gas ' + gasSizeForNote + ' (' + gasQuantityForNote + ' tabung)'
-                                : 'Gas'
-                              const gasNoteMaxLength = Math.max(0, 109 - gasDescriptionForNote.length - 2)
     const rule = arutalaGasRule
     if (!rule?.accounts) {
       setHistoryMessage('Mapping rekening GAS belum tersedia.')
@@ -3125,7 +3119,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <div className="space-y-2">
                             {(activeTransaction.gas ?? []).map((entry) => {
                               const historyEnabled = isHistoryRowEnabled('gas', entry.id)
-                                                            const rule = arutalaGasRule
+                              const gasQuantityForNote = (entry.gasQuantity ?? '').replace(/\D/g, '').replace(/^0+/, '')
+                              const gasSizeForNote = entry.gasSize === '12kg' || entry.gasSize === '50kg' ? entry.gasSize : ''
+                              const gasDescriptionForNote = gasQuantityForNote && gasSizeForNote
+                                ? 'Gas ' + gasSizeForNote + ' (' + gasQuantityForNote + ' tabung)'
+                                : 'Gas'
+                              const gasNoteMaxLength = Math.max(0, 109 - gasDescriptionForNote.length - 2)
+                              const rule = arutalaGasRule
                               const accountName = capitalizeEachWord(rule?.supplier?.business_name || rule?.accounts?.name || 'Mapping belum tersedia')
                               const bank = rule?.accounts?.bank ?? '-'
                               const accountNumber = rule?.accounts?.account_number ?? '-'
