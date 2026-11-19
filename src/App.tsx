@@ -2207,31 +2207,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
     const operationalEntries = activeTransaction.operasional ?? []
     if (operationalEntries.length > 0) {
-      const hasRequiredOtherRow = operationalEntries.some((entry, index) => {
-        const isMappedOps = entry.operationalRuleType === 'ops_harian'
-        const isMappedSalary = entry.operationalRuleType === 'gaji_akuntan' ||
-          entry.operationalRuleType === 'gaji_ahli_gizi'
-        return !isMappedOps && !isMappedSalary && !entry.useArutalaAccount &&
-          (index > 0 || Boolean(entry.customAccount))
-      })
       outputChecks.push({
         label: 'Operasional Harian',
-        complete: operationalEntries.some((entry) => isCompleteAmount(entry.amount) || hasRequiredOtherRow) &&
-          operationalEntries.every((entry, index) => {
-            const isMappedOps = entry.operationalRuleType === 'ops_harian'
-            const isMappedSalary = entry.operationalRuleType === 'gaji_akuntan' ||
-              entry.operationalRuleType === 'gaji_ahli_gizi'
-            const isRequiredOther = !isMappedOps && !isMappedSalary && !entry.useArutalaAccount &&
-              (index > 0 || Boolean(entry.customAccount))
-            if (!isRequiredOther) return true
-            return Boolean(
-              entry.ownerName.trim() &&
-              (entry.bank ?? '').trim() &&
-              entry.accountNumber.trim() &&
-              (entry.need ?? '').trim() &&
-              isCompleteAmount(entry.amount)
-            )
-          })
+        complete: operationalEntries.some((entry) => isCompleteAmount(entry.amount))
       })
     }
   }
