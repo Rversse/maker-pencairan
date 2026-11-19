@@ -365,13 +365,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
     : role === 'admin' ? 'Batas kunci lewat · Admin tetap dapat mengubah' : 'Sudah terkunci'
-  const eventLabel = (eventType: string) => {
-    if (eventType === 'NORMAL') return 'Pencairan Awal'
-    if (eventType === 'REVISI') return 'Revisi'
-    if (eventType === 'KEKURANGAN') return 'Kekurangan'
-    if (eventType === 'TAMBAHAN') return 'Tambahan'
-    return eventType
-  }
   const metric = (label: string, value: unknown, previous: unknown) => {
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
