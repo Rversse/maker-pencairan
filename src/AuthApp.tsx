@@ -68,7 +68,6 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
   useEffect(() => {
     if (role !== 'accountant' || kitchens.length) return
     let active = true
-    setLoadingKitchens(true)
     void authRequest({ action: 'list_kitchens' }).then((result) => {
       if (!active) return
       const items = (result as AuthResponse & { kitchens?: KitchenOption[] }).kitchens ?? []
@@ -125,8 +124,8 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
           <h1 className="mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
         </div>
         <div className="grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-1">
-          <button type="button" data-option-button="true" data-selected={role === 'admin'} onClick={() => { setRole('admin'); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Admin</button>
-          <button type="button" data-option-button="true" data-selected={role === 'accountant'} onClick={() => { setRole('accountant'); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Akuntan</button>
+          <button type="button" data-option-button="true" data-selected={role === 'admin'} onClick={() => { setRole('admin'); setLoadingKitchens(false); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Admin</button>
+          <button type="button" data-option-button="true" data-selected={role === 'accountant'} onClick={() => { setRole('accountant'); setLoadingKitchens(kitchens.length === 0); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Akuntan</button>
         </div>
         <div className={`overflow-hidden transition-all duration-300 ease-out ${role ? 'mt-5 max-h-[420px] translate-y-0 opacity-100' : 'max-h-0 translate-y-2 opacity-0'}`}>
           {role && (
