@@ -644,7 +644,7 @@ function createOperationalEntry(id = 1): SimpleEntry {
     operationalRuleType: '',
     bank: '',
     customAccount: false,
-    need: 'Ops Harian'
+    need: ''
   }
 }
 
@@ -758,7 +758,7 @@ function normalizeTransaction(
       isVirtualAccount: entry.operationalRuleType === 'gaji_akuntan' || entry.operationalRuleType === 'gaji_ahli_gizi'
         ? false
         : Boolean(entry.isVirtualAccount),
-      need: entry.need || (isLegacyMappedOps ? 'Ops Harian' : ''),
+      need: entry.need ?? '',
       transactionType: 'operasional_harian'
     }
   }
@@ -1422,7 +1422,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         accountNumber: rule.account_number.replace(/\D/g, ''),
         customAccount: false,
         useArutalaAccount: false,
-        need: 'Ops Harian'
+        need: ''
       }]
     })
     setOperationalAddMenuOpen(false)
@@ -3193,7 +3193,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 : custom
                                   ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
                                   : mapping?.accountNumber ?? ''
-                            const note = entry.need?.trim() || ((isMappedOps || isArutala) ? 'Ops Harian' : '')
                             return (
                               <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={`mp-ops-flex-row grid min-w-0 items-center gap-2 ${showVirtualAccount ? (entry.isVirtualAccount ? 'is-va' : 'has-va') : 'is-standard'}`}>
@@ -3272,10 +3271,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     type="text"
                                     
                                     disabled={!historyEnabled}
-                                    value={note}
+                                    value={entry.need ?? ''}
                                     maxLength={109}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
-                                    placeholder={isArutala ? 'Ops Harian' : 'Catatan'}
+                                    placeholder={(isMappedOps || isArutala) ? 'Ops Harian' : 'Catatan'}
                                     aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
                                     className={`mp-ops-field mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
