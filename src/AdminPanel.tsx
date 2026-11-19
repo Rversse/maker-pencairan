@@ -83,7 +83,10 @@ export default function AdminPanel({ token }: { token: string }) {
     }
   }, [token])
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void load() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [load])
 
   async function createAccount() {
     const kitchen = data.available_kitchens.find((item) => item.id === kitchenId)
