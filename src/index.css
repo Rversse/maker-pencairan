@@ -3909,3 +3909,174 @@ main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
 main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
   outline-color: #a7b5a5;
 }
+
+/* ==========================================================================
+   Maker-Pencairan · compact operational rows and text-only summary statuses
+   ========================================================================== */
+
+/* On desktop, keep the remove action immediately beside the row tag.
+   The nominal column is a fixed 160px instead of consuming excess width. */
+@media (min-width: 1024px) {
+  main .mp-form-stack .mp-gas-flex-row {
+    grid-template-columns:
+      max-content 36px max-content max-content max-content
+      64px 92px minmax(105px, 1fr) 160px !important;
+    align-items: center !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-account {
+    grid-column: 5 !important;
+    grid-row: 1 !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity {
+    grid-column: 6 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-size {
+    grid-column: 7 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
+    grid-column: 8 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal {
+    grid-column: 9 !important;
+    grid-row: 1 !important;
+    width: 160px !important;
+    max-width: 160px !important;
+    min-width: 0 !important;
+  }
+
+  main .mp-form-stack .mp-ops-flex-row.is-standard {
+    grid-template-columns:
+      max-content 36px max-content max-content max-content
+      minmax(120px, 1fr) 160px !important;
+    align-items: center !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row.has-va {
+    grid-template-columns:
+      max-content 36px 54px max-content max-content max-content
+      minmax(120px, 1fr) 160px !important;
+    align-items: center !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row.is-va {
+    grid-template-columns:
+      max-content 36px 54px max-content max-content
+      minmax(120px, 1fr) 160px !important;
+    align-items: center !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row > .mp-tag {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row > .mp-row-remove {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row > .mp-va-toggle {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-owner,
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-bank,
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-account,
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-note,
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-payment-nominal {
+    grid-row: 1 !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-owner { grid-column: 3 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-bank { grid-column: 4 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-account { grid-column: 5 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-note { grid-column: 6 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-payment-nominal {
+    grid-column: 7 !important;
+    width: 160px !important;
+    max-width: 160px !important;
+  }
+
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-owner { grid-column: 4 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-bank { grid-column: 5 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-account { grid-column: 6 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-note { grid-column: 7 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-payment-nominal {
+    grid-column: 8 !important;
+    width: 160px !important;
+    max-width: 160px !important;
+  }
+
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-bank { grid-column: 4 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-account { grid-column: 5 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-note { grid-column: 6 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-payment-nominal {
+    grid-column: 7 !important;
+    width: 160px !important;
+    max-width: 160px !important;
+  }
+
+  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal > input,
+  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal > input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 160px !important;
+    flex: 1 1 auto !important;
+  }
+}
+
+/* The summary indicators are typography only. Preserve the existing status
+   meaning: completed items retain sage; empty items become quietly muted. */
+main .mp-summary-checks .mp-summary-check,
+main .mp-summary-checks .mp-summary-check:hover,
+main .mp-summary-checks .mp-summary-check:focus,
+main .mp-summary-checks .mp-summary-check:active {
+  display: inline !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  filter: none !important;
+  appearance: none !important;
+}
+main .mp-summary-checks .mp-summary-check::before,
+main .mp-summary-checks .mp-summary-check::after {
+  content: none !important;
+  display: none !important;
+}
+main .mp-summary-checks .mp-summary-check.is-complete,
+main .mp-summary-checks .mp-summary-check.is-complete:hover {
+  color: #bac9b6 !important;
+  -webkit-text-fill-color: #bac9b6 !important;
+}
+main .mp-summary-checks .mp-summary-check.is-incomplete,
+main .mp-summary-checks .mp-summary-check.is-incomplete:hover {
+  color: #778477 !important;
+  -webkit-text-fill-color: #778477 !important;
+}
