@@ -116,7 +116,7 @@ function legacyAuditRows(event: HistoryEvent, previous?: HistoryEvent | null): S
 
 function auditRowsForEvent(event: HistoryEvent, previous?: HistoryEvent | null): StoredAuditRow[] {
   const stored = event.snapshot.delta?.audit_rows
-  if (Array.isArray(stored)) return stored as StoredAuditRow[]
+  if (Array.isArray(stored) && stored.length > 0) return stored as StoredAuditRow[]
   return legacyAuditRows(event, previous)
 }
 
