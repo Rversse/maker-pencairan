@@ -170,7 +170,7 @@ function auditedEventLines(event: HistoryEvent, previous?: HistoryEvent | null):
     rowsByAfter.set(row.after, queue)
   })
 
-  const displayLines = lines.map((text, index) => {
+  const displayLines: AuditDisplayLine[] = lines.map((text, index) => {
     if (index === 0) return { text }
     const queue = rowsByAfter.get(text) ?? []
     const row = queue.shift()
