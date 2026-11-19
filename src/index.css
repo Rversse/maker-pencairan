@@ -2483,3 +2483,40 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
     white-space: nowrap;
   }
 }
+
+
+/* History audit event tags: one activity may contain multiple change kinds. */
+.mp-history-event-tag {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgb(71 85 105 / 62%);
+  border-radius: 999px;
+  background: rgb(30 41 59 / 38%);
+  padding: 3px 8px;
+  color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+.mp-history-event-tag.is-normal {
+  border-color: rgb(59 130 246 / 32%);
+  background: rgb(30 64 175 / 16%);
+  color: #93c5fd;
+}
+.mp-history-event-tag.is-revision {
+  border-color: rgb(45 212 191 / 34%);
+  background: rgb(13 148 136 / 14%);
+  color: #99f6e4;
+}
+.mp-history-event-tag.is-shortage {
+  border-color: rgb(251 146 60 / 38%);
+  background: rgb(154 52 18 / 16%);
+  color: #fdba74;
+}
+.mp-history-event-tag.is-addition {
+  border-color: rgb(52 211 153 / 34%);
+  background: rgb(6 95 70 / 16%);
+  color: #6ee7b7;
+}
