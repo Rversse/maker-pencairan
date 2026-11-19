@@ -2769,12 +2769,7 @@ aside.mp-card .text-lg {
   font-weight: 650 !important;
 }
 aside.mp-card .rounded-lg { background-image: none !important; }
-aside [title='Sudah diisi'], aside [title='Belum diisi'] {
-  background: #f3f5f1 !important;
-  border: 1px solid var(--mp-border) !important;
-  box-shadow: none !important;
-}
-aside [title='Sudah diisi']::before, aside [title='Belum diisi']::before { box-shadow: none !important; }
+/* Status labels are plain text; do not style them as filled pills. */
 .mp-history-event-tag {
   border-color: #dfe4dc !important;
   background: #f5f6f3 !important;
@@ -3911,258 +3906,142 @@ main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
 }
 
 /* ==========================================================================
-   Maker-Pencairan · operational row layout, corrected DOM order
-   Delete control is the first element, immediately LEFT of the tag.
+   Maker-Pencairan · shared flex rhythm for operational input rows
+   Every editable/read-only field follows its content width and a uniform 8px gap.
+   Nominal is the only field pushed to the far right.
    ========================================================================== */
 
 @media (min-width: 1024px) {
-  main .mp-form-stack .mp-gas-flex-row {
-    display: grid !important;
-    grid-template-columns:
-      36px max-content max-content max-content max-content
-      64px 92px minmax(105px, 1fr) 160px !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.is-standard {
-    display: grid !important;
-    grid-template-columns:
-      36px max-content max-content max-content max-content
-      minmax(110px, 1fr) 160px !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.has-va {
-    display: grid !important;
-    grid-template-columns:
-      36px max-content 54px max-content max-content max-content
-      minmax(110px, 1fr) 160px !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
+  main .mp-form-stack .mp-gas-flex-row,
+  main .mp-form-stack .mp-ops-flex-row,
+  main .mp-form-stack .mp-ops-flex-row.is-standard,
+  main .mp-form-stack .mp-ops-flex-row.has-va,
   main .mp-form-stack .mp-ops-flex-row.is-va {
-    display: grid !important;
-    grid-template-columns:
-      36px max-content 54px max-content max-content
-      minmax(110px, 1fr) 160px !important;
+    display: flex !important;
+    flex-flow: row nowrap !important;
     align-items: center !important;
+    justify-content: flex-start !important;
     gap: 8px !important;
     width: 100% !important;
     min-width: 0 !important;
   }
+
+  main .mp-form-stack .mp-gas-flex-row > *,
+  main .mp-form-stack .mp-ops-flex-row > * {
+    flex: 0 0 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Delete, type tag, mapped account fields. */
+  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove,
+  main .mp-form-stack .mp-ops-flex-row > .mp-row-remove {
+    flex: 0 0 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas,
+  main .mp-form-stack .mp-ops-flex-row > .mp-tag {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+  }
+  main .mp-form-stack .mp-gas-owner,
+  main .mp-form-stack .mp-gas-bank,
+  main .mp-form-stack .mp-gas-account,
+  main .mp-form-stack .mp-ops-owner,
+  main .mp-form-stack .mp-ops-bank,
+  main .mp-form-stack .mp-ops-account {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    min-width: 76px !important;
+    max-width: 220px !important;
+  }
+
+  /* Quantity and size stay compact. */
+  main .mp-form-stack .mp-gas-quantity-stack {
+    flex: 0 0 64px !important;
+    width: 64px !important;
+    min-width: 64px !important;
+    max-width: 64px !important;
+  }
+  main .mp-form-stack .mp-gas-size {
+    flex: 0 0 84px !important;
+    width: 84px !important;
+    min-width: 84px !important;
+    max-width: 84px !important;
+  }
+
+  /* Notes use content sizing, with a practical minimum/maximum width. */
+  main .mp-form-stack .mp-gas-note,
+  main .mp-form-stack .mp-ops-note {
+    flex: 0 1 auto !important;
+    width: max-content !important;
+    min-width: 104px !important;
+    max-width: 180px !important;
+    field-sizing: content;
+  }
+  main .mp-form-stack .mp-ops-note {
+    padding-inline: 8px !important;
+  }
+
+  /* Nominal alone consumes the remaining space on the far right. */
+  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal,
+  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal {
+    flex: 0 0 160px !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    margin-left: auto !important;
+    overflow: visible !important;
+  }
+  main .mp-form-stack .mp-payment-nominal > input {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
 }
 
-main .mp-form-stack .mp-gas-flex-row > *,
-main .mp-form-stack .mp-ops-flex-row > * {
-  min-width: 0 !important;
-}
-main .mp-form-stack .mp-row-remove {
-  grid-column: 1 !important;
-  grid-row: 1 !important;
-  justify-self: start !important;
-  width: 32px !important;
-  min-width: 32px !important;
-  max-width: 32px !important;
-  height: 36px !important;
-  padding: 0 !important;
-}
-main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas,
-main .mp-form-stack .mp-ops-flex-row > .mp-tag {
-  grid-column: 2 !important;
-  grid-row: 1 !important;
-  justify-self: start !important;
-  min-width: max-content !important;
-  width: max-content !important;
-}
-main .mp-form-stack .mp-payment-nominal {
-  width: 160px !important;
-  min-width: 0 !important;
-  max-width: 160px !important;
-  justify-self: end !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 4px !important;
-  overflow: hidden !important;
-}
-main .mp-form-stack .mp-payment-nominal > input {
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  flex: 1 1 0% !important;
-  margin: 0 !important;
-}
-main .mp-form-stack .mp-payment-nominal > button {
-  flex: 0 0 28px !important;
-  width: 28px !important;
-  min-width: 28px !important;
-  max-width: 28px !important;
-}
-
-/* Reflow on tablet/mobile: delete stays at the far left, tag is next to it. */
+/* Responsive layouts keep the remove/tag order and wrap only below desktop. */
 @media (max-width: 1023px) {
   main .mp-form-stack .mp-gas-flex-row,
   main .mp-form-stack .mp-ops-flex-row,
+  main .mp-form-stack .mp-ops-flex-row.is-standard,
   main .mp-form-stack .mp-ops-flex-row.has-va,
   main .mp-form-stack .mp-ops-flex-row.is-va {
-    display: grid !important;
-    grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr) !important;
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-items: center !important;
     gap: 8px !important;
     width: 100% !important;
     min-width: 0 !important;
   }
-
-  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
-    grid-column: 1 !important; grid-row: 1 / span 5 !important;
-    align-self: start !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 2 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 3 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 2 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 3 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 2 !important; grid-row: 3 !important; max-width: none !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 3 !important; grid-row: 3 !important; max-width: none !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 5 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
-
+  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove,
   main .mp-form-stack .mp-ops-flex-row > .mp-row-remove {
-    grid-column: 1 !important; grid-row: 1 / span 4 !important;
-    align-self: start !important;
+    order: 0;
+    flex: 0 0 32px !important;
+    width: 32px !important;
   }
-  main .mp-form-stack .mp-ops-flex-row > .mp-tag { grid-column: 2 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row > .mp-va-toggle { grid-column: 3 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-owner { grid-column: 3 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-bank { grid-column: 2 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-account { grid-column: 3 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-note { grid-column: 2 / 4 !important; grid-row: 3 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
-
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-owner { grid-column: 2 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-bank { grid-column: 3 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-account { grid-column: 2 !important; grid-row: 3 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-note { grid-column: 3 !important; grid-row: 3 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
-
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-bank { grid-column: 2 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-account { grid-column: 3 !important; grid-row: 2 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-note { grid-column: 2 / 4 !important; grid-row: 3 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
-
-  main .mp-form-stack .mp-payment-nominal > input {
-    width: 0 !important;
+  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas,
+  main .mp-form-stack .mp-ops-flex-row > .mp-tag { order: 1; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal,
+  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal {
+    order: 20;
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
     max-width: none !important;
-    flex: 1 1 0% !important;
+    margin-left: 0 !important;
   }
 }
 
-/* Summary labels are literal text only. Inline status colors remain in JSX. */
-main aside.mp-card .mp-summary-checks,
-main aside.mp-card .mp-summary-checks > span.mp-summary-check,
-main aside.mp-card .mp-summary-checks > span.mp-summary-check:hover,
-main aside.mp-card .mp-summary-checks > span.mp-summary-check:focus,
-main aside.mp-card .mp-summary-checks > span.mp-summary-check:active {
-  border: 0 !important;
-  outline: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  text-decoration: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  appearance: none !important;
-}
-main aside.mp-card .mp-summary-checks > span.mp-summary-check::before,
-main aside.mp-card .mp-summary-checks > span.mp-summary-check::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* Match the specificity of legacy 203px rules and keep operational amount
-   inputs inside their 160px nominal track, including history controls. */
-main .mp-form-stack .mp-gas-flex-row .mp-payment-nominal > input,
-main .mp-form-stack .mp-ops-flex-row .mp-payment-nominal > input {
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  flex: 1 1 0% !important;
-  margin: 0 !important;
-}
-main .mp-form-stack .mp-gas-flex-row .mp-payment-nominal,
-main .mp-form-stack .mp-ops-flex-row .mp-payment-nominal {
-  width: 160px !important;
-  min-width: 0 !important;
-  max-width: 160px !important;
-  overflow: hidden !important;
-}
-
-/* Final spacing correction: 8px between controls, then a flexible spacer,
-   then the right-aligned amount. Every operational control stays on row 1. */
-@media (min-width: 1024px) {
-  main .mp-form-stack .mp-gas-flex-row {
-    grid-template-columns:
-      36px max-content max-content max-content max-content
-      64px 92px 160px minmax(0, 1fr) 160px !important;
-    column-gap: 8px !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 1 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 2 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 3 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 4 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 5 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 6 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 7 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 8 !important; grid-row: 1 !important; width: 160px !important; min-width: 140px !important; max-width: 160px !important; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 10 !important; grid-row: 1 !important; }
-
-  main .mp-form-stack .mp-ops-flex-row.is-standard {
-    grid-template-columns: 36px max-content max-content max-content max-content minmax(110px, max-content) minmax(0, 1fr) 160px !important;
-    column-gap: 8px !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-row-remove { grid-column: 1 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-tag { grid-column: 2 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-owner { grid-column: 3 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-bank { grid-column: 4 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-account { grid-column: 5 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-note { grid-column: 6 !important; grid-row: 1 !important; width: max-content !important; min-width: 100px !important; max-width: 190px !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-payment-nominal { grid-column: 8 !important; grid-row: 1 !important; }
-
-  main .mp-form-stack .mp-ops-flex-row.has-va {
-    grid-template-columns: 36px max-content 54px max-content max-content max-content minmax(110px, max-content) minmax(0, 1fr) 160px !important;
-    column-gap: 8px !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-row-remove { grid-column: 1 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-tag { grid-column: 2 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-va-toggle { grid-column: 3 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-owner { grid-column: 4 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-bank { grid-column: 5 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-account { grid-column: 6 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-note { grid-column: 7 !important; grid-row: 1 !important; width: max-content !important; min-width: 100px !important; max-width: 190px !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-payment-nominal { grid-column: 9 !important; grid-row: 1 !important; }
-
-  main .mp-form-stack .mp-ops-flex-row.is-va {
-    grid-template-columns: 36px max-content 54px max-content max-content minmax(110px, max-content) minmax(0, 1fr) 160px !important;
-    column-gap: 8px !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-row-remove { grid-column: 1 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-tag { grid-column: 2 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-va-toggle { grid-column: 3 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-bank { grid-column: 4 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-account { grid-column: 5 !important; grid-row: 1 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-note { grid-column: 6 !important; grid-row: 1 !important; width: max-content !important; min-width: 100px !important; max-width: 190px !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-payment-nominal { grid-column: 8 !important; grid-row: 1 !important; }
-}
-
-/* Summary text is unclassed and unboxed; keep only the inline status color. */
+/* Summary indicators: plain text only. The inline JSX color is the sole status cue.
+   This also neutralizes the former [title='Sudah diisi'] pill selector. */
+main .mp-summary-checks,
 main .mp-summary-checks > span {
-  display: inline !important;
   border: 0 !important;
   outline: 0 !important;
   border-radius: 0 !important;
@@ -4173,4 +4052,10 @@ main .mp-summary-checks > span {
   padding: 0 !important;
   margin: 0 !important;
   text-decoration: none !important;
+  appearance: none !important;
+}
+main .mp-summary-checks > span::before,
+main .mp-summary-checks > span::after {
+  content: none !important;
+  display: none !important;
 }
