@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import appBrandIcon from '../fav.svg'
 import {
   getMakerMasterData,
   type MakerMasterData,
@@ -2691,21 +2690,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     <main className="min-h-screen overflow-x-clip bg-slate-950 p-2 text-white sm:p-3 md:p-4">
       <div className="mx-auto w-full max-w-[1040px]">
         <>
-          <header className="flex w-full items-center justify-between gap-3 py-1">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-emerald-700/60 bg-emerald-950/50 shadow-sm" aria-hidden="true">
-                <img src={appBrandIcon} alt="" className="h-10 w-10 object-contain" />
-              </span>
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold tracking-tight text-slate-50">Maker Pencairan</h1>
-              </div>
-            </div>
-
-          </header>
-
           {masterData && !masterLoading && !masterError && (
             <div className="mt-3 mb-2 flex w-fit max-w-full flex-wrap items-end gap-2">
-              <div className="w-[220px] shrink-0">
+              <div className="w-[180px] shrink-0">
                 <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
                 <div className="relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition hover:border-emerald-500/70 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/25">
                   <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
@@ -2755,7 +2742,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             <>
               <div
                 className={[
-                  'mt-3 mb-2 grid min-w-0 grid-cols-1 items-stretch gap-2',
+                  'mt-2 mb-2 grid min-w-0 grid-cols-1 items-stretch gap-2',
                   kitchenId && activeTransaction
                     ? 'lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.4fr)]'
                     : ''
@@ -2764,8 +2751,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 <section className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5">
                   {kitchenId && activeTransaction && (
                     <>
-                      <div className="mt-2 flex min-w-0 items-center justify-between gap-3 border-t border-slate-800/90 pt-2">
-                        <div className="flex min-w-0 items-center gap-2">
+                      <div className="mt-0 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-slate-800/90 pt-1.5">
+                        <div className="flex min-w-0 shrink-0 items-center gap-2">
                           <h2 className="text-sm font-semibold">Output</h2>
                           <span
                             aria-label={outputLineCount + ' baris output'}
@@ -2774,7 +2761,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             {outputLineCount}
                           </span>
                         </div>
-                        {copyMessage && <span role="status" className="text-[10px] font-semibold text-emerald-300">{copyMessage}</span>}
+                        <div className="flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-1">
+                          <p role="note" className="max-w-full text-right text-[10px] font-semibold leading-4 text-amber-200 sm:max-w-[420px]">
+                            Periksa kembali seluruh pencairan sebelum disimpan.
+                          </p>
+                          {copyMessage && <span role="status" className="text-[10px] font-semibold text-emerald-300">{copyMessage}</span>}
+                        </div>
                       </div>
 
                       <div className="mt-2 flex min-h-[135px] flex-1 flex-col gap-2">
@@ -3272,9 +3264,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
                   <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
                     <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
-                    <p role="note" className="mt-2 px-1 text-xs font-semibold leading-5 text-amber-200">
-                      Periksa kategori sebelum mengisi nominal.
-                    </p>
                     <div className="mt-3 space-y-1.5">
                       
                         {activeTransaction.pencairan_harian
