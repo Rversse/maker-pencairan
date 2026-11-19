@@ -2839,10 +2839,20 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           <span
                             key={label}
                             title={complete ? 'Sudah diisi' : 'Belum diisi'}
-                            className={[
-                              'mp-summary-check text-center text-[10px] font-semibold leading-4 transition-colors',
-                              complete ? 'is-complete' : 'is-incomplete'
-                            ].join(' ')}
+                            className="mp-summary-check text-center text-[10px] font-semibold leading-4"
+                            style={{
+                              display: 'inline',
+                              padding: 0,
+                              margin: 0,
+                              border: 'none',
+                              outline: 'none',
+                              borderRadius: 0,
+                              background: 'transparent',
+                              boxShadow: 'none',
+                              textDecoration: 'none',
+                              color: complete ? '#bac9b6' : '#778477',
+                              WebkitTextFillColor: complete ? '#bac9b6' : '#778477'
+                            }}
                           >
                             {label}
                           </span>
@@ -3113,6 +3123,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
                                   <div className="mp-gas-flex-row grid min-w-0 items-center gap-2">
+                                    <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                     <div className="mp-tag mp-tag--gas">GAS</div>
                                     <div title={accountName} className="mp-ops-field mp-payment-detail mp-gas-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="mp-ops-field mp-payment-detail mp-gas-bank flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank}</div>
@@ -3126,7 +3137,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('gas:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('gas:' + entry.id)}
 <input type="text" inputMode="numeric" value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
-                                    <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
                                   </div>
                                 </div>
                               )
@@ -3178,6 +3188,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             return (
                               <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={`mp-ops-flex-row grid min-w-0 items-center gap-2 ${showVirtualAccount ? (entry.isVirtualAccount ? 'is-va' : 'has-va') : 'is-standard'}`}>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeOperationalEntry(entry.id)}
+                                    disabled={!historyEnabled}
+                                    title="Hapus transaksi tambahan Operasional Harian"
+                                    aria-label="Hapus transaksi Ops Harian"
+                                    className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
+                                  >×</button>
                                   {isMappedOps ? (
                                     <div className="mp-tag mp-tag--ops">OPS HARIAN</div>
                                   ) : custom ? (isArutala ? (
@@ -3264,14 +3282,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder="Nominal"
                                     className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryShortageButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeOperationalEntry(entry.id)}
-                                    disabled={!historyEnabled}
-                                    title="Hapus transaksi tambahan Operasional Harian"
-                                    aria-label="Hapus transaksi Ops Harian"
-                                    className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
-                                  >×</button>
                                 </div>
                               </div>
                             )
