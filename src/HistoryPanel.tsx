@@ -545,19 +545,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void refreshDetail()}
-                    title="Muat ulang data terakhir"
-                    aria-label="Muat ulang data terakhir"
-                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-teal-100 disabled:opacity-40"
-                  >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M20 7v5h-5M4 17v-5h5" />
-                      <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
-                    </svg>
-                  </button>
                   {canEdit && role === 'admin' && (
                     <button type="button" disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">
                       Load ke Form
@@ -601,17 +588,67 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                     )}
                     <button
                       type="button"
-                      disabled={busy || !latestOutput.trim()}
-                      onClick={() => void copyLatestHistoryOutput()}
-                      title="Salin output lengkap dari snapshot terakhir"
+                      disabled={busy || (latestView ? !latestOutput.trim() : !activeEventCopy.trim())}
+                      onClick={() => void copyCurrentOutput()}
+                      title={latestView ? 'Salin output lengkap dari snapshot terbaru' : 'Salin audit perubahan pada event terpilih'}
                       className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40"
                     >
                       Salin
                     </button>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void refreshDetail()}
+                      title="Reset ke output terbaru dan muat ulang snapshot"
+                      aria-label="Reset ke output terbaru"
+                      className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-teal-100 disabled:opacity-40"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M20 7v5h-5M4 17v-5h5" />
+                        <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
-                <div className="max-h-[34vh] min-h-[120px] overflow-auto whitespace-pre-wrap break-words px-3 py-3 text-xs leading-5 text-slate-300 sm:px-4">
-                  {latestOutput || 'Belum ada output pada snapshot terakhir.'}
+                <div className="max-h-[34vh] min-h-[120px] overflow-auto break-words px-3 py-3 text-xs leading-5 text-slate-300 sm:px-4">
+                  {latestView ? (
+                    <pre className="whitespace-pre-wrap font-sans">{latestOutput || 'Belum ada output pada snapshot terakhir.'}</pre>
+                  ) : activeEvent?.event_type === 'NORMAL' ? (
+                    <pre className="whitespace-pre-wrap font-sans">{displayedOutput || 'Snapshot pencairan awal belum memiliki output.'}</pre>
+                  ) : activeEventChanges.length ? (
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {activeEventTags.map(tag => (
+                          <span key={tag} className={`mp-history-event-tag ${tag === 'Revisi' ? 'is-revision' : tag === 'Kekurangan' ? 'is-shortage' : tag === 'Tambahan' ? 'is-addition' : ''}`}>{tag}</span>
+                        ))}
+                        <span className="ml-1 text-[10px] text-slate-500">{activeEvent ? dateTime(activeEvent.created_at) : ''}</span>
+                      </div>
+                      {activeEventChanges.map((change, index) => (
+                        <div key={index} className="space-y-1 border-b border-slate-800/70 pb-2 last:border-0">
+                          {change.kind === 'updated' ? (
+                            <>
+                              <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Sebelumnya</p>
+                              <p className="whitespace-pre-wrap font-sans text-slate-400">{change.before}</p>
+                              <p className="pt-0.5 text-[10px] font-bold uppercase tracking-wide text-teal-300">Menjadi</p>
+                              <p className="whitespace-pre-wrap font-sans font-semibold text-teal-200">{change.after}</p>
+                            </>
+                          ) : change.kind === 'added' ? (
+                            <>
+                              <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-300">Ditambahkan</p>
+                              <p className="whitespace-pre-wrap font-sans font-semibold text-emerald-200">{change.after}</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-[10px] font-bold uppercase tracking-wide text-rose-300">Dihapus</p>
+                              <p className="whitespace-pre-wrap font-sans text-rose-200">{change.before}</p>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-slate-500">Tidak ada perubahan output yang bisa dibandingkan pada event ini.</p>
+                  )}
                 </div>
               </section>
 
@@ -624,30 +661,34 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   <p className="rounded-lg border border-dashed border-slate-700/80 px-3 py-4 text-xs text-slate-500">Belum ada aktivitas.</p>
                 ) : (
                   <div className="space-y-2">
-                    {[...selectedEvent].reverse().map(event => (
-                      <div key={event.id} className={isSelectedEvent(event) ? 'mp-history-timeline-item is-active' : 'mp-history-timeline-item'}>
-                        <span className="mp-history-timeline-marker" aria-hidden="true" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className={event.event_type === 'NORMAL' ? 'mp-history-event-type is-normal' : 'mp-history-event-type'}>
-                              {eventLabel(event.event_type)}
-                            </span>
-                            <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
+                    {[...selectedEvent].reverse().map(event => {
+                      const eventIndex = selectedEvent.findIndex(item => item.id === event.id)
+                      const previous = eventIndex > 0 ? selectedEvent[eventIndex - 1] : null
+                      const tags = historyEventTags(event, previous)
+                      return (
+                        <div key={event.id} className={isSelectedEvent(event) ? 'mp-history-timeline-item is-active' : 'mp-history-timeline-item'}>
+                          <span className="mp-history-timeline-marker" aria-hidden="true" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                              {tags.map(tag => (
+                                <span key={tag} className={`mp-history-event-tag ${tag === 'Pencairan Awal' ? 'is-normal' : tag === 'Revisi' ? 'is-revision' : tag === 'Kekurangan' ? 'is-shortage' : 'is-addition'}`}>{tag}</span>
+                              ))}
+                              <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
+                            </div>
                           </div>
-                          {event.event_type !== 'NORMAL' && <p className="mt-1 break-words text-xs text-slate-300">{event.summary || 'Perubahan tersimpan'}</p>}
-                        </div>
-                        <div className="flex shrink-0 items-center gap-1.5">
-                          <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
-                            {isSelectedEvent(event) ? 'Dipilih' : 'Lihat'}
-                          </button>
-                          {isSelectedEvent(event) && event.event_type !== 'NORMAL' && (
-                            <button type="button" onClick={() => void copyEventOutput(event)} className="mp-history-timeline-copy rounded-md border border-slate-700/80 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300">
-                              Salin
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            <button type="button" aria-pressed={isSelectedEvent(event)} onClick={() => openEventOutput(event)} className="mp-history-timeline-open rounded-md px-2.5 py-1.5 text-[10px] font-semibold">
+                              {isSelectedEvent(event) ? 'Pilih' : 'Lihat'}
                             </button>
-                          )}
+                            {isSelectedEvent(event) && event.event_type !== 'NORMAL' && (
+                              <button type="button" onClick={() => void copyEventOutput(event)} className="mp-history-timeline-copy rounded-md border border-slate-700/80 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300">
+                                Salin
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </section>
