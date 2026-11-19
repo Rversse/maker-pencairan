@@ -1788,8 +1788,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             : custom
               ? operationalEntry.ownerName ?? ''
               : mappedOperationalAccount?.ownerName ?? '').trim()
-      const note = (operationalEntry.need?.trim() || (isMappedOps || isArutala ? 'Ops Harian' : '')).trim()
-      const outputOwnerName = ownerName ? capitalizeEachWord(ownerName) : '-'
+      const note = (operationalEntry.need?.trim() || (isMappedOps || isArutala ? 'Ops Harian' : '')).trim().slice(0, 109)
+      const outputOwnerName = ownerName ? capitalizeEachWord(ownerName.slice(0, 30)) : '-'
       const outputBank = bank || '-'
       const outputAccountNumber = accountNumber || '-'
       outputs.push({
@@ -1839,7 +1839,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const gasDescription = quantity && size
         ? 'Gas ' + size + ' (' + quantity + ' tabung)'
         : 'Gas'
-      const additionalGasNote = isGasEntry ? (entry.gasNote ?? '').trim() : ''
+      const gasNoteMaxLength = Math.max(0, 109 - gasDescription.length - 2)
+      const additionalGasNote = isGasEntry
+        ? (entry.gasNote ?? '').trim().slice(0, gasNoteMaxLength)
+        : ''
       const note = customNoteMode
         ? (entry.need ?? '').trim()
         : gasDescription + (additionalGasNote ? ', ' + additionalGasNote : '')
@@ -3139,7 +3142,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="mp-ops-field mp-payment-detail mp-gas-quantity-input h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     </div>
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field mp-payment-detail mp-gas-size h-10 min-w-0 px-2 text-center text-xs text-slate-100"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                    <input type="text" value={entry.gasNote ?? ''} maxLength={gasNoteMaxLength} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value.slice(0, gasNoteMaxLength) })} placeholder="Catatan" aria-label="Catatan tambahan GAS (mengikuti sisa batas 109 karakter)" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
+                                    <input type="text" value={(entry.gasNote ?? '').slice(0, gasNoteMaxLength)} maxLength={gasNoteMaxLength} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value.slice(0, gasNoteMaxLength) })} placeholder="Catatan" aria-label="Catatan tambahan GAS (mengikuti sisa batas 109 karakter)" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('gas:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('gas:' + entry.id)}
 <input type="text" inputMode="numeric" value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
