@@ -2464,6 +2464,7 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
+    field-sizing: fixed !important;
   }
 
   .mp-form-stack .mp-salary-flex-row > .mp-tag--salary {
