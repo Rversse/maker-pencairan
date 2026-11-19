@@ -752,6 +752,9 @@ function normalizeTransaction(
       bank: entry.bank ?? '',
       customAccount: Boolean(entry.customAccount ?? index > 0),
       operationalRuleType: entry.operationalRuleType || (isLegacyMappedOps ? 'ops_harian' : ''),
+      isVirtualAccount: entry.operationalRuleType === 'gaji_akuntan' || entry.operationalRuleType === 'gaji_ahli_gizi'
+        ? false
+        : Boolean(entry.isVirtualAccount),
       need: entry.need || (isLegacyMappedOps ? 'Ops Harian' : ''),
       transactionType: 'operasional_harian'
     }
@@ -2992,16 +2995,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const arutalaAccount = arutalaGasRule?.accounts
                             const arutalaOwnerName = arutalaGasRule?.supplier?.business_name || arutalaAccount?.name || 'Koperasi Arutala'
                             const selectedType = entry.operationalRuleType ?? ''
-                            const selectedRuleType = selectedType === 'gaji_akuntan'
-                              ? 'gaji_akuntan'
-                              : selectedType === 'gaji_ahli_gizi'
-                                ? 'gaji_ahli_gizi'
-                                : ''
+                            const isSalaryCategory = selectedType === 'gaji_akuntan' || selectedType === 'gaji_ahli_gizi'
+                            const selectedRuleType = isSalaryCategory ? selectedType : ''
                             const selectedMapping = selectedRuleType
                               ? getOperationalMapping(selectedKitchen?.name ?? '', masterData, selectedRuleType)
                               : null
-                            const isMappedSalary = (selectedType === 'gaji_akuntan' || selectedType === 'gaji_ahli_gizi') && Boolean(selectedMapping)
-                            const showVirtualAccount = custom && !isArutala && !isMappedSalary
+                            const isMappedSalary = isSalaryCategory && Boolean(selectedMapping)
+                            const showVirtualAccount = custom && !isArutala && !isSalaryCategory
                             const ownerName = isArutala
                               ? arutalaOwnerName
                               : isMappedOps
@@ -3043,6 +3043,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, {
                                           operationalRuleType: nextType ?? '',
                                           useArutalaAccount: false,
+                                          isVirtualAccount: nextType === 'gaji_akuntan' || nextType === 'gaji_ahli_gizi'
+                                            ? false
+                                            : Boolean(entry.isVirtualAccount),
                                           ownerName: nextMapping?.ownerName ?? '',
                                           bank: nextMapping?.bank ?? '',
                                           accountNumber: nextMapping?.accountNumber ?? '',
