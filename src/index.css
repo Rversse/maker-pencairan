@@ -2417,3 +2417,18 @@ button[data-option-button='true'] {
   color: rgb(94 234 212 / 72%) !important;
   -webkit-text-fill-color: rgb(94 234 212 / 72%) !important;
 }
+
+
+/* Active input content: highlight the value in every editable field, not only
+   nominal inputs. Apply at main scope so legacy and newer form rows share it. */
+main :is(input, select, textarea):focus:not(:disabled):not([readonly]) {
+  color: #5eead4 !important;
+  -webkit-text-fill-color: #5eead4 !important;
+  caret-color: #5eead4 !important;
+  border-bottom-color: #2dd4bf !important;
+  box-shadow: 0 1px 0 rgb(45 212 191 / 72%) !important;
+}
+main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
+  color: rgb(94 234 212 / 72%) !important;
+  -webkit-text-fill-color: rgb(94 234 212 / 72%) !important;
+}
