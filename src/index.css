@@ -3221,3 +3221,213 @@ aside [title='Sudah diisi']::before, aside [title='Belum diisi']::before { box-s
   color: #c2d4c3 !important;
   -webkit-text-fill-color: #c2d4c3 !important;
 }
+
+/* ==========================================================================
+   Paper & Ink · operational field consistency
+   Tags, VA toggle, account surfaces, editable underline, focus and placeholders.
+   ========================================================================== */
+:root[data-theme='dark'] {
+  --mp-field-surface: #303831;
+  --mp-field-disabled: #252c27;
+  --mp-field-border: #59655b;
+  --mp-field-border-hover: #718574;
+  --mp-field-focus: #91a894;
+  --mp-field-placeholder: #9ba69a;
+  --mp-tag-surface: #354238;
+  --mp-tag-border: #52634f;
+  --mp-tag-text: #c4d5c3;
+}
+
+/* One restrained tag treatment for GAS, Ops Harian, Arutala, Custom and Salary. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag {
+  border: 1px solid var(--mp-tag-border) !important;
+  border-left: 2px solid #819983 !important;
+  border-radius: 7px !important;
+  background: var(--mp-tag-surface) !important;
+  background-image: none !important;
+  color: var(--mp-tag-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 700 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--gas,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--ops,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--arutala,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--salary {
+  border-color: var(--mp-tag-border) !important;
+  border-left-color: #819983 !important;
+  background: var(--mp-tag-surface) !important;
+  color: var(--mp-tag-text) !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom {
+  border: 1px solid var(--mp-tag-border) !important;
+  border-left: 2px solid #819983 !important;
+  background-color: var(--mp-tag-surface) !important;
+  background-image: none !important;
+  color: var(--mp-tag-text) !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom:focus-visible {
+  border-color: #718574 !important;
+  background-color: #3b473d !important;
+  color: #e2ebe1 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom option {
+  background: #292f2a !important;
+  color: #e2e9e1 !important;
+}
+
+/* The VA control is a simple toggle label, not a filled button/chip. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle {
+  border: 1px solid #4b574d !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #b9c5b8 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle:hover {
+  border-color: #718574 !important;
+  background: transparent !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle input[type='checkbox'] {
+  accent-color: #91a894 !important;
+  background: transparent !important;
+}
+
+/* Read-only mapped account values use the same lifted graphite surface.
+   Disabled editable fields are slightly recessed and quieter, but stay legible. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-static-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-salary-field {
+  border: 1px solid #3f4a41 !important;
+  border-radius: 6px !important;
+  background: var(--mp-field-surface) !important;
+  background-image: none !important;
+  color: #d8e1d7 !important;
+  -webkit-text-fill-color: #d8e1d7 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:disabled,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:disabled,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:disabled,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input[readonly],
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea[readonly] {
+  border: 0 !important;
+  border-bottom: 1px solid #414b42 !important;
+  border-radius: 0 !important;
+  background: var(--mp-field-disabled) !important;
+  color: #8e9a8e !important;
+  -webkit-text-fill-color: #8e9a8e !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:disabled::placeholder,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:disabled::placeholder {
+  color: #778477 !important;
+  -webkit-text-fill-color: #778477 !important;
+}
+
+/* Every editable data field has underline-only geometry. The custom type tag
+   remains a tag-style select; ordinary text/select controls share this rule. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(:is(div, span)) {
+  border: 0 !important;
+  border-bottom: 1px solid var(--mp-field-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #dfe7de !important;
+  -webkit-text-fill-color: #dfe7de !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transition: border-color 140ms ease, color 140ms ease !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):hover:not(:disabled):not([readonly]),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):hover:not(:disabled),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:hover:not(:disabled):not([readonly]) {
+  border-bottom-color: var(--mp-field-border-hover) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Focus changes text/caret and the underline only—never the field or row fill. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
+  border: 0 !important;
+  border-bottom: 1px solid var(--mp-field-focus) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #e5ede4 !important;
+  -webkit-text-fill-color: #e5ede4 !important;
+  caret-color: #a8bca9 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
+  border: 0 !important;
+  border-bottom: 1px solid var(--mp-field-focus) !important;
+  background: transparent !important;
+  color: #e5ede4 !important;
+  -webkit-text-fill-color: #e5ede4 !important;
+  caret-color: #a8bca9 !important;
+  box-shadow: none !important;
+}
+/* Do not tint the whole row or neighboring static values while editing. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
+  color: #d8e1d7 !important;
+  -webkit-text-fill-color: #d8e1d7 !important;
+}
+
+/* Placeholder typography is global: Nominal, Catatan, Nama rekening,
+   Nomor rekening, Jumlah, and other text fields all use the same treatment. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input::placeholder,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea::placeholder,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-detail::placeholder {
+  color: var(--mp-field-placeholder) !important;
+  -webkit-text-fill-color: var(--mp-field-placeholder) !important;
+  font-family: var(--mp-font-sans) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+  opacity: 1 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):has(option:checked[value='']) {
+  color: var(--mp-field-placeholder) !important;
+  -webkit-text-fill-color: var(--mp-field-placeholder) !important;
+  font-family: var(--mp-font-sans) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack option {
+  background: #292f2a !important;
+  color: #e2e9e1 !important;
+}
+
+/* Keep selected values in editable fields visually consistent with static data. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row .mp-payment-detail:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row .mp-payment-detail:focus-within {
+  background: transparent !important;
+}
