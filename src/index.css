@@ -3911,172 +3911,176 @@ main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
 }
 
 /* ==========================================================================
-   Maker-Pencairan · compact operational rows and text-only summary statuses
+   Maker-Pencairan · operational row layout, corrected DOM order
+   Delete control is the first element, immediately LEFT of the tag.
    ========================================================================== */
 
-/* On desktop, keep the remove action immediately beside the row tag.
-   The nominal column is a fixed 160px instead of consuming excess width. */
 @media (min-width: 1024px) {
   main .mp-form-stack .mp-gas-flex-row {
+    display: grid !important;
     grid-template-columns:
-      max-content 36px max-content max-content max-content
+      36px max-content max-content max-content max-content
       64px 92px minmax(105px, 1fr) 160px !important;
     align-items: center !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    justify-self: start !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner {
-    grid-column: 3 !important;
-    grid-row: 1 !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank {
-    grid-column: 4 !important;
-    grid-row: 1 !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-account {
-    grid-column: 5 !important;
-    grid-row: 1 !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity {
-    grid-column: 6 !important;
-    grid-row: 1 !important;
-    min-width: 0 !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-size {
-    grid-column: 7 !important;
-    grid-row: 1 !important;
-    min-width: 0 !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
-    grid-column: 8 !important;
-    grid-row: 1 !important;
+    gap: 8px !important;
     width: 100% !important;
     min-width: 0 !important;
-    max-width: none !important;
   }
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal {
-    grid-column: 9 !important;
-    grid-row: 1 !important;
-    width: 160px !important;
-    max-width: 160px !important;
-    min-width: 0 !important;
-  }
-
   main .mp-form-stack .mp-ops-flex-row.is-standard {
+    display: grid !important;
     grid-template-columns:
-      max-content 36px max-content max-content max-content
-      minmax(120px, 1fr) 160px !important;
+      36px max-content max-content max-content max-content
+      minmax(110px, 1fr) 160px !important;
     align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
   }
   main .mp-form-stack .mp-ops-flex-row.has-va {
+    display: grid !important;
     grid-template-columns:
-      max-content 36px 54px max-content max-content max-content
-      minmax(120px, 1fr) 160px !important;
+      36px max-content 54px max-content max-content max-content
+      minmax(110px, 1fr) 160px !important;
     align-items: center !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.is-va {
-    grid-template-columns:
-      max-content 36px 54px max-content max-content
-      minmax(120px, 1fr) 160px !important;
-    align-items: center !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row > .mp-tag {
-    grid-column: 1 !important;
-    grid-row: 1 !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row > .mp-row-remove {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    justify-self: start !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row > .mp-va-toggle {
-    grid-column: 3 !important;
-    grid-row: 1 !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-owner,
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-bank,
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-account,
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-note,
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-payment-nominal {
-    grid-row: 1 !important;
-  }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-owner { grid-column: 3 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-bank { grid-column: 4 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-account { grid-column: 5 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-note { grid-column: 6 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-payment-nominal {
-    grid-column: 7 !important;
-    width: 160px !important;
-    max-width: 160px !important;
-  }
-
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-owner { grid-column: 4 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-bank { grid-column: 5 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-account { grid-column: 6 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-note { grid-column: 7 !important; }
-  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-payment-nominal {
-    grid-column: 8 !important;
-    width: 160px !important;
-    max-width: 160px !important;
-  }
-
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-bank { grid-column: 4 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-account { grid-column: 5 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-note { grid-column: 6 !important; }
-  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-payment-nominal {
-    grid-column: 7 !important;
-    width: 160px !important;
-    max-width: 160px !important;
-  }
-
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal > input,
-  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal > input {
+    gap: 8px !important;
     width: 100% !important;
     min-width: 0 !important;
-    max-width: 160px !important;
-    flex: 1 1 auto !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row.is-va {
+    display: grid !important;
+    grid-template-columns:
+      36px max-content 54px max-content max-content
+      minmax(110px, 1fr) 160px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
   }
 }
 
-/* The summary indicators are typography only. Preserve the existing status
-   meaning: completed items retain sage; empty items become quietly muted. */
-main .mp-summary-checks .mp-summary-check,
-main .mp-summary-checks .mp-summary-check:hover,
-main .mp-summary-checks .mp-summary-check:focus,
-main .mp-summary-checks .mp-summary-check:active {
-  display: inline !important;
+main .mp-form-stack .mp-gas-flex-row > *,
+main .mp-form-stack .mp-ops-flex-row > * {
+  min-width: 0 !important;
+}
+main .mp-form-stack .mp-row-remove {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  justify-self: start !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  height: 36px !important;
   padding: 0 !important;
+}
+main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas,
+main .mp-form-stack .mp-ops-flex-row > .mp-tag {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  justify-self: start !important;
+  min-width: max-content !important;
+  width: max-content !important;
+}
+main .mp-form-stack .mp-payment-nominal {
+  width: 160px !important;
+  min-width: 0 !important;
+  max-width: 160px !important;
+  justify-self: end !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 4px !important;
+  overflow: hidden !important;
+}
+main .mp-form-stack .mp-payment-nominal > input {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 1 1 0% !important;
   margin: 0 !important;
+}
+main .mp-form-stack .mp-payment-nominal > button {
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  max-width: 28px !important;
+}
+
+/* Reflow on tablet/mobile: delete stays at the far left, tag is next to it. */
+@media (max-width: 1023px) {
+  main .mp-form-stack .mp-gas-flex-row,
+  main .mp-form-stack .mp-ops-flex-row,
+  main .mp-form-stack .mp-ops-flex-row.has-va,
+  main .mp-form-stack .mp-ops-flex-row.is-va {
+    display: grid !important;
+    grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
+    grid-column: 1 !important; grid-row: 1 / span 5 !important;
+    align-self: start !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 2 !important; grid-row: 1 !important; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 3 !important; grid-row: 1 !important; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 2 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 3 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 2 !important; grid-row: 3 !important; max-width: none !important; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 3 !important; grid-row: 3 !important; max-width: none !important; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; }
+  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 5 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
+
+  main .mp-form-stack .mp-ops-flex-row > .mp-row-remove {
+    grid-column: 1 !important; grid-row: 1 / span 4 !important;
+    align-self: start !important;
+  }
+  main .mp-form-stack .mp-ops-flex-row > .mp-tag { grid-column: 2 !important; grid-row: 1 !important; }
+  main .mp-form-stack .mp-ops-flex-row > .mp-va-toggle { grid-column: 3 !important; grid-row: 1 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-owner { grid-column: 3 !important; grid-row: 1 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-bank { grid-column: 2 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-account { grid-column: 3 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-ops-note { grid-column: 2 / 4 !important; grid-row: 3 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-standard > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
+
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-owner { grid-column: 2 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-bank { grid-column: 3 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-account { grid-column: 2 !important; grid-row: 3 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-ops-note { grid-column: 3 !important; grid-row: 3 !important; }
+  main .mp-form-stack .mp-ops-flex-row.has-va > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
+
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-bank { grid-column: 2 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-account { grid-column: 3 !important; grid-row: 2 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-ops-note { grid-column: 2 / 4 !important; grid-row: 3 !important; }
+  main .mp-form-stack .mp-ops-flex-row.is-va > .mp-payment-nominal { grid-column: 2 / 4 !important; grid-row: 4 !important; width: 100% !important; max-width: none !important; justify-self: stretch !important; }
+
+  main .mp-form-stack .mp-payment-nominal > input {
+    width: 0 !important;
+    max-width: none !important;
+    flex: 1 1 0% !important;
+  }
+}
+
+/* Summary labels are literal text only. Inline status colors remain in JSX. */
+main aside.mp-card .mp-summary-checks,
+main aside.mp-card .mp-summary-checks > span.mp-summary-check,
+main aside.mp-card .mp-summary-checks > span.mp-summary-check:hover,
+main aside.mp-card .mp-summary-checks > span.mp-summary-check:focus,
+main aside.mp-card .mp-summary-checks > span.mp-summary-check:active {
   border: 0 !important;
   outline: 0 !important;
   border-radius: 0 !important;
-  background: none !important;
+  background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
   text-decoration: none !important;
-  filter: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
   appearance: none !important;
 }
-main .mp-summary-checks .mp-summary-check::before,
-main .mp-summary-checks .mp-summary-check::after {
+main aside.mp-card .mp-summary-checks > span.mp-summary-check::before,
+main aside.mp-card .mp-summary-checks > span.mp-summary-check::after {
   content: none !important;
   display: none !important;
-}
-main .mp-summary-checks .mp-summary-check.is-complete,
-main .mp-summary-checks .mp-summary-check.is-complete:hover {
-  color: #bac9b6 !important;
-  -webkit-text-fill-color: #bac9b6 !important;
-}
-main .mp-summary-checks .mp-summary-check.is-incomplete,
-main .mp-summary-checks .mp-summary-check.is-incomplete:hover {
-  color: #778477 !important;
-  -webkit-text-fill-color: #778477 !important;
 }
