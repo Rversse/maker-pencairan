@@ -399,9 +399,10 @@ export function DateRangePicker({
             'grid grid-cols-7',
             density === 'normal' ? 'gap-1 p-3' : density === 'compact' ? 'gap-0.5 p-2' : 'gap-0.5 p-1.5'
           ].join(' ')}>
-            {WEEK_DAYS.map((day) => (
+            {WEEK_DAYS.map((day, index) => (
               <span
                 key={day}
+                aria-label={WEEK_DAY_LONG[index]}
                 className={[
                   'text-center font-black uppercase text-slate-400',
                   density === 'normal' ? 'pb-1 text-[9px]' : density === 'compact' ? 'pb-0.5 text-[8px]' : 'text-[7px]'
