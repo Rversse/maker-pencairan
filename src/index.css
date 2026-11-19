@@ -1503,14 +1503,21 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   background: rgb(15 23 42 / 72%) !important;
 }
 .mp-history-date input {
-  width: 126px;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
   border: 0 !important;
   border-bottom: 0 !important;
-  border-radius: 0 !important;
+  border-radius: inherit !important;
   background: transparent !important;
   box-shadow: none !important;
-  color: #e2e8f0 !important;
-  -webkit-text-fill-color: #e2e8f0 !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  opacity: 0 !important;
+  cursor: pointer;
 }
 .mp-history-date input:focus {
   border: 0 !important;
@@ -2384,4 +2391,29 @@ button[data-option-button='true'] {
 }
 .mp-control-radius {
   border-radius: var(--mp-radius-control) !important;
+}
+
+
+/* Final cleanup: only remove the ledger separators called out in the review. */
+.mp-form-stack .mp-rab-row,
+.mp-form-stack .mp-ops-row {
+  border-bottom: 0 !important;
+}
+
+/* The focused editable field gets a clearly visible teal value, so the
+   accountant can tell exactly which control is currently being edited. */
+.mp-form-stack input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):focus,
+.mp-form-stack textarea:focus {
+  color: #5eead4 !important;
+  -webkit-text-fill-color: #5eead4 !important;
+  caret-color: #5eead4 !important;
+}
+.mp-form-stack select:focus {
+  color: #5eead4 !important;
+  caret-color: #5eead4 !important;
+}
+.mp-form-stack input:focus::placeholder,
+.mp-form-stack textarea:focus::placeholder {
+  color: rgb(94 234 212 / 72%) !important;
+  -webkit-text-fill-color: rgb(94 234 212 / 72%) !important;
 }
