@@ -457,7 +457,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
             <div className="space-y-2">
 
               {busy && (
-                <div className="flex items-center gap-2 rounded-xl border border-slate-800/80 bg-slate-900/40 px-3 py-3 text-xs text-slate-400">
+                <div className="mp-history-loading flex items-center gap-2 rounded-xl border border-slate-800/80 px-3 py-3 text-xs">
                   <span className="mp-history-spinner h-3.5 w-3.5 rounded-full border-2 border-slate-600 border-t-teal-300" />
                   Memuat riwayat...
                 </div>
