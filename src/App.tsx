@@ -960,13 +960,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
   const renderHistoryPreviousAmount = (key: string) => {
     if (!hasHistoryPreviousAmount(key)) return null
-    return <span className="mp-history-previous-amount">Awal: Rp {formatNumber(historyPreviousAmount(key))}</span>
+    return <span className="mp-history-previous-amount">Nominal Awal: Rp {formatNumber(historyPreviousAmount(key))}</span>
   }
   const renderHistoryPreviousGasQuantity = (id: number) => {
     if (!historyChangeActive || !historyEntryKeys.includes('gas:' + id)) return null
     const previous = historyPreviousGasQuantity(id)
     if (!previous || Number(previous) <= 0) return null
-    return <span className="mp-history-previous-amount">Awal: {previous} tabung</span>
+    return <span className="mp-history-previous-amount">Jumlah Awal: {previous} tabung</span>
   }
   const renderHistoryShortageButton = (key: string, onEnable: () => void, onDisable: () => void) => {
     if (!historyChangeActive || !historyEntryKeys.includes(key)) return null
@@ -983,9 +983,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           if (nextEnabled) onEnable()
           else onDisable()
         }}
-        className={`mp-history-shortage-toggle h-10 shrink-0 rounded-md px-3 text-xs font-semibold transition ${enabled ? 'is-active' : ''}`}
+        className={`mp-history-shortage-toggle h-8 shrink-0 rounded-md px-2 text-[11px] font-semibold transition ${enabled ? 'is-active' : ''}`}
       >
-        <span>Kekurangan</span>
+        <span>Kurang</span>
         <span className="mp-history-shortage-switch" aria-hidden="true"><span /></span>
       </button>
     )
