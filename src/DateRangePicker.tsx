@@ -14,6 +14,7 @@ type DateRangePickerProps = {
 }
 
 const WEEK_DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+const WEEK_DAY_LONG = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
 const MONTH_NAMES = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -92,6 +93,7 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
+  const initialDayButtonRef = useRef<HTMLButtonElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
   const [popupPosition, setPopupPosition] = useState<{
     top: number
@@ -203,6 +205,10 @@ export function DateRangePicker({
   }, [selectedYear, value.endDate, value.startDate])
 
   useEffect(() => {
+    if (open && popupPosition) initialDayButtonRef.current?.focus()
+  }, [open, popupPosition, viewMonth])
+
+  useEffect(() => {
     if (!open) return
 
     function handlePointerDown(event: MouseEvent) {
@@ -225,6 +231,7 @@ export function DateRangePicker({
       setPendingStart('')
       setHoverDate('')
       setShowMonthYearPicker(false)
+      triggerRef.current?.focus()
     }
 
     document.addEventListener('mousedown', handlePointerDown)
@@ -270,9 +277,14 @@ export function DateRangePicker({
     setPendingStart('')
     setHoverDate('')
     setShowMonthYearPicker(false)
+    triggerRef.current?.focus()
   }
 
   const monthCells = getMonthCells(viewMonth)
+  const preferredDate = pendingStart || value.startDate
+  const initialFocusDate = monthCells.includes(preferredDate)
+    ? preferredDate
+    : monthCells.find((date): date is string => Boolean(date)) ?? ''
 
   return (
     <div
@@ -329,6 +341,7 @@ export function DateRangePicker({
             <button
               type="button"
               aria-expanded={showMonthYearPicker}
+              aria-label="Pilih bulan dan tahun"
               className={[
                 'flex min-w-0 items-center justify-center gap-1 px-2 font-bold text-teal-200 hover:bg-teal-950/40',
                 density === 'normal' ? 'rounded-md py-1 text-xs' : density === 'compact' ? 'rounded-md py-0.5 text-[11px]' : 'rounded py-0 text-[10px]'
@@ -420,8 +433,12 @@ export function DateRangePicker({
               return (
                 <button
                   key={dateKey}
+                  ref={dateKey === initialFocusDate ? initialDayButtonRef : undefined}
                   type="button"
                   data-calendar-day="true"
+                  aria-label={`${Number(dateKey.slice(-2))} ${MONTH_LONG_NAMES[Number(dateKey.slice(5, 7)) - 1]} ${dateKey.slice(0, 4)}`}
+                  aria-pressed={isStart || isEnd}
+                  aria-current={dateKey === today ? 'date' : undefined}
                   disabled={beforePending}
                   onMouseEnter={() => setHoverDate(dateKey)}
                   onFocus={() => setHoverDate(dateKey)}
