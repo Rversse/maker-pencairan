@@ -28,6 +28,32 @@ async function adminRequest<T>(token: string, body: Record<string, unknown>): Pr
   return data as T
 }
 
+type DailyKitchenStatus = { id: string; name: string; submitted: boolean }
+type DailyStatusResponse = {
+  transaction_date: string
+  kitchens: Array<{ id: string; name: string }>
+  submitted_kitchen_ids: string[]
+}
+
+async function historyAdminRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
+  const { data, error } = await supabase.functions.invoke('maker-history', {
+    body,
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Status input gagal dimuat.')
+  return data as T
+}
+
+function localDateIso() {
+  const date = new Date()
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+function formatDailyDate(value: string) {
+  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    .format(new Date(value + 'T12:00:00'))
+}
+
 function generatePassword(includeSymbols: boolean) {
   const letters = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
   const numbers = '23456789'
@@ -65,6 +91,10 @@ export default function AdminPanel({ token }: { token: string }) {
   const [resetPasswords, setResetPasswords] = useState<Record<string, string>>({})
   const [notice, setNotice] = useState<CredentialNotice | null>(null)
   const [toast, setToast] = useState('')
+  const [dailyStatus, setDailyStatus] = useState<DailyKitchenStatus[]>([])
+  const [dailyStatusDate, setDailyStatusDate] = useState(localDateIso())
+  const [dailyStatusLoading, setDailyStatusLoading] = useState(true)
+  const [dailyStatusError, setDailyStatusError] = useState('')
 
   const load = useCallback(async () => {
     await Promise.resolve()
@@ -87,6 +117,34 @@ export default function AdminPanel({ token }: { token: string }) {
     const timer = window.setTimeout(() => { void load() }, 0)
     return () => window.clearTimeout(timer)
   }, [load])
+
+  const loadDailyStatus = useCallback(async () => {
+    setDailyStatusLoading(true)
+    setDailyStatusError('')
+    const transactionDate = localDateIso()
+    try {
+      const result = await historyAdminRequest<DailyStatusResponse>(token, {
+        action: 'admin_daily_status',
+        transaction_date: transactionDate
+      })
+      const submittedIds = new Set(result.submitted_kitchen_ids ?? [])
+      setDailyStatus((result.kitchens ?? []).map(kitchen => ({
+        ...kitchen,
+        submitted: submittedIds.has(kitchen.id)
+      })))
+      setDailyStatusDate(result.transaction_date)
+    } catch (err) {
+      setDailyStatusError(err instanceof Error ? err.message : 'Gagal memuat status input harian.')
+    } finally {
+      setDailyStatusLoading(false)
+    }
+  }, [token])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void loadDailyStatus() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [loadDailyStatus])
+
 
   async function createAccount() {
     const kitchen = data.available_kitchens.find((item) => item.id === kitchenId)
@@ -202,6 +260,46 @@ export default function AdminPanel({ token }: { token: string }) {
 
       <div className="mp-admin-card rounded-2xl border border-slate-700/70 bg-slate-900/55 p-4 sm:p-5">
         <div className="mb-4 flex items-center justify-between gap-3"><div><h3 className="font-semibold text-white">Manajemen Akuntan</h3><p className="mt-1 text-xs text-slate-400">Buat akun baru dan kelola kredensial dapur.</p></div><button type="button" onClick={() => void load()} disabled={loading || Boolean(busy)} aria-label="Muat ulang daftar akun" title="Muat ulang" className="grid h-9 w-9 place-items-center rounded-lg border border-slate-600 bg-slate-800/70 text-slate-200">↻</button></div>
+        <div className="mb-5 rounded-xl border border-slate-700/75 bg-slate-950/45 p-3 sm:p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="min-w-0">
+              <h4 className="text-sm font-semibold text-white">Status Input Hari Ini</h4>
+              <p className="mt-0.5 text-[11px] text-slate-400">{formatDailyDate(dailyStatusDate)} · {dailyStatus.filter(item => item.submitted).length} dari {dailyStatus.length} dapur sudah input</p>
+            </div>
+            <button type="button" onClick={() => void loadDailyStatus()} disabled={dailyStatusLoading} aria-label="Muat ulang status input harian" title="Muat ulang status" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-slate-700 bg-slate-800/70 text-sm text-slate-200 disabled:opacity-40">↻</button>
+          </div>
+          {dailyStatusError ? (
+            <p role="alert" className="mt-3 rounded-lg border border-rose-800/50 bg-rose-950/20 px-3 py-2 text-xs text-rose-200">{dailyStatusError}</p>
+          ) : dailyStatusLoading ? (
+            <p className="mt-3 text-xs text-slate-500">Memuat status dapur...</p>
+          ) : dailyStatus.length === 0 ? (
+            <p className="mt-3 text-xs text-slate-500">Tidak ada dapur aktif.</p>
+          ) : (
+            <div className="mt-3 max-h-56 overflow-y-auto rounded-lg border border-slate-800/80">
+              <table className="w-full border-collapse text-left text-xs">
+                <thead className="sticky top-0 bg-slate-900/95 text-[10px] uppercase tracking-wider text-slate-500">
+                  <tr>
+                    <th scope="col" className="px-3 py-2 font-semibold">Dapur</th>
+                    <th scope="col" className="px-3 py-2 text-right font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/70">
+                  {dailyStatus.map(kitchen => (
+                    <tr key={kitchen.id} className="transition-colors hover:bg-slate-800/25">
+                      <th scope="row" className="px-3 py-2 font-medium text-slate-200">{kitchen.name}</th>
+                      <td className="px-3 py-2 text-right">
+                        <span className={`inline-flex items-center justify-end gap-2 font-medium ${kitchen.submitted ? 'text-emerald-300' : 'text-rose-300'}`}>
+                          <span aria-hidden="true" className={`h-2 w-2 rounded-full ${kitchen.submitted ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                          {kitchen.submitted ? 'Sudah input' : 'Belum input'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
         <h3 className="font-semibold text-white">Buat Akun</h3>
         {loading ? <p className="mt-3 text-sm text-slate-400">Memuat daftar dapur...</p> : data.available_kitchens.length === 0 ? (
           <p className="mt-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-400">Semua dapur aktif sudah memiliki akun Akuntan.</p>
