@@ -346,18 +346,11 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     : undefined
   const latestOutput = String(latestPayload?.output ?? '')
   const latestView = activeEventId === null
-  const activeEventOutput = String(activeEvent?.snapshot.payload?.output ?? '')
-  const activeEventChanges = activeEvent && activeEvent.event_type !== 'NORMAL'
-    ? eventAuditChanges(activeEvent, previousActiveEvent)
-    : []
+  const viewPayload = latestView ? latestPayload : activeEvent?.snapshot.payload ?? latestPayload
+  const viewPreviousPayload = latestView ? latestPreviousPayload : previousActiveEvent?.snapshot.payload
   const activeEventTags = activeEvent ? historyEventTags(activeEvent, previousActiveEvent) : []
+  const activeEventLines = activeEvent ? auditedEventLines(activeEvent, previousActiveEvent) : []
   const activeEventCopy = activeEvent ? auditCopyText(activeEvent, previousActiveEvent) : ''
-  const activeEventFallbackOutput = String(activeEvent?.snapshot.delta?.incremental_output ?? '')
-  const displayedOutput = latestView
-    ? latestOutput
-    : activeEvent?.event_type === 'NORMAL'
-      ? activeEventOutput
-      : ''
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
     ? `Kunci dalam ${Math.floor(lockRemainingMs / 3600000)}j ${Math.floor((lockRemainingMs % 3600000) / 60000)}m ${Math.floor((lockRemainingMs % 60000) / 1000)}d`
@@ -366,7 +359,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     const currentValue = Number(value ?? 0) || 0
     const previousValue = Number(previous ?? 0) || 0
     const difference = currentValue - previousValue
-    const hasPrevious = Boolean(latestPreviousPayload)
+    const hasPrevious = Boolean(viewPreviousPayload)
     const indicatorClass = difference > 0 ? 'text-emerald-300' : difference < 0 ? 'text-rose-300' : 'text-slate-500'
     const indicator = !hasPrevious || difference === 0 ? '' : difference > 0 ? `↑ +Rp ${money(difference)}` : `↓ -Rp ${money(Math.abs(difference))}`
     return (
@@ -561,9 +554,9 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
               <section className="mp-history-summary rounded-xl border border-slate-800/80 bg-slate-900/45 p-3 sm:p-4">
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                  {metric('Total RAB', latestPayload?.totalRab, latestPreviousPayload?.totalRab)}
-                  {metric('Total Ops Harian', latestPayload?.totalOpsHarian, latestPreviousPayload?.totalOpsHarian)}
-                  {metric('Total Keseluruhan', latestPayload?.totalOverall, latestPreviousPayload?.totalOverall)}
+                  {metric('Total RAB', viewPayload?.totalRab, viewPreviousPayload?.totalRab)}
+                  {metric('Total Ops Harian', viewPayload?.totalOpsHarian, viewPreviousPayload?.totalOpsHarian)}
+                  {metric('Total Keseluruhan', viewPayload?.totalOverall, viewPreviousPayload?.totalOverall)}
                 </div>
               </section>
 
