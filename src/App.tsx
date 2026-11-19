@@ -2838,7 +2838,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         {outputDisplayChecks.map(({ label, complete }) => (
                           <span
                             key={label}
-                            title={complete ? 'Sudah diisi' : 'Belum diisi'}
                             className="text-center text-[10px] font-semibold leading-4"
                             style={{
                               display: 'inline',
