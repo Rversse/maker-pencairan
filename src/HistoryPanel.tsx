@@ -494,7 +494,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                         <span className="block truncate text-sm font-semibold text-slate-100">{formatDate(row.transaction_date)}</span>
                       </span>
                     </span>
-                    <span className="mp-history-list-totals grid w-full grid-cols-3 gap-2 border-t border-slate-800/70 pt-2 text-left sm:w-auto sm:min-w-[330px] sm:border-0 sm:pt-0">
+                    <span className="mp-history-list-totals grid w-full grid-cols-3 gap-2 border-t border-slate-800/70 pt-2 text-left sm:ml-auto sm:w-[min(48%,420px)] sm:min-w-[330px] sm:border-0 sm:pt-0">
                       <span className="min-w-0">
                         <span className="block text-right text-[9px] font-semibold uppercase tracking-wide text-slate-500">RAB</span>
                         <span className="mt-0.5 block truncate text-right text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalRab)}</span>
@@ -573,7 +573,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                       type="button"
                       disabled={busy || (latestView ? !latestOutput.trim() : !activeEventCopy.trim())}
                       onClick={() => void copyCurrentOutput()}
-                      title={latestView ? 'Salin output lengkap dari snapshot terbaru' : 'Salin audit perubahan pada event terpilih'}
+                      title={latestView ? 'Salin output terbaru' : 'Salin audit aktivitas terpilih'}
                       className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40"
                     >
                       Salin
@@ -582,8 +582,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                       type="button"
                       disabled={busy}
                       onClick={() => void refreshDetail()}
-                      title="Reset ke output terbaru dan muat ulang snapshot"
-                      aria-label="Reset ke output terbaru"
+                      title="Refresh output terbaru"
+                      aria-label="Refresh output terbaru"
                       className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 hover:text-teal-100 disabled:opacity-40"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
