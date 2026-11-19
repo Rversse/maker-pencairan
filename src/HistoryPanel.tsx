@@ -541,12 +541,12 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                 <div className="flex flex-wrap items-center gap-2">
                   {canEdit && role === 'admin' && (
                     <button type="button" disabled={busy} onClick={() => onLoadSnapshot(detail.history.payload)} className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">
-                      Load ke Form
+                      Load
                     </button>
                   )}
                   {role === 'admin' && (
                     <button type="button" disabled={busy} onClick={() => void deleteHistory()} className="mp-history-danger-button rounded-lg border border-rose-800/70 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">
-                      Hapus transaksi
+                      Hapus
                     </button>
                   )}
                   <button
