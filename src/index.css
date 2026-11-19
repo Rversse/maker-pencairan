@@ -106,17 +106,17 @@ body {
   border-radius: 6px !important;
 }
 
-.mp-card input,
+ .mp-card input,
 .mp-card select,
 .mp-card textarea {
-  border-radius: 6px !important;
+  border-radius: var(--mp-radius-control) !important;
 }
 
 /* Theme-aware action buttons inspired by the linked Uiverse component:
    dark surfaces invert to light on hover; light surfaces invert to dark. */
 button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
   border: 1px solid var(--mp-action-border) !important;
-  border-radius: 8px;
+  border-radius: var(--mp-radius-control);
   background: var(--mp-action-bg) !important;
   color: var(--mp-action-text) !important;
   box-shadow: 0 2px 7px rgb(0 0 0 / 10%), inset 0 1px 0 rgb(255 255 255 / 4%);
@@ -163,7 +163,7 @@ button[data-button-kind='primary'] {
 /* Product buttons are persistent choices, so keep their selected state visible.
    Unselected choices still invert on hover to match the theme's action buttons. */
 button[data-option-button='true'] {
-  border-radius: 9px;
+  border-radius: var(--mp-radius-control);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
   transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
 }
@@ -2370,4 +2370,18 @@ button[data-option-button='true'] {
   .mp-history-date {
     transition: none !important;
   }
+}
+
+
+/* Auth/admin form controls consume the same global geometry token. */
+.mp-auth-card input:not([type="checkbox"]):not([type="radio"]),
+.mp-auth-card select,
+.mp-auth-card textarea,
+.mp-admin-panel input:not([type="checkbox"]):not([type="radio"]),
+.mp-admin-panel select,
+.mp-admin-panel textarea {
+  border-radius: var(--mp-radius-control) !important;
+}
+.mp-control-radius {
+  border-radius: var(--mp-radius-control) !important;
 }
