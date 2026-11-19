@@ -3024,8 +3024,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
                                   : mapping?.accountNumber ?? ''
                             const note = entry.need ?? (isMappedOps ? 'Ops Harian' : '')
-                            const availableAccountant = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_akuntan')
-                            const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={`mp-ops-flex-row grid min-w-0 items-center gap-2 ${showVirtualAccount ? (entry.isVirtualAccount ? 'is-va' : 'has-va') : 'is-standard'}`}>
@@ -3059,8 +3057,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       className="mp-tag mp-tag--custom mp-payment-detail h-9 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-extrabold uppercase outline-none transition focus:border-teal-500"
                                     >
                                       <option value="">Custom</option>
-                                      <option value="gaji_akuntan">Gaji AK{!availableAccountant ? ' · Isi rekening manual' : ''}</option>
-                                      <option value="gaji_ahli_gizi">Gaji AG{!availableNutritionist ? ' · Isi rekening manual' : ''}</option>
+                                      <option value="gaji_akuntan">Gaji AK</option>
+                                      <option value="gaji_ahli_gizi">Gaji AG</option>
                                     </select>
                                   )) : (
                                     <div className="mp-tag mp-tag--ops">OPS HARIAN</div>
