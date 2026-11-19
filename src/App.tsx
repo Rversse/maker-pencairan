@@ -2076,6 +2076,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const totalRab = sumOutputLines((line) => line.startsWith('RAB : ') || line.startsWith('RAB B3 : '))
   const opsHarianBreakdown = outputDetailLines.reduce<Array<{ label: string; amount: number }>>(
     (items, line) => {
+      if (line.startsWith('RAB : ') || line.startsWith('RAB B3 : ')) return items
       const amount = getOutputAmount(line)
       if (amount <= 0) return items
 
@@ -2108,10 +2109,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         }
         const parts = category
           .split(',')
-          .map((part) => categoryLabels[part.trim()])
-          .filter((part): part is string => Boolean(part))
-        if (parts.length === 0) return items
-        label = parts.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' })).join(' + ')
+          .map((part) => categoryLabels[part.trim()] ?? capitalizeEachWord(part.trim().toLocaleLowerCase('id-ID')))
+          .filter(Boolean)
+        label = parts.sort((a, b) => a.localeCompare(b, 'id', { sensitivity: 'base' })).join(', ')
       }
 
       const existing = items.find((item) => item.label === label)
@@ -2121,7 +2121,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     },
     []
   ).sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' }))
-  const totalOpsHarian = opsHarianBreakdown.reduce((total, item) => total + item.amount, 0)
+  const totalOpsHarian = sumOutputLines((line) => !line.startsWith('RAB : ') && !line.startsWith('RAB B3 : '))
 
   const outputChecks: { label: string; complete: boolean }[] = []
   if (activeTransaction && selectedKitchen) {
@@ -2721,8 +2721,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               <div className="w-[180px] shrink-0">
                 <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
                 <div className="mp-date-control relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition">
-                  <span className="whitespace-nowrap text-[10px] font-semibold tracking-wide text-slate-500">TANGGAL</span>
-                  <span className="ml-2 whitespace-nowrap text-xs font-semibold tabular-nums text-white">{formatDate(activeDate)}</span>
+                  <span className="mp-date-label whitespace-nowrap text-[10px] font-semibold tracking-wide">TANGGAL</span>
+                  <span className="mp-date-value ml-2 whitespace-nowrap text-xs font-semibold tabular-nums">{formatDate(activeDate)}</span>
                   <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
                 </div>
               </div>
