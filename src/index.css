@@ -2432,3 +2432,25 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   color: rgb(94 234 212 / 72%) !important;
   -webkit-text-fill-color: rgb(94 234 212 / 72%) !important;
 }
+
+
+/* Highlight the whole active transaction row, not only the focused input.
+   Ops account metadata is often rendered as read-only divs, so :focus on the
+   input alone cannot color those sibling values. :focus-within ties them to
+   the row containing the active control. */
+.mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+.mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
+.mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+.mp-form-stack .mp-payment-row:focus-within .mp-static-field {
+  color: #5eead4 !important;
+  -webkit-text-fill-color: #5eead4 !important;
+}
+
+/* Supplier identity is a static block beside the editable RAB nominal.
+   Highlight it when that supplier row contains the active control. */
+.mp-form-stack .mp-rab-row:focus-within .mp-rab-details {
+  color: #5eead4 !important;
+}
+.mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
+  color: #5eead4 !important;
+}
