@@ -397,7 +397,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         role="dialog"
         aria-modal="true"
         aria-labelledby="mp-history-title"
-        className="mp-history-dialog flex max-h-[min(94dvh,920px)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-[#0b1422] shadow-2xl shadow-black/50"
+        className="mp-history-dialog flex min-w-0 max-h-[min(94dvh,900px)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-[#0b1422] shadow-2xl shadow-black/50"
       >
         <header className="mp-history-header flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 px-4 py-3.5 sm:px-5">
           <div className="min-w-0">
@@ -442,7 +442,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           </div>
         )}
 
-        <div className="mp-history-body min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
+        <div className="mp-history-body min-w-0 min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-5">
           {!detail ? (
             <div className="space-y-2">
 
