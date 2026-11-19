@@ -4059,3 +4059,109 @@ main .mp-summary-checks > span::after {
   content: none !important;
   display: none !important;
 }
+
+/* ==========================================================================
+   Maker-Pencairan · parser-safe text limits, uniform nominal width, wrapping summary
+   ========================================================================== */
+
+/* All nominal controls share the same 160px footprint: RAB, B3, GAS,
+   operational, and incentive/payroll. Fields on the left remain flexible. */
+main .mp-form-stack .mp-rab-row {
+  grid-template-columns: minmax(0, 1fr) 160px !important;
+}
+main .mp-form-stack .mp-rab-nominal,
+main .mp-form-stack .mp-rab-b3-nominal,
+main .mp-form-stack .mp-payment-nominal {
+  flex: 0 0 160px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  justify-self: end !important;
+  margin-left: auto !important;
+}
+main .mp-form-stack .mp-rab-nominal > input,
+main .mp-form-stack .mp-rab-b3-nominal > input,
+main .mp-form-stack .mp-payment-nominal > input {
+  flex: 1 1 0% !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+main .mp-form-stack .mp-salary-flex-row {
+  grid-template-columns: max-content minmax(0, 1fr) 160px !important;
+}
+main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal {
+  flex: 0 0 160px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  justify-self: end !important;
+}
+main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input {
+  flex: 1 1 0% !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+/* Long category/detail labels wrap inside the summary card instead of
+   pushing the Rupiah amount beyond the card boundary. */
+main .mp-summary-breakdown {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+main .mp-summary-breakdown-row {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px 8px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-align: center;
+}
+main .mp-summary-breakdown-label {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-align: center;
+}
+main .mp-summary-breakdown-amount {
+  flex: 0 0 auto;
+  min-width: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keep the 160px nominal width at responsive sizes too; left-side fields
+   wrap independently and never compress or overlap the amount. */
+@media (max-width: 1023px) {
+  main .mp-form-stack .mp-rab-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  main .mp-form-stack .mp-rab-nominal,
+  main .mp-form-stack .mp-rab-b3-nominal,
+  main .mp-form-stack .mp-payment-nominal {
+    flex-basis: 160px !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row {
+    grid-template-columns: minmax(0, 1fr) 160px !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal {
+    grid-area: amount;
+    flex-basis: 160px !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+  }
+}
