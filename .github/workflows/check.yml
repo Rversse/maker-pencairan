@@ -38,5 +38,8 @@ jobs:
           deno check --node-modules-dir=auto supabase/functions/maker-master-data/index.ts
           deno check --node-modules-dir=auto supabase/functions/maker-bootstrap-admin/index.ts
 
+      - name: Lint
+        run: npm run lint
+
       - name: Build
         run: npm run build
