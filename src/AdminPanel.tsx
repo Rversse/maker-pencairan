@@ -67,6 +67,7 @@ export default function AdminPanel({ token }: { token: string }) {
   const [toast, setToast] = useState('')
 
   const load = useCallback(async () => {
+    await Promise.resolve()
     setLoading(true)
     setError('')
     try {
