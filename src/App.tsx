@@ -2507,6 +2507,133 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       delta.incremental_output = incrementalOutput
       if (shortageKeys.size > 0) delta.shortage_keys = [...shortageKeys]
 
+      type AuditRowKind = 'revision' | 'shortage' | 'addition' | 'removal'
+      type AuditRowRecord = {
+        key: string
+        kind: AuditRowKind
+        before: string | null
+        after: string | null
+        beforeAmount: number
+        afterAmount: number
+        deltaAmount: number
+      }
+      const auditRows: AuditRowRecord[] = []
+      const outputLinesFor = (
+        source: TransactionGroup,
+        section: 'rab' | 'gas' | 'operasional' | 'pencairan_harian',
+        row: RabEntry | SimpleEntry | DailyPaymentEntry | null,
+        rabPart?: 'rab' | 'rab_b3'
+      ): string[] => {
+        const isolated: TransactionGroup = {
+          ...source,
+          rab: [],
+          gas: [],
+          operasional: [],
+          pencairan_harian: [],
+          lain_lain: [],
+          arutala_lain_lain: []
+        }
+        if (section === 'rab' && row) {
+          const entry = row as RabEntry
+          isolated.rab = [{
+            ...entry,
+            amount: rabPart === 'rab' ? entry.amount : '',
+            productTypes: rabPart === 'rab' ? entry.productTypes : [],
+            b3Amount: rabPart === 'rab_b3' ? entry.b3Amount ?? '' : '',
+            b3Enabled: rabPart === 'rab_b3' && Boolean(entry.b3Enabled),
+            b3ProductTypes: rabPart === 'rab_b3' ? entry.b3ProductTypes ?? [] : []
+          }]
+        } else if (section === 'gas') {
+          isolated.gas = row ? [row as SimpleEntry] : []
+        } else if (section === 'operasional') {
+          isolated.operasional = row ? [row as SimpleEntry] : []
+        } else if (section === 'pencairan_harian') {
+          isolated.pencairan_harian = row ? [row as DailyPaymentEntry] : []
+        }
+        return getTransactionOutput(isolated).slice(1)
+      }
+      const addAuditRow = (
+        key: string,
+        beforeLines: string[],
+        afterLines: string[],
+        beforeAmount: number,
+        afterAmount: number
+      ) => {
+        const beforeLine = beforeLines[0] ?? null
+        const afterLine = afterLines[0] ?? null
+        if (beforeLine === afterLine || (!beforeLine && !afterLine)) return
+        const isAddition = beforeAmount <= 0 && afterAmount > 0 && Boolean(afterLine)
+        const kind: AuditRowKind = isAddition
+          ? 'addition'
+          : shortageKeys.has(key)
+            ? 'shortage'
+            : !afterLine
+              ? 'removal'
+              : 'revision'
+        auditRows.push({
+          key,
+          kind,
+          before: beforeLine,
+          after: afterLine,
+          beforeAmount,
+          afterAmount,
+          deltaAmount: afterAmount - beforeAmount
+        })
+      }
+
+      const beforeRabById = new Map(baseTransaction.rab.map(row => [row.accountId, row]))
+      const afterRabById = new Map(nextTransaction.rab.map(row => [row.accountId, row]))
+      for (const accountId of new Set([...beforeRabById.keys(), ...afterRabById.keys()])) {
+        const before = beforeRabById.get(accountId) ?? null
+        const after = afterRabById.get(accountId) ?? null
+        const beforeAmount = Number(String(before?.amount ?? '').replace(/\D/g, '')) || 0
+        const afterAmount = Number(String(after?.amount ?? '').replace(/\D/g, '')) || 0
+        if (JSON.stringify(before?.amount ?? '') !== JSON.stringify(after?.amount ?? '') ||
+            JSON.stringify(before?.productTypes ?? []) !== JSON.stringify(after?.productTypes ?? [])) {
+          addAuditRow(
+            'rab:' + accountId,
+            before ? outputLinesFor(baseTransaction, 'rab', before, 'rab') : [],
+            after ? outputLinesFor(nextTransaction, 'rab', after, 'rab') : [],
+            beforeAmount,
+            afterAmount
+          )
+        }
+        const beforeB3Amount = Number(String(before?.b3Amount ?? '').replace(/\D/g, '')) || 0
+        const afterB3Amount = Number(String(after?.b3Amount ?? '').replace(/\D/g, '')) || 0
+        if (JSON.stringify(before?.b3Amount ?? '') !== JSON.stringify(after?.b3Amount ?? '') ||
+            JSON.stringify(before?.b3ProductTypes ?? []) !== JSON.stringify(after?.b3ProductTypes ?? [])) {
+          addAuditRow(
+            'rab_b3:' + accountId,
+            before ? outputLinesFor(baseTransaction, 'rab', before, 'rab_b3') : [],
+            after ? outputLinesFor(nextTransaction, 'rab', after, 'rab_b3') : [],
+            beforeB3Amount,
+            afterB3Amount
+          )
+        }
+      }
+
+      for (const section of ['gas', 'operasional', 'pencairan_harian'] as const) {
+        const beforeRows = (baseTransaction[section] ?? []) as Array<SimpleEntry | DailyPaymentEntry>
+        const afterRows = (nextTransaction[section] ?? []) as Array<SimpleEntry | DailyPaymentEntry>
+        const beforeById = new Map(beforeRows.map(row => [String(row.id), row]))
+        const afterById = new Map(afterRows.map(row => [String(row.id), row]))
+        for (const id of new Set([...beforeById.keys(), ...afterById.keys()])) {
+          const before = beforeById.get(id) ?? null
+          const after = afterById.get(id) ?? null
+          if (JSON.stringify(before) === JSON.stringify(after)) continue
+          const beforeAmount = Number(String(before?.amount ?? '').replace(/\D/g, '')) || 0
+          const afterAmount = Number(String(after?.amount ?? '').replace(/\D/g, '')) || 0
+          addAuditRow(
+            section + ':' + id,
+            before ? outputLinesFor(baseTransaction, section, before) : [],
+            after ? outputLinesFor(nextTransaction, section, after) : [],
+            beforeAmount,
+            afterAmount
+          )
+        }
+      }
+      delta.audit_rows = auditRows
+
       if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
       const { error: changeError } = await supabase.functions.invoke('maker-history', {
         body: {
