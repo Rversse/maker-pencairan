@@ -50,6 +50,152 @@ const dateTime = (value: string) => {
   return `${formatDate(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`)} · ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
 }
 
+type AuditChange = {
+  kind: 'updated' | 'added' | 'removed'
+  before?: string
+  after?: string
+}
+
+type HistoryTransactionShape = Record<string, unknown> & {
+  rab?: Array<Record<string, unknown>>
+  gas?: Array<Record<string, unknown>>
+  operasional?: Array<Record<string, unknown>>
+  pencairan_harian?: Array<Record<string, unknown>>
+  lain_lain?: Array<Record<string, unknown>>
+  arutala_lain_lain?: Array<Record<string, unknown>>
+}
+
+function transactionOf(event?: HistoryEvent | null): HistoryTransactionShape | undefined {
+  const value = event?.snapshot.payload?.transaction
+  return value && typeof value === 'object' ? value as HistoryTransactionShape : undefined
+}
+
+function amountOf(row?: Record<string, unknown>): number {
+  return Number(String(row?.amount ?? '').replace(/[^0-9]/g, '')) || 0
+}
+
+function eventAuditChanges(event: HistoryEvent, previous?: HistoryEvent | null): AuditChange[] {
+  const currentOutput = String(event.snapshot.payload?.output ?? '').split('\\n').slice(1).filter(Boolean)
+  const previousOutput = String(previous?.snapshot.payload?.output ?? '').split('\\n').slice(1).filter(Boolean)
+  const keyOf = (line: string) => {
+    const amountSeparator = line.lastIndexOf(' · ')
+    const body = amountSeparator >= 0 ? line.slice(0, amountSeparator) : line
+    const detailSeparator = body.indexOf(' · ')
+    return (detailSeparator >= 0 ? body.slice(0, detailSeparator) : body).trim().toLocaleLowerCase('id-ID')
+  }
+
+  const previousByKey = new Map<string, string[]>()
+  previousOutput.forEach(line => {
+    const key = keyOf(line)
+    const queue = previousByKey.get(key) ?? []
+    queue.push(line)
+    previousByKey.set(key, queue)
+  })
+
+  const changes: AuditChange[] = []
+  currentOutput.forEach(after => {
+    const key = keyOf(after)
+    const queue = previousByKey.get(key) ?? []
+    const before = queue.shift()
+    previousByKey.set(key, queue)
+    if (!before) changes.push({ kind: 'added', after })
+    else if (before !== after) changes.push({ kind: 'updated', before, after })
+  })
+  previousByKey.forEach(queue => queue.forEach(before => changes.push({ kind: 'removed', before })))
+  return changes
+}
+
+function historyEventTags(event: HistoryEvent, previous?: HistoryEvent | null): string[] {
+  if (event.event_type === 'NORMAL') return ['Pencairan Awal']
+  const current = transactionOf(event)
+  const before = transactionOf(previous)
+  const shortageKeys = new Set(
+    Array.isArray(event.snapshot.delta?.shortage_keys)
+      ? (event.snapshot.delta?.shortage_keys as unknown[]).map(String)
+      : []
+  )
+  let hasRevision = false
+  let hasShortage = shortageKeys.size > 0
+  let hasAddition = false
+
+  const rabRows = current?.rab ?? []
+  const previousRab = before?.rab ?? []
+  const previousRabById = new Map(previousRab.map(row => [String(row.accountId ?? ''), row]))
+  rabRows.forEach(row => {
+    const id = String(row.accountId ?? '')
+    const old = previousRabById.get(id)
+    if (!old) {
+      if (amountOf(row) > 0 || amountOf({ amount: row.b3Amount }) > 0) hasAddition = true
+      return
+    }
+    if (JSON.stringify(old.amount ?? '') !== JSON.stringify(row.amount ?? '')) {
+      if (shortageKeys.has('rab:' + id)) hasShortage = true
+      else hasRevision = true
+    }
+    if (JSON.stringify(old.productTypes ?? []) !== JSON.stringify(row.productTypes ?? [])) hasRevision = true
+    if (JSON.stringify(old.b3Amount ?? '') !== JSON.stringify(row.b3Amount ?? '')) {
+      if (shortageKeys.has('rab_b3:' + id)) hasShortage = true
+      else if (amountOf({ amount: row.b3Amount }) > 0 && amountOf({ amount: old.b3Amount }) === 0) hasAddition = true
+      else hasRevision = true
+    }
+    if (JSON.stringify(old.b3ProductTypes ?? []) !== JSON.stringify(row.b3ProductTypes ?? [])) hasRevision = true
+  })
+
+  const sections = ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const
+  sections.forEach(section => {
+    const currentRows = current?.[section] ?? []
+    const previousRows = before?.[section] ?? []
+    const oldById = new Map(previousRows.map(row => [String(row.id ?? ''), row]))
+    const currentIds = new Set(currentRows.map(row => String(row.id ?? '')))
+    currentRows.forEach(row => {
+      const id = String(row.id ?? '')
+      const old = oldById.get(id)
+      if (!old) {
+        if (amountOf(row) > 0) hasAddition = true
+        return
+      }
+      if (JSON.stringify(old) === JSON.stringify(row)) return
+      const shortageKey = section + ':' + id
+      const onlyAmountChanged = Object.keys({ ...old, ...row }).every(key =>
+        key === 'amount' || JSON.stringify(old[key]) === JSON.stringify(row[key])
+      )
+      if (shortageKeys.has(shortageKey) && onlyAmountChanged) hasShortage = true
+      else hasRevision = true
+    })
+    previousRows.forEach(row => {
+      if (!currentIds.has(String(row.id ?? '')) && amountOf(row) > 0) hasRevision = true
+    })
+  })
+
+  const tags: string[] = []
+  if (hasRevision) tags.push('Revisi')
+  if (hasShortage) tags.push('Kekurangan')
+  if (hasAddition) tags.push('Tambahan')
+  if (tags.length) return tags
+
+  if (event.event_type === 'KEKURANGAN') return ['Kekurangan']
+  if (event.event_type === 'TAMBAHAN') return ['Tambahan']
+  return ['Revisi']
+}
+
+function auditCopyText(event: HistoryEvent, previous?: HistoryEvent | null): string {
+  if (event.event_type === 'NORMAL') return String(event.snapshot.payload?.output ?? '')
+  const changes = eventAuditChanges(event, previous)
+  if (!changes.length) {
+    const fallback = event.snapshot.delta?.incremental_output
+    return typeof fallback === 'string' ? fallback : ''
+  }
+  const lines = changes.flatMap(change => {
+    if (change.kind === 'updated') return [
+      'SEBELUMNYA: ' + (change.before ?? ''),
+      'MENJADI: ' + (change.after ?? '')
+    ]
+    if (change.kind === 'added') return ['TAMBAHAN: ' + (change.after ?? '')]
+    return ['DIHAPUS: ' + (change.before ?? '')]
+  })
+  return [historyEventTags(event, previous).join(' + '), ...lines].join('\\n')
+}
+
 async function historyRequest<T>(token: string, body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke('maker-history', {
     body,
