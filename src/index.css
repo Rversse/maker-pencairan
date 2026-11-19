@@ -4084,3 +4084,21 @@ main aside.mp-card .mp-summary-checks > span.mp-summary-check::after {
   content: none !important;
   display: none !important;
 }
+
+/* Match the specificity of legacy 203px rules and keep operational amount
+   inputs inside their 160px nominal track, including history controls. */
+main .mp-form-stack .mp-gas-flex-row .mp-payment-nominal > input,
+main .mp-form-stack .mp-ops-flex-row .mp-payment-nominal > input {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 1 1 0% !important;
+  margin: 0 !important;
+}
+main .mp-form-stack .mp-gas-flex-row .mp-payment-nominal,
+main .mp-form-stack .mp-ops-flex-row .mp-payment-nominal {
+  width: 160px !important;
+  min-width: 0 !important;
+  max-width: 160px !important;
+  overflow: hidden !important;
+}
