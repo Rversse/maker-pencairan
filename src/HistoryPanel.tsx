@@ -356,6 +356,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     : []
   const activeEventTags = activeEvent ? historyEventTags(activeEvent, previousActiveEvent) : []
   const activeEventCopy = activeEvent ? auditCopyText(activeEvent, previousActiveEvent) : ''
+  const activeEventFallbackOutput = String(activeEvent?.snapshot.delta?.incremental_output ?? '')
   const displayedOutput = latestView
     ? latestOutput
     : activeEvent?.event_type === 'NORMAL'
@@ -639,6 +640,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                         </div>
                       ))}
                     </div>
+                  ) : activeEventFallbackOutput.trim() ? (
+                    <div className="whitespace-pre-wrap font-sans text-teal-200">{activeEventFallbackOutput}</div>
                   ) : (
                     <p className="text-slate-500">Tidak ada perubahan output yang bisa dibandingkan pada event ini.</p>
                   )}
