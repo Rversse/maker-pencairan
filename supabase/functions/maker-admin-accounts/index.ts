@@ -64,14 +64,6 @@ async function verifyPassword(password: string, stored: string): Promise<boolean
     return diff === 0;
   } catch { return false; }
 }
-function validEmail(value: string): boolean {
-  return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-function uniqueIds(value: unknown): string[] | null {
-  if (!Array.isArray(value) || value.length < 1 || value.length > 100) return null;
-  if (!value.every((item) => typeof item === "string" && /^[0-9a-f-]{36}$/i.test(item))) return null;
-  return [...new Set(value)];
-}
 Deno.serve(async (request: Request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: cors(request) });
   if (request.method !== "POST") return reply(request, { error: "Method not allowed" }, 405);
