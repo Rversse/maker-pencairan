@@ -2822,11 +2822,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         <div className="text-[10px] text-slate-400">Total Ops Harian</div>
                         <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalOpsHarian)) || '0'}</div>
                         {opsHarianBreakdown.length > 0 && (
-                          <div className="mt-2 space-y-1 border-t border-slate-700/60 pt-2 text-[10px] text-slate-400">
+                          <div className="mp-summary-breakdown mt-2 w-full min-w-0 max-w-full space-y-1 border-t border-slate-700/60 pt-2 text-[10px] text-slate-400">
                             {opsHarianBreakdown.map(({ label, amount }) => (
-                              <div key={label} className="flex items-center justify-center gap-2">
-                                <span>{label}</span>
-                                <span className="tabular-nums text-slate-300">Rp {formatNumber(String(amount))}</span>
+                              <div key={label} className="mp-summary-breakdown-row">
+                                <span className="mp-summary-breakdown-label">{label}</span>
+                                <span className="mp-summary-breakdown-amount tabular-nums text-slate-300">Rp {formatNumber(String(amount))}</span>
                               </div>
                             ))}
                           </div>
@@ -3133,7 +3133,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="mp-ops-field mp-payment-detail mp-gas-quantity-input h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     </div>
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field mp-payment-detail mp-gas-size h-10 min-w-0 px-2 text-center text-xs text-slate-100"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
-                                    <input type="text" value={entry.gasNote ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value })} placeholder="Catatan" aria-label="Catatan tambahan GAS" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
+                                    <input type="text" value={entry.gasNote ?? ''} maxLength={109} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value.slice(0, 109) })} placeholder="Catatan" aria-label="Catatan tambahan GAS (maksimal 109 karakter)" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('gas:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('gas:' + entry.id)}
 <input type="text" inputMode="numeric" value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
@@ -3242,7 +3242,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     </label>
                                   )}
                                   {!(showVirtualAccount && entry.isVirtualAccount) && (custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" value={ownerName} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
                                   ))}
@@ -3264,9 +3264,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     
                                     disabled={!historyEnabled}
                                     value={note}
-                                    onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value })}
+                                    maxLength={109}
+                                    onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
                                     placeholder={isArutala ? 'Ops Harian' : 'Catatan'}
-                                    aria-label="Catatan Operasional Harian"
+                                    aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
                                     className={`mp-ops-field mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
                                   <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('operasional:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
