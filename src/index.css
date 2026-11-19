@@ -3431,3 +3431,116 @@ aside [title='Sudah diisi']::before, aside [title='Belum diisi']::before { box-s
 :root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row .mp-payment-detail:focus-within {
   background: transparent !important;
 }
+
+/* ==========================================================================
+   Paper & Ink · final tag hierarchy and stronger focus state
+   Tags sit behind locked account fields; focus remains background-free.
+   ========================================================================== */
+
+/* Tags are compact labels: centered, content-sized, uniform border on all sides. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--gas,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--ops,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--arutala,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--salary,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom {
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: 100% !important;
+  min-height: 36px;
+  justify-content: center !important;
+  padding-inline: 12px !important;
+  border: 1px solid #536153 !important;
+  border-left: 1px solid #536153 !important;
+  border-radius: 7px !important;
+  background: #29332c !important;
+  background-color: #29332c !important;
+  background-image: none !important;
+  color: #d5dfd3 !important;
+  -webkit-text-fill-color: #d5dfd3 !important;
+  text-align: center !important;
+  text-indent: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-weight: 750 !important;
+  letter-spacing: .025em !important;
+  line-height: 1.2 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag > span {
+  display: block;
+  width: 100%;
+  text-align: center !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom {
+  appearance: auto !important;
+  cursor: pointer;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--gas,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--ops,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--arutala,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--salary {
+  border-left-width: 1px !important;
+  background: #29332c !important;
+  color: #d5dfd3 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag:hover,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
+  border-color: #718272 !important;
+  border-left-color: #718272 !important;
+  background: #303b33 !important;
+  color: #e5ece3 !important;
+}
+
+/* Locked/mapped account fields are intentionally brighter than category tags. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-static-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-salary-field {
+  border: 1px solid #566457 !important;
+  border-radius: 6px !important;
+  background: #354137 !important;
+  background-image: none !important;
+  color: #e0e8df !important;
+  -webkit-text-fill-color: #e0e8df !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-static-field:hover,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea):hover,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-salary-field:hover {
+  background: #39473b !important;
+  border-color: #637464 !important;
+}
+
+/* Focus must be immediately visible without filling the control or its row.
+   A brighter 2px sage underline and clearer text weight are sufficient. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-left: 0 !important;
+  border-bottom: 2px solid #b0c5ac !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #f0f4ed !important;
+  -webkit-text-fill-color: #f0f4ed !important;
+  caret-color: #c2d4bd !important;
+  font-weight: 650 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:focus::placeholder,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus::placeholder {
+  color: #bdcbb9 !important;
+  -webkit-text-fill-color: #bdcbb9 !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
+  background: transparent !important;
+  box-shadow: none !important;
+}
