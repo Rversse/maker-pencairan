@@ -3024,8 +3024,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   ? (isMappedSalary ? selectedMapping?.accountNumber : entry.accountNumber) ?? ''
                                   : mapping?.accountNumber ?? ''
                             const note = entry.need ?? (isMappedOps ? 'Ops Harian' : '')
-                            const availableAccountant = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_akuntan')
-                            const availableNutritionist = getOperationalMapping(selectedKitchen?.name ?? '', masterData, 'gaji_ahli_gizi')
                             return (
                               <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? 'opacity-45' : ''}`}>
                                 <div className={`mp-ops-flex-row grid min-w-0 items-center gap-2 ${showVirtualAccount ? (entry.isVirtualAccount ? 'is-va' : 'has-va') : 'is-standard'}`}>
