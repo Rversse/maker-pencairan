@@ -67,6 +67,7 @@ export default function AdminPanel({ token }: { token: string }) {
   const [toast, setToast] = useState('')
 
   const load = useCallback(async () => {
+    await Promise.resolve()
     setLoading(true)
     setError('')
     try {
@@ -82,7 +83,10 @@ export default function AdminPanel({ token }: { token: string }) {
     }
   }, [token])
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void load() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [load])
 
   async function createAccount() {
     const kitchen = data.available_kitchens.find((item) => item.id === kitchenId)

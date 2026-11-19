@@ -25,6 +25,8 @@ type HistoryDetail = {
   locked: boolean
   lock_at: string
 }
+
+const EMPTY_HISTORY_EVENTS: HistoryEvent[] = []
 type Props = {
   token: string
   role: 'admin' | 'accountant'
@@ -64,10 +66,8 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [activeEventId, setActiveEventId] = useState<string | null>(null)
-  const [clockNow, setClockNow] = useState(Date.now())
+  const [clockNow, setClockNow] = useState(0)
   const dialogRef = useRef<HTMLElement>(null)
-  const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
   useEffect(() => {
     const previouslyFocused = document.activeElement instanceof HTMLElement
       ? document.activeElement
@@ -78,10 +78,19 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       if (previouslyFocused?.isConnected) previouslyFocused.focus()
     }
   }, [])
-  useEffect(() => { const timer = window.setInterval(() => setClockNow(Date.now()), 1000); return () => window.clearInterval(timer) }, [])
+  useEffect(() => {
+    const updateClock = () => setClockNow(Date.now())
+    const frame = window.requestAnimationFrame(updateClock)
+    const timer = window.setInterval(updateClock, 1000)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearInterval(timer)
+    }
+  }, [])
   const canEdit = role === 'admin' || Boolean(detail && !detail.locked)
 
   const load = useCallback(async () => {
+    await Promise.resolve()
     setBusy(true); setError('')
     try {
       const result = await historyRequest<{ histories: HistoryRow[] }>(token, {
@@ -91,7 +100,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     } catch (err) { setError(err instanceof Error ? err.message : 'Riwayat gagal dimuat.') }
     finally { setBusy(false) }
   }, [token, kitchenId, selectedDate])
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void load() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [load])
 
   async function refreshDetail() {
     if (!detail) return
@@ -232,11 +244,13 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
     finally { setBusy(false) }
   }
 
-  const selectedEvent = useMemo(() => detail?.events ?? [], [detail])
+  const selectedEvent = detail?.events ?? EMPTY_HISTORY_EVENTS
   const activeEvent = selectedEvent.find(event => event.id === activeEventId) ?? selectedEvent[selectedEvent.length - 1] ?? null
   const activeEventIndex = activeEvent ? selectedEvent.findIndex(event => event.id === activeEvent.id) : -1
   const activePayload = activeEvent?.snapshot.payload ?? detail?.history.payload
   const previousPayload = activeEventIndex > 0 ? selectedEvent[activeEventIndex - 1]?.snapshot.payload : undefined
+  // Keep this expensive diff memoized; React Compiler cannot preserve this accumulator-based algorithm.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const outputDiff = useMemo(() => {
     type OutputFragment = { text: string; highlighted: boolean }
     type ParsedOutputLine = {
@@ -374,6 +388,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
       return mergeFragments(fragments)
     })
     return { lines, changedCount }
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- Preserve memoization for the expensive output-diff accumulator.
   }, [activeEvent, activeEventIndex, selectedEvent, detail])
   const lockRemainingMs = Math.max(0, new Date(detail?.lock_at ?? 0).getTime() - clockNow)
   const lockCountdown = lockRemainingMs > 0
@@ -415,7 +430,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
             event.preventDefault()
-            onCloseRef.current()
+            onClose()
             return
           }
           if (event.key !== 'Tab') return
