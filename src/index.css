@@ -2902,3 +2902,322 @@ aside [title='Sudah diisi']::before, aside [title='Belum diisi']::before { box-s
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ==========================================================================
+   Paper & Ink · dark-surface refinement
+   Fixes remaining legacy navy controls, history surfaces and focus treatment.
+   ========================================================================== */
+
+/* Operational add menu: match the graphite workspace instead of navy. */
+:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu {
+  border: 1px solid #485349 !important;
+  border-radius: 10px !important;
+  background: #292f2a !important;
+  padding: 5px !important;
+  box-shadow: 0 14px 30px rgb(0 0 0 / 30%) !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu > button {
+  min-height: 38px;
+  border: 1px solid #414b42 !important;
+  border-radius: 7px !important;
+  background: #303831 !important;
+  color: #e1e8e1 !important;
+  box-shadow: none !important;
+  text-align: left;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu > button:hover:not(:disabled) {
+  border-color: #687d6b !important;
+  background: #39463b !important;
+  color: #f0f4ef !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu > button:disabled {
+  background: #2b312c !important;
+  color: #899389 !important;
+}
+
+/* All workspace action buttons use graphite/forest. More specific than the
+   earlier theme experiments so the old navy gradients cannot win the cascade. */
+:root[data-theme='dark'] .mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
+  border-color: #4b574d !important;
+  border-radius: 8px !important;
+  background: #343c35 !important;
+  background-image: none !important;
+  color: #e0e7df !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
+  border-color: #718574 !important;
+  background: #3d493f !important;
+  background-image: none !important;
+  color: #f0f4ef !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
+  background: #303a32 !important;
+  transform: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell button[data-button-kind='primary'] {
+  border-color: #6c8c72 !important;
+  background: #5e8067 !important;
+  color: #fff !important;
+}
+:root[data-theme='dark'] .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: #83a188 !important;
+  background: #6a8b72 !important;
+  color: #fff !important;
+}
+/* Product/type selection buttons previously retained the old midnight-blue fill. */
+:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'],
+:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='false'] {
+  border: 1px solid #4a554c !important;
+  border-radius: 8px !important;
+  background: #343c35 !important;
+  background-image: none !important;
+  color: #dce4dc !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='false']:hover {
+  border-color: #738976 !important;
+  background: #3b473d !important;
+  color: #f0f4ef !important;
+  transform: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='true'] {
+  border-color: #718a73 !important;
+  background: #405343 !important;
+  color: #dce9dc !important;
+  box-shadow: inset 0 0 0 1px rgb(139 169 146 / 9%) !important;
+}
+:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='true']:hover {
+  border-color: #8ba992 !important;
+  background: #485d4b !important;
+  color: #f0f5ef !important;
+}
+
+/* Summary completion labels: no more bright white pills. */
+:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Sudah diisi'] {
+  border: 1px solid #526b55 !important;
+  background: #354638 !important;
+  color: #bfd3c0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Belum diisi'] {
+  border: 1px solid #73574b !important;
+  background: #45372f !important;
+  color: #d7b6a0 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Sudah diisi']::before,
+:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Belum diisi']::before {
+  box-shadow: none !important;
+}
+
+/* History list and detail: bring every surface into the same graphite palette. */
+:root[data-theme='dark'] .mp-history-overlay {
+  background: rgb(16 20 17 / 82%) !important;
+  backdrop-filter: blur(5px) !important;
+}
+:root[data-theme='dark'] .mp-history-dialog {
+  border: 1px solid #485349 !important;
+  border-radius: 14px !important;
+  background: #292f2a !important;
+  background-image: none !important;
+  color: #e6ebe5 !important;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 34%) !important;
+}
+:root[data-theme='dark'] .mp-history-header {
+  border-color: #414b42 !important;
+  background: #303831 !important;
+}
+:root[data-theme='dark'] .mp-history-dialog h2,
+:root[data-theme='dark'] .mp-history-dialog h3,
+:root[data-theme='dark'] .mp-history-dialog h4,
+:root[data-theme='dark'] .mp-history-dialog .text-slate-50,
+:root[data-theme='dark'] .mp-history-dialog .text-slate-100,
+:root[data-theme='dark'] .mp-history-dialog .text-slate-200 {
+  color: #e5ebe4 !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .text-slate-300 { color: #c3ccc2 !important; }
+:root[data-theme='dark'] .mp-history-dialog .text-slate-400,
+:root[data-theme='dark'] .mp-history-dialog .text-slate-500 { color: #98a397 !important; }
+:root[data-theme='dark'] .mp-history-date {
+  border-color: #4b574d !important;
+  background: #292f2a !important;
+  color: #e0e7df !important;
+}
+:root[data-theme='dark'] .mp-history-date svg { color: #a2b9a4 !important; }
+:root[data-theme='dark'] .mp-history-list-item {
+  border-color: #465047 !important;
+  background: #252c27 !important;
+  background-image: none !important;
+  color: #e4eae3 !important;
+}
+:root[data-theme='dark'] .mp-history-list-item:hover:not(:disabled) {
+  border-color: #718574 !important;
+  background: #303a32 !important;
+  background-image: none !important;
+  color: #f0f4ef !important;
+}
+:root[data-theme='dark'] .mp-history-date-icon {
+  border-color: #4b574d !important;
+  background: #303831 !important;
+  color: #a8c0aa !important;
+}
+:root[data-theme='dark'] .mp-history-summary {
+  border-color: #414b42 !important;
+  background: #252c27 !important;
+}
+:root[data-theme='dark'] .mp-history-metric {
+  border: 1px solid #465047 !important;
+  background: #303831 !important;
+  color: #e5ebe4 !important;
+}
+:root[data-theme='dark'] .mp-history-output {
+  border-color: #465047 !important;
+  background: #252c27 !important;
+}
+:root[data-theme='dark'] .mp-history-output > div:first-child {
+  border-color: #414b42 !important;
+  background: #303831 !important;
+}
+:root[data-theme='dark'] .mp-history-timeline-item {
+  border-color: #465047 !important;
+  background: #252c27 !important;
+}
+:root[data-theme='dark'] .mp-history-timeline-item.is-active {
+  border-color: #708773 !important;
+  background: #303b32 !important;
+}
+:root[data-theme='dark'] .mp-history-timeline-marker {
+  border-color: #8ba992 !important;
+  background: #526d58 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-history-timeline-item.is-active .mp-history-timeline-marker {
+  background: #a8c0aa !important;
+  box-shadow: none !important;
+}
+
+/* History actions: neutral buttons with one restrained forest primary action. */
+:root[data-theme='dark'] .mp-history-dialog .mp-history-icon-button,
+:root[data-theme='dark'] .mp-history-dialog .mp-history-secondary-button,
+:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-copy,
+:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-open {
+  border: 1px solid #4b574d !important;
+  border-radius: 8px !important;
+  background: #343c35 !important;
+  background-image: none !important;
+  color: #dce4dc !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .mp-history-icon-button:hover:not(:disabled),
+:root[data-theme='dark'] .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled),
+:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-copy:hover:not(:disabled),
+:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled) {
+  border-color: #718574 !important;
+  background: #3d493f !important;
+  color: #f0f4ef !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .mp-history-primary-button {
+  border: 1px solid #6c8c72 !important;
+  background: #5e8067 !important;
+  color: #fff !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
+  border-color: #83a188 !important;
+  background: #6a8b72 !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .mp-history-danger-button {
+  border: 1px solid #74504b !important;
+  background: #46332f !important;
+  color: #e2b9ae !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
+  border-color: #95665e !important;
+  background: #523b35 !important;
+  color: #f0d0c7 !important;
+}
+
+/* Status and event tags are muted, not neon. */
+:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag,
+:root[data-theme='dark'] .mp-history-dialog .mp-history-event-badge {
+  border-color: #52634f !important;
+  background: #354238 !important;
+  color: #c4d5c3 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-normal { border-color: #52677a !important; background: #303c47 !important; color: #c1d1df !important; }
+:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-revision { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-shortage { border-color: #755d45 !important; background: #463a2e !important; color: #dec5a4 !important; }
+:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-addition { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+:root[data-theme='dark'] .mp-history-dialog .mp-history-status--editable { border: 1px solid #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+:root[data-theme='dark'] .mp-history-dialog .mp-history-status--locked { border: 1px solid #74504b !important; background: #46332f !important; color: #e2b9ae !important; }
+:root[data-theme='dark'] .mp-history-dialog .text-teal-200,
+:root[data-theme='dark'] .mp-history-dialog .text-teal-300,
+:root[data-theme='dark'] .mp-history-dialog .text-teal-100 { color: #b8cbb9 !important; }
+:root[data-theme='dark'] .mp-history-dialog .text-emerald-200,
+:root[data-theme='dark'] .mp-history-dialog .text-emerald-300 { color: #bfd2c0 !important; }
+:root[data-theme='dark'] .mp-history-dialog .text-amber-200,
+:root[data-theme='dark'] .mp-history-dialog .text-amber-300 { color: #ddc59f !important; }
+:root[data-theme='dark'] .mp-history-dialog .text-rose-200 { color: #dfb5ae !important; }
+
+/* Nominal fields are deliberately underline-only, including while focused.
+   Keep a visible, quiet forest cue on the active field and its parent row. */
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-nominal > input,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount {
+  border: 0 !important;
+  border-bottom: 1px solid #59665b !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #dfe7de !important;
+  -webkit-text-fill-color: #dfe7de !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus-visible,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus-visible,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus-visible {
+  border: 0 !important;
+  border-bottom: 2px solid #91aa95 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #e6eee5 !important;
+  -webkit-text-fill-color: #e6eee5 !important;
+  caret-color: #a8c0aa !important;
+  box-shadow: 0 1px 0 rgb(145 170 149 / 35%) !important;
+  outline: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-left: 0 !important;
+  border-bottom: 2px solid #91aa95 !important;
+  color: #e6eee5 !important;
+  -webkit-text-fill-color: #e6eee5 !important;
+  box-shadow: 0 1px 0 rgb(145 170 149 / 35%) !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
+  border-radius: 8px;
+  background: rgb(139 169 146 / 6%) !important;
+}
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
+  color: #c2d4c3 !important;
+  -webkit-text-fill-color: #c2d4c3 !important;
+}
