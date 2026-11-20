@@ -174,7 +174,7 @@
   padding: 2px 8px;
   background: rgb(var(--color-accent-rgb) / 0.13);
   color: var(--color-accent);
-  font-size: 9px;
+  font-size: var(--type-micro);
   font-weight: 800;
   letter-spacing: .055em;
   line-height: 1.3;

@@ -3502,7 +3502,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               <div className="mp-form-stack flex min-w-0 w-full max-w-[1040px] flex-col gap-3">
                 {kitchenId && activeTransaction && (
                 <>
-                  <section className="mp-card w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
+                  <section className="mp-card mp-card--rgb-rim w-full min-w-0 rounded-2xl border border-amber-500/45 bg-gradient-to-b from-slate-900 to-slate-950 p-3.5 shadow-lg shadow-black/15">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h2 className="text-base font-semibold text-white">RAB</h2>
@@ -3717,7 +3717,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                   </section>
 
 
-                  <section className={`mp-card  relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
+                  <section className={`mp-card mp-card--rgb-rim relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Operasional Harian</h2>
                       <div className="relative" ref={operationalAddMenuRef}>
@@ -3885,15 +3885,17 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <span>VA</span>
                                     </label>
                                   )}
-                                  {custom && !isMappedSalary && !isArutala ? (
-                                    <div className="mp-custom-field-wrap mp-ops-owner">
+                                  {!(showVirtualAccount && entry.isVirtualAccount) && (
+                                    custom && !isMappedSalary && !isArutala ? (
+                                      <div className="mp-custom-field-wrap mp-ops-owner">
                                       <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-custom-field-control mp-ops-field mp-payment-detail h-10 min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
                                       {isStrictCustom && customFieldStatus.ownerName !== 'not-required' && (
                                         <span className={`mp-custom-field-dot ${customFieldStatus.ownerName}`} role="img" aria-label={customFieldStatus.ownerName === 'is-complete' ? 'Nama rekening terisi' : 'Nama rekening belum diisi'} title={customFieldStatus.ownerName === 'is-complete' ? 'Nama rekening terisi' : 'Nama rekening belum diisi'} />
                                       )}
                                     </div>
                                   ) : (
-                                    <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
+                                      <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
+                                    )
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
                                     <div className="mp-custom-field-wrap mp-ops-bank">
@@ -3965,7 +3967,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     })()}
                   </section>
 
-                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
+                  <section className="mp-card mp-card--rgb-rim w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
                     <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
                     <div className="mt-3 space-y-1.5">
                       

@@ -1802,7 +1802,7 @@ aside.mp-card .text-lg{
 
   .mp-salary-account-details > .mp-salary-field{
     padding-inline: 6px !important;
-    font-size: 11px !important;
+    font-size: var(--type-control) !important;
   }
 
 
@@ -2316,7 +2316,7 @@ aside.mp-card .text-lg{
   color: var(--mp-field-placeholder) !important;
   -webkit-text-fill-color: var(--mp-field-placeholder) !important;
   font-family: var(--mp-font-sans) !important;
-  font-size: 12px !important;
+  font-size: var(--type-control) !important;
   font-weight: 500 !important;
   letter-spacing: 0 !important;
   text-align: center !important;
@@ -2732,7 +2732,7 @@ aside.mp-card .text-lg{
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 10px !important;
+  font-size: var(--type-micro) !important;
   font-weight: 550 !important;
 }
 
