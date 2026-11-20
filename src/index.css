@@ -4228,7 +4228,7 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-shortage-toggle {
 main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-shortage-toggle {
   grid-row: 1 !important;
 }
-main .mp-form-stack .mp-rab-row {
+main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
   grid-template-columns: minmax(0, 1fr) 252px !important;
 }
 main .mp-form-stack .mp-rab-row > .mp-revision-nominal,
@@ -4238,7 +4238,7 @@ main .mp-form-stack .mp-rab-row .mp-rab-b3-nominal.mp-revision-nominal {
   min-width: 252px !important;
   max-width: 252px !important;
 }
-main .mp-form-stack .mp-salary-flex-row {
+main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   grid-template-columns: max-content minmax(0, 1fr) 252px !important;
 }
 main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
@@ -4250,7 +4250,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   max-width: 252px !important;
 }
 @media (max-width: 1023px) {
-  main .mp-form-stack .mp-rab-row {
+  main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
     grid-template-columns: minmax(0, 1fr) !important;
   }
   main .mp-form-stack .mp-revision-nominal {
@@ -4259,7 +4259,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
     max-width: 252px !important;
     justify-self: end !important;
   }
-  main .mp-form-stack .mp-salary-flex-row {
+  main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
     grid-template-columns: minmax(0, 1fr) 252px !important;
   }
 }
@@ -4404,4 +4404,81 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 .mp-auth-screen .text-emerald-400,
 .mp-auth-screen .text-teal-300 {
   color: #9eb69f !important;
+}
+
+/* Defeat earlier global navy button/select rules within authentication only. */
+:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'],
+:root[data-theme='dark'] .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'] {
+  border-color: #465347 !important;
+  background: #303831 !important;
+  background-image: none !important;
+  color: #cbd5ca !important;
+  box-shadow: none !important;
+}
+:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'],
+:root[data-theme='dark'] .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
+  border-color: #829a85 !important;
+  background: #405343 !important;
+  background-image: none !important;
+  color: #f0f4ed !important;
+  box-shadow: inset 0 0 0 1px rgb(166 190 166 / 12%) !important;
+}
+:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled),
+:root[data-theme='dark'] .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled) {
+  border-color: #819882 !important;
+  background: #39463b !important;
+  background-image: none !important;
+  color: #f0f4ed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+:root:not([data-theme='light']) main.mp-auth-screen select.mp-auth-kitchen-select,
+:root[data-theme='dark'] main.mp-auth-screen select.mp-auth-kitchen-select {
+  border-color: #485349 !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
+  color: #e8ece7 !important;
+  -webkit-text-fill-color: #e8ece7 !important;
+  color-scheme: dark;
+}
+:root:not([data-theme='light']) main.mp-auth-screen select.mp-auth-kitchen-select option,
+:root[data-theme='dark'] main.mp-auth-screen select.mp-auth-kitchen-select option {
+  background: #252c27 !important;
+  color: #e8ece7 !important;
+}
+:root:not([data-theme='light']) main.mp-auth-screen input.mp-auth-password-input,
+:root[data-theme='dark'] main.mp-auth-screen input.mp-auth-password-input {
+  border-color: #485349 !important;
+  background: #252c27 !important;
+  color: #e8ece7 !important;
+  -webkit-text-fill-color: #e8ece7 !important;
+  caret-color: #a7c0aa !important;
+}
+:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-eye-button,
+:root[data-theme='dark'] .mp-auth-screen button.mp-auth-eye-button {
+  border-color: #465347 !important;
+  background: #303831 !important;
+  color: #cbd5ca !important;
+  box-shadow: none !important;
+}
+:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled),
+:root[data-theme='dark'] .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled) {
+  border-color: #819882 !important;
+  background: #39463b !important;
+  color: #f0f4ed !important;
+  transform: none !important;
+}
+:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'],
+:root[data-theme='dark'] .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'] {
+  border-color: #657d68 !important;
+  background: #526b56 !important;
+  color: #f4f6f1 !important;
+  box-shadow: none !important;
+}
+:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
+:root[data-theme='dark'] .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: #8ba992 !important;
+  background: #607b64 !important;
+  color: #fff !important;
+  transform: none !important;
 }
