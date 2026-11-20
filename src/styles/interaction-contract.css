@@ -1,15 +1,148 @@
 /*
- * Shared interaction contract
- * All enabled buttons use one hover surface; hover never recolors their text.
- * Selected RAB products change their background only.
+ * Global interaction contract
+ * One theme-driven source of truth for buttons, fields, tags and toggles.
+ * Feature styles own layout only; they must not define hover/focus states.
  */
 
-/* A single hover treatment for workspace, history and administration buttons. */
-:root .mp-app-shell button:not([data-calendar-day='true']):hover:not(:disabled),
-:root .mp-history-dialog button:not([data-calendar-day='true']):hover:not(:disabled),
-:root .mp-admin-panel button:not([data-calendar-day='true']):hover:not(:disabled) {
+/* Payout fields share one underline treatment in RAB, Ops Harian, and payroll.
+   Read-only/locked values use the same appearance without changing editability. */
+:root .mp-app-shell main .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):not([type='date']),
+:root .mp-app-shell main .mp-form-stack select:not(.mp-tag--custom),
+:root .mp-app-shell main .mp-form-stack textarea,
+:root .mp-app-shell main .mp-form-stack .mp-static-field,
+:root .mp-app-shell main .mp-form-stack .mp-salary-field,
+:root .mp-app-shell main .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
+  border: 0 !important;
+  border-bottom: 1px solid var(--color-field-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* A locked field remains locked, but its visual treatment does not change. */
+:root .mp-app-shell main .mp-form-stack :is(input, select, textarea):disabled,
+:root .mp-app-shell main .mp-form-stack :is(input, textarea)[readonly] {
+  border-bottom-color: var(--color-field-border) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
+
+/* Focus on any form field changes text contrast only. No border, fill or ring. */
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog, .mp-date-range-popover) :is(
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):not([type='date']),
+  select:not(.mp-tag--custom),
+  textarea
+):focus,
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog, .mp-date-range-popover) :is(
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):not([type='date']),
+  select:not(.mp-tag--custom),
+  textarea
+):focus-visible {
+  color: var(--color-text-focus) !important;
+  -webkit-text-fill-color: var(--color-text-focus) !important;
+  font-weight: 650 !important;
+  caret-color: var(--color-accent) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Category tags and tag dropdowns stay muted in every pointer/keyboard state. */
+:root .mp-app-shell main .mp-form-stack :is(
+  .mp-tag,
+  .mp-ops-kind,
+  select.mp-tag--custom
+),
+:root .mp-history-dialog :is(
+  .mp-history-event-tag,
+  .mp-history-event-badge,
+  .mp-history-event-type
+) {
+  border: 1px solid var(--color-tag-border) !important;
+  border-radius: var(--radius-control) !important;
+  background: var(--color-tag-surface) !important;
+  background-color: var(--color-tag-surface) !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+:root .mp-app-shell main .mp-form-stack select.mp-tag--custom {
+  border-left: 1px solid var(--color-tag-border) !important;
+  padding-right: 26px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23938f95' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 12px 12px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-va-toggle {
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
+  accent-color: var(--color-accent) !important;
+}
+
+/* Every button uses the same neutral base appearance. Semantic states are fills. */
+:root button:not(.mp-row-remove):not(.mp-tag):not([data-button-kind='primary']):not(.mp-import-primary):not(.mp-history-primary-button):not(.mp-history-danger-button) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  background-image: none !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+:root button:not(.mp-row-remove):not(.mp-tag)[data-button-kind='primary'],
+:root button:not(.mp-row-remove):not(.mp-tag).mp-auth-submit[data-button-kind='primary'],
+:root button:not(.mp-row-remove):not(.mp-tag).mp-import-primary,
+:root button:not(.mp-row-remove):not(.mp-tag).mp-history-primary-button {
   border-color: var(--color-accent-border) !important;
-  background-color: var(--color-accent-soft) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+  -webkit-text-fill-color: var(--color-on-accent) !important;
+}
+
+:root button:not(.mp-row-remove):not(.mp-tag).mp-history-danger-button {
+  border-color: var(--color-danger-border) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+  -webkit-text-fill-color: var(--color-danger) !important;
+}
+
+/* On/off and selected button states change the background only. */
+:root button:not(.mp-row-remove):not(.mp-tag)[aria-pressed='true'],
+:root button:not(.mp-row-remove):not(.mp-tag)[data-selected='true'] {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-button-selected-bg) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+/* One hover treatment for all enabled buttons, including calendar and modal actions.
+   Tags/dropdowns are not buttons and intentionally receive no hover treatment. */
+:root button:not(.mp-row-remove):not(.mp-tag):hover:not(:disabled) {
+  border-color: var(--color-button-hover-border) !important;
+  background: var(--color-button-hover-bg) !important;
   background-image: none !important;
   box-shadow: none !important;
   text-shadow: none !important;
@@ -17,71 +150,76 @@
   filter: none !important;
 }
 
-/* RAB choices: selected state is expressed by fill only, never text or border. */
-:root .mp-app-shell main .mp-form-stack .mp-rab-choice,
-:root .mp-app-shell main .mp-form-stack .mp-rab-choice:hover:not(:disabled),
-:root .mp-app-shell main .mp-form-stack .mp-rab-choice[data-selected='true'] {
-  border-color: var(--color-border) !important;
-  color: var(--color-text-muted) !important;
-  -webkit-text-fill-color: var(--color-text-muted) !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
-:root .mp-app-shell main .mp-form-stack .mp-rab-choice {
-  background: var(--color-surface) !important;
-}
-
-:root .mp-app-shell main .mp-form-stack .mp-rab-choice:hover:not(:disabled) {
-  background: var(--color-accent-soft) !important;
-}
-
-:root .mp-app-shell main .mp-form-stack .mp-rab-choice[data-selected='true'] {
-  background: var(--color-accent-soft) !important;
-}
-
-/* Focus on a row must not tint the card or sibling account metadata. */
-:root .mp-app-shell main .mp-form-stack :is(.mp-rab-row, .mp-ops-row, .mp-payment-row):focus-within {
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-:root .mp-app-shell main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root .mp-app-shell main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
-:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
-:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field {
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-}
-
-/* Bank fields stay neutral when another control in their row receives focus. */
-:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-gas-bank,
-:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-ops-bank,
-:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-account-details > .mp-salary-field:nth-child(2) {
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-}
-
-/* Additional-balance toggles keep their text color in both states. */
-:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle,
-:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle.is-active {
-  color: var(--color-text-muted) !important;
-  -webkit-text-fill-color: var(--color-text-muted) !important;
-}
-
-
-/* Keep VA keyboard focus visible on its checkbox without tinting the label. */
-:root .mp-app-shell main .mp-form-stack .mp-ops-row label.mp-va-toggle:focus-within,
-:root .mp-app-shell main .mp-form-stack .mp-ops-row label.mp-va-toggle:focus-within span {
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-}
-
-:root .mp-app-shell main .mp-form-stack .mp-ops-row label.mp-va-toggle:focus-within input[type='checkbox'] {
-  outline: 2px solid var(--color-accent-border) !important;
+/* Keep keyboard focus visible on buttons; form fields intentionally use text contrast. */
+:root button:focus-visible {
+  outline: 2px solid var(--color-focus-ring) !important;
   outline-offset: 2px !important;
+}
+
+/* Row close controls are a plain X: no border or fill, red X on hover. */
+:root .mp-app-shell button.mp-row-remove,
+:root .mp-history-dialog button[aria-label='Tutup riwayat'] {
+  border: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+  outline-offset: 2px;
+}
+
+:root .mp-app-shell button.mp-row-remove:hover:not(:disabled),
+:root .mp-history-dialog button[aria-label='Tutup riwayat']:hover:not(:disabled) {
+  border: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--color-danger) !important;
+  -webkit-text-fill-color: var(--color-danger) !important;
+  box-shadow: none !important;
+}
+
+/* RAB additional-balance toggles share the same on/off fill language. */
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle[aria-pressed='true'] {
+  background: var(--color-button-selected-bg) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-switch {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-subtle) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-switch > span {
+  background: var(--color-text-muted) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle[aria-pressed='true'] .mp-history-additional-switch {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle[aria-pressed='true'] .mp-history-additional-switch > span {
+  background: var(--color-accent) !important;
+}
+
+/* Respect reduced-motion preferences across every application surface. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  :root *,
+  :root *::before,
+  :root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

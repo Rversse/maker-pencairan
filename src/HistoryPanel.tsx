@@ -436,7 +436,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
               onClick={onClose}
               title="Tutup riwayat"
               aria-label="Tutup riwayat"
-              className="mp-history-icon-button grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60"
+              className="mp-history-icon-button grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
                 <path d="m18 6-12 12M6 6l12 12" />
@@ -481,7 +481,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                     type="button"
                     disabled={busy}
                     onClick={() => void openDetail(row.id)}
-                    className="mp-history-list-item group flex w-full min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800/90 bg-slate-900/55 px-3.5 py-3 text-left transition duration-150 hover:border-teal-600/50 hover:bg-slate-900/90 disabled:cursor-wait disabled:opacity-60 sm:px-4"
+                    className="mp-history-list-item group flex w-full min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800/90 bg-slate-900/55 px-3.5 py-3 text-left transition duration-150 disabled:cursor-wait disabled:opacity-60 sm:px-4"
                   >
                     <span className="flex min-w-0 items-center gap-3">
                       <span className="mp-history-date-icon grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-slate-700/70 bg-slate-800/70 text-teal-300">
@@ -543,7 +543,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                     onClick={() => { setDetail(null); void load() }}
                     title="Kembali ke daftar riwayat"
                     aria-label="Kembali ke daftar riwayat"
-                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60"
+                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition"
                   >
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="m15 18-6-6 6-6M9 12h11" />
@@ -584,7 +584,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                       onClick={() => void refreshDetail()}
                       title="Refresh output terbaru"
                       aria-label="Refresh output terbaru"
-                      className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 disabled:opacity-40"
+                      className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition disabled:opacity-40"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M20 7v5h-5M4 17v-5h5" />

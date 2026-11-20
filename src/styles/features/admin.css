@@ -1,9 +1,7 @@
 /* Admin Panel feature styles — Bright Sky / Graphite. */
 /* Extracted from src/index.css */
 
-.mp-admin-panel input,
-.mp-admin-panel select
-{
+.mp-admin-panel input, .mp-admin-panel select{
   min-height: 42px;
   border-color: var(--color-border);
   background-color: var(--color-page);
@@ -14,32 +12,8 @@
 
 
 
-.mp-admin-panel input:focus-visible,
-.mp-admin-panel select:focus-visible,
-.mp-admin-panel button:focus-visible
-{
-  border-color: var(--color-accent-border) !important;
-  outline: 2px solid var(--color-accent-border);
-  outline-offset: 2px;
-}
 
-
-
-
-.mp-admin-panel input:disabled,
-.mp-admin-panel select:disabled
-{
-  border-color: var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  cursor: not-allowed;
-}
-
-
-
-
-
-.mp-admin-panel {
+.mp-admin-panel{
   color: var(--color-text);
 }
 
@@ -47,7 +21,7 @@
 
 
 
-.mp-admin-card {
+.mp-admin-card{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.58) !important;
   box-shadow: 0 12px 32px var(--color-shadow);
@@ -57,7 +31,7 @@
 
 
 
-.mp-admin-card article {
+.mp-admin-card article{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.52) !important;
   transition: border-color 150ms ease, background-color 150ms ease;
@@ -67,16 +41,7 @@
 
 
 
-.mp-admin-card article:hover {
-  border-color: var(--color-border) !important;
-  background: rgb(var(--color-page-rgb) / 0.78) !important;
-}
-
-
-
-
-
-.mp-admin-credential-notice {
+.mp-admin-credential-notice{
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.08) !important;
 }
@@ -85,31 +50,21 @@
 
 
 
-.mp-admin-toast {
+.mp-admin-toast{
   box-shadow: 0 14px 40px var(--color-shadow);
 }
 
 
 
 
-.mp-admin-panel button
-{
+.mp-admin-panel button{
   transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease, opacity 140ms ease;
 }
 
 
 
 
-.mp-admin-panel button:hover:not(:disabled)
-{
-  border-color: var(--color-accent-border);
-}
-
-
-
-
-.mp-admin-panel button:disabled
-{
+.mp-admin-panel button:disabled{
   cursor: not-allowed;
 }
 
@@ -121,7 +76,7 @@
 
 
 
-  .mp-admin-panel {
+  .mp-admin-panel{
     padding-bottom: env(safe-area-inset-bottom);
   }
 
@@ -129,7 +84,7 @@
 
 
 
-  .mp-admin-card {
+  .mp-admin-card{
     border-radius: 16px !important;
   }
 
@@ -144,8 +99,7 @@
 @media (prefers-reduced-motion: reduce) {
 
 
-.mp-admin-panel *
-{
+.mp-admin-panel *{
     scroll-behavior: auto !important;
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
@@ -159,39 +113,31 @@
 
 
 
-.mp-admin-panel button:not([data-option-button]):not([data-calendar-day])
-{
+.mp-admin-panel button:not([data-option-button]):not([data-calendar-day]){
   border-radius: var(--mp-radius-control);
 }
 
 
 
 /* Auth/admin form controls consume the same global geometry token. */
-.mp-admin-panel input:not([type="checkbox"]):not([type="radio"]),
-.mp-admin-panel select,
-.mp-admin-panel textarea
-{
+.mp-admin-panel input:not([type="checkbox"]):not([type="radio"]), .mp-admin-panel select, .mp-admin-panel textarea{
   border-radius: var(--mp-radius-control) !important;
 }
 
 
 
 
-:root .mp-admin-card
-{ background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
+:root .mp-admin-card{ background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
 
 
 
 
-:root .mp-admin-panel
-{ background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
+:root .mp-admin-panel{ background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
 
 
 
 
-:root .mp-admin-panel input,
-:root .mp-admin-panel select
-{ background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+:root .mp-admin-panel input, :root .mp-admin-panel select{ background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
 
 
@@ -199,8 +145,7 @@
 /* Extracted from src/styles/components.css */
 /* Shared buttons, cards, dialogs, badges, notices and toast surfaces. */
 /* Application shells and major surfaces */
-:root .mp-admin-panel
-{
+:root .mp-admin-panel{
   color: var(--color-text) !important;
   background: var(--color-page) !important;
 }
@@ -208,9 +153,7 @@
 
 
 
-:root .mp-admin-panel button[data-button-kind='primary'],
-:root .mp-admin-panel button.mp-auth-submit
-{
+:root .mp-admin-panel button[data-button-kind='primary'], :root .mp-admin-panel button.mp-auth-submit{
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
   color: var(--color-on-accent) !important;
@@ -220,8 +163,7 @@
 
 
 
-:root .mp-admin-panel button[data-option-button='true']
-{
+:root .mp-admin-panel button[data-option-button='true']{
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
   color: var(--color-text-muted) !important;
@@ -231,9 +173,7 @@
 
 
 
-:root .mp-admin-card,
-:root .mp-admin-panel [role='dialog']
-{
+:root .mp-admin-card, :root .mp-admin-panel [role='dialog']{
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
@@ -243,17 +183,14 @@
 
 
 
-:root .mp-admin-credential-notice,
-:root .mp-admin-toast
-{
+:root .mp-admin-credential-notice, :root .mp-admin-toast{
   border-color: var(--color-accent-border) !important;
 }
 
 
 
 /* Bright Sky / Graphite component layer. */
-:root .mp-admin-card
-{
+:root .mp-admin-card{
   color: var(--color-text) !important;
   border-color: var(--color-border-strong) !important;
   background-color: var(--color-surface) !important;
@@ -262,8 +199,7 @@
 
 
 
-:root .mp-admin-panel .mp-admin-card
-{
+:root .mp-admin-panel .mp-admin-card{
   background: var(--color-surface) !important;
   border-color: var(--color-border-strong) !important;
   box-shadow: var(--shadow-card) !important;
@@ -272,7 +208,7 @@
 
 
 
-:root .mp-admin-panel .mp-admin-card article {
+:root .mp-admin-panel .mp-admin-card article{
   background: var(--color-surface-raised) !important;
   border-color: var(--color-border) !important;
 }
@@ -280,16 +216,7 @@
 
 
 
-:root .mp-admin-panel .mp-admin-card article:hover {
-  background: var(--color-surface-subtle) !important;
-  border-color: var(--color-accent-border) !important;
-}
-
-
-
-
-:root .mp-admin-panel button[data-button-kind='primary']
-{
+:root .mp-admin-panel button[data-button-kind='primary']{
   border: 1px solid var(--color-accent) !important;
   background: var(--color-accent) !important;
   color: var(--color-on-accent) !important;
@@ -299,8 +226,7 @@
 
 
 
-:root .mp-admin-panel button[class*='border-rose-']
-{
+:root .mp-admin-panel button[class*='border-rose-']{
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
@@ -309,8 +235,7 @@
 
 
 
-:root .mp-admin-panel [role='alert']
-{
+:root .mp-admin-panel [role='alert']{
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
@@ -320,7 +245,7 @@
 
 
 
-:root .mp-admin-panel {
+:root .mp-admin-panel{
   color: var(--color-text) !important;
 }
 
@@ -328,7 +253,7 @@
 
 
 
-:root .mp-admin-panel .mp-admin-card {
+:root .mp-admin-panel .mp-admin-card{
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
   box-shadow: var(--shadow-card) !important;
@@ -338,7 +263,7 @@
 
 
 
-:root .mp-admin-panel .mp-admin-card article {
+:root .mp-admin-panel .mp-admin-card article{
   border-color: var(--color-border) !important;
   background: var(--color-surface-raised) !important;
 }
@@ -347,16 +272,7 @@
 
 
 
-:root .mp-admin-panel .mp-admin-card article:hover {
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-surface-subtle) !important;
-}
-
-
-
-
-
-:root .mp-admin-panel .mp-admin-toast {
+:root .mp-admin-panel .mp-admin-toast{
   border-color: var(--color-accent-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
@@ -367,7 +283,7 @@
 
 
 
-:root .mp-admin-panel .mp-admin-credential-notice {
+:root .mp-admin-panel .mp-admin-credential-notice{
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
 }
@@ -376,7 +292,7 @@
 
 
 
-:root .mp-admin-panel [role='status']:not(.mp-admin-toast) {
+:root .mp-admin-panel [role='status']:not(.mp-admin-toast){
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
   color: var(--color-accent) !important;
@@ -385,18 +301,14 @@
 
 
 
-:root .mp-admin-panel :is(input, select, textarea):not([type='checkbox']):not([type='radio'])
-{
+:root .mp-admin-panel :is(input, select, textarea):not([type='checkbox']):not([type='radio']){
   color-scheme: dark;
 }
 
 
 
 
-:root .mp-admin-panel input:not([type='checkbox']):not([type='radio']),
-:root .mp-admin-panel select,
-:root .mp-admin-panel textarea
-{
+:root .mp-admin-panel input:not([type='checkbox']):not([type='radio']), :root .mp-admin-panel select, :root .mp-admin-panel textarea{
   border-color: var(--color-border-strong) !important;
   background: var(--color-field) !important;
   color: var(--color-text) !important;
@@ -406,9 +318,7 @@
 
 
 
-:root .mp-admin-panel input::placeholder,
-:root .mp-admin-panel textarea::placeholder
-{
+:root .mp-admin-panel input::placeholder, :root .mp-admin-panel textarea::placeholder{
   color: var(--color-text-subtle) !important;
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
@@ -417,132 +327,18 @@
 
 
 
-:root .mp-admin-panel input[type='checkbox']
-{
+:root .mp-admin-panel input[type='checkbox']{
   accent-color: var(--color-accent) !important;
 }
 
 
 
 
-:root .mp-admin-panel select option
-{
+:root .mp-admin-panel select option{
   color: var(--color-text) !important;
   background: var(--color-surface) !important;
 }
 
 
 
-
-/* Extracted from src/styles/interactions.css */
-/* Buttons: one neutral action treatment, one primary accent treatment. */
-:root .mp-admin-panel button:not([data-option-button='true']):not([data-calendar-day='true'])
-{
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
-
-
-
-:root .mp-admin-panel button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-admin-panel button.mp-auth-submit:hover:not(:disabled)
-{
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
-}
-
-
-
-
-:root .mp-admin-panel button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-
-  box-shadow: none !important;
-}
-
-
-
-
-:root .mp-admin-panel button[data-button-kind='primary']:hover:not(:disabled)
-{
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
-}
-
-
-
-
-:root .mp-admin-panel button[data-option-button='true']:hover:not(:disabled)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-}
-
-
-
-
-:root .mp-admin-panel button[data-option-button='true'][data-selected='true']
-{
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-}
-
-
-
-
-:root .mp-admin-panel :is(input, select, textarea):hover:not(:disabled):not([readonly])
-{
-  border-color: var(--color-accent-border) !important;
-}
-
-
-
-
-:root .mp-admin-panel :is(input, select, textarea):focus:not(:disabled):not([readonly])
-{
-  border-color: var(--color-focus) !important;
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-  caret-color: var(--color-accent) !important;
-}
-
-
-
-
-:root .mp-admin-panel :is(input, select, textarea, button):focus-visible
-{
-  outline: 2px solid var(--color-focus) !important;
-  outline-offset: 2px;
-}
-
-
-
-
-:root .mp-admin-panel button[class*='border-rose-']:hover:not(:disabled)
-{
-  border-color: var(--color-danger) !important;
-  background: var(--color-danger-soft) !important;
-}
-
-
-
-
-@media (prefers-reduced-motion: reduce) {
-
-
-:root .mp-admin-card
-{
-    transition-duration: 0.01ms !important;
-  }
-
-
-
-}
 

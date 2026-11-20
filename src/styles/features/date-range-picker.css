@@ -1,9 +1,7 @@
 /* DateRangePicker feature styles — trigger, calendar popover and selection states. */
 
-/* A populated date range uses the shared accent/focus language. */
-.mp-date-range-trigger.mp-field--has-output,
-.mp-date-range-trigger.mp-field--has-output:hover:not(:disabled),
-.mp-date-range-trigger.mp-field--has-output:focus-visible {
+
+.mp-date-range-trigger.mp-field--has-output{
   border-color: var(--color-accent-border) !important;
   box-shadow: 0 0 0 1px var(--color-focus-ring) !important;
 }
@@ -17,7 +15,7 @@
 
 
 /* Calendar/date-range picker — shared form control surface */
-.mp-date-range-trigger {
+.mp-date-range-trigger{
   border-color: var(--color-border) !important;
   background: var(--color-page) !important;
   box-shadow: none !important;
@@ -28,17 +26,7 @@
 
 
 
-.mp-date-range-trigger:hover:not(:disabled) {
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-surface) !important;
-}
-
-
-
-
-
-
-.mp-date-range-popover {
+.mp-date-range-popover{
   border-color: var(--color-border) !important;
   background: var(--color-page) !important;
   box-shadow: 0 18px 48px var(--color-shadow) !important;
@@ -50,18 +38,7 @@
 
 
 
-.mp-date-range-popover button:focus-visible,
-.mp-date-range-popover select:focus-visible {
-  outline: 2px solid var(--color-accent-border);
-  outline-offset: 2px;
-}
-
-
-
-
-
-
-.mp-date-range-popover [data-calendar-day="true"]:disabled {
+.mp-date-range-popover [data-calendar-day="true"]:disabled{
   background: transparent;
 }
 
@@ -75,7 +52,7 @@
 
 
 
-  .mp-date-range-popover { animation: none !important; }
+  .mp-date-range-popover{ animation: none !important; }
 
 
 
@@ -86,29 +63,26 @@
 
 
 
-.mp-date-range-trigger {
+.mp-date-range-trigger{
   border-radius: var(--mp-radius-control) !important;
 }
 
 
 
 
-:root .mp-date-range-trigger
-{ background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+:root .mp-date-range-trigger{ background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
 
 
 
-:root .mp-date-range-popover
-{ background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
+:root .mp-date-range-popover{ background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
 
 
 
 
 /* Extracted from src/styles/components.css */
 
-:root .mp-date-range-popover
-{
+:root .mp-date-range-popover{
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
@@ -118,8 +92,7 @@
 
 
 /* Bright Sky / Graphite component layer. */
-:root .mp-date-range-popover
-{
+:root .mp-date-range-popover{
   color: var(--color-text) !important;
   border-color: var(--color-border-strong) !important;
   background-color: var(--color-surface) !important;
@@ -131,7 +104,7 @@
 
 
 
-:root .mp-date-range-popover button:not([data-calendar-day='true']) {
+:root .mp-date-range-popover button:not([data-calendar-day='true']){
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface-raised) !important;
   color: var(--color-text) !important;
@@ -142,7 +115,7 @@
 
 
 
-:root .mp-date-range-popover button[data-calendar-day='true'] {
+:root .mp-date-range-popover button[data-calendar-day='true']{
   border-color: transparent;
   background: transparent;
   color: var(--color-text);
@@ -151,20 +124,9 @@
 
 
 
-
-:root .mp-date-range-popover button[data-calendar-day='true']:hover:not(:disabled) {
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-}
-
-
-
-
 /* Extracted from src/styles/forms.css */
 /* Date, kitchen selector and date-range popover share the same control tokens. */
-:root .mp-date-range-trigger
-{
+:root .mp-date-range-trigger{
   border-color: var(--color-border-strong) !important;
   background: var(--color-field) !important;
   color: var(--color-text) !important;
@@ -175,8 +137,7 @@
 
 
 
-:root .mp-date-range-popover select option
-{
+:root .mp-date-range-popover select option{
   color: var(--color-text) !important;
   background: var(--color-surface) !important;
 }
@@ -186,7 +147,7 @@
 
 
 
-:root .mp-date-range-popover select option {
+:root .mp-date-range-popover select option{
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
 }
@@ -198,7 +159,7 @@
 
 
 
-:root .mp-date-range-popover select {
+:root .mp-date-range-popover select{
   border-color: var(--color-border-strong) !important;
   background: var(--color-field) !important;
   color: var(--color-text) !important;
@@ -207,61 +168,4 @@
 
 
 
-
-/* Extracted from src/styles/interactions.css */
-
-:root .mp-date-range-trigger:hover:not(:disabled)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-surface) !important;
-}
-
-
-
-
-:root .mp-date-range-trigger:focus,
-:root .mp-date-range-trigger:focus-visible
-{
-  border-color: var(--color-focus) !important;
-  outline-color: var(--color-focus-ring) !important;
-}
-
-
-
-
-:root .mp-date-range-popover button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-}
-
-
-
-
-:root .mp-date-range-popover :is(input, select, textarea, button):focus-visible
-{
-  outline: 2px solid var(--color-focus) !important;
-  outline-offset: 2px;
-}
-
-
-
-
-
-:root .mp-date-range-popover button[data-calendar-day='true'][aria-pressed='true'] {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
-}
-
-
-
-
-:root .mp-date-range-popover :is(button, select):focus-visible
-{
-  outline: 2px solid var(--color-focus) !important;
-  outline-offset: 2px;
-}
 

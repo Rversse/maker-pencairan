@@ -291,7 +291,7 @@ export function DateRangePicker({
       <button
         ref={triggerRef}
         type="button"
-        className={`mp-date-range-trigger flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-slate-700/90 bg-slate-900 px-3 text-left text-sm font-medium text-slate-100 outline-none transition hover:border-teal-500/70 hover:bg-slate-800 focus-visible:border-teal-500 focus-visible:ring-1 focus-visible:ring-teal-500/30 ${active ? 'mp-field--has-output' : ''}`}
+        className={`mp-date-range-trigger flex h-10 w-full min-w-0 items-center gap-2 rounded-md border border-slate-700/90 bg-slate-900 px-3 text-left text-sm font-medium text-slate-100 outline-none transition      ${active ? 'mp-field--has-output' : ''}`}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={handleTriggerClick}
@@ -330,7 +330,7 @@ export function DateRangePicker({
               type="button"
               aria-label="Bulan sebelumnya"
               className={[
-                'grid w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 hover:bg-slate-700',
+                'grid w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 ',
                 density === 'normal' ? 'h-7' : density === 'compact' ? 'h-6' : 'h-5'
               ].join(' ')}
               onClick={() => { setShowMonthYearPicker(false); setViewMonth((current) => addMonths(current, -1)) }}
@@ -340,7 +340,7 @@ export function DateRangePicker({
               aria-expanded={showMonthYearPicker}
               aria-label="Pilih bulan dan tahun"
               className={[
-                'flex min-w-0 items-center justify-center gap-1 px-2 font-bold text-teal-200 hover:bg-teal-950/40',
+                'flex min-w-0 items-center justify-center gap-1 px-2 font-bold text-teal-200 ',
                 density === 'normal' ? 'rounded-md py-1 text-xs' : density === 'compact' ? 'rounded-md py-0.5 text-[11px]' : 'rounded py-0 text-[10px]'
               ].join(' ')}
               onClick={() => setShowMonthYearPicker((current) => !current)}
@@ -351,7 +351,7 @@ export function DateRangePicker({
               type="button"
               aria-label="Bulan berikutnya"
               className={[
-                'grid w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 hover:bg-slate-700',
+                'grid w-7 place-items-center rounded-md border border-slate-600 bg-slate-900 text-slate-300 ',
                 density === 'normal' ? 'h-7' : density === 'compact' ? 'h-6' : 'h-5'
               ].join(' ')}
               onClick={() => { setShowMonthYearPicker(false); setViewMonth((current) => addMonths(current, 1)) }}
@@ -452,7 +452,7 @@ export function DateRangePicker({
                       ? 'border-teal-400 bg-teal-500 text-slate-950'
                       : inRange
                         ? 'border-teal-500/25 bg-teal-500/15 text-teal-100'
-                        : 'border-transparent bg-transparent text-slate-200 hover:border-teal-400 hover:bg-teal-500/10',
+                        : 'border-transparent bg-transparent text-slate-200  ',
                     beforePending ? 'cursor-not-allowed opacity-30' : ''
                   ].join(' ')}
                 >
@@ -474,7 +474,7 @@ export function DateRangePicker({
             {pendingStart && (
               <button
                 type="button"
-                className="shrink-0 rounded-md border border-slate-600 px-2 py-1 font-bold text-slate-300 hover:bg-slate-700"
+                className="shrink-0 rounded-md border border-slate-600 px-2 py-1 font-bold text-slate-300"
                 onClick={() => { setPendingStart(''); setHoverDate('') }}
               >Batal</button>
             )}
