@@ -5701,3 +5701,35 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+/* Final focus treatment for editable Operational Harian account details.
+   Keep text neutral; signal focus only with the same underline border. */
+:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row :is(
+  input.mp-ops-owner,
+  select.mp-ops-bank,
+  input.mp-ops-account
+):focus,
+:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row :is(
+  input.mp-ops-owner,
+  select.mp-ops-bank,
+  input.mp-ops-account
+):focus-visible {
+  border: 0 !important;
+  border-bottom: 2px solid var(--color-accent-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
+  font-weight: inherit !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Salary / incentive account details are mapped read-only values.
+   Do not recolor them when another control in the row receives focus. */
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-account-details .mp-salary-field {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
