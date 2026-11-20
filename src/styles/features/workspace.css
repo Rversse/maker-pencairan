@@ -4493,3 +4493,27 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal){
 
 }
 
+
+
+/* Ops Harian bank field: add 5px breathing room without changing GAS. */
+@media (min-width: 640px) {
+  main .mp-form-stack .mp-ops-flex-row > .mp-ops-bank {
+    min-width: 85px !important;
+  }
+
+  main .mp-form-stack .mp-custom-field-wrap.mp-ops-bank > .mp-custom-field-control {
+    width: 85px !important;
+    min-width: 85px !important;
+  }
+}
+
+@media (max-width: 639px) {
+  main .mp-form-stack .mp-ops-flex-row > .mp-ops-bank {
+    min-width: 85px !important;
+  }
+
+  main .mp-form-stack .mp-custom-field-wrap.mp-ops-bank > .mp-custom-field-control {
+    width: 85px !important;
+    min-width: 85px !important;
+  }
+}
