@@ -1008,8 +1008,13 @@ function parseMakerOutputGroup(
     ),
     transactionDate
   )
-  const rab = base.rab.map(row => ({
-    ...row, productTypes: [], amount: '', b3Enabled: false, b3ProductTypes: [], b3Amount: ''
+  const rab: RabEntry[] = base.rab.map(row => ({
+    ...row,
+    productTypes: [] as string[],
+    amount: '',
+    b3Enabled: false,
+    b3ProductTypes: [] as string[],
+    b3Amount: ''
   }))
   const gas: SimpleEntry[] = []
   const operasional: SimpleEntry[] = []
