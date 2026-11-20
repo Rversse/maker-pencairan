@@ -5702,6 +5702,37 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: var(--color-accent) !important;
 }
 
+/* Restore the established border-only focus indicator for account controls.
+   The account text stays neutral; the category Custom tag is excluded. */
+:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row :is(
+  input.mp-ops-owner,
+  select.mp-ops-bank,
+  input.mp-ops-account
+):focus,
+:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row :is(
+  input.mp-ops-owner,
+  select.mp-ops-bank,
+  input.mp-ops-account
+):focus-visible {
+  border: 0 !important;
+  border-bottom: 2px solid var(--color-accent-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
+  font-weight: inherit !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Mapped salary/incentive account details stay neutral when the row is focused. */
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-account-details .mp-salary-field {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
 /* Final focus treatment for editable Operational Harian account details.
    Keep text neutral; signal focus only with the same underline border. */
 :root .mp-app-shell main .mp-form-stack .mp-ops-flex-row :is(
