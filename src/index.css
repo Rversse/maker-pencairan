@@ -5315,3 +5315,187 @@ main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
 main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   grid-template-columns: max-content minmax(0, 1fr) 158px !important;
 }
+
+
+/* Maker theme refinement: date selector, totals and active-row text feedback. */
+:root[data-theme='dark'] main .mp-date-control,
+:root:not([data-theme='light']) main .mp-date-control {
+  border: 1px solid #566457 !important;
+  border-radius: 8px !important;
+  background: #303a32 !important;
+  color: #e2e9e1 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] main .mp-date-control:hover,
+:root:not([data-theme='light']) main .mp-date-control:hover {
+  border-color: #758875 !important;
+  background: #354137 !important;
+}
+:root[data-theme='dark'] main .mp-date-control:focus-within,
+:root:not([data-theme='light']) main .mp-date-control:focus-within {
+  border-color: #a0b49c !important;
+  background: #303a32 !important;
+  box-shadow: 0 0 0 2px rgb(160 180 156 / 14%) !important;
+}
+:root[data-theme='dark'] main .mp-date-control .mp-date-label,
+:root:not([data-theme='light']) main .mp-date-control .mp-date-label {
+  color: #becbb9 !important;
+  -webkit-text-fill-color: #becbb9 !important;
+}
+:root[data-theme='dark'] main .mp-date-control .mp-date-value,
+:root:not([data-theme='light']) main .mp-date-control .mp-date-value {
+  color: #f0f3ed !important;
+  -webkit-text-fill-color: #f0f3ed !important;
+}
+:root[data-theme='dark'] main .mp-summary-panel,
+:root:not([data-theme='light']) main .mp-summary-panel {
+  border-color: #445247 !important;
+  background: #252d27 !important;
+}
+:root[data-theme='dark'] main .mp-summary-total-card,
+:root:not([data-theme='light']) main .mp-summary-total-card {
+  border: 1px solid #566457 !important;
+  border-radius: 9px !important;
+  background: #303a32 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] main .mp-summary-total-label,
+:root:not([data-theme='light']) main .mp-summary-total-label {
+  color: #aebbaa !important;
+  -webkit-text-fill-color: #aebbaa !important;
+  letter-spacing: .06em;
+  font-weight: 650;
+}
+:root[data-theme='dark'] main .mp-summary-total-value,
+:root:not([data-theme='light']) main .mp-summary-total-value {
+  color: #f0f3ed !important;
+  -webkit-text-fill-color: #f0f3ed !important;
+}
+:root[data-theme='dark'] main .mp-summary-breakdown,
+:root:not([data-theme='light']) main .mp-summary-breakdown {
+  border-top-color: rgb(174 187 170 / 24%) !important;
+  color: #aebbaa !important;
+}
+:root[data-theme='dark'] main .mp-summary-breakdown-label,
+:root:not([data-theme='light']) main .mp-summary-breakdown-label {
+  color: #aebbaa !important;
+  -webkit-text-fill-color: #aebbaa !important;
+}
+:root[data-theme='dark'] main .mp-summary-breakdown-amount,
+:root:not([data-theme='light']) main .mp-summary-breakdown-amount {
+  color: #d6e0d2 !important;
+  -webkit-text-fill-color: #d6e0d2 !important;
+}
+:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within,
+:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within,
+:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within,
+:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within,
+:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within,
+:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within {
+  background: rgb(145 170 149 / 7%) !important;
+  border-radius: 8px !important;
+}
+:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
+:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
+:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
+:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
+:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field,
+:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field {
+  color: #dbe7d5 !important;
+  -webkit-text-fill-color: #dbe7d5 !important;
+}
+:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
+:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary,
+:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
+:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary {
+  color: #e2ebdd !important;
+  -webkit-text-fill-color: #e2ebdd !important;
+}
+:root[data-theme='dark'] main .mp-import-dialog,
+:root:not([data-theme='light']) main .mp-import-dialog {
+  border-color: #566457 !important;
+  background: #252d27 !important;
+  color: #e5ece2 !important;
+}
+:root[data-theme='dark'] main .mp-import-mode,
+:root:not([data-theme='light']) main .mp-import-mode,
+:root[data-theme='dark'] main .mp-import-close,
+:root:not([data-theme='light']) main .mp-import-close {
+  border: 1px solid #4d5c4e !important;
+  background: #303a32 !important;
+  color: #d4dfd0 !important;
+}
+:root[data-theme='dark'] main .mp-import-mode.is-active,
+:root:not([data-theme='light']) main .mp-import-mode.is-active {
+  border-color: #91a891 !important;
+  background: #3b4a3d !important;
+  color: #f0f4ed !important;
+  box-shadow: inset 0 0 0 1px rgb(145 168 145 / 18%) !important;
+}
+:root[data-theme='dark'] main .mp-import-textarea,
+:root:not([data-theme='light']) main .mp-import-textarea {
+  border-color: #566457 !important;
+  background: #1e2621 !important;
+  color: #e4ebe1 !important;
+  caret-color: #c1d4bc;
+}
+:root[data-theme='dark'] main .mp-import-textarea:focus,
+:root:not([data-theme='light']) main .mp-import-textarea:focus {
+  border-color: #a0b49c !important;
+  box-shadow: 0 0 0 2px rgb(160 180 156 / 14%) !important;
+}
+:root[data-theme='dark'] main .mp-import-textarea::placeholder,
+:root:not([data-theme='light']) main .mp-import-textarea::placeholder {
+  color: #879586 !important;
+  -webkit-text-fill-color: #879586 !important;
+}
+:root[data-theme='dark'] main .mp-import-preview,
+:root:not([data-theme='light']) main .mp-import-preview,
+:root[data-theme='dark'] main .mp-import-confirm,
+:root:not([data-theme='light']) main .mp-import-confirm {
+  border-color: #4d5c4e !important;
+  background: #2b342d !important;
+  color: #d8e2d3 !important;
+}
+:root[data-theme='dark'] main .mp-import-preview-group,
+:root:not([data-theme='light']) main .mp-import-preview-group {
+  border-color: #4a594a !important;
+  background: #303a32 !important;
+}
+:root[data-theme='dark'] main .mp-import-errors,
+:root:not([data-theme='light']) main .mp-import-errors {
+  border-color: #8c5d52 !important;
+  background: #3b2925 !important;
+  color: #f0c9bf !important;
+}
+:root[data-theme='dark'] main .mp-import-primary,
+:root:not([data-theme='light']) main .mp-import-primary {
+  border: 1px solid #718b72 !important;
+  background: #465d48 !important;
+  color: #f4f6f0 !important;
+}
+:root[data-theme='dark'] main .mp-import-primary:hover:not(:disabled),
+:root:not([data-theme='light']) main .mp-import-primary:hover:not(:disabled) {
+  border-color: #a0b49c !important;
+  background: #526b54 !important;
+}
+
+/* Import dialog text is explicitly legible across the Sage surface. */
+:root[data-theme='dark'] main .mp-import-dialog h2,
+:root[data-theme='dark'] main .mp-import-dialog p,
+:root[data-theme='dark'] main .mp-import-dialog span,
+:root[data-theme='dark'] main .mp-import-dialog label,
+:root:not([data-theme='light']) main .mp-import-dialog h2,
+:root:not([data-theme='light']) main .mp-import-dialog p,
+:root:not([data-theme='light']) main .mp-import-dialog span,
+:root:not([data-theme='light']) main .mp-import-dialog label {
+  -webkit-text-fill-color: currentColor;
+}

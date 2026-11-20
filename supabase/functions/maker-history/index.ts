@@ -42,8 +42,12 @@ function isUuid(value: unknown): value is string {
   return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 }
 function validDate(value: unknown): value is string {
-  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
-    !Number.isNaN(Date.parse(value + "T00:00:00Z"));
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day;
 }
 
 Deno.serve(async (request: Request) => {
@@ -221,6 +225,79 @@ Deno.serve(async (request: Request) => {
       if (deleteError) return json(request, { error: "Transaksi gagal dihapus" }, 503);
       if (!deleted) return json(request, { error: "Transaksi sudah dihapus oleh proses lain" }, 409);
       return json(request, { ok: true, deleted_id: draftId, deleted_at: deletedAt });
+    }
+
+    if (action === "import") {
+      if (profile.role !== "admin") {
+        return json(request, { error: "Hanya Admin yang dapat mengimpor snapshot Maker" }, 403);
+      }
+      const mode = String(body?.mode ?? "");
+      const items = body?.items;
+      if (!["insert", "replace"].includes(mode) || !Array.isArray(items) || items.length < 1 || items.length > 100) {
+        return json(request, { error: "Mode atau jumlah kelompok import tidak valid" }, 400);
+      }
+
+      const seen = new Set<string>();
+      for (const item of items) {
+        const kitchenId = item?.kitchen_id;
+        const transactionDate = item?.transaction_date;
+        const payload = item?.payload;
+        if (!isUuid(kitchenId) || !validDate(transactionDate) ||
+            !payload || typeof payload !== "object" || Array.isArray(payload) ||
+            !payload.transaction || typeof payload.transaction !== "object" || Array.isArray(payload.transaction) ||
+            !Array.isArray(payload.transaction.rab) ||
+            !Array.isArray(payload.transaction.gas) ||
+            !Array.isArray(payload.transaction.operasional) ||
+            !Array.isArray(payload.transaction.pencairan_harian) ||
+            !Array.isArray(payload.transaction.lain_lain) ||
+            !Array.isArray(payload.transaction.arutala_lain_lain) ||
+            payload.kitchenId !== kitchenId ||
+            payload.transactionDate !== transactionDate ||
+            payload.transaction.date !== transactionDate ||
+            typeof payload.output !== "string" || !payload.output.trim()) {
+          return json(request, { error: "Snapshot import tidak lengkap atau tanggal/dapurnya tidak cocok" }, 400);
+        }
+        const outputLines = payload.output.split(/\r?\n/).map((line: string) => line.trim()).filter(Boolean);
+        const header = outputLines[0] ?? "";
+        if (!header || /^(REVISI|TAMBAHAN|KEKURANGAN)\s*-/i.test(header) || outputLines.length < 2) {
+          return json(request, { error: "Import hanya menerima output lengkap/final, bukan output revisi parsial" }, 400);
+        }
+        if (payload.output.length > 100000) {
+          return json(request, { error: "Output satu kelompok terlalu besar untuk diimpor" }, 413);
+        }
+        const key = kitchenId + ":" + transactionDate;
+        if (seen.has(key)) {
+          return json(request, { error: "Paste berisi dapur dan tanggal yang sama lebih dari sekali" }, 400);
+        }
+        seen.add(key);
+      }
+
+      const { data: imported, error: importError } = await db.rpc("maker_history_import_atomic", {
+        p_actor_user_id: profile.user_id,
+        p_mode: mode,
+        p_items: items,
+      });
+      if (importError) {
+        console.error("[maker-history import]", importError.message);
+        return json(request, { error: "Import gagal disimpan secara utuh. Data lama tetap dipertahankan." }, 503);
+      }
+      if (imported?.reason === "already_exists") {
+        return json(request, {
+          error: "Snapshot untuk sebagian tanggal sudah ada. Gunakan Replace Data bila memang ingin menggantinya.",
+          reason: "already_exists",
+          conflicts: imported.conflicts ?? [],
+        }, 409);
+      }
+      if (!imported?.ok) {
+        return json(request, { error: "Batch import tidak dapat divalidasi. Tidak ada data yang diubah." }, 400);
+      }
+      return json(request, {
+        ok: true,
+        mode: imported.mode,
+        created_count: imported.created_count,
+        replaced_count: imported.replaced_count,
+        created: imported.created ?? [],
+      });
     }
 
     if (action === "change") {

@@ -3,7 +3,8 @@ import {
   getMakerMasterData,
   type MakerMasterData,
   type MakerAccountRule,
-  type MakerOperationalRule
+  type MakerOperationalRule,
+  type MakerKitchen
 } from './services/master-data'
 import { supabase } from './lib/supabase'
 import HistoryPanel from './HistoryPanel'
@@ -890,6 +891,454 @@ function makeTransaction(
   }
 }
 
+
+type MakerImportGroup = {
+  kitchenId: string
+  kitchenName: string
+  transactionDate: string
+  sourceHeader: string
+  transaction: TransactionGroup
+  output: string
+  lines: string[]
+  categories: Array<{ label: string; count: number; amount: number }>
+  totalRab: number
+  totalOpsHarian: number
+  totalOverall: number
+}
+type MakerImportParseResult = { groups: MakerImportGroup[]; errors: string[] }
+
+function parseMakerOutputHeader(line: string) {
+  const match = /^(?:(REVISI|TAMBAHAN|KEKURANGAN)\s*-\s*)?(.+),\s*(\d{1,2})-([A-Za-z]{3})-(\d{4})(?:\s+\(\d+\))?$/.exec(line.trim())
+  if (!match) return null
+  const monthMap: Record<string, number> = {
+    jan: 1, feb: 2, mar: 3, apr: 4, mei: 5, jun: 6,
+    jul: 7, agu: 8, sep: 9, okt: 10, nov: 11, des: 12
+  }
+  const month = monthMap[match[4].toLocaleLowerCase('id-ID')]
+  const day = Number(match[3])
+  const year = Number(match[5])
+  if (!month || day < 1 || day > 31 || year < 2000 || year > 2100) return null
+  const parsed = new Date(Date.UTC(year, month - 1, day))
+  if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) return null
+  return {
+    kitchenName: match[2].trim(),
+    transactionDate: year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0'),
+    eventMarker: (match[1] ?? '').toUpperCase()
+  }
+}
+
+function normalizeImportIdentity(value: string) {
+  return String(value ?? '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('id-ID')
+}
+function normalizeImportAccountNumber(value: string) {
+  const digits = String(value ?? '').replace(/\D/g, '')
+  return digits || (String(value ?? '').trim() === '-' ? '-' : '')
+}
+function makerIdentityMatches(
+  identity: { ownerName: string; bank: string; accountNumber: string },
+  expected: { ownerName: string; bank: string; accountNumber: string } | null | undefined
+) {
+  if (!expected) return false
+  return normalizeImportIdentity(identity.ownerName) === normalizeImportIdentity(expected.ownerName) &&
+    normalizeImportIdentity(identity.bank) === normalizeImportIdentity(expected.bank) &&
+    normalizeImportAccountNumber(identity.accountNumber) === normalizeImportAccountNumber(expected.accountNumber)
+}
+function parseMakerOutputAmount(line: string) {
+  const separator = line.lastIndexOf(' · ')
+  if (separator < 0) throw new Error('pemisah nominal tidak ditemukan')
+  const amountText = line.slice(separator + 3).trim()
+  if (!/^[0-9][0-9.,\s]*$/.test(amountText)) throw new Error('format nominal tidak dikenali')
+  const digits = amountText.replace(/\D/g, '')
+  const amount = Number(digits)
+  if (!digits || !Number.isSafeInteger(amount) || amount <= 0) throw new Error('nominal harus lebih besar dari nol')
+  return { body: line.slice(0, separator).trim(), amount: String(amount), numericAmount: amount }
+}
+function parseMakerAccountIdentity(value: string) {
+  const bankSeparator = value.lastIndexOf(' - ')
+  const accountSeparator = value.indexOf(' / ', bankSeparator + 3)
+  if (bankSeparator <= 0 || accountSeparator < bankSeparator + 4) {
+    throw new Error('identitas rekening harus berformat Nama - Bank / Nomor Rekening')
+  }
+  const ownerName = value.slice(0, bankSeparator).trim()
+  const bank = value.slice(bankSeparator + 3, accountSeparator).trim().toUpperCase()
+  const accountNumber = value.slice(accountSeparator + 3).trim()
+  if (!ownerName || !bank || !accountNumber) throw new Error('nama, bank, atau nomor rekening kosong')
+  return { ownerName, bank, accountNumber }
+}
+function splitMakerProductList(value: string): string[] {
+  const text = value.trim()
+  if (!text) return []
+  const parts = text.split(/\s*,\s*/).filter(Boolean)
+  if (parts.length > 1) {
+    const last = parts[parts.length - 1]
+    const conjunction = /\s+dan\s+/i.exec(last)
+    if (conjunction) {
+      parts.splice(parts.length - 1, 1, last.slice(0, conjunction.index).trim(), last.slice(conjunction.index + conjunction[0].length).trim())
+    }
+    return parts.map(item => item.trim()).filter(Boolean)
+  }
+  const conjunction = /\s+dan\s+/i.exec(text)
+  if (conjunction) return [text.slice(0, conjunction.index).trim(), text.slice(conjunction.index + conjunction[0].length).trim()].filter(Boolean)
+  return [text]
+}
+
+function parseMakerOutputGroup(
+  kitchen: MakerKitchen,
+  transactionDate: string,
+  lines: string[],
+  sourceHeader: string,
+  masterData: MakerMasterData
+): MakerImportGroup {
+  const kitchenRules = masterData.account_rules.filter(rule => rule.kitchen_id === kitchen.id)
+  const rabRules = kitchenRules.filter(rule => rule.flow_type === 'income' && rule.accounts && rule.supplier)
+  const gasRules = kitchenRules.filter(rule => rule.flow_type === 'neutral' && rule.accounts)
+  const arutalaRule = gasRules.find(rule =>
+    normalizeImportIdentity(rule.accounts?.name ?? '') === 'koperasi arutala' &&
+    (rule.accounts?.bank ?? '').trim().toUpperCase() === 'BNI' &&
+    normalizeImportAccountNumber(rule.accounts?.account_number ?? '') === '1985322260'
+  )
+  const base = normalizeTransaction(
+    makeTransaction(
+      1,
+      transactionDate,
+      rabRules.map(rule => ({ account_id: rule.account_id })),
+      gasRules.map(rule => ({ account_id: rule.account_id, accounts: rule.accounts })),
+      kitchen.name,
+      masterData
+    ),
+    transactionDate
+  )
+  const rab = base.rab.map(row => ({
+    ...row, productTypes: [], amount: '', b3Enabled: false, b3ProductTypes: [], b3Amount: ''
+  }))
+  const gas: SimpleEntry[] = []
+  const operasional: SimpleEntry[] = []
+  const dailyPayments = base.pencairan_harian.map(entry => ({ ...entry, amount: '' }))
+  const sewaEntry = dailyPayments.find(entry => entry.category === 'sewa')
+  const payrollKinds: Record<string, DailyPaymentKind> = {
+    'GAJI RELAWAN': 'Gaji Relawan',
+    'INSENTIF PIC SEKOLAH': 'Insentif PIC Sekolah',
+    'INSENTIF PIC POSYANDU': 'Insentif PIC Posyandu'
+  }
+  const mappedOpsRules = masterData.operational_rules.filter(rule =>
+    rule.kitchen_id === kitchen.id && rule.is_active && rule.rule_type === 'ops_harian'
+  )
+  const mappedSalaryRules = masterData.operational_rules.filter(rule =>
+    rule.kitchen_id === kitchen.id && rule.is_active &&
+    (rule.rule_type === 'gaji_akuntan' || rule.rule_type === 'gaji_ahli_gizi')
+  )
+  const seenRab = new Set<string>()
+  const categories = new Map<string, { count: number; amount: number }>()
+  let totalRab = 0
+  let totalOpsHarian = 0
+  let totalOverall = 0
+  let gasId = 0
+  let operationalId = 0
+  let fallbackDailyId = Math.max(0, ...dailyPayments.map(entry => entry.id)) + 1
+
+  const addCategory = (label: string, value: number) => {
+    const current = categories.get(label) ?? { count: 0, amount: 0 }
+    current.count += 1
+    current.amount += value
+    categories.set(label, current)
+    totalOverall += value
+    if (label === 'RAB' || label === 'RAB B3') totalRab += value
+    else totalOpsHarian += value
+  }
+
+  for (const sourceLine of lines) {
+    const parsed = parseMakerOutputAmount(sourceLine)
+    const separator = parsed.body.indexOf(' : ')
+    if (separator < 0) throw new Error('kategori transaksi tidak dikenali')
+    const prefix = parsed.body.slice(0, separator).trim().toLocaleUpperCase('id-ID')
+    const detail = parsed.body.slice(separator + 3).trim()
+    const segments = detail.split(' · ').map(part => part.trim())
+    const amount = parsed.amount
+    const numericAmount = parsed.numericAmount
+
+    if (prefix === 'RAB' || prefix === 'RAB B3') {
+      const identity = parseMakerAccountIdentity(segments[0] ?? '')
+      const rule = rabRules.find(candidate => {
+        const account = candidate.accounts
+        const supplier = candidate.supplier
+        if (!account || !supplier) return false
+        return makerIdentityMatches(identity, {
+          ownerName: formatSupplierAccountName(supplier.business_name || account.name, supplier.owner_name),
+          bank: account.bank,
+          accountNumber: account.account_number ?? '-'
+        })
+      })
+      if (!rule) throw new Error('rekening RAB tidak cocok dengan mapping dapur ' + kitchen.name)
+      const lineKey = prefix + ':' + rule.account_id
+      if (seenRab.has(lineKey)) throw new Error('rekening RAB yang sama muncul dua kali pada kategori ' + prefix)
+      seenRab.add(lineKey)
+      const products = splitMakerProductList(segments.slice(1).join(' · '))
+      const row = rab.find(entry => entry.accountId === rule.account_id)
+      if (!row) throw new Error('baris RAB tidak tersedia untuk rekening ' + identity.ownerName)
+      if (prefix === 'RAB') {
+        row.amount = amount
+        row.productTypes = products
+      } else {
+        row.b3Enabled = true
+        row.b3Amount = amount
+        row.b3ProductTypes = products
+      }
+      addCategory(prefix, numericAmount)
+      continue
+    }
+
+    if (prefix === 'INSENTIF FASILITAS SPPG') {
+      const identity = parseMakerAccountIdentity(segments[0] ?? '')
+      const rental = getSppgRental(kitchen.name, masterData)
+      if (!rental || !makerIdentityMatches(identity, rental)) {
+        throw new Error('rekening Insentif Fasilitas SPPG tidak cocok dengan mapping dapur')
+      }
+      if (!sewaEntry) throw new Error('baris Insentif Fasilitas SPPG tidak tersedia')
+      sewaEntry.amount = amount
+      sewaEntry.ownerName = identity.ownerName
+      sewaEntry.bank = identity.bank
+      sewaEntry.accountNumber = normalizeImportAccountNumber(identity.accountNumber)
+      addCategory('INSENTIF FASILITAS SPPG', numericAmount)
+      continue
+    }
+
+    const payrollLabels = prefix.split(',').map(item => item.trim()).filter(Boolean)
+    if (payrollLabels.some(label => Boolean(payrollKinds[label]))) {
+      const identity = parseMakerAccountIdentity(segments[0] ?? '')
+      const kinds = payrollLabels.map(label => {
+        const kind = payrollKinds[label]
+        if (!kind) throw new Error('kategori gaji/insentif tidak dikenali: ' + label)
+        return kind
+      })
+      const mapped = getDailyPaymentMappingForKinds(kitchen.name, kinds, masterData)
+      if (mapped && !makerIdentityMatches(identity, mapped)) {
+        throw new Error('rekening Gaji/Insentif tidak cocok dengan mapping dapur')
+      }
+      const kindKey = [...new Set(kinds)].sort((a, b) => a.localeCompare(b, 'id')).join('|')
+      let row = dailyPayments.find(entry =>
+        entry.category === 'gaji' &&
+        [...entry.kinds].sort((a, b) => a.localeCompare(b, 'id')).join('|') === kindKey
+      )
+      if (!row) {
+        row = {
+          id: fallbackDailyId++,
+          category: 'gaji',
+          kinds: [...new Set(kinds)],
+          bank: identity.bank,
+          accountNumber: normalizeImportAccountNumber(identity.accountNumber),
+          ownerName: identity.ownerName,
+          amount: ''
+        }
+        dailyPayments.push(row)
+      }
+      row.amount = amount
+      row.bank = identity.bank
+      row.accountNumber = normalizeImportAccountNumber(identity.accountNumber)
+      row.ownerName = identity.ownerName
+      addCategory(payrollLabels.length > 1 ? 'GAJI + INSENTIF PIC' : payrollLabels[0], numericAmount)
+      continue
+    }
+
+    if (prefix === 'OPS HARIAN' || prefix === 'GAS') {
+      const identity = parseMakerAccountIdentity(segments[0] ?? '')
+      const noteSegments = segments.slice(1)
+      const note = noteSegments.find(part => part.toUpperCase() !== 'VA') ?? ''
+      const isVirtualAccount = noteSegments.some(part => part.toUpperCase() === 'VA')
+      const gasMatch = /^Gas(?:\s+(12kg|50kg))?(?:\s+\((\d+)\s+tabung\))?(?:,\s*(.*))?$/i.exec(note)
+
+      if (gasMatch || prefix === 'GAS') {
+        if (!arutalaRule?.accounts || !arutalaRule.supplier) {
+          throw new Error('Mapping rekening GAS Arutala tidak tersedia untuk dapur ' + kitchen.name)
+        }
+        const expectedOwner = capitalizeEachWord(arutalaRule.supplier.business_name || arutalaRule.accounts.name)
+        if (!makerIdentityMatches(identity, {
+          ownerName: expectedOwner,
+          bank: arutalaRule.accounts.bank,
+          accountNumber: arutalaRule.accounts.account_number ?? '-'
+        })) throw new Error('baris GAS tidak cocok dengan rekening GAS Arutala')
+        if (prefix === 'GAS' && !gasMatch) throw new Error('baris GAS tidak memiliki keterangan Gas yang valid')
+        gasId += 1
+        gas.push({
+          ...emptySimpleEntry(gasId),
+          accountId: arutalaRule.accounts.id,
+          amount,
+          ownerName: identity.ownerName,
+          bank: identity.bank,
+          accountNumber: normalizeImportAccountNumber(identity.accountNumber),
+          need: 'Gas',
+          gasQuantity: gasMatch?.[2] ?? '',
+          gasSize: gasMatch?.[1] === '12kg' || gasMatch?.[1] === '50kg' ? gasMatch[1] : '',
+          gasNote: gasMatch?.[3]?.trim() ?? '',
+          transactionType: 'gas'
+        })
+        addCategory('GAS', numericAmount)
+        continue
+      }
+
+      const mappedOps = mappedOpsRules.find(rule => makerIdentityMatches(identity, {
+        ownerName: rule.owner_name, bank: rule.bank, accountNumber: rule.account_number
+      }))
+      if (mappedOps) {
+        operationalId += 1
+        operasional.push({
+          ...createOperationalEntry(operationalId),
+          operationalRuleType: 'ops_harian',
+          operationalRuleId: mappedOps.id,
+          ownerName: identity.ownerName,
+          bank: identity.bank,
+          accountNumber: normalizeImportAccountNumber(identity.accountNumber),
+          amount,
+          customAccount: false,
+          need: note || 'Ops Harian'
+        })
+        addCategory('OPS HARIAN', numericAmount)
+        continue
+      }
+
+      const mappedSalary = mappedSalaryRules.find(rule => makerIdentityMatches(identity, {
+        ownerName: rule.owner_name, bank: rule.bank, accountNumber: rule.account_number
+      }))
+      if (mappedSalary) {
+        operationalId += 1
+        const defaultNote = mappedSalary.rule_type === 'gaji_akuntan'
+          ? 'Gaji Pengawas Keuangan'
+          : 'Gaji Pengawas Gizi'
+        operasional.push({
+          ...createOperationalEntry(operationalId),
+          operationalRuleType: mappedSalary.rule_type as SimpleEntry['operationalRuleType'],
+          operationalRuleId: mappedSalary.id,
+          ownerName: identity.ownerName,
+          bank: identity.bank,
+          accountNumber: normalizeImportAccountNumber(identity.accountNumber),
+          amount,
+          customAccount: true,
+          need: note || defaultNote,
+          isVirtualAccount
+        })
+        addCategory('GAJI PENGAWAS', numericAmount)
+        continue
+      }
+
+      const arutalaIdentity = arutalaRule?.accounts && arutalaRule.supplier
+        ? makerIdentityMatches(identity, {
+            ownerName: capitalizeEachWord(arutalaRule.supplier.business_name || arutalaRule.accounts.name),
+            bank: arutalaRule.accounts.bank,
+            accountNumber: arutalaRule.accounts.account_number ?? '-'
+          })
+        : false
+      operationalId += 1
+      operasional.push({
+        ...createOperationalEntry(operationalId),
+        ownerName: identity.ownerName,
+        bank: identity.bank,
+        accountNumber: normalizeImportAccountNumber(identity.accountNumber),
+        amount,
+        customAccount: true,
+        useArutalaAccount: arutalaIdentity,
+        need: note,
+        isVirtualAccount
+      })
+      addCategory(arutalaIdentity ? 'ARUTALA' : 'OPS HARIAN', numericAmount)
+      continue
+    }
+
+    throw new Error('kategori "' + prefix + '" belum didukung oleh parser Maker-Pencairan')
+  }
+
+  const transaction = normalizeTransaction({
+    ...base,
+    date: transactionDate,
+    rab,
+    gas,
+    operasional,
+    pencairan_harian: dailyPayments,
+    lain_lain: [emptyOtherEntry(1)],
+    arutala_lain_lain: [],
+    arutala_by_date: {
+      [transactionDate]: { gas, lain_lain: operasional.filter(entry => entry.useArutalaAccount) }
+    },
+    legacy_gaji: []
+  }, transactionDate)
+
+  return {
+    kitchenId: kitchen.id,
+    kitchenName: kitchen.name,
+    transactionDate,
+    sourceHeader,
+    transaction,
+    output: [sourceHeader, ...lines].join('\n'),
+    lines: [...lines],
+    categories: [...categories.entries()].map(([label, value]) => ({
+      label, count: value.count, amount: value.amount
+    })).sort((a, b) => a.label.localeCompare(b.label, 'id', { sensitivity: 'base' })),
+    totalRab,
+    totalOpsHarian,
+    totalOverall
+  }
+}
+
+function parseMakerOutputText(raw: string, masterData: MakerMasterData | null): MakerImportParseResult {
+  if (!masterData) return { groups: [], errors: ['Master data belum selesai dimuat.'] }
+  const errors: string[] = []
+  const builders: Array<{ kitchen: MakerKitchen; date: string; lines: string[]; header: string }> = []
+  let current: { kitchen: MakerKitchen; date: string; lines: string[]; header: string } | null = null
+  const finishCurrent = () => {
+    if (current) builders.push(current)
+    current = null
+  }
+
+  raw.split(/\r?\n/).forEach((rawLine, index) => {
+    const line = rawLine.trim()
+    if (!line) return
+    const header = parseMakerOutputHeader(line)
+    if (header) {
+      finishCurrent()
+      if (header.eventMarker) {
+        errors.push('Baris ' + (index + 1) + ': output ' + header.eventMarker + ' adalah delta revisi, bukan snapshot final.')
+        return
+      }
+      const kitchen = masterData.kitchens.find(item =>
+        item.name.trim().toLocaleLowerCase('id-ID') === header.kitchenName.toLocaleLowerCase('id-ID')
+      )
+      if (!kitchen) {
+        errors.push('Baris ' + (index + 1) + ': dapur "' + header.kitchenName + '" tidak ditemukan di master data.')
+        return
+      }
+      current = { kitchen, date: header.transactionDate, lines: [], header: line }
+      return
+    }
+    if (!current) {
+      errors.push('Baris ' + (index + 1) + ': baris transaksi muncul sebelum header dapur/tanggal.')
+      return
+    }
+    current.lines.push(line)
+  })
+  finishCurrent()
+
+  const groups: MakerImportGroup[] = []
+  const seenGroups = new Set<string>()
+  for (const builder of builders) {
+    const key = builder.kitchen.id + ':' + builder.date
+    if (seenGroups.has(key)) {
+      errors.push('Dapur ' + builder.kitchen.name + ' tanggal ' + formatDate(builder.date) + ' muncul lebih dari sekali di paste.')
+      continue
+    }
+    seenGroups.add(key)
+    if (!builder.lines.length) {
+      errors.push('Dapur ' + builder.kitchen.name + ' tanggal ' + formatDate(builder.date) + ': tidak ada baris transaksi.')
+      continue
+    }
+    try {
+      groups.push(parseMakerOutputGroup(builder.kitchen, builder.date, builder.lines, builder.header, masterData))
+    } catch (error) {
+      errors.push('Dapur ' + builder.kitchen.name + ' tanggal ' + formatDate(builder.date) + ': ' +
+        (error instanceof Error ? error.message : 'baris output tidak dapat dibaca'))
+    }
+  }
+  if (!builders.length && !errors.length) errors.push('Output kosong. Paste hasil Copy dari Maker-Pencairan.')
+  return { groups, errors }
+}
+
 function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixedKitchen?: boolean; token: string; role: 'admin' | 'accountant' }) {
   const saved = useMemo(() => readSavedWorkspace(), [])
   const today = useMemo(() => toIsoDate(new Date()), [])
@@ -1034,6 +1483,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     return !(baseRows ?? []).some(row => String(row.id) === String(id))
   }
   const [historySaveBusy, setHistorySaveBusy] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
+  const [importText, setImportText] = useState('')
+  const [importMode, setImportMode] = useState<'insert' | 'replace'>('insert')
+  const [importConfirmOpen, setImportConfirmOpen] = useState(false)
+  const [importBusy, setImportBusy] = useState(false)
+  const [importMessage, setImportMessage] = useState('')
+  const importParse = useMemo(() => parseMakerOutputText(importText, masterData), [importText, masterData])
   const [operationalAddMenuOpen, setOperationalAddMenuOpen] = useState(false)
   const operationalAddMenuRef = useRef<HTMLDivElement>(null)
   const [customRabOpen, setCustomRabOpen] = useState<Record<string, boolean>>({})
@@ -2753,6 +3209,60 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     }
   }
 
+  async function confirmMakerImport() {
+    if (role !== 'admin' || !importParse.groups.length || importParse.errors.length > 0 || importBusy) return
+    setImportBusy(true)
+    setImportMessage('')
+    try {
+      const items = importParse.groups.map(group => ({
+        kitchen_id: group.kitchenId,
+        transaction_date: group.transactionDate,
+        title: 'Import final ' + group.kitchenName + ' - ' + group.transactionDate,
+        payload: {
+          kitchenId: group.kitchenId,
+          kitchenName: group.kitchenName,
+          transactionDate: group.transactionDate,
+          transaction: group.transaction,
+          output: group.output,
+          totalRab: group.totalRab,
+          totalOpsHarian: group.totalOpsHarian,
+          totalOverall: group.totalOverall
+        }
+      }))
+      const { data, error } = await supabase.functions.invoke('maker-history', {
+        body: { action: 'import', mode: importMode, items },
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Import gagal disimpan.')
+
+      const first = importParse.groups[0]
+      const restored = normalizeTransaction({ ...first.transaction, id: 1 }, first.transactionDate)
+      setHistoryChangeBase(null)
+      setHistoryEntryKeys([])
+      setHistoryAdditionalKeys([])
+      setKitchenId(first.kitchenId)
+      setTransactions([restored])
+      setActiveTransactionId(1)
+      persistWorkspace({ kitchenId: first.kitchenId, activeTransactionId: 1, transactions: [restored] })
+      setImportOpen(false)
+      setImportConfirmOpen(false)
+      setImportText('')
+      setHistoryMessage(
+        (importMode === 'replace' ? 'Replace berhasil. ' : 'Import berhasil. ') +
+        String(data?.created_count ?? importParse.groups.length) + ' snapshot final tersimpan' +
+        (Number(data?.replaced_count ?? 0) > 0
+          ? '; ' + data.replaced_count + ' snapshot lama dipindahkan ke arsip.'
+          : '.')
+      )
+      setCopyMessage('')
+    } catch (error) {
+      setImportMessage(error instanceof Error ? error.message : 'Import gagal diproses.')
+      setImportConfirmOpen(false)
+    } finally {
+      setImportBusy(false)
+    }
+  }
+
   const activeRabMap: Map<string, RabEntry> = new Map(
     (activeTransaction?.rab ?? []).map(
       (entry) => [entry.accountId, entry] as [string, RabEntry]
@@ -2785,6 +3295,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
                   <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-emerald-700/70 bg-emerald-950/50 px-3 text-[10px] font-semibold text-emerald-200 shadow-sm transition hover:border-emerald-500">Riwayat</button>
+                  {role === 'admin' && (
+                    <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="h-9 rounded-lg border border-[#637864] bg-[#354137] px-3 text-[10px] font-semibold text-[#dce6d9] shadow-sm transition hover:border-[#9caf9a] hover:bg-[#3b493d]">Import Data</button>
+                  )}
                   <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800">Reset</button>
                 </div>
               )}
@@ -2872,21 +3385,21 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 </section>
 
                 {kitchenId && activeTransaction && (
-                  <aside className="mp-card flex h-full min-w-0 flex-col rounded-xl p-2.5" aria-label="Total nominal dan status pencairan">
+                  <aside className="mp-card mp-summary-panel flex h-full min-w-0 flex-col rounded-xl p-2.5" aria-label="Total nominal dan status pencairan">
                     <div className="space-y-2">
-                      <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-2.5 py-2 text-center">
-                        <div className="text-[10px] text-slate-400">Total RAB</div>
-                        <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalRab)) || '0'}</div>
+                      <div className="mp-summary-total-card rounded-lg border px-2.5 py-2 text-center">
+                        <div className="mp-summary-total-label text-[10px]">Total RAB</div>
+                        <div className="mp-summary-total-value mt-0.5 break-words text-lg font-semibold tabular-nums">Rp {formatNumber(String(totalRab)) || '0'}</div>
                       </div>
-                      <div className="rounded-lg border border-slate-700/70 bg-slate-950/35 px-2.5 py-2 text-center">
-                        <div className="text-[10px] text-slate-400">Total Ops Harian</div>
-                        <div className="mt-0.5 break-words text-lg font-semibold tabular-nums text-slate-100">Rp {formatNumber(String(totalOpsHarian)) || '0'}</div>
+                      <div className="mp-summary-total-card rounded-lg border px-2.5 py-2 text-center">
+                        <div className="mp-summary-total-label text-[10px]">Total Ops Harian</div>
+                        <div className="mp-summary-total-value mt-0.5 break-words text-lg font-semibold tabular-nums">Rp {formatNumber(String(totalOpsHarian)) || '0'}</div>
                         {opsHarianBreakdown.length > 0 && (
                           <div className="mp-summary-breakdown mt-2 w-full min-w-0 max-w-full space-y-1 border-t border-slate-700/60 pt-2 text-[10px] text-slate-400">
                             {opsHarianBreakdown.map(({ label, amount }) => (
                               <div key={label} className="mp-summary-breakdown-row">
                                 <span className="mp-summary-breakdown-label">{label}</span>
-                                <span className="mp-summary-breakdown-amount tabular-nums text-slate-300">Rp {formatNumber(String(amount))}</span>
+                                <span className="mp-summary-breakdown-amount tabular-nums">Rp {formatNumber(String(amount))}</span>
                               </div>
                             ))}
                           </div>
@@ -3493,6 +4006,103 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           )}
         </>
       </div>
+      {importOpen && role === 'admin' && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/75 p-3 sm:p-5">
+          <section role="dialog" aria-modal="true" aria-labelledby="mp-import-title" className="mp-import-dialog max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-2xl border p-4 shadow-2xl sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 id="mp-import-title" className="text-base font-bold">Import Output Maker-Pencairan</h2>
+                <p className="mt-1 text-xs leading-5">Paste output lengkap yang disalin dari Maker-Pencairan. Parser membaca dapur, tanggal, rekening, kategori, catatan, dan nominal.</p>
+              </div>
+              <button type="button" disabled={importBusy} onClick={() => { setImportOpen(false); setImportConfirmOpen(false) }} className="mp-import-close rounded-lg px-3 py-1.5 text-xs font-semibold">Tutup</button>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button type="button" disabled={importBusy} onClick={() => { setImportMode('insert'); setImportConfirmOpen(false) }} className={\`mp-import-mode rounded-lg border px-3 py-2.5 text-left text-xs font-semibold \${importMode === 'insert' ? 'is-active' : ''}\`}>
+                Import Baru
+                <span className="mt-1 block text-[10px] font-normal opacity-75">Hanya tanggal yang belum memiliki snapshot aktif.</span>
+              </button>
+              <button type="button" disabled={importBusy} onClick={() => { setImportMode('replace'); setImportConfirmOpen(false) }} className={\`mp-import-mode rounded-lg border px-3 py-2.5 text-left text-xs font-semibold \${importMode === 'replace' ? 'is-active' : ''}\`}>
+                Replace Data
+                <span className="mt-1 block text-[10px] font-normal opacity-75">Ganti seluruh snapshot aktif untuk setiap dapur dan tanggal yang dipaste.</span>
+              </button>
+            </div>
+
+            <label htmlFor="mp-import-output" className="mt-4 mb-1.5 block text-xs font-semibold">Output final akuntan</label>
+            <textarea
+              id="mp-import-output"
+              value={importText}
+              onChange={(event) => { setImportText(event.target.value); setImportConfirmOpen(false); setImportMessage('') }}
+              disabled={importBusy}
+              maxLength={500000}
+              placeholder={'Paste output di sini. Contoh:\nCise..., 20-Nov-2026\nRAB : Nama Supplier - BNI / 123456789 · Sayur · 1.000.000\nOPS HARIAN : Koperasi Arutala - BNI / 1985322260 · Gas 12kg (3 tabung) · 270.000'}
+              className="mp-import-textarea h-40 w-full resize-y rounded-xl border px-3 py-2.5 text-xs leading-5 outline-none sm:h-48"
+            />
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="text-[11px] text-slate-400">
+                {importText.trim() ? importParse.groups.length + ' kelompok terbaca · ' + importParse.errors.length + ' masalah' : 'Parser menerima beberapa dapur dan tanggal dalam satu paste.'}
+              </div>
+              <button type="button" disabled={importBusy || !importText.trim()} onClick={() => setImportText('')} className="mp-import-close rounded-lg px-3 py-1.5 text-xs">Kosongkan</button>
+            </div>
+
+            {importParse.groups.length > 0 && (
+              <div className="mp-import-preview mt-3 max-h-52 space-y-2 overflow-auto rounded-xl border p-3">
+                <div className="text-xs font-bold">Preview snapshot</div>
+                {importParse.groups.map(group => (
+                  <div key={group.kitchenId + ':' + group.transactionDate} className="mp-import-preview-group rounded-lg border px-3 py-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-xs font-semibold">{group.kitchenName} · {formatDate(group.transactionDate)}</div>
+                      <div className="text-[10px] tabular-nums">{group.lines.length} transaksi</div>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
+                      {group.categories.map(category => <span key={category.label} className="text-[10px]">{category.label}: {category.count} · Rp {formatNumber(String(category.amount))}</span>)}
+                    </div>
+                    <div className="mt-2 flex flex-wrap justify-between gap-2 border-t pt-2 text-[10px]">
+                      <span>RAB Rp {formatNumber(String(group.totalRab)) || '0'} · Ops & Insentif Rp {formatNumber(String(group.totalOpsHarian)) || '0'}</span>
+                      <strong>Total Rp {formatNumber(String(group.totalOverall)) || '0'}</strong>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {importParse.errors.length > 0 && (
+              <div className="mp-import-errors mt-3 max-h-32 overflow-auto rounded-lg border px-3 py-2.5 text-[11px]" role="alert">
+                <div className="mb-1 font-bold">Import belum aman. Perbaiki output berikut:</div>
+                {importParse.errors.map((item, index) => <div key={index} className="py-0.5">• {item}</div>)}
+              </div>
+            )}
+            {importMessage && <p role="alert" className="mt-3 rounded-lg border border-rose-700/60 bg-rose-950/30 px-3 py-2 text-xs text-rose-200">{importMessage}</p>}
+
+            {importConfirmOpen && (
+              <div className="mp-import-confirm mt-3 rounded-xl border px-3 py-3">
+                <div className="text-xs font-bold">{importMode === 'replace' ? 'Konfirmasi Replace Data' : 'Konfirmasi Import Baru'}</div>
+                <p className="mt-1 text-[11px] leading-5">
+                  {importMode === 'replace'
+                    ? 'Semua snapshot aktif untuk ' + importParse.groups.length + ' kelompok dapur/tanggal yang dipaste akan dipindahkan ke arsip soft-delete, lalu diganti dengan snapshot final baru. Event timeline lama tidak dihapus permanen.'
+                    : 'Snapshot baru akan dibuat hanya untuk tanggal yang belum memiliki data aktif. Bila ada tanggal yang sudah terisi, seluruh batch ditolak tanpa perubahan.'}
+                </p>
+                <div className="mt-3 flex justify-end gap-2">
+                  <button type="button" disabled={importBusy} onClick={() => setImportConfirmOpen(false)} className="mp-import-close rounded-lg px-3 py-2 text-xs">Kembali</button>
+                  <button type="button" disabled={importBusy} onClick={() => void confirmMakerImport()} className="mp-import-primary rounded-lg px-3 py-2 text-xs font-bold">
+                    {importBusy ? 'Menyimpan...' : importMode === 'replace' ? 'Ya, Replace Semua' : 'Ya, Import Baru'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-wrap justify-end gap-2 border-t pt-3">
+              <button type="button" disabled={importBusy} onClick={() => { setImportOpen(false); setImportConfirmOpen(false) }} className="mp-import-close rounded-lg px-3 py-2 text-xs">Batal</button>
+              {!importConfirmOpen && (
+                <button type="button" disabled={importBusy || importParse.errors.length > 0 || importParse.groups.length === 0} onClick={() => setImportConfirmOpen(true)} className="mp-import-primary rounded-lg px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40">
+                  Periksa & Konfirmasi
+                </button>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
       {historySaveOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4">
           <section
