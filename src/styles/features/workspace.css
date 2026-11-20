@@ -188,7 +188,7 @@
 
 /* Fields ------------------------------------------------------------------ */
 .mp-card input[class*='bg-gradient-to-b'] {
-  background-image: linear-gradient(180deg, var(--color-accent), var(--color-accent));
+  background-image: linear-gradient(180deg, var(--color-page), var(--color-page));
 }
 
 
@@ -447,8 +447,8 @@ aside.mp-card .text-lg {
 
 .mp-rab-choice {
   border-color: var(--color-border) !important;
-  background: var(--color-accent) !important;
-  color: var(--color-text) !important;
+  background: rgb(var(--color-page-rgb) / 0.74) !important;
+  color: var(--color-text-muted) !important;
   box-shadow: none !important;
 }
 
@@ -456,14 +456,14 @@ aside.mp-card .text-lg {
 .mp-rab-choice[data-selected='true'] {
   border-color: var(--color-accent-border) !important;
   background: linear-gradient(145deg, var(--color-accent), var(--color-accent)) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
 .mp-rab-choice:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.18) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -497,19 +497,19 @@ aside.mp-card .text-lg {
 
 
 .mp-rab-amount:disabled {
-  background: var(--color-accent) !important;
+  background: rgb(var(--color-page-rgb) / 0.42) !important;
   color: var(--color-text-muted) !important;
 }
 
 
 .mp-static-field {
-  background: var(--color-accent) !important;
+  background: rgb(var(--color-page-rgb) / 0.38) !important;
   border-radius: 5px !important;
 }
 
 
 .mp-card .mp-ops-row .mp-ops-field:not(input):not(select):not(textarea) {
-  background: rgb(var(--color-accent-rgb) / 0.32) !important;
+  background: rgb(var(--color-page-rgb) / 0.34) !important;
   border-radius: 5px !important;
 }
 
@@ -535,7 +535,7 @@ aside.mp-card .text-lg {
   --mp-card-rim-b: var(--color-accent-border) !important;
   --mp-card-glow: var(--color-accent) !important;
   background:
-    linear-gradient(145deg, var(--color-accent), var(--color-accent)) padding-box,
+    linear-gradient(145deg, var(--color-surface), var(--color-page)) padding-box,
     linear-gradient(135deg, rgb(var(--color-surface-rgb) / 0.68), rgb(var(--color-accent-rgb) / 0.32)) border-box !important;
 }
 
@@ -544,7 +544,7 @@ aside.mp-card .text-lg {
   --mp-accent: var(--color-danger-rgb) !important;
   --mp-card-rim-b: var(--color-danger) !important;
   background:
-    linear-gradient(145deg, var(--color-accent), var(--color-accent)) padding-box,
+    linear-gradient(145deg, var(--color-surface), var(--color-page)) padding-box,
     linear-gradient(135deg, rgb(var(--color-surface-rgb) / 0.7), rgb(var(--color-danger-rgb) / 0.32)) border-box !important;
 }
 
@@ -592,7 +592,7 @@ aside.mp-card .text-lg {
 /* Read-only account values are subtly recessed, not mistaken for inputs. */
 .mp-static-field,
 .mp-card .mp-ops-row .mp-ops-field:not(input):not(select):not(textarea) {
-  background: rgb(var(--color-accent-rgb) / 0.32) !important;
+  background: rgb(var(--color-page-rgb) / 0.34) !important;
   border-radius: 5px !important;
 }
 
@@ -606,8 +606,8 @@ aside.mp-card .text-lg {
 /* One quiet navy surface across all main form cards. RAB keeps only a
    restrained amber cue; all other sections share the same teal identity. */
 .mp-form-stack > .mp-card {
-  --mp-card-top: var(--color-accent) !important;
-  --mp-card-bottom: var(--color-accent) !important;
+  --mp-card-top: var(--color-surface) !important;
+  --mp-card-bottom: var(--color-surface) !important;
   --mp-card-rim-a: var(--color-border-strong) !important;
   --mp-card-rim-b: var(--color-accent-border) !important;
   --mp-card-glow: var(--color-accent) !important;
@@ -692,8 +692,8 @@ aside.mp-card .text-lg {
 .mp-form-stack textarea:disabled,
 .mp-form-stack input[readonly],
 .mp-form-stack textarea[readonly] {
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
   background: rgb(var(--color-surface-rgb) / 0.58) !important;
   border-bottom-color: var(--color-border) !important;
   cursor: not-allowed;
@@ -705,7 +705,7 @@ aside.mp-card .text-lg {
 .mp-form-stack input[type="checkbox"] { accent-color: var(--color-accent); }
 
 
-.mp-form-stack option { color: var(--color-text); background: var(--color-accent); }
+.mp-form-stack option { color: var(--color-text); background: var(--color-page); }
 
 
 
@@ -713,7 +713,7 @@ aside.mp-card .text-lg {
 .mp-form-stack .mp-static-field,
 .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
   color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
+  background: rgb(var(--color-page-rgb) / 0.48) !important;
   border: 0 !important;
   border-bottom: 1px solid var(--color-border) !important;
   border-radius: 5px 5px 0 0 !important;
@@ -853,7 +853,7 @@ aside.mp-card .text-lg {
 
 .mp-form-stack .mp-rab-choice {
   border-color: var(--color-border) !important;
-  background: var(--color-accent) !important;
+  background: var(--color-surface) !important;
   color: var(--color-accent) !important;
   box-shadow: none !important;
 }
@@ -876,7 +876,7 @@ aside.mp-card .text-lg {
 .mp-form-stack .mp-rab-add {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.42) !important;
-  color: var(--color-text) !important;
+  color: var(--color-text-muted) !important;
 }
 
 
@@ -1566,7 +1566,7 @@ aside.mp-card .text-lg {
   border: 1px solid var(--color-border) !important;
   border-radius: 8px !important;
   background: rgb(var(--color-page-rgb) / 0.38) !important;
-  color: var(--color-text) !important;
+  color: var(--color-text-muted) !important;
   white-space: nowrap;
 }
 
@@ -1755,7 +1755,7 @@ main select.mp-control-surface:focus-visible {
 .mp-control-surface:disabled,
 main select.mp-control-surface:disabled {
   border-color: var(--color-border) !important;
-  background: var(--color-accent) !important;
+  background: var(--color-surface) !important;
   color: var(--color-text-muted) !important;
   cursor: not-allowed;
 }
@@ -1923,7 +1923,7 @@ main select.mp-control-surface:disabled {
 
 :root .mp-control-surface,
 :root main select.mp-control-surface
-{ background: rgb(var(--color-accent-rgb) / 0.14) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+{ background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
 
 
@@ -1946,8 +1946,8 @@ main select.mp-control-surface:disabled {
   min-height: 38px;
   border: 1px solid var(--color-border) !important;
   border-radius: 7px !important;
-  background: var(--color-surface) !important;
-  color: var(--color-accent) !important;
+  background: rgb(var(--color-accent-rgb) / 0.14) !important;
+  color: var(--color-text) !important;
   box-shadow: none !important;
   text-align: left;
 }
@@ -1956,7 +1956,7 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-operational-add-menu > button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -2001,8 +2001,8 @@ main select.mp-control-surface:disabled {
   border-radius: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -2018,8 +2018,8 @@ main select.mp-control-surface:disabled {
   border-bottom: 2px solid var(--color-accent-border) !important;
   border-radius: 0 !important;
   background: transparent !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
   box-shadow: 0 1px 0 rgb(var(--color-accent-rgb) / 0.35) !important;
   outline: none !important;
@@ -2032,8 +2032,8 @@ main select.mp-control-surface:disabled {
   border-right: 0 !important;
   border-left: 0 !important;
   border-bottom: 2px solid var(--color-accent-border) !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: 0 1px 0 rgb(var(--color-accent-rgb) / 0.35) !important;
 }
 
@@ -2101,7 +2101,7 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom:focus-visible {
   border-color: var(--color-accent-border) !important;
   background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
   outline: none !important;
   box-shadow: none !important;
 }
@@ -2109,7 +2109,7 @@ main select.mp-control-surface:disabled {
 
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom option {
   background: var(--color-surface) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -2146,8 +2146,8 @@ main select.mp-control-surface:disabled {
   border-radius: 6px !important;
   background: var(--mp-field-surface) !important;
   background-image: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: none !important;
 }
 
@@ -2188,8 +2188,8 @@ main select.mp-control-surface:disabled {
   border-radius: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: none !important;
   outline: none !important;
   transition: border-color 140ms ease, color 140ms ease !important;
@@ -2217,8 +2217,8 @@ main select.mp-control-surface:disabled {
   border-radius: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
   box-shadow: none !important;
   outline: none !important;
@@ -2230,8 +2230,8 @@ main select.mp-control-surface:disabled {
   border: 0 !important;
   border-bottom: 1px solid var(--mp-field-focus) !important;
   background: transparent !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
   box-shadow: none !important;
 }
@@ -2252,8 +2252,8 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
 :root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
 :root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
@@ -2285,7 +2285,7 @@ main select.mp-control-surface:disabled {
 
 :root .mp-app-shell .mp-form-stack option {
   background: var(--color-surface) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -2316,14 +2316,14 @@ main select.mp-control-surface:disabled {
   min-height: 36px;
   justify-content: center !important;
   padding-inline: 12px !important;
-  border: 1px solid var(--color-border) !important;
-  border-left: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-accent-border) !important;
+  border-left: 1px solid var(--color-accent-border) !important;
   border-radius: 7px !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
   background-image: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   text-align: center !important;
   text-indent: 0 !important;
   box-shadow: none !important;
@@ -2353,7 +2353,7 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-form-stack .mp-tag--salary {
   border-left-width: 1px !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -2362,7 +2362,7 @@ main select.mp-control-surface:disabled {
   border-color: var(--color-border) !important;
   border-left-color: var(--color-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -2371,12 +2371,12 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-form-stack .mp-static-field,
 :root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
 :root .mp-app-shell .mp-form-stack .mp-salary-field {
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-accent-border) !important;
   border-radius: 6px !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   background-image: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: none !important;
 }
 
@@ -2385,7 +2385,7 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea):hover,
 :root .mp-app-shell .mp-form-stack .mp-salary-field:hover {
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  border-color: var(--color-border) !important;
+  border-color: var(--color-accent-border) !important;
 }
 
 
@@ -2406,8 +2406,8 @@ main select.mp-control-surface:disabled {
   border-radius: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
   font-weight: 650 !important;
   box-shadow: none !important;
@@ -2454,14 +2454,14 @@ main select.mp-control-surface:disabled {
   border-color: var(--color-accent-border) !important;
   border-left-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
 :root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
 }
 
@@ -2640,10 +2640,10 @@ main select.mp-control-surface:disabled {
 {
   border: 1px solid var(--color-accent-border) !important;
   border-radius: 8px !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  background: var(--color-surface) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 
   accent-color: var(--color-accent);
   box-shadow: none !important;
@@ -2668,14 +2668,14 @@ main select.mp-control-surface:disabled {
 :root main .mp-kitchen-select option
 {
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
 :root main .mp-kitchen-select option:checked
 {
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -3301,7 +3301,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 .mp-revision-cancel-button {
   border: 1px solid var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
   box-shadow: none !important;
 }
 
@@ -3309,7 +3309,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 .mp-revision-cancel-button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -3897,7 +3897,7 @@ main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-his
 main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
   box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.14) !important;
 }
 
@@ -3905,7 +3905,7 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle:hover:n
 main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle.is-active {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -4066,11 +4066,11 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 /* Mapped Ops Harian / Arutala note is a real editable value in the same
    filled field treatment as mapped salary account details. */
 :root .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped {
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-accent-border) !important;
   border-radius: 6px !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: none !important;
 }
 
@@ -4255,13 +4255,13 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root main .mp-summary-panel,
 :root main .mp-summary-panel {
   border-color: var(--color-accent-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
+  background: var(--color-surface) !important;
 }
 
 
 :root main .mp-summary-total-card,
 :root main .mp-summary-total-card {
-  border: 1px solid var(--color-border) !important;
+  border: 1px solid var(--color-accent-border) !important;
   border-radius: 9px !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   box-shadow: none !important;
@@ -4279,8 +4279,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 :root main .mp-summary-total-value,
 :root main .mp-summary-total-value {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
@@ -4300,8 +4300,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 :root main .mp-summary-breakdown-amount,
 :root main .mp-summary-breakdown-amount {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
@@ -4330,8 +4330,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
 :root main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
 :root main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
@@ -4339,16 +4339,16 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary,
 :root main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
 :root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
 :root main .mp-import-dialog,
 :root main .mp-import-dialog {
-  border-color: var(--color-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -4366,16 +4366,16 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root main .mp-import-mode.is-active {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
   box-shadow: inset 0 0 0 1px rgb(var(--color-accent-rgb) / 0.18) !important;
 }
 
 
 :root main .mp-import-textarea,
 :root main .mp-import-textarea {
-  border-color: var(--color-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
   caret-color: var(--color-accent);
 }
 
@@ -4400,7 +4400,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root main .mp-import-confirm {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -4423,7 +4423,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root main .mp-import-primary {
   border: 1px solid var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 
@@ -4468,14 +4468,14 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   border-color: var(--color-accent-border) !important;
   border-left-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
 :root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
 }
 
@@ -4504,10 +4504,10 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   min-height: 36px !important;
   border: 1px solid var(--color-accent-border) !important;
   border-radius: 8px !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  background: var(--color-surface) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 
   box-shadow: none !important;
   outline: none;
@@ -4530,8 +4530,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
 :root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus {
   border-color: var(--color-accent-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
+  background: var(--color-surface) !important;
+  background-color: var(--color-surface) !important;
   outline: 2px solid var(--color-accent-border) !important;
   outline-offset: 1px;
   box-shadow: none !important;
@@ -4547,8 +4547,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 :root .mp-app-shell main .mp-date-control .mp-date-value,
 :root .mp-app-shell main .mp-date-control .mp-date-value {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 
