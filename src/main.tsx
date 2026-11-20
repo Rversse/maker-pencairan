@@ -6,6 +6,7 @@ import './styles/base.css'
 import './styles/components.css'
 import './styles/forms.css'
 import './styles/interactions.css'
+import './styles/features/workspace.css'
 import App from './AuthApp.tsx'
 
 createRoot(document.getElementById('root')!).render(
