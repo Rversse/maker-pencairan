@@ -5151,20 +5151,28 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note,
 :root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
   flex: 0 1 auto !important;
-  width: 107px !important;
+  width: max-content !important;
   min-width: 107px !important;
-  max-width: 220px !important;
+  max-width: min(420px, 45vw) !important;
   padding-inline: 8px !important;
   field-sizing: content;
 }
 :root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note,
 :root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note {
   flex: 0 1 auto !important;
-  width: 107px !important;
+  width: max-content !important;
   min-width: 107px !important;
-  max-width: 220px !important;
+  max-width: min(420px, 45vw) !important;
   padding-inline: 8px !important;
   field-sizing: content;
+}
+
+/* Salary nominal follows the same right-edge alignment as the RAB ledger. */
+.mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
+  justify-content: flex-end !important;
+}
+.mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input {
+  text-align: right !important;
 }
 :root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
 :root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal,

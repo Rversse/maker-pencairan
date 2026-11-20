@@ -1442,7 +1442,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         accountNumber: rule.account_number.replace(/\D/g, ''),
         customAccount: false,
         useArutalaAccount: false,
-        need: ''
+        need: 'Ops Harian'
       }]
     })
     setOperationalAddMenuOpen(false)
@@ -3328,7 +3328,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     type="text"
                                     
                                     disabled={!historyEnabled}
-                                    value={entry.need ?? ''}
+                                    value={entry.need ?? ((isMappedOps || isArutala) ? 'Ops Harian' : '')}
                                     maxLength={109}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
                                     placeholder={(isMappedOps || isArutala) ? 'Ops Harian' : 'Catatan'}
