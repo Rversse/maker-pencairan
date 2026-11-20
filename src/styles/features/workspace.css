@@ -5513,3 +5513,43 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 }
 
+
+
+/* These two payment cards use static category tags.
+   Keep the tag surface unchanged while the pointer passes over it;
+   other cards and all editable fields retain their normal interactions. */
+:root .mp-app-shell main .mp-tags-no-hover .mp-tag:hover,
+:root .mp-app-shell main .mp-tags-no-hover .mp-tag:hover:not(:disabled),
+:root .mp-app-shell main .mp-tags-no-hover :is(.mp-ops-row, .mp-payment-row):focus-within .mp-tag:hover {
+  border-color: var(--color-tag-border) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
+  background: var(--color-tag-surface) !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* The Custom selector remains operable; only its hover decoration is removed.
+   Keep its compact chevron and the same muted base appearance. */
+:root .mp-app-shell main .mp-tags-no-hover select.mp-tag--custom:hover,
+:root .mp-app-shell main .mp-tags-no-hover select.mp-tag--custom:hover:not(:disabled),
+:root .mp-app-shell main .mp-tags-no-hover :is(.mp-ops-row, .mp-payment-row):focus-within select.mp-tag--custom:hover:not(:disabled) {
+  border-color: var(--color-tag-border) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
+  background-color: var(--color-tag-surface) !important;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+  transition: none !important;
+}
