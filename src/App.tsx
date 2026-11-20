@@ -936,10 +936,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }, [historySaveOpen])
   const [historyChangeBase, setHistoryChangeBase] = useState<Record<string, unknown> | null>(null)
   const [historyEntryKeys, setHistoryEntryKeys] = useState<string[]>([])
-  const [historyShortageKeys, setHistoryShortageKeys] = useState<string[]>([])
+  const [historyAdditionalKeys, setHistoryAdditionalKeys] = useState<string[]>([])
   const historyChangeActive = Boolean(historyChangeBase)
-  const isHistoryShortage = (key: string) => historyShortageKeys.includes(key)
-  const toggleHistoryShortage = (key: string, enabled: boolean) => setHistoryShortageKeys(current => enabled ? [...new Set([...current, key])] : current.filter(item => item !== key))
+  const isHistoryAdditional = (key: string) => historyAdditionalKeys.includes(key)
+  const toggleHistoryAdditional = (key: string, enabled: boolean) => setHistoryAdditionalKeys(current => enabled ? [...new Set([...current, key])] : current.filter(item => item !== key))
   const historyPreviousAmount = (key: string) => {
     const base = historyChangeBase?.transaction as TransactionGroup | undefined
     if (!base) return ''
@@ -957,39 +957,56 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     const base = historyChangeBase?.transaction as TransactionGroup | undefined
     return base?.gas?.find(row => row.id === id)?.gasQuantity ?? ''
   }
+  const historyCurrentAmount = (key: string) => {
+    if (!activeTransaction) return ''
+    const separator = key.indexOf(':')
+    const field = key.slice(0, separator)
+    const id = key.slice(separator + 1)
+    if (field === 'rab' || field === 'rab_b3') {
+      const row = activeTransaction.rab.find(item => item.accountId === id)
+      return field === 'rab_b3' ? row?.b3Amount ?? '' : row?.amount ?? ''
+    }
+    const rows = activeTransaction[field as keyof TransactionGroup] as Array<{ id: number; amount: string }> | undefined
+    return rows?.find(row => String(row.id) === id)?.amount ?? ''
+  }
   const hasHistoryPreviousAmount = (key: string) => {
     if (!historyChangeActive || !historyEntryKeys.includes(key)) return false
-    return Number(historyPreviousAmount(key).replace(/\D/g, '')) > 0
+    const normalizeAmount = (value: string) => String(value ?? '').replace(/\D/g, '') || '0'
+    const previous = normalizeAmount(historyPreviousAmount(key))
+    const current = normalizeAmount(historyCurrentAmount(key))
+    return previous !== current || isHistoryAdditional(key)
   }
   const renderHistoryPreviousAmount = (key: string) => {
     if (!hasHistoryPreviousAmount(key)) return null
-    return <span className="mp-history-previous-amount">Nominal Awal: Rp {formatNumber(historyPreviousAmount(key))}</span>
+    return <span className="mp-history-previous-amount">Sebelumnya: Rp {formatNumber(historyPreviousAmount(key)) || '0'}</span>
   }
   const renderHistoryPreviousGasQuantity = (id: number) => {
     if (!historyChangeActive || !historyEntryKeys.includes('gas:' + id)) return null
     const previous = historyPreviousGasQuantity(id)
-    if (!previous || Number(previous) <= 0) return null
-    return <span className="mp-history-previous-amount">Jumlah Awal: {previous} tabung</span>
+    const current = activeTransaction?.gas?.find(row => row.id === id)?.gasQuantity ?? ''
+    const normalizeQuantity = (value: string) => String(value ?? '').replace(/\D/g, '').replace(/^0+/, '')
+    if (normalizeQuantity(previous) === normalizeQuantity(current)) return null
+    return <span className="mp-history-previous-amount">Sebelumnya: {previous} tabung</span>
   }
-  const renderHistoryShortageButton = (key: string, onEnable: () => void, onDisable: () => void) => {
+  const renderHistoryAdditionalButton = (key: string, onEnable: () => void, onDisable: () => void) => {
     if (!historyChangeActive || !historyEntryKeys.includes(key)) return null
-    const enabled = isHistoryShortage(key)
+    const enabled = isHistoryAdditional(key)
     const previous = historyPreviousAmount(key)
     return (
       <button
         type="button"
         aria-pressed={enabled}
-        title={enabled ? 'Matikan Kekurangan dan pulihkan nominal awal' : `Aktifkan Kekurangan. Nominal awal: Rp ${formatNumber(previous) || '0'}`}
+        title={enabled ? 'Matikan Tambahan dan pulihkan nominal sebelumnya' : `Aktifkan Tambahan. Isi nominal tambahan; jumlahnya akan ditambahkan ke nominal sebelumnya. Sebelumnya: Rp ${formatNumber(previous) || '0'}`}
         onClick={() => {
           const nextEnabled = !enabled
-          toggleHistoryShortage(key, nextEnabled)
+          toggleHistoryAdditional(key, nextEnabled)
           if (nextEnabled) onEnable()
           else onDisable()
         }}
-        className={`mp-history-shortage-toggle h-8 shrink-0 rounded-md px-2 text-[11px] font-semibold transition ${enabled ? 'is-active' : ''}`}
+        className={`mp-history-additional-toggle h-8 shrink-0 rounded-md px-2 text-[11px] font-semibold transition ${enabled ? 'is-active' : ''}`}
       >
-        <span>Kurang</span>
-        <span className="mp-history-shortage-switch" aria-hidden="true"><span /></span>
+        <span>Tambahan</span>
+        <span className="mp-history-additional-switch" aria-hidden="true"><span /></span>
       </button>
     )
   }
@@ -1806,7 +1823,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     return outputs
   }
 
-    function getTransactionOutput(transaction: TransactionGroup, eventType?: 'REVISI' | 'KEKURANGAN' | 'TAMBAHAN') {
+    function getTransactionOutput(transaction: TransactionGroup, eventType?: 'REVISI' | 'TAMBAHAN' | 'TAMBAHAN') {
     type OutputItem = {
       kind:
         | 'rab'
@@ -2287,7 +2304,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
     setHistoryChangeBase(null)
     setHistoryEntryKeys([])
-    setHistoryShortageKeys([])
+    setHistoryAdditionalKeys([])
     setHistorySaveOpen(false)
     setHistorySaveBusy(false)
     setCopyMessage('')
@@ -2373,8 +2390,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       const amountWithDelta = (previous: string, entered: string) =>
         String(parseAmount(previous) + parseAmount(entered))
       const fields = ['gas', 'operasional', 'pencairan_harian', 'lain_lain', 'arutala_lain_lain'] as const
-      const shortageKeys = new Set(historyShortageKeys)
-      const isShortage = (key: string) => shortageKeys.has(key)
+      const additionalKeys = new Set(historyAdditionalKeys)
+      const isAdditional = (key: string) => additionalKeys.has(key)
 
 {
         const selected = new Set(historyEntryKeys)
@@ -2391,7 +2408,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             const previous = rabById.get(id)
             if (!previous) continue
             const changed = changedRabById.get(id)
-            if (changed && !isShortage(key)) {
+            if (changed && !isAdditional(key)) {
               const unchanged = field === 'rab'
                 ? changed.amount === previous.amount && JSON.stringify(changed.productTypes ?? []) === JSON.stringify(previous.productTypes ?? [])
                 : (changed.b3Amount ?? '') === (previous.b3Amount ?? '') && JSON.stringify(changed.b3ProductTypes ?? []) === JSON.stringify(previous.b3ProductTypes ?? [])
@@ -2409,9 +2426,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               if (!changed) {
                 previous.amount = ''
                 previous.productTypes = []
-              } else if (isShortage(key)) {
+              } else if (isAdditional(key)) {
                 const delta = parseAmount(changed.amount)
-                if (delta <= 0) throw new Error('Isi nominal kekurangan RAB atau hapus baris yang dipilih.')
+                if (delta <= 0) throw new Error('Isi nominal tambahan RAB atau hapus baris yang dipilih.')
                 previous.amount = amountWithDelta(previous.amount, changed.amount)
                 incremental.amount = changed.amount
                 incremental.productTypes = changed.productTypes
@@ -2426,9 +2443,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 previous.b3Amount = ''
                 previous.b3Enabled = false
                 previous.b3ProductTypes = []
-              } else if (isShortage(key)) {
+              } else if (isAdditional(key)) {
                 const delta = parseAmount(changed.b3Amount)
-                if (delta <= 0) throw new Error('Isi nominal kekurangan RAB B3 atau hapus baris yang dipilih.')
+                if (delta <= 0) throw new Error('Isi nominal tambahan RAB B3 atau hapus baris yang dipilih.')
                 previous.b3Amount = amountWithDelta(previous.b3Amount ?? '', changed.b3Amount ?? '')
                 previous.b3Enabled = true
                 previous.b3ProductTypes = changed.b3ProductTypes ?? []
@@ -2461,12 +2478,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             continue
           }
 
-          if (!isShortage(key) && JSON.stringify(changed) === JSON.stringify(previous)) continue
+          if (!isAdditional(key) && JSON.stringify(changed) === JSON.stringify(previous)) continue
 
           let merged: typeof changed
-          if (isShortage(key)) {
+          if (isAdditional(key)) {
             if (parseAmount(changed.amount) <= 0) {
-              throw new Error('Isi nominal kekurangan untuk transaksi yang dipilih, atau hapus barisnya.')
+              throw new Error('Isi nominal tambahan untuk transaksi yang dipilih, atau hapus barisnya.')
             }
             merged = { ...changed, amount: amountWithDelta(previous.amount, changed.amount) }
           } else {
@@ -2554,11 +2571,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         if (JSON.stringify(before[key]) !== JSON.stringify(snapshot[key])) delta[key] = snapshot[key] ?? null
       }
 
-      const incrementalOutput = getTransactionOutput(incrementalTransaction, 'REVISI').join('\n')
-      delta.incremental_output = incrementalOutput
-      if (shortageKeys.size > 0) delta.shortage_keys = [...shortageKeys]
+      if (additionalKeys.size > 0) delta.additional_keys = [...additionalKeys]
 
-      type AuditRowKind = 'revision' | 'shortage' | 'addition' | 'removal'
+      type AuditRowKind = 'revision' | 'additional' | 'addition' | 'removal'
       type AuditRowRecord = {
         key: string
         kind: AuditRowKind
@@ -2620,8 +2635,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         const isAddition = beforeAmount <= 0 && afterAmount > 0 && Boolean(afterLine)
         const kind: AuditRowKind = isAddition
           ? 'addition'
-          : shortageKeys.has(key)
-            ? 'shortage'
+          : additionalKeys.has(key)
+            ? 'additional'
             : !afterLine
               ? 'removal'
               : 'revision'
@@ -2688,6 +2703,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         }
       }
       delta.audit_rows = auditRows
+      const historyEventType = additionalKeys.size > 0 || auditRows.some(row => row.kind === 'addition') ? 'TAMBAHAN' : 'REVISI'
+      const incrementalOutput = getTransactionOutput(incrementalTransaction, historyEventType).join('\n')
+      delta.incremental_output = incrementalOutput
 
       if (!Object.keys(delta).length) throw new Error('Tidak ada perubahan dari snapshot terakhir.')
       const { error: changeError } = await supabase.functions.invoke('maker-history', {
@@ -2695,7 +2713,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
           action: 'change',
           draft_id: existing.id,
           expected_version: detailData.history.version,
-          event_type: 'REVISI',
+          event_type: historyEventType,
           summary: null,
           delta,
           snapshot
@@ -2710,7 +2728,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       persistWorkspace({ kitchenId, activeTransactionId: savedTransaction.id, transactions: [savedTransaction] })
       setHistoryChangeBase(null)
       setHistoryEntryKeys([])
-      setHistoryShortageKeys([])
+      setHistoryAdditionalKeys([])
       setHistorySaveOpen(false)
 
       if (incrementalOutput) {
@@ -3044,7 +3062,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               }
                               placeholder="Nominal"
                               className={`mp-nominal-input mp-rab-amount h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) ? 'mp-field--has-output' : ''}`}
-                            />{renderHistoryShortageButton('rab:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }), () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: historyPreviousAmount('rab:' + rule.account_id) }))}</div>
+                            />{renderHistoryAdditionalButton('rab:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: '' }), () => updateRabEntry(activeTransaction.id, rule.account_id, { amount: historyPreviousAmount('rab:' + rule.account_id) }))}</div>
                             {isWarungbitungArumikata && (
                               <div className="col-span-2 rounded-lg border border-amber-800/50 bg-amber-950/15 p-2">
                                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -3105,7 +3123,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       placeholder="Nominal B3"
                                       aria-label="Nominal RAB B3 Toko Arumikata"
                                       className="mp-nominal-input mp-rab-amount h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-white placeholder:text-slate-500"
-                                    />{renderHistoryShortageButton('rab_b3:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }), () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: historyPreviousAmount('rab_b3:' + rule.account_id) }))}</div>
+                                    />{renderHistoryAdditionalButton('rab_b3:' + rule.account_id, () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: '' }), () => updateRabEntry(activeTransaction.id, rule.account_id, { b3Amount: historyPreviousAmount('rab_b3:' + rule.account_id) }))}</div>
                                   </div>
                                 )}
                               </div>
@@ -3181,7 +3199,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <input type="text" value={(entry.gasNote ?? '').slice(0, gasNoteMaxLength)} maxLength={gasNoteMaxLength} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value.slice(0, gasNoteMaxLength) })} placeholder="Catatan" aria-label="Catatan tambahan GAS (mengikuti sisa batas 109 karakter)" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('gas:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('gas:' + entry.id)}
-<input type="text" inputMode="numeric" value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
+<input type="text" inputMode="numeric" value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryAdditionalButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
                                   </div>
                                 </div>
                               )
@@ -3326,7 +3344,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     
                                     placeholder="Nominal"
                                     className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />{renderHistoryShortageButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
+                                  />{renderHistoryAdditionalButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
                                 </div>
                               </div>
                             )
@@ -3382,7 +3400,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder="Nominal"
                                     aria-label="Nominal Insentif Fasilitas SPPG"
                                     className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
+                                  />{renderHistoryAdditionalButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                               </div>
                             )
                           })}
@@ -3454,7 +3472,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
                                     className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />{renderHistoryShortageButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
+                                  />{renderHistoryAdditionalButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                                 </div>
                               </div>
                             )
@@ -3531,14 +3549,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
 
             setHistoryChangeBase(payload)
             setHistoryEntryKeys(getHistoryEntryKeys(restored))
-            setHistoryShortageKeys([])
+            setHistoryAdditionalKeys([])
                       setKitchenId(restoredKitchenId)
             setTransactions([restored])
             setActiveTransactionId(1)
             setHistoryOpen(false)
             setHistorySaveOpen(false)
             persistWorkspace({ kitchenId: restoredKitchenId, activeTransactionId: 1, transactions: [restored] })
-            setHistoryMessage('Seluruh snapshot dimuat ke Form Utama. Revisi nominal, tandai Kekurangan pada baris terkait, atau tambahkan transaksi baru di Form.')
+            setHistoryMessage('Seluruh snapshot dimuat ke Form Utama. Revisi nominal, aktifkan Tambahan pada baris terkait, atau tambahkan transaksi baru di Form.')
           }}
           onLoadSnapshot={(payload) => {
             const source = payload.transaction as TransactionGroup | undefined
