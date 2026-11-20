@@ -282,7 +282,7 @@ main header > div > span:first-child{
 /* Output panel: terminal-style mono -------------------------------------- */
 .mp-card pre{
   font-family: var(--mp-font-mono);
-  font-size: 11px;
+  font-size: var(--type-caption);
   line-height: 1.65;
   letter-spacing: -0.005em;
   background: var(--mp-pre-bg);

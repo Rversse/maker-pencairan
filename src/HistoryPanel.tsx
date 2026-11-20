@@ -496,15 +496,15 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                     </span>
                     <span className="mp-history-list-totals grid w-full grid-cols-3 gap-2 border-t border-slate-800/70 pt-2 text-left sm:ml-auto sm:w-[min(48%,420px)] sm:min-w-[330px] sm:border-0 sm:pt-0">
                       <span className="min-w-0">
-                        <span className="block text-right text-[9px] font-semibold uppercase tracking-wide text-slate-500">RAB</span>
+                        <span className="block text-right text-[10px] font-semibold uppercase tracking-wide text-slate-500">RAB</span>
                         <span className="mt-0.5 block truncate text-right text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalRab)}</span>
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-right text-[9px] font-semibold uppercase tracking-wide text-slate-500">Ops harian</span>
+                        <span className="block text-right text-[10px] font-semibold uppercase tracking-wide text-slate-500">Ops harian</span>
                         <span className="mt-0.5 block truncate text-right text-xs font-semibold tabular-nums text-slate-200">Rp {money(row.payload?.totalOpsHarian)}</span>
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-right text-[9px] font-semibold uppercase tracking-wide text-slate-500">Total</span>
+                        <span className="block text-right text-[10px] font-semibold uppercase tracking-wide text-slate-500">Total</span>
                         <span className="mt-0.5 block truncate text-right text-xs font-bold tabular-nums text-teal-200">Rp {money(row.payload?.totalOverall)}</span>
                       </span>
                     </span>

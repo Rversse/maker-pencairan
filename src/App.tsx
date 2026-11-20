@@ -2328,7 +2328,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               : mappedOperationalAccount?.ownerName ?? '').trim()
       const note = (operationalEntry.need?.trim() || (isMappedOps || isArutala ? 'Ops Harian' : '')).trim().slice(0, 109)
       const outputOwnerName = ownerName ? capitalizeEachWord(ownerName.slice(0, 30)) : '-'
-      const outputOwnerPrefix = custom && operationalEntry.isVirtualAccount && !ownerName
+      const outputOwnerPrefix = custom && operationalEntry.isVirtualAccount
         ? ''
         : outputOwnerName + ' - '
       const outputBank = bank || '-'
