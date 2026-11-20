@@ -11,11 +11,13 @@
   border-bottom-color: var(--color-border-strong) !important;
 }
 
+
 :root .mp-app-shell .mp-form-stack input[type='checkbox'],
 :root .mp-app-shell .mp-form-stack input[type='radio']
 {
   accent-color: var(--color-accent) !important;
 }
+
 
 
 :root .mp-app-shell .mp-form-stack .mp-static-field,
@@ -27,9 +29,7 @@
   -webkit-text-fill-color: var(--color-text) !important;
 }
 /* Date, kitchen selector and date-range popover share the same control tokens. */
-:root .mp-date-range-trigger,
 :root .mp-date-control,
-:root .mp-history-date,
 :root .mp-kitchen-select
 {
   border-color: var(--color-border-strong) !important;
@@ -40,6 +40,7 @@
 }
 
 
+
 :root .mp-app-shell .mp-form-stack .mp-tag,
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   border-color: var(--color-border-strong) !important;
@@ -50,11 +51,13 @@
 }
 
 
+
 :root .mp-app-shell .mp-form-stack :is(input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']), select:not(.mp-tag--custom), textarea) {
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
 }
+
 
 :root .mp-app-shell .mp-form-stack .mp-static-field,
 :root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
@@ -65,6 +68,7 @@
   -webkit-text-fill-color: var(--color-text) !important;
 }
 
+
 :root .mp-app-shell .mp-form-stack .mp-tag,
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   border-color: var(--color-border-strong) !important;
@@ -73,6 +77,7 @@
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
+
 
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2330bced' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
@@ -84,10 +89,12 @@
   padding-right: 26px !important;
 }
 
+
 :root .mp-app-shell :is(input, select, textarea):not([type='checkbox']):not([type='radio'])
 {
   color-scheme: dark;
 }
+
 
 :root .mp-app-shell .mp-form-stack input::placeholder,
 :root .mp-app-shell .mp-form-stack textarea::placeholder
@@ -96,41 +103,27 @@
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
 
+
 :root .mp-app-shell .mp-form-stack input[type='checkbox'],
 :root .mp-app-shell .mp-form-stack input[type='radio']
 {
   accent-color: var(--color-accent) !important;
 }
 
-:root .mp-app-shell select option,
-:root .mp-date-range-popover select option
+:root .mp-app-shell select option
 {
   color: var(--color-text) !important;
   background: var(--color-surface) !important;
 }
-
-:root .mp-history-date:focus-within {
-  border-color: var(--color-focus) !important;
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
-}
-
-
-
 /* Boxed shared controls outside the workspace underline-only rows. */
-:root .mp-date-range-popover select,
-:root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea {
+:root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea
+{
   border-color: var(--color-border-strong) !important;
   background: var(--color-field) !important;
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
 
-
-:root .mp-date-range-popover select option {
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-}
 
 
 :root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped {
@@ -141,20 +134,13 @@
 }
 
 
+
 :root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped:focus {
   border-color: var(--color-focus) !important;
   background: var(--color-surface-raised) !important;
   box-shadow: 0 0 0 2px var(--color-focus-ring) !important;
 }
 
-
-
-:root .mp-date-range-popover select {
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-field) !important;
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-}
 
 :root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea {
   border-color: var(--color-border-strong) !important;
@@ -164,8 +150,10 @@
   caret-color: var(--color-accent) !important;
 }
 
+
 :root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea::placeholder {
   color: var(--color-text-subtle) !important;
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
+
 
