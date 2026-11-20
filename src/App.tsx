@@ -996,17 +996,20 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       <button
         type="button"
         aria-pressed={enabled}
-        title={enabled ? 'Matikan Tambahan dan pulihkan nominal sebelumnya' : `Aktifkan Tambahan. Isi nominal tambahan; jumlahnya akan ditambahkan ke nominal sebelumnya. Sebelumnya: Rp ${formatNumber(previous) || '0'}`}
+        aria-label={enabled ? 'Nonaktifkan tambahan saldo' : 'Aktifkan tambahan saldo'}
+        title={enabled ? 'Nonaktifkan Tambahan dan pulihkan nominal sebelumnya' : `Tambahkan nominal baru ke nominal sebelumnya. Sebelumnya: Rp ${formatNumber(previous) || '0'}`}
         onClick={() => {
           const nextEnabled = !enabled
           toggleHistoryAdditional(key, nextEnabled)
           if (nextEnabled) onEnable()
           else onDisable()
         }}
-        className={`mp-history-additional-toggle h-8 shrink-0 rounded-md px-2 text-[11px] font-semibold transition ${enabled ? 'is-active' : ''}`}
+        className={`mp-history-additional-toggle h-8 shrink-0 transition ${enabled ? 'is-active' : ''}`}
       >
-        <span>Tambahan</span>
-        <span className="mp-history-additional-switch" aria-hidden="true"><span /></span>
+        <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <circle cx="10" cy="10" r="7.25" />
+          <path d="M10 6.5v7M6.5 10h7" />
+        </svg>
       </button>
     )
   }
@@ -3193,7 +3196,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={accountNumber} className="mp-ops-field mp-payment-detail mp-gas-account flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber}</span></div>
                                     <div className={`mp-gas-quantity mp-gas-quantity-stack ${renderHistoryPreviousGasQuantity(entry.id) ? 'mp-has-history-previous' : ''}`}>
                                       {renderHistoryPreviousGasQuantity(entry.id)}
-                                      <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jumlah" aria-label="Jumlah tabung gas" className="mp-ops-field mp-payment-detail mp-gas-quantity-input h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
+                                      <input type="text" inputMode="numeric" value={entry.gasQuantity ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasQuantity: event.target.value.replace(/\D/g, '').replace(/^0+/, '') })} placeholder="Jml" aria-label="Jumlah tabung gas" className="mp-ops-field mp-payment-detail mp-gas-quantity-input h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
                                     </div>
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field mp-payment-detail mp-gas-size h-10 min-w-0 px-2 text-center text-xs text-slate-100"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
                                     <input type="text" value={(entry.gasNote ?? '').slice(0, gasNoteMaxLength)} maxLength={gasNoteMaxLength} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value.slice(0, gasNoteMaxLength) })} placeholder="Catatan" aria-label="Catatan tambahan GAS (mengikuti sisa batas 109 karakter)" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
@@ -3298,7 +3301,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div className="mp-tag mp-tag--ops">OPS HARIAN</div>
                                   )}
                                   {showVirtualAccount && (
-                                    <label className="mp-va-toggle flex h-9 min-w-0 items-center justify-center gap-1.5 rounded-md border border-slate-700/90 bg-slate-950 px-1.5 text-[10px] font-semibold text-slate-200">
+                                    <label className="mp-va-toggle flex h-9 min-w-0 items-center justify-center gap-1.5 px-1 text-[10px] font-semibold text-slate-200">
                                       <input type="checkbox" checked={Boolean(entry.isVirtualAccount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { isVirtualAccount: event.target.checked })} aria-label="Transfer Virtual Account" className="h-3.5 w-3.5 shrink-0 accent-teal-400" />
                                       <span>VA</span>
                                     </label>
