@@ -1512,11 +1512,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   })
 
   useEffect(() => {
-    document.documentElement.dataset.theme = 'dark'
-    document.documentElement.style.colorScheme = 'dark'
-  }, [])
-
-  useEffect(() => {
     if (!operationalAddMenuOpen) return
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target

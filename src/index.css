@@ -1,10 +1,4 @@
 @import 'tailwindcss';
-
-
-:root {
-  color-scheme: dark;
-              }
-
 html,
 body,
 #root {
@@ -15,52 +9,7 @@ body {
   background: #080d19;
   transition: background-color 220ms ease, color 220ms ease;
 }
-
-/* Uiverse-inspired animated day/night switch, adapted for Maker Pencairan. */
-.theme-switch {
-  --switch-surface: linear-gradient(180deg, #142033, #0d1726);
-  --switch-border: #33445b;
-  --switch-text: #e2e8f0;
-  --switch-track: #070e19;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  min-width: 104px;
-  height: 42px;
-  padding: 5px 11px 5px 6px;
-  border: 1px solid var(--switch-border);
-  border-radius: 999px;
-  background: var(--switch-surface);
-  color: var(--switch-text);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%), 0 5px 14px rgb(0 0 0 / 15%);
-  cursor: pointer;
-  user-select: none;
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 220ms ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-}
-
-
-
 /* Premium financial UI: subtle edge glow and elevated card surfaces. */
-:root {
-  --mp-card-top: #111c2c;
-  --mp-card-bottom: #0b1321;
-  --mp-card-rim-a: rgb(71 92 118 / 72%);
-  --mp-card-rim-b: rgb(16 185 129 / 38%);
-  --mp-card-glow: rgb(16 185 129 / 10%);
-  --mp-card-shadow: 0 14px 34px rgb(0 0 0 / 18%);
-  --mp-card-shadow-hover: 0 18px 38px rgb(0 0 0 / 24%);
-  --mp-action-bg: linear-gradient(145deg, #172235, #0d1726);
-  --mp-action-text: #e7edf7;
-  --mp-action-border: #3a4b62;
-  --mp-action-hover-bg: #f8fafc;
-  --mp-action-hover-text: #101827;
-  --mp-action-hover-border: #f8fafc;
-}
-
 .mp-card {
   position: relative;
   isolation: isolate;
@@ -90,12 +39,12 @@ body {
 }
 
 /* Every completed/valid data field uses a shared active border. */
-:root:not([data-theme='light']) .mp-field--has-output,
-:root:not([data-theme='light']) .mp-field--has-output:hover,
-:root:not([data-theme='light']) .mp-field--has-output:focus,
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
+:root .mp-field--has-output,
+:root .mp-field--has-output:hover,
+:root .mp-field--has-output:focus,
+:root button:not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
+:root button:not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
+:root button:not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
   border-color: #f8fafc !important;
   box-shadow: 0 0 0 1px rgb(248 250 252 / 18%), 0 0 6px rgb(248 250 252 / 18%) !important;
 }
@@ -112,9 +61,9 @@ body {
   border-radius: var(--mp-radius-control) !important;
 }
 
-/* Theme-aware action buttons inspired by the linked Uiverse component:
+/* Shared action button states:
    dark surfaces invert to light on hover; light surfaces invert to dark. */
-button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
+button:not([data-option-button]):not([data-calendar-day]) {
   border: 1px solid var(--mp-action-border) !important;
   border-radius: var(--mp-radius-control);
   background: var(--mp-action-bg) !important;
@@ -123,7 +72,7 @@ button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
   transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
 }
 
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
+:root button:not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
   border-color: var(--mp-action-hover-border) !important;
   background: var(--mp-action-hover-bg) !important;
   color: var(--mp-action-hover-text) !important;
@@ -131,16 +80,16 @@ button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
   transform: translateY(-1px);
 }
 
-button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):focus-visible {
+button:not([data-option-button]):not([data-calendar-day]):focus-visible {
   outline: 2px solid #10b981;
   outline-offset: 3px;
 }
 
-button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
+button:not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
   transform: translateY(0) scale(0.985);
 }
 
-button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):disabled {
+button:not([data-option-button]):not([data-calendar-day]):disabled {
   cursor: not-allowed;
   opacity: 0.42;
   box-shadow: none;
@@ -154,7 +103,7 @@ button[data-button-kind='primary'] {
   box-shadow: 0 4px 12px rgb(5 150 105 / 20%), inset 0 1px 0 rgb(255 255 255 / 12%);
 }
 
-:root:not([data-theme='light']) button[data-button-kind='primary']:hover:not(:disabled) {
+:root button[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #f8fafc !important;
   background: #f8fafc !important;
   color: #101827 !important;
@@ -168,13 +117,13 @@ button[data-option-button='true'] {
   transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
 }
 
-:root:not([data-theme='light']) button[data-option-button='true'][data-selected='false'] {
+:root button[data-option-button='true'][data-selected='false'] {
   border-color: #34445a !important;
   background: linear-gradient(145deg, #172235, #0d1726) !important;
   color: #dbe5f1 !important;
 }
 
-:root:not([data-theme='light']) button[data-option-button='true'][data-selected='false']:hover {
+:root button[data-option-button='true'][data-selected='false']:hover {
   border-color: #f8fafc !important;
   background: #f8fafc !important;
   color: #101827 !important;
@@ -198,39 +147,29 @@ button[data-option-button='true']:focus-visible {
   outline: 2px solid #10b981;
   outline-offset: 2px;
 }
-
-/* Icon-only day/night switch. The icon itself shows the current mode. */
-.theme-switch {
-  width: 64px;
-  min-width: 64px;
-  height: 40px;
-  padding: 4px;
-  gap: 0;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mp-card,
-  button:not(.theme-switch),
+  button,
   button[data-option-button='true'] {
     transition: none !important;
   }
 }
 
 
-/* Native select and option menus must remain readable in either theme. */
-:root:not([data-theme='light']) select {
+/* Native select and option menus use the permanent dark color scheme. */
+:root select {
   color: #e7edf7 !important;
   background-color: #0d1726 !important;
-  color-scheme: dark;
+
 }
 
-:root:not([data-theme='light']) select option,
-:root:not([data-theme='light']) select optgroup {
+:root select option,
+:root select optgroup {
   color: #e7edf7 !important;
   background: #0d1726 !important;
 }
 
-:root:not([data-theme='light']) select option:checked {
+:root select option:checked {
   color: #f0fdf4 !important;
   background: #1f3a36 !important;
 }
@@ -250,28 +189,6 @@ button[data-option-button='true']:focus-visible {
    Covers: ambient background, typography, glass-style cards with per-section
    accent, refined fields/chips/buttons, terminal-style output, status pills.
    ========================================================================== */
-
-:root {
-  --mp-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --mp-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --mp-page-bg: #060a14;
-  --mp-ambient-a: rgb(16 185 129 / 15%);
-  --mp-ambient-b: rgb(56 189 248 / 9%);
-  --mp-ambient-c: rgb(139 92 246 / 8%);
-  --mp-grid: rgb(148 163 184 / 5%);
-  --mp-inset-shadow: rgb(0 0 0 / 38%);
-  --mp-title-from: #ffffff;
-  --mp-title-to: #9ae9cb;
-  --mp-amount-from: #ffffff;
-  --mp-amount-to: #a7f3d0;
-  --mp-pre-bg: linear-gradient(180deg, #050a14, #070e1a);
-  --mp-pre-border: rgb(16 185 129 / 20%);
-  --mp-card-top: #101b2d;
-  --mp-card-bottom: #0a1220;
-  --mp-card-shadow: 0 22px 44px -20px rgb(0 0 0 / 70%), 0 2px 8px rgb(0 0 0 / 22%);
-  --mp-card-shadow-hover: 0 26px 50px -20px rgb(0 0 0 / 75%), 0 4px 14px rgb(0 0 0 / 26%);
-  }
-
 /* Typography ------------------------------------------------------------- */
 html {
   scroll-behavior: smooth;
@@ -354,17 +271,17 @@ main header > div > span:first-child {
 
 /* Cards: per-section accent, accent line, glow, entrance ------------------ */
 .mp-card {
-  --mp-accent: 16 185 129;
+  --mp-accent: var(--color-accent-rgb);
   --mp-card-rim-b: rgb(var(--mp-accent) / 36%);
   animation: mp-rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-.mp-card[class*='border-amber-500'] { --mp-accent: 245 158 11; }
-.mp-card[class*='border-cyan-600'] { --mp-accent: 34 211 238; }
-.mp-card[class*='border-teal-600'] { --mp-accent: 45 212 191; }
-.mp-card[class*='border-sky-600'] { --mp-accent: 56 189 248; }
-.mp-card[class*='border-orange-600'] { --mp-accent: 251 146 60; }
-.mp-card[class*='border-violet-600'] { --mp-accent: 167 139 250; }
+.mp-card[class*='border-amber-500'] { --mp-accent: var(--color-danger-rgb); }
+.mp-card[class*='border-cyan-600'] { --mp-accent: var(--color-accent-rgb); }
+.mp-card[class*='border-teal-600'] { --mp-accent: var(--color-accent-rgb); }
+.mp-card[class*='border-sky-600'] { --mp-accent: var(--color-accent-rgb); }
+.mp-card[class*='border-orange-600'] { --mp-accent: var(--color-danger-rgb); }
+.mp-card[class*='border-violet-600'] { --mp-accent: var(--color-accent-rgb); }
 
 .mp-card:hover {
   --mp-card-rim-b: rgb(var(--mp-accent) / 62%);
@@ -695,7 +612,7 @@ main input[type='radio']:disabled {
 }
 
 /* Clickable actions: solid hit area and clear hover/focus feedback. */
-main button:not(.theme-switch):not([data-option-button='true']):not([data-calendar-day]):not(:disabled):not([aria-disabled='true']) {
+main button:not([data-option-button='true']):not([data-calendar-day]):not(:disabled):not([aria-disabled='true']) {
   cursor: pointer;
   border-color: rgb(100 116 139 / 48%) !important;
   background: linear-gradient(145deg, #172235, #101a2a) !important;
@@ -704,7 +621,7 @@ main button:not(.theme-switch):not([data-option-button='true']):not([data-calend
   transition: background 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-main button:not(.theme-switch):not([data-option-button='true']):not([data-calendar-day]):hover:not(:disabled):not([aria-disabled='true']) {
+main button:not([data-option-button='true']):not([data-calendar-day]):hover:not(:disabled):not([aria-disabled='true']) {
   border-color: rgb(45 212 191 / 76%) !important;
   background: linear-gradient(145deg, rgb(13 148 136 / 24%), rgb(15 23 42 / 96%)) !important;
   color: #f0fdfa !important;
@@ -712,7 +629,7 @@ main button:not(.theme-switch):not([data-option-button='true']):not([data-calend
   transform: translateY(-1px);
 }
 
-main button:not(.theme-switch):not([data-option-button='true']):focus-visible {
+main button:not([data-option-button='true']):focus-visible {
   outline: 2px solid rgb(45 212 191 / 88%);
   outline-offset: 3px;
 }
@@ -905,28 +822,9 @@ main textarea[readonly] {
 
 /* Maker visual system — final consolidation pass.
    Navy/slate surfaces, teal interaction, semantic amber/red only. */
-:root {
-  --mp-page-bg: #070c16;
-  --mp-ambient-a: rgb(45 212 191 / 7%);
-  --mp-ambient-b: rgb(45 212 191 / 3%);
-  --mp-ambient-c: transparent;
-  --mp-grid: rgb(148 163 184 / 2%);
-  --mp-card-top: #111c2c;
-  --mp-card-bottom: #0b1422;
-  --mp-card-rim-a: rgb(71 85 105 / 66%);
-  --mp-card-rim-b: rgb(45 212 191 / 30%);
-  --mp-card-glow: rgb(45 212 191 / 5%);
-  --mp-action-bg: linear-gradient(145deg, #172235, #101a2a);
-  --mp-action-text: #e2e8f0;
-  --mp-action-border: rgb(100 116 139 / 48%);
-  --mp-action-hover-bg: linear-gradient(145deg, rgb(13 148 136 / 22%), #101a2a);
-  --mp-action-hover-text: #f0fdfa;
-  --mp-action-hover-border: rgb(45 212 191 / 72%);
-}
-
 /* One shared navy/slate card surface; amber remains reserved for RAB. */
 .mp-card {
-  --mp-accent: 45 212 191 !important;
+  --mp-accent: var(--color-accent-rgb) !important;
   --mp-card-rim-a: rgb(71 85 105 / 66%) !important;
   --mp-card-rim-b: rgb(45 212 191 / 32%) !important;
   --mp-card-glow: rgb(45 212 191 / 5%) !important;
@@ -935,7 +833,7 @@ main textarea[readonly] {
     linear-gradient(135deg, rgb(71 85 105 / 68%), rgb(45 212 191 / 32%)) border-box !important;
 }
 .mp-card[class*='border-amber-500'] {
-  --mp-accent: 245 158 11 !important;
+  --mp-accent: var(--color-danger-rgb) !important;
   --mp-card-rim-b: rgb(245 158 11 / 42%) !important;
   background:
     linear-gradient(145deg, #111c2c, #0b1422) padding-box,
@@ -945,7 +843,7 @@ main textarea[readonly] {
 .mp-card[class*='border-teal-600'],
 .mp-card[class*='border-sky-600'],
 .mp-card[class*='border-orange-600'],
-.mp-card[class*='border-violet-600'] { --mp-accent: 45 212 191 !important; }
+.mp-card[class*='border-violet-600'] { --mp-accent: var(--color-accent-rgb) !important; }
 .mp-card::before {
   background: radial-gradient(ellipse at 0% 0%, rgb(45 212 191 / 5%), transparent 62%) !important;
 }
@@ -968,29 +866,29 @@ main textarea[readonly] {
 }
 
 /* No bright-white hover inversion; keep hover feedback within teal/slate. */
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
+:root button:not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
   border-color: rgb(45 212 191 / 72%) !important;
   background: linear-gradient(145deg, rgb(13 148 136 / 22%), #101a2a) !important;
   color: #f0fdfa !important;
 }
-:root:not([data-theme='light']) button[data-option-button='true'][data-selected='false']:hover:not(:disabled) {
+:root button[data-option-button='true'][data-selected='false']:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 72%) !important;
   background: rgb(13 148 136 / 16%) !important;
   color: #f0fdfa !important;
 }
-:root:not([data-theme='light']) button[data-button-kind='primary']:hover:not(:disabled) {
+:root button[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #34d399 !important;
   background: linear-gradient(145deg, #059669, #065f46) !important;
   color: #ffffff !important;
 }
 
 /* Output-linked values use the same teal confirmation/focus language. */
-:root:not([data-theme='light']) .mp-field--has-output,
-:root:not([data-theme='light']) .mp-field--has-output:hover,
-:root:not([data-theme='light']) .mp-field--has-output:focus,
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
-:root:not([data-theme='light']) button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
+:root .mp-field--has-output,
+:root .mp-field--has-output:hover,
+:root .mp-field--has-output:focus,
+:root button:not([data-option-button]):not([data-calendar-day]).mp-field--has-output,
+:root button:not([data-option-button]):not([data-calendar-day]).mp-field--has-output:hover,
+:root button:not([data-option-button]):not([data-calendar-day]).mp-field--has-output:focus-visible {
   border-color: #2dd4bf !important;
   box-shadow: 0 0 0 1px rgb(45 212 191 / 22%), 0 0 7px rgb(45 212 191 / 14%) !important;
 }
@@ -2246,16 +2144,6 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 
 
 /* ── Shared control geometry and interaction tokens ───────────────────── */
-:root {
-  --mp-radius-control: 8px;
-  --mp-radius-card: 12px;
-  --mp-radius-dialog: 16px;
-  --mp-control-surface: #0b1422;
-  --mp-control-border: rgb(71 85 105 / 72%);
-  --mp-control-focus: #10b981;
-  --mp-control-focus-glow: rgb(16 185 129 / 18%);
-}
-
 /* Use this primitive for selects and other boxed form controls. */
 .mp-control-surface,
 main select.mp-control-surface {
@@ -2286,10 +2174,10 @@ main select.mp-control-surface:disabled {
   color: #64748b !important;
   cursor: not-allowed;
 }
-.mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]),
-.mp-app-header button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]),
-.mp-auth-card button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]),
-.mp-admin-panel button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
+.mp-app-shell button:not([data-option-button]):not([data-calendar-day]),
+.mp-app-header button:not([data-option-button]):not([data-calendar-day]),
+.mp-auth-card button:not([data-option-button]):not([data-calendar-day]),
+.mp-admin-panel button:not([data-option-button]):not([data-calendar-day]) {
   border-radius: var(--mp-radius-control);
 }
 button[data-option-button='true'] {
@@ -2523,379 +2411,38 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   color: #6ee7b7;
 }
 
-/* ==========================================================================
-   Maker Pencairan · Paper & Ink
-   Quiet professional visual system. This final layer intentionally overrides
-   earlier decorative experiments without touching application behavior.
-   ========================================================================== */
-:root {
-  color-scheme: light;
-  --mp-page-bg: #f4f3ef;
-  --mp-surface: #ffffff;
-  --mp-surface-muted: #f8f8f5;
-  --mp-border: #e3e4df;
-  --mp-border-strong: #d1d4cc;
-  --mp-ink: #252a27;
-  --mp-muted: #737a73;
-  --mp-accent: #496b5b;
-  --mp-accent-strong: #365746;
-  --mp-accent-soft: #edf3ee;
-  --mp-danger: #b44f4b;
-  --mp-shadow: 0 1px 2px rgb(29 35 29 / 4%), 0 8px 24px rgb(29 35 29 / 5%);
-  --mp-shadow-raised: 0 4px 14px rgb(29 35 29 / 8%);
-  --mp-radius-control: 8px;
-  --mp-radius-card: 12px;
-  --mp-radius-dialog: 14px;
-  --mp-font-sans: 'IBM Plex Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mp-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
-  --mp-control-surface: #fff;
-  --mp-control-border: #d9ddd6;
-  --mp-control-focus: #496b5b;
-  --mp-control-focus-glow: rgb(73 107 91 / 13%);
-  --mp-action-bg: #fff;
-  --mp-action-text: #39433c;
-  --mp-action-border: #d9ddd6;
-  --mp-action-hover-bg: #f4f6f2;
-  --mp-action-hover-text: #26382d;
-  --mp-action-hover-border: #b9c8bc;
-  --mp-card-top: #fff;
-  --mp-card-bottom: #fff;
-  --mp-card-rim-a: #e3e4df;
-  --mp-card-rim-b: #e3e4df;
-  --mp-card-glow: transparent;
-  --mp-card-shadow: var(--mp-shadow);
-  --mp-card-shadow-hover: var(--mp-shadow-raised);
-  --mp-inset-shadow: transparent;
-  --mp-title-from: #252a27;
-  --mp-title-to: #252a27;
-  --mp-amount-from: #252a27;
-  --mp-amount-to: #252a27;
-  --mp-pre-bg: #f7f8f5;
-  --mp-pre-border: #e3e4df;
-}
-html, body, #root { min-height: 100%; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  background: var(--mp-page-bg) !important;
-  color: var(--mp-ink);
-  font-family: var(--mp-font-sans);
-  font-feature-settings: 'cv11', 'ss01', 'tnum';
-  font-variant-numeric: tabular-nums;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  transition: background-color 160ms ease, color 160ms ease;
-}
-body::before, body::after { content: none !important; }
-::selection { background: #dce8dd; color: #25382c; }
-* { scrollbar-width: thin; scrollbar-color: #c7ccc4 transparent; }
-
-/* Workspace surfaces: remove glowing rims and decorative per-card accents. */
-.mp-app-shell, .mp-auth-screen, .mp-admin-panel {
-  background: var(--mp-page-bg) !important;
-  color: var(--mp-ink) !important;
-}
-.mp-card, .mp-admin-card, .mp-auth-card {
-  border: 1px solid var(--mp-border) !important;
-  border-radius: var(--mp-radius-card) !important;
-  background: var(--mp-surface) !important;
-  background-image: none !important;
-  box-shadow: var(--mp-shadow) !important;
-  backdrop-filter: none !important;
-  animation: none !important;
-  isolation: auto !important;
-}
-.mp-card::before, .mp-card::after, .mp-auth-screen::before { content: none !important; display: none !important; }
-.mp-card:hover, .mp-admin-card:hover {
-  border-color: var(--mp-border-strong) !important;
-  box-shadow: var(--mp-shadow) !important;
-}
-.mp-card h2::before { content: none !important; display: none !important; }
-main header h1 {
-  color: var(--mp-ink) !important;
-  background: none !important;
-  -webkit-text-fill-color: currentColor !important;
-  font-weight: 650 !important;
-  letter-spacing: -0.035em !important;
-}
-main header > div > span:first-child {
-  border-color: var(--mp-border) !important;
-  background: var(--mp-accent-soft) !important;
-  box-shadow: none !important;
-}
-
-/* Header and navigation are quiet, opaque surfaces. */
-.mp-app-header {
-  background: rgb(255 255 255 / 94%) !important;
-  border-color: var(--mp-border) !important;
-  box-shadow: 0 1px 3px rgb(29 35 29 / 4%) !important;
-  backdrop-filter: blur(8px) !important;
-}
-.mp-app-header p, .mp-app-header span { color: var(--mp-ink); }
-.mp-app-header p.text-slate-500, .mp-app-header .text-slate-500 { color: var(--mp-muted) !important; }
-
-/* Buttons: normal transitions, no shine, lift or dramatic inversion. */
-button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
-  border: 1px solid var(--mp-action-border) !important;
-  border-radius: var(--mp-radius-control) !important;
-  background: var(--mp-action-bg) !important;
-  color: var(--mp-action-text) !important;
-  box-shadow: none !important;
-  transform: none !important;
-  transition: background-color 130ms ease, border-color 130ms ease, color 130ms ease !important;
-}
-button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
-  border-color: var(--mp-action-hover-border) !important;
-  background: var(--mp-action-hover-bg) !important;
-  color: var(--mp-action-hover-text) !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):active:not(:disabled) { transform: none !important; }
-button[data-button-kind='primary'] {
-  border-color: var(--mp-accent-strong) !important;
-  background: var(--mp-accent) !important;
-  color: #fff !important;
-  box-shadow: none !important;
-}
-button[data-button-kind='primary']:hover:not(:disabled) {
-  border-color: var(--mp-accent-strong) !important;
-  background: var(--mp-accent-strong) !important;
-  color: #fff !important;
-}
-button[data-button-kind='primary']::after { display: none !important; }
-button[data-option-button='true'] {
-  border: 1px solid var(--mp-border) !important;
-  background: #fff !important;
-  color: #515a52 !important;
-  box-shadow: none !important;
-}
-button[data-option-button='true'][data-selected='true'] {
-  border-color: #9bb4a0 !important;
-  background: var(--mp-accent-soft) !important;
-  color: var(--mp-accent-strong) !important;
-  box-shadow: inset 0 0 0 1px rgb(73 107 91 / 8%) !important;
-}
-button[data-option-button='true'][data-selected='false']:hover,
-button[data-option-button='true'][data-selected='true']:hover {
-  border-color: #9bb4a0 !important;
-  background: #f0f4ef !important;
-  color: var(--mp-accent-strong) !important;
-  transform: none !important;
-}
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 2px solid rgb(73 107 91 / 42%) !important;
-  outline-offset: 2px;
-}
-button:disabled { box-shadow: none !important; transform: none !important; }
-
-/* Fields keep their established geometry, but use neutral ink and a soft focus. */
-main input:not([type='checkbox']):not([type='radio']),
-main select, main textarea,
-.mp-auth-card input, .mp-auth-card select, .mp-admin-panel input, .mp-admin-panel select {
-  color: var(--mp-ink) !important;
-  background-color: #fff !important;
-  border-color: var(--mp-control-border) !important;
-  box-shadow: none !important;
-}
-main input::placeholder, main textarea::placeholder { color: #9a9f98 !important; }
-main :is(input, select, textarea):focus:not(:disabled):not([readonly]) {
-  color: var(--mp-ink) !important;
-  -webkit-text-fill-color: var(--mp-ink) !important;
-  caret-color: var(--mp-accent) !important;
-  border-bottom-color: var(--mp-accent) !important;
-  box-shadow: 0 1px 0 var(--mp-accent) !important;
-}
-.mp-form-stack input:focus:not(:disabled):not([readonly]),
-.mp-form-stack textarea:focus:not(:disabled):not([readonly]),
-.mp-form-stack select:focus:not(:disabled) {
-  color: var(--mp-ink) !important;
-  -webkit-text-fill-color: var(--mp-ink) !important;
-  caret-color: var(--mp-accent) !important;
-}
-.mp-ops-row { border-color: #eceee9 !important; }
-.mp-ops-field:focus, .mp-ops-field:focus-visible {
-  border-bottom-color: var(--mp-accent) !important;
-  box-shadow: 0 1px 0 var(--mp-accent) !important;
-}
-.mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-.mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
-.mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-.mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-.mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-.mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
-  color: var(--mp-ink) !important;
-  -webkit-text-fill-color: var(--mp-ink) !important;
-}
-.mp-control-surface, main select.mp-control-surface, .mp-date-range-trigger, .mp-history-date {
-  background: #fff !important;
-  color: var(--mp-ink) !important;
-  border-color: var(--mp-control-border) !important;
-  box-shadow: none !important;
-}
-.mp-control-surface:hover:not(:disabled), main select.mp-control-surface:hover:not(:disabled),
-.mp-date-range-trigger:hover:not(:disabled), .mp-history-date:hover {
-  border-color: #aebdaf !important;
-  background: #fbfcfa !important;
-  box-shadow: none !important;
-}
-.mp-control-surface:focus-visible, main select.mp-control-surface:focus-visible {
-  border-color: var(--mp-accent) !important;
-  outline: 2px solid rgb(73 107 91 / 18%) !important;
-  box-shadow: none !important;
-}
-.mp-form-stack select.mp-tag--custom {
-  border: 1px solid #d9e3da !important;
-  border-left: 2px solid var(--mp-accent) !important;
-  background-color: #f3f6f2 !important;
-  color: var(--mp-accent-strong) !important;
-}
-.mp-form-stack select.mp-tag--custom:hover:not(:disabled) { background-color: #edf3ee !important; box-shadow: none !important; }
-
-/* Output and numeric data should read like a ledger, not a terminal. */
-.mp-card pre {
-  background: #f7f8f5 !important;
-  border: 1px solid var(--mp-border) !important;
-  border-radius: 8px !important;
-  color: #343b35 !important;
-  box-shadow: none !important;
-  font-family: var(--mp-font-mono) !important;
-  font-size: 11px !important;
-  line-height: 1.65 !important;
-}
-aside.mp-card .text-lg {
-  color: var(--mp-ink) !important;
-  background: none !important;
-  -webkit-text-fill-color: currentColor !important;
-  font-weight: 650 !important;
-}
-aside.mp-card .rounded-lg { background-image: none !important; }
-/* Status labels are plain text; do not style them as filled pills. */
-.mp-history-event-tag {
-  border-color: #dfe4dc !important;
-  background: #f5f6f3 !important;
-  color: #5f675f !important;
-  font-weight: 600 !important;
-  letter-spacing: .02em !important;
-}
-.mp-history-event-tag.is-normal { border-color: #dbe5f0 !important; background: #f2f6fa !important; color: #49647e !important; }
-.mp-history-event-tag.is-revision { border-color: #d9e5da !important; background: #f0f5ef !important; color: #496b52 !important; }
-.mp-history-event-tag.is-shortage { border-color: #eadfd2 !important; background: #f8f3ed !important; color: #8a6541 !important; }
-.mp-history-event-tag.is-addition { border-color: #dbe7df !important; background: #f1f6f2 !important; color: #4d7058 !important; }
-
-/* Login and administrator surfaces share the same restrained visual language. */
-.mp-auth-screen { background: var(--mp-page-bg) !important; }
-.mp-auth-card {
-  border-color: var(--mp-border) !important;
-  background: #fff !important;
-  box-shadow: 0 12px 34px rgb(29 35 29 / 7%) !important;
-}
-.mp-auth-card h1, .mp-auth-card p, .mp-auth-card label { color: var(--mp-ink); }
-.mp-auth-card .text-slate-500, .mp-admin-panel .text-slate-500 { color: var(--mp-muted) !important; }
-.mp-auth-card .text-emerald-400, .mp-auth-card .text-teal-300 { color: var(--mp-accent) !important; }
-.mp-auth-card input, .mp-auth-card select, .mp-admin-panel input, .mp-admin-panel select {
-  background: #fff !important;
-  color: var(--mp-ink) !important;
-  border-color: var(--mp-control-border) !important;
-}
-.mp-admin-card article {
-  border-color: var(--mp-border) !important;
-  background: #fafbf9 !important;
-}
-.mp-admin-card article:hover { border-color: var(--mp-border-strong) !important; background: #f6f8f4 !important; }
-.mp-admin-credential-notice { border-color: #d6e3d7 !important; background: #f0f5ef !important; }
-.mp-admin-toast { box-shadow: 0 8px 24px rgb(29 35 29 / 12%) !important; }
-.mp-date-range-popover, .mp-history-dialog, [role='dialog'][aria-label*='rentang'] {
-  border-color: var(--mp-border) !important;
-  background: #fff !important;
-  color: var(--mp-ink) !important;
-  box-shadow: 0 16px 44px rgb(29 35 29 / 14%) !important;
-  backdrop-filter: none !important;
-}
-.mp-date-range-popover button[data-calendar-day='true'],
-[role='dialog'] button[data-calendar-day='true'] {
-  color: var(--mp-ink) !important;
-}
-.mp-date-range-popover button[data-calendar-day='true']:hover,
-[role='dialog'] button[data-calendar-day='true']:hover {
-  background: var(--mp-accent-soft) !important;
-}
-.mp-history-date input[type='date']::-webkit-calendar-picker-indicator {
-  filter: none !important;
-  opacity: .72;
-}
-.mp-auth-screen .text-white, .mp-app-shell .text-white { color: var(--mp-ink) !important; }
-.mp-auth-screen .text-slate-300, .mp-app-shell .text-slate-300 { color: #59615a !important; }
-.mp-auth-screen .bg-slate-950, .mp-app-shell .bg-slate-950 { background-color: var(--mp-page-bg) !important; }
-.mp-auth-screen .bg-slate-900, .mp-app-shell .bg-slate-900 { background-color: #fff !important; }
-.mp-auth-screen .border-slate-700, .mp-app-shell .border-slate-800 { border-color: var(--mp-border) !important; }
-
-/* Dark preference remains available to existing theme-aware surfaces. */
-:root[data-theme='dark'] {
-  color-scheme: dark;
-  --mp-page-bg: #202522;
-  --mp-surface: #292f2a;
-  --mp-surface-muted: #303831;
-  --mp-border: #3b443c;
-  --mp-border-strong: #536055;
-  --mp-ink: #e8ece7;
-  --mp-muted: #a6afa6;
-  --mp-accent: #8ba992;
-  --mp-accent-strong: #a7c0aa;
-  --mp-accent-soft: #303c33;
-  --mp-control-surface: #252c27;
-  --mp-control-border: #485349;
-  --mp-control-focus: #8ba992;
-  --mp-control-focus-glow: rgb(139 169 146 / 16%);
-  --mp-action-bg: #2c332d;
-  --mp-action-text: #e1e8e1;
-  --mp-action-border: #485349;
-  --mp-action-hover-bg: #364238;
-  --mp-action-hover-text: #f0f4ef;
-  --mp-action-hover-border: #607365;
-  --mp-card-top: #292f2a;
-  --mp-card-bottom: #292f2a;
-  --mp-card-rim-a: #3b443c;
-  --mp-card-rim-b: #3b443c;
-  --mp-pre-bg: #252c27;
-  --mp-pre-border: #3b443c;
-  --mp-title-from: #e8ece7;
-  --mp-title-to: #e8ece7;
-  --mp-amount-from: #e8ece7;
-  --mp-amount-to: #e8ece7;
-}
-:root[data-theme='dark'] .mp-app-header { background: rgb(32 37 34 / 94%) !important; }
-:root[data-theme='dark'] .mp-card,
-:root[data-theme='dark'] .mp-auth-card,
-:root[data-theme='dark'] .mp-admin-card { background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
-:root[data-theme='dark'] .mp-auth-screen,
-:root[data-theme='dark'] .mp-app-shell,
-:root[data-theme='dark'] .mp-admin-panel { background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
-:root[data-theme='dark'] .mp-card pre { background: var(--mp-pre-bg) !important; border-color: var(--mp-pre-border) !important; color: var(--mp-ink) !important; }
-:root[data-theme='dark'] .mp-control-surface,
-:root[data-theme='dark'] main select.mp-control-surface,
-:root[data-theme='dark'] .mp-date-range-trigger,
-:root[data-theme='dark'] .mp-history-date,
-:root[data-theme='dark'] .mp-auth-card input,
-:root[data-theme='dark'] .mp-auth-card select,
-:root[data-theme='dark'] .mp-admin-panel input,
-:root[data-theme='dark'] .mp-admin-panel select,
-:root[data-theme='dark'] main input:not([type='checkbox']):not([type='radio']),
-:root[data-theme='dark'] main select,
-:root[data-theme='dark'] main textarea { background: #252c27 !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
-:root[data-theme='dark'] button[data-option-button='true'] { background: #2c332d !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
-:root[data-theme='dark'] button[data-option-button='true'][data-selected='true'] { background: #35463a !important; color: #d7e6d8 !important; border-color: #667f6b !important; }
-:root[data-theme='dark'] button[data-button-kind='primary'] { background: #5e8067 !important; color: #fff !important; border-color: #5e8067 !important; }
-:root[data-theme='dark'] .mp-auth-card .text-slate-300,
-:root[data-theme='dark'] .mp-app-shell .text-slate-300 { color: #c2cbc2 !important; }
-:root[data-theme='dark'] .mp-auth-screen .bg-slate-950,
-:root[data-theme='dark'] .mp-app-shell .bg-slate-950 { background-color: var(--mp-page-bg) !important; }
-:root[data-theme='dark'] .mp-auth-screen .bg-slate-900,
-:root[data-theme='dark'] .mp-app-shell .bg-slate-900 { background-color: var(--mp-surface) !important; }
-:root[data-theme='dark'] .mp-date-range-popover,
-:root[data-theme='dark'] .mp-history-dialog,
-:root[data-theme='dark'] [role='dialog'][aria-label*='rentang'] { background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
+/* Legacy Light Theme layer removed. One permanent palette is defined in styles/theme.css. */
+:root .mp-app-header { background: rgb(32 37 34 / 94%) !important; }
+:root .mp-card,
+:root .mp-auth-card,
+:root .mp-admin-card { background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
+:root .mp-auth-screen,
+:root .mp-app-shell,
+:root .mp-admin-panel { background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
+:root .mp-card pre { background: var(--mp-pre-bg) !important; border-color: var(--mp-pre-border) !important; color: var(--mp-ink) !important; }
+:root .mp-control-surface,
+:root main select.mp-control-surface,
+:root .mp-date-range-trigger,
+:root .mp-history-date,
+:root .mp-auth-card input,
+:root .mp-auth-card select,
+:root .mp-admin-panel input,
+:root .mp-admin-panel select,
+:root main input:not([type='checkbox']):not([type='radio']),
+:root main select,
+:root main textarea { background: #252c27 !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+:root button[data-option-button='true'] { background: #2c332d !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
+:root button[data-option-button='true'][data-selected='true'] { background: #35463a !important; color: #d7e6d8 !important; border-color: #667f6b !important; }
+:root button[data-button-kind='primary'] { background: #5e8067 !important; color: #fff !important; border-color: #5e8067 !important; }
+:root .mp-auth-card .text-slate-300,
+:root .mp-app-shell .text-slate-300 { color: #c2cbc2 !important; }
+:root .mp-auth-screen .bg-slate-950,
+:root .mp-app-shell .bg-slate-950 { background-color: var(--mp-page-bg) !important; }
+:root .mp-auth-screen .bg-slate-900,
+:root .mp-app-shell .bg-slate-900 { background-color: var(--mp-surface) !important; }
+:root .mp-date-range-popover,
+:root .mp-history-dialog,
+:root [role='dialog'][aria-label*='rentang'] { background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
@@ -2906,14 +2453,14 @@ aside.mp-card .rounded-lg { background-image: none !important; }
    ========================================================================== */
 
 /* Operational add menu: match the graphite workspace instead of navy. */
-:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu {
+:root .mp-app-shell .mp-operational-add-menu {
   border: 1px solid #485349 !important;
   border-radius: 10px !important;
   background: #292f2a !important;
   padding: 5px !important;
   box-shadow: 0 14px 30px rgb(0 0 0 / 30%) !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu > button {
+:root .mp-app-shell .mp-operational-add-menu > button {
   min-height: 38px;
   border: 1px solid #414b42 !important;
   border-radius: 7px !important;
@@ -2922,19 +2469,19 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: none !important;
   text-align: left;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu > button:hover:not(:disabled) {
+:root .mp-app-shell .mp-operational-add-menu > button:hover:not(:disabled) {
   border-color: #687d6b !important;
   background: #39463b !important;
   color: #f0f4ef !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-operational-add-menu > button:disabled {
+:root .mp-app-shell .mp-operational-add-menu > button:disabled {
   background: #2b312c !important;
   color: #899389 !important;
 }
 
 /* All workspace action buttons use graphite/forest. More specific than the
    earlier theme experiments so the old navy gradients cannot win the cascade. */
-:root[data-theme='dark'] .mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]) {
+:root .mp-app-shell button:not([data-option-button]):not([data-calendar-day]) {
   border-color: #4b574d !important;
   border-radius: 8px !important;
   background: #343c35 !important;
@@ -2944,7 +2491,7 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   text-shadow: none !important;
   transform: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
+:root .mp-app-shell button:not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
   border-color: #718574 !important;
   background: #3d493f !important;
   background-image: none !important;
@@ -2952,23 +2499,23 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: none !important;
   transform: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell button:not(.theme-switch):not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
+:root .mp-app-shell button:not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
   background: #303a32 !important;
   transform: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell button[data-button-kind='primary'] {
+:root .mp-app-shell button[data-button-kind='primary'] {
   border-color: #6c8c72 !important;
   background: #5e8067 !important;
   color: #fff !important;
 }
-:root[data-theme='dark'] .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled) {
+:root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #83a188 !important;
   background: #6a8b72 !important;
   color: #fff !important;
 }
 /* Product/type selection buttons previously retained the old midnight-blue fill. */
-:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'],
-:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='false'] {
+:root .mp-app-shell button[data-option-button='true'],
+:root .mp-app-shell button[data-option-button='true'][data-selected='false'] {
   border: 1px solid #4a554c !important;
   border-radius: 8px !important;
   background: #343c35 !important;
@@ -2977,48 +2524,48 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: none !important;
   text-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='false']:hover {
+:root .mp-app-shell button[data-option-button='true'][data-selected='false']:hover {
   border-color: #738976 !important;
   background: #3b473d !important;
   color: #f0f4ef !important;
   transform: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='true'] {
+:root .mp-app-shell button[data-option-button='true'][data-selected='true'] {
   border-color: #718a73 !important;
   background: #405343 !important;
   color: #dce9dc !important;
   box-shadow: inset 0 0 0 1px rgb(139 169 146 / 9%) !important;
 }
-:root[data-theme='dark'] .mp-app-shell button[data-option-button='true'][data-selected='true']:hover {
+:root .mp-app-shell button[data-option-button='true'][data-selected='true']:hover {
   border-color: #8ba992 !important;
   background: #485d4b !important;
   color: #f0f5ef !important;
 }
 
 /* Summary completion labels: no more bright white pills. */
-:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Sudah diisi'] {
+:root .mp-app-shell aside.mp-card [title='Sudah diisi'] {
   border: 1px solid #526b55 !important;
   background: #354638 !important;
   color: #bfd3c0 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Belum diisi'] {
+:root .mp-app-shell aside.mp-card [title='Belum diisi'] {
   border: 1px solid #73574b !important;
   background: #45372f !important;
   color: #d7b6a0 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Sudah diisi']::before,
-:root[data-theme='dark'] .mp-app-shell aside.mp-card [title='Belum diisi']::before {
+:root .mp-app-shell aside.mp-card [title='Sudah diisi']::before,
+:root .mp-app-shell aside.mp-card [title='Belum diisi']::before {
   box-shadow: none !important;
 }
 
 /* History list and detail: bring every surface into the same graphite palette. */
-:root[data-theme='dark'] .mp-history-overlay {
+:root .mp-history-overlay {
   background: rgb(16 20 17 / 82%) !important;
   backdrop-filter: blur(5px) !important;
 }
-:root[data-theme='dark'] .mp-history-dialog {
+:root .mp-history-dialog {
   border: 1px solid #485349 !important;
   border-radius: 14px !important;
   background: #292f2a !important;
@@ -3026,84 +2573,84 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   color: #e6ebe5 !important;
   box-shadow: 0 18px 50px rgb(0 0 0 / 34%) !important;
 }
-:root[data-theme='dark'] .mp-history-header {
+:root .mp-history-header {
   border-color: #414b42 !important;
   background: #303831 !important;
 }
-:root[data-theme='dark'] .mp-history-dialog h2,
-:root[data-theme='dark'] .mp-history-dialog h3,
-:root[data-theme='dark'] .mp-history-dialog h4,
-:root[data-theme='dark'] .mp-history-dialog .text-slate-50,
-:root[data-theme='dark'] .mp-history-dialog .text-slate-100,
-:root[data-theme='dark'] .mp-history-dialog .text-slate-200 {
+:root .mp-history-dialog h2,
+:root .mp-history-dialog h3,
+:root .mp-history-dialog h4,
+:root .mp-history-dialog .text-slate-50,
+:root .mp-history-dialog .text-slate-100,
+:root .mp-history-dialog .text-slate-200 {
   color: #e5ebe4 !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .text-slate-300 { color: #c3ccc2 !important; }
-:root[data-theme='dark'] .mp-history-dialog .text-slate-400,
-:root[data-theme='dark'] .mp-history-dialog .text-slate-500 { color: #98a397 !important; }
-:root[data-theme='dark'] .mp-history-date {
+:root .mp-history-dialog .text-slate-300 { color: #c3ccc2 !important; }
+:root .mp-history-dialog .text-slate-400,
+:root .mp-history-dialog .text-slate-500 { color: #98a397 !important; }
+:root .mp-history-date {
   border-color: #4b574d !important;
   background: #292f2a !important;
   color: #e0e7df !important;
 }
-:root[data-theme='dark'] .mp-history-date svg { color: #a2b9a4 !important; }
-:root[data-theme='dark'] .mp-history-list-item {
+:root .mp-history-date svg { color: #a2b9a4 !important; }
+:root .mp-history-list-item {
   border-color: #465047 !important;
   background: #252c27 !important;
   background-image: none !important;
   color: #e4eae3 !important;
 }
-:root[data-theme='dark'] .mp-history-list-item:hover:not(:disabled) {
+:root .mp-history-list-item:hover:not(:disabled) {
   border-color: #718574 !important;
   background: #303a32 !important;
   background-image: none !important;
   color: #f0f4ef !important;
 }
-:root[data-theme='dark'] .mp-history-date-icon {
+:root .mp-history-date-icon {
   border-color: #4b574d !important;
   background: #303831 !important;
   color: #a8c0aa !important;
 }
-:root[data-theme='dark'] .mp-history-summary {
+:root .mp-history-summary {
   border-color: #414b42 !important;
   background: #252c27 !important;
 }
-:root[data-theme='dark'] .mp-history-metric {
+:root .mp-history-metric {
   border: 1px solid #465047 !important;
   background: #303831 !important;
   color: #e5ebe4 !important;
 }
-:root[data-theme='dark'] .mp-history-output {
+:root .mp-history-output {
   border-color: #465047 !important;
   background: #252c27 !important;
 }
-:root[data-theme='dark'] .mp-history-output > div:first-child {
+:root .mp-history-output > div:first-child {
   border-color: #414b42 !important;
   background: #303831 !important;
 }
-:root[data-theme='dark'] .mp-history-timeline-item {
+:root .mp-history-timeline-item {
   border-color: #465047 !important;
   background: #252c27 !important;
 }
-:root[data-theme='dark'] .mp-history-timeline-item.is-active {
+:root .mp-history-timeline-item.is-active {
   border-color: #708773 !important;
   background: #303b32 !important;
 }
-:root[data-theme='dark'] .mp-history-timeline-marker {
+:root .mp-history-timeline-marker {
   border-color: #8ba992 !important;
   background: #526d58 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-history-timeline-item.is-active .mp-history-timeline-marker {
+:root .mp-history-timeline-item.is-active .mp-history-timeline-marker {
   background: #a8c0aa !important;
   box-shadow: none !important;
 }
 
 /* History actions: neutral buttons with one restrained forest primary action. */
-:root[data-theme='dark'] .mp-history-dialog .mp-history-icon-button,
-:root[data-theme='dark'] .mp-history-dialog .mp-history-secondary-button,
-:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-copy,
-:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-open {
+:root .mp-history-dialog .mp-history-icon-button,
+:root .mp-history-dialog .mp-history-secondary-button,
+:root .mp-history-dialog .mp-history-timeline-copy,
+:root .mp-history-dialog .mp-history-timeline-open {
   border: 1px solid #4b574d !important;
   border-radius: 8px !important;
   background: #343c35 !important;
@@ -3111,62 +2658,62 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   color: #dce4dc !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-icon-button:hover:not(:disabled),
-:root[data-theme='dark'] .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled),
-:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-copy:hover:not(:disabled),
-:root[data-theme='dark'] .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled) {
+:root .mp-history-dialog .mp-history-icon-button:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-timeline-copy:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled) {
   border-color: #718574 !important;
   background: #3d493f !important;
   color: #f0f4ef !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-primary-button {
+:root .mp-history-dialog .mp-history-primary-button {
   border: 1px solid #6c8c72 !important;
   background: #5e8067 !important;
   color: #fff !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
+:root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
   border-color: #83a188 !important;
   background: #6a8b72 !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-danger-button {
+:root .mp-history-dialog .mp-history-danger-button {
   border: 1px solid #74504b !important;
   background: #46332f !important;
   color: #e2b9ae !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
+:root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: #95665e !important;
   background: #523b35 !important;
   color: #f0d0c7 !important;
 }
 
 /* Status and event tags are muted, not neon. */
-:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag,
-:root[data-theme='dark'] .mp-history-dialog .mp-history-event-badge {
+:root .mp-history-dialog .mp-history-event-tag,
+:root .mp-history-dialog .mp-history-event-badge {
   border-color: #52634f !important;
   background: #354238 !important;
   color: #c4d5c3 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-normal { border-color: #52677a !important; background: #303c47 !important; color: #c1d1df !important; }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-revision { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-shortage { border-color: #755d45 !important; background: #463a2e !important; color: #dec5a4 !important; }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-event-tag.is-addition { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-status--editable { border: 1px solid #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-status--locked { border: 1px solid #74504b !important; background: #46332f !important; color: #e2b9ae !important; }
-:root[data-theme='dark'] .mp-history-dialog .text-teal-200,
-:root[data-theme='dark'] .mp-history-dialog .text-teal-300,
-:root[data-theme='dark'] .mp-history-dialog .text-teal-100 { color: #b8cbb9 !important; }
-:root[data-theme='dark'] .mp-history-dialog .text-emerald-200,
-:root[data-theme='dark'] .mp-history-dialog .text-emerald-300 { color: #bfd2c0 !important; }
-:root[data-theme='dark'] .mp-history-dialog .text-amber-200,
-:root[data-theme='dark'] .mp-history-dialog .text-amber-300 { color: #ddc59f !important; }
-:root[data-theme='dark'] .mp-history-dialog .text-rose-200 { color: #dfb5ae !important; }
+:root .mp-history-dialog .mp-history-event-tag.is-normal { border-color: #52677a !important; background: #303c47 !important; color: #c1d1df !important; }
+:root .mp-history-dialog .mp-history-event-tag.is-revision { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+:root .mp-history-dialog .mp-history-event-tag.is-shortage { border-color: #755d45 !important; background: #463a2e !important; color: #dec5a4 !important; }
+:root .mp-history-dialog .mp-history-event-tag.is-addition { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+:root .mp-history-dialog .mp-history-status--editable { border: 1px solid #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+:root .mp-history-dialog .mp-history-status--locked { border: 1px solid #74504b !important; background: #46332f !important; color: #e2b9ae !important; }
+:root .mp-history-dialog .text-teal-200,
+:root .mp-history-dialog .text-teal-300,
+:root .mp-history-dialog .text-teal-100 { color: #b8cbb9 !important; }
+:root .mp-history-dialog .text-emerald-200,
+:root .mp-history-dialog .text-emerald-300 { color: #bfd2c0 !important; }
+:root .mp-history-dialog .text-amber-200,
+:root .mp-history-dialog .text-amber-300 { color: #ddc59f !important; }
+:root .mp-history-dialog .text-rose-200 { color: #dfb5ae !important; }
 
 /* Nominal fields are deliberately underline-only, including while focused.
    Keep a visible, quiet forest cue on the active field and its parent row. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-nominal > input,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount {
+:root .mp-app-shell .mp-form-stack .mp-nominal-input,
+:root .mp-app-shell .mp-form-stack .mp-payment-nominal > input,
+:root .mp-app-shell .mp-form-stack .mp-rab-amount {
   border: 0 !important;
   border-bottom: 1px solid #59665b !important;
   border-radius: 0 !important;
@@ -3177,12 +2724,12 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: none !important;
   outline: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus-visible,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus-visible,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus-visible {
+:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus,
+:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus-visible,
+:root .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus,
+:root .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus-visible,
+:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
+:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus-visible {
   border: 0 !important;
   border-bottom: 2px solid #91aa95 !important;
   border-radius: 0 !important;
@@ -3193,8 +2740,8 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: 0 1px 0 rgb(145 170 149 / 35%) !important;
   outline: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
+:root .mp-app-shell .mp-form-stack .mp-ops-field:focus,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
   border-top: 0 !important;
   border-right: 0 !important;
   border-left: 0 !important;
@@ -3203,18 +2750,18 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   -webkit-text-fill-color: #e6eee5 !important;
   box-shadow: 0 1px 0 rgb(145 170 149 / 35%) !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
+:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
+:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
+:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
   border-radius: 8px;
   background: rgb(139 169 146 / 6%) !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
+:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
+:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
   color: #c2d4c3 !important;
   -webkit-text-fill-color: #c2d4c3 !important;
 }
@@ -3223,20 +2770,8 @@ aside.mp-card .rounded-lg { background-image: none !important; }
    Paper & Ink · operational field consistency
    Tags, VA toggle, account surfaces, editable underline, focus and placeholders.
    ========================================================================== */
-:root[data-theme='dark'] {
-  --mp-field-surface: #303831;
-  --mp-field-disabled: #252c27;
-  --mp-field-border: #59655b;
-  --mp-field-border-hover: #718574;
-  --mp-field-focus: #91a894;
-  --mp-field-placeholder: #9ba69a;
-  --mp-tag-surface: #354238;
-  --mp-tag-border: #52634f;
-  --mp-tag-text: #c4d5c3;
-}
-
 /* One restrained tag treatment for GAS, Ops Harian, Arutala, Custom and Salary. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag {
+:root .mp-app-shell .mp-form-stack .mp-tag {
   border: 1px solid var(--mp-tag-border) !important;
   border-left: 2px solid #819983 !important;
   border-radius: 7px !important;
@@ -3247,16 +2782,16 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   text-shadow: none !important;
   font-weight: 700 !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--gas,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--ops,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--arutala,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--salary {
+:root .mp-app-shell .mp-form-stack .mp-tag--gas,
+:root .mp-app-shell .mp-form-stack .mp-tag--ops,
+:root .mp-app-shell .mp-form-stack .mp-tag--arutala,
+:root .mp-app-shell .mp-form-stack .mp-tag--salary {
   border-color: var(--mp-tag-border) !important;
   border-left-color: #819983 !important;
   background: var(--mp-tag-surface) !important;
   color: var(--mp-tag-text) !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom {
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   border: 1px solid var(--mp-tag-border) !important;
   border-left: 2px solid #819983 !important;
   background-color: var(--mp-tag-surface) !important;
@@ -3264,41 +2799,41 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   color: var(--mp-tag-text) !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom:focus-visible {
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled),
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom:focus-visible {
   border-color: #718574 !important;
   background-color: #3b473d !important;
   color: #e2ebe1 !important;
   outline: none !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom option {
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom option {
   background: #292f2a !important;
   color: #e2e9e1 !important;
 }
 
 /* The VA control is a simple toggle label, not a filled button/chip. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle {
+:root .mp-app-shell .mp-form-stack .mp-va-toggle {
   border: 1px solid #4b574d !important;
   border-radius: 7px !important;
   background: transparent !important;
   color: #b9c5b8 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle:hover {
+:root .mp-app-shell .mp-form-stack .mp-va-toggle:hover {
   border-color: #718574 !important;
   background: transparent !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-va-toggle input[type='checkbox'] {
+:root .mp-app-shell .mp-form-stack .mp-va-toggle input[type='checkbox'] {
   accent-color: #91a894 !important;
   background: transparent !important;
 }
 
 /* Read-only mapped account values use the same lifted graphite surface.
    Disabled editable fields are slightly recessed and quieter, but stay legible. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-static-field,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-salary-field {
+:root .mp-app-shell .mp-form-stack .mp-static-field,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
+:root .mp-app-shell .mp-form-stack .mp-salary-field {
   border: 1px solid #3f4a41 !important;
   border-radius: 6px !important;
   background: var(--mp-field-surface) !important;
@@ -3307,11 +2842,11 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   -webkit-text-fill-color: #d8e1d7 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:disabled,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:disabled,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:disabled,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input[readonly],
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea[readonly] {
+:root .mp-app-shell .mp-form-stack input:disabled,
+:root .mp-app-shell .mp-form-stack select:disabled,
+:root .mp-app-shell .mp-form-stack textarea:disabled,
+:root .mp-app-shell .mp-form-stack input[readonly],
+:root .mp-app-shell .mp-form-stack textarea[readonly] {
   border: 0 !important;
   border-bottom: 1px solid #414b42 !important;
   border-radius: 0 !important;
@@ -3322,18 +2857,18 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   opacity: 1 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:disabled::placeholder,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:disabled::placeholder {
+:root .mp-app-shell .mp-form-stack input:disabled::placeholder,
+:root .mp-app-shell .mp-form-stack textarea:disabled::placeholder {
   color: #778477 !important;
   -webkit-text-fill-color: #778477 !important;
 }
 
 /* Every editable data field has underline-only geometry. The custom type tag
    remains a tag-style select; ordinary text/select controls share this rule. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(:is(div, span)) {
+:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']),
+:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom),
+:root .mp-app-shell .mp-form-stack textarea,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:not(:is(div, span)) {
   border: 0 !important;
   border-bottom: 1px solid var(--mp-field-border) !important;
   border-radius: 0 !important;
@@ -3345,20 +2880,20 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   outline: none !important;
   transition: border-color 140ms ease, color 140ms ease !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):hover:not(:disabled):not([readonly]),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):hover:not(:disabled),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:hover:not(:disabled):not([readonly]) {
+:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):hover:not(:disabled):not([readonly]),
+:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):hover:not(:disabled),
+:root .mp-app-shell .mp-form-stack textarea:hover:not(:disabled):not([readonly]) {
   border-bottom-color: var(--mp-field-border-hover) !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
 /* Focus changes text/caret and the underline only—never the field or row fill. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
+:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
+:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
+:root .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
+:root .mp-app-shell .mp-form-stack .mp-ops-field:focus,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
   border: 0 !important;
   border-bottom: 1px solid var(--mp-field-focus) !important;
   border-radius: 0 !important;
@@ -3370,8 +2905,8 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: none !important;
   outline: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
+:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
+:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
   border: 0 !important;
   border-bottom: 1px solid var(--mp-field-focus) !important;
   background: transparent !important;
@@ -3381,27 +2916,27 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: none !important;
 }
 /* Do not tint the whole row or neighboring static values while editing. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
+:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
+:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
+:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
   background: transparent !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
+:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
+:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
   color: #d8e1d7 !important;
   -webkit-text-fill-color: #d8e1d7 !important;
 }
 
 /* Placeholder typography is global: Nominal, Catatan, Nama rekening,
    Nomor rekening, Jumlah, and other text fields all use the same treatment. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input::placeholder,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea::placeholder,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-detail::placeholder {
+:root .mp-app-shell .mp-form-stack input::placeholder,
+:root .mp-app-shell .mp-form-stack textarea::placeholder,
+:root .mp-app-shell .mp-form-stack .mp-payment-detail::placeholder {
   color: var(--mp-field-placeholder) !important;
   -webkit-text-fill-color: var(--mp-field-placeholder) !important;
   font-family: var(--mp-font-sans) !important;
@@ -3411,21 +2946,21 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   text-align: center !important;
   opacity: 1 !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):has(option:checked[value='']) {
+:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):has(option:checked[value='']) {
   color: var(--mp-field-placeholder) !important;
   -webkit-text-fill-color: var(--mp-field-placeholder) !important;
   font-family: var(--mp-font-sans) !important;
   font-size: 12px !important;
   font-weight: 500 !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack option {
+:root .mp-app-shell .mp-form-stack option {
   background: #292f2a !important;
   color: #e2e9e1 !important;
 }
 
 /* Keep selected values in editable fields visually consistent with static data. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row .mp-payment-detail:focus-within,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row .mp-payment-detail:focus-within {
+:root .mp-app-shell .mp-form-stack .mp-ops-row .mp-payment-detail:focus-within,
+:root .mp-app-shell .mp-form-stack .mp-payment-row .mp-payment-detail:focus-within {
   background: transparent !important;
 }
 
@@ -3435,12 +2970,12 @@ aside.mp-card .rounded-lg { background-image: none !important; }
    ========================================================================== */
 
 /* Tags are compact labels: centered, content-sized, uniform border on all sides. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--gas,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--ops,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--arutala,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--salary,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom {
+:root .mp-app-shell .mp-form-stack .mp-tag,
+:root .mp-app-shell .mp-form-stack .mp-tag--gas,
+:root .mp-app-shell .mp-form-stack .mp-tag--ops,
+:root .mp-app-shell .mp-form-stack .mp-tag--arutala,
+:root .mp-app-shell .mp-form-stack .mp-tag--salary,
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   width: max-content !important;
   min-width: max-content !important;
   max-width: 100% !important;
@@ -3463,25 +2998,25 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   letter-spacing: .025em !important;
   line-height: 1.2 !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag > span {
+:root .mp-app-shell .mp-form-stack .mp-tag > span {
   display: block;
   width: 100%;
   text-align: center !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom {
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   appearance: auto !important;
   cursor: pointer;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--gas,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--ops,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--arutala,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag--salary {
+:root .mp-app-shell .mp-form-stack .mp-tag--gas,
+:root .mp-app-shell .mp-form-stack .mp-tag--ops,
+:root .mp-app-shell .mp-form-stack .mp-tag--arutala,
+:root .mp-app-shell .mp-form-stack .mp-tag--salary {
   border-left-width: 1px !important;
   background: #29332c !important;
   color: #d5dfd3 !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-tag:hover,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
+:root .mp-app-shell .mp-form-stack .mp-tag:hover,
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
   border-color: #718272 !important;
   border-left-color: #718272 !important;
   background: #303b33 !important;
@@ -3489,9 +3024,9 @@ aside.mp-card .rounded-lg { background-image: none !important; }
 }
 
 /* Locked/mapped account fields are intentionally brighter than category tags. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-static-field,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-salary-field {
+:root .mp-app-shell .mp-form-stack .mp-static-field,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
+:root .mp-app-shell .mp-form-stack .mp-salary-field {
   border: 1px solid #566457 !important;
   border-radius: 6px !important;
   background: #354137 !important;
@@ -3500,22 +3035,22 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   -webkit-text-fill-color: #e0e8df !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-static-field:hover,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea):hover,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-salary-field:hover {
+:root .mp-app-shell .mp-form-stack .mp-static-field:hover,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea):hover,
+:root .mp-app-shell .mp-form-stack .mp-salary-field:hover {
   background: #39473b !important;
   border-color: #637464 !important;
 }
 
 /* Focus must be immediately visible without filling the control or its row.
    A brighter 2px sage underline and clearer text weight are sufficient. */
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
+:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
+:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
+:root .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
+:root .mp-app-shell .mp-form-stack .mp-ops-field:focus,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible,
+:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
+:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
   border-top: 0 !important;
   border-right: 0 !important;
   border-left: 0 !important;
@@ -3530,14 +3065,14 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   box-shadow: none !important;
   outline: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack input:focus::placeholder,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack textarea:focus::placeholder {
+:root .mp-app-shell .mp-form-stack input:focus::placeholder,
+:root .mp-app-shell .mp-form-stack textarea:focus::placeholder {
   color: #bdcbb9 !important;
   -webkit-text-fill-color: #bdcbb9 !important;
 }
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
-:root[data-theme='dark'] .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
+:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
+:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
+:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
   background: transparent !important;
   box-shadow: none !important;
 }
@@ -3548,106 +3083,106 @@ aside.mp-card .rounded-lg { background-image: none !important; }
 
 /* An active transaction row must highlight its text, not only its tag.
    The row receives a restrained surface and every sibling value uses Sage text. */
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
   border-radius: 9px !important;
   background: #2c362e !important;
   box-shadow: inset 0 0 0 1px #596e5b !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
   color: #b8d2b3 !important;
   -webkit-text-fill-color: #b8d2b3 !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
   border-color: #8ba28a !important;
   border-left-color: #8ba28a !important;
   background: #405343 !important;
   color: #e2eee0 !important;
   -webkit-text-fill-color: #e2eee0 !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
   color: #eef5eb !important;
   -webkit-text-fill-color: #eef5eb !important;
   caret-color: #b8d2b3 !important;
 }
-:root[data-theme='dark'] main .mp-form-stack input:focus::placeholder,
-:root[data-theme='dark'] main .mp-form-stack textarea:focus::placeholder {
+:root main .mp-form-stack input:focus::placeholder,
+:root main .mp-form-stack textarea:focus::placeholder {
   color: #bdcbb9 !important;
   -webkit-text-fill-color: #bdcbb9 !important;
 }
 
 /* Tags and read-only data fields share a 40px control height. */
-:root[data-theme='dark'] main .mp-form-stack .mp-tag,
-:root[data-theme='dark'] main .mp-form-stack select.mp-tag--custom {
+:root main .mp-form-stack .mp-tag,
+:root main .mp-form-stack select.mp-tag--custom {
   height: 40px !important;
   min-height: 40px !important;
   line-height: 1.2 !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-static-field,
-:root[data-theme='dark'] main .mp-form-stack .mp-salary-field,
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
+:root main .mp-form-stack .mp-static-field,
+:root main .mp-form-stack .mp-salary-field,
+:root main .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
   height: 40px !important;
   min-height: 40px !important;
 }
 
 /* GAS row now includes a note field immediately after the size selector. */
-:root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row {
+:root main .mp-form-stack .mp-gas-flex-row {
   grid-template-columns:
     max-content max-content max-content max-content
     minmax(64px, .42fr) minmax(90px, .55fr)
     minmax(110px, .72fr) minmax(150px, .9fr) 36px !important;
   align-items: center !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row .mp-gas-note {
+:root main .mp-form-stack .mp-gas-flex-row .mp-gas-note {
   width: 100% !important;
   min-width: 0 !important;
   max-width: none !important;
   text-align: center !important;
 }
 @media (min-width: 1024px) {
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
     grid-column: 7;
   }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal {
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal {
     grid-column: 8;
   }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
     grid-column: 9;
   }
 }
 @media (max-width: 1023px) {
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row {
+  :root main .mp-form-stack .mp-gas-flex-row {
     grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
     row-gap: 8px !important;
   }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 3; grid-row: 1; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 4; grid-row: 1; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 2; max-width: none; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 2; max-width: none; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 3 / 5; grid-row: 2; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 5; grid-row: 3; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 5; grid-row: 1 / span 3; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 3; grid-row: 1; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 4; grid-row: 1; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 2; max-width: none; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 2; max-width: none; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 3 / 5; grid-row: 2; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 5; grid-row: 3; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 5; grid-row: 1 / span 3; }
 }
 @media (max-width: 639px) {
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row {
+  :root main .mp-form-stack .mp-gas-flex-row {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important;
     row-gap: 8px !important;
   }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 1; grid-row: 2; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 2; grid-row: 2; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 3; max-width: none; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 3; max-width: none; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 1 / 3; grid-row: 4; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 3; grid-row: 5; }
-  :root[data-theme='dark'] main .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 5; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 1; grid-row: 2; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 2; grid-row: 2; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 3; max-width: none; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 3; max-width: none; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 1 / 3; grid-row: 4; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 3; grid-row: 5; }
+  :root main .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 5; }
 }
 
 /* VA remains a label + checkbox only; no enclosing button-like border. */
-:root[data-theme='dark'] main .mp-form-stack .mp-va-toggle,
-:root[data-theme='dark'] main .mp-form-stack .mp-va-toggle:hover {
+:root main .mp-form-stack .mp-va-toggle,
+:root main .mp-form-stack .mp-va-toggle:hover {
   width: auto !important;
   min-width: 0 !important;
   max-width: none !important;
@@ -3659,66 +3194,66 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   color: #c2cdc0 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
+:root main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
   width: 15px;
   height: 15px;
   accent-color: #91a894 !important;
 }
 
 /* Shared date/kitchen control appearance is centralized at the end of this file. */
-:root[data-theme='dark'] main .mp-kitchen-select,
-:root[data-theme='dark'] main select#workspace-kitchen {
+:root main .mp-kitchen-select,
+:root main select#workspace-kitchen {
   border: 1px solid #465347 !important;
   border-radius: 8px !important;
   background: #252c27 !important;
   background-color: #252c27 !important;
   color: #e2e9e1 !important;
   -webkit-text-fill-color: #e2e9e1 !important;
-  color-scheme: dark;
+
   accent-color: #91a894;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] main .mp-kitchen-select:hover,
-:root[data-theme='dark'] main select#workspace-kitchen:hover {
+:root main .mp-kitchen-select:hover,
+:root main select#workspace-kitchen:hover {
   border-color: #718272 !important;
   background: #2a322b !important;
 }
-:root[data-theme='dark'] main .mp-kitchen-select:focus,
-:root[data-theme='dark'] main select#workspace-kitchen:focus {
+:root main .mp-kitchen-select:focus,
+:root main select#workspace-kitchen:focus {
   border-color: #a0b49c !important;
   outline: 2px solid rgb(160 180 156 / 12%) !important;
   outline-offset: 1px;
 }
-:root[data-theme='dark'] main .mp-kitchen-select option,
-:root[data-theme='dark'] main select#workspace-kitchen option {
+:root main .mp-kitchen-select option,
+:root main select#workspace-kitchen option {
   background: #29332c !important;
   color: #e2e9e1 !important;
 }
-:root[data-theme='dark'] main .mp-kitchen-select option:checked,
-:root[data-theme='dark'] main select#workspace-kitchen option:checked {
+:root main .mp-kitchen-select option:checked,
+:root main select#workspace-kitchen option:checked {
   background: #435645 !important;
   color: #f2f5ef !important;
 }
 
 /* Output header: title, count and review note share the same vertical center. */
-:root[data-theme='dark'] main .mp-output-header {
+:root main .mp-output-header {
   min-height: 34px !important;
   align-items: center !important;
   padding-top: 4px !important;
   padding-bottom: 2px;
 }
-:root[data-theme='dark'] main .mp-output-header > div {
+:root main .mp-output-header > div {
   min-height: 24px;
   align-items: center !important;
 }
-:root[data-theme='dark'] main .mp-output-header [role='note'] {
+:root main .mp-output-header [role='note'] {
   display: flex;
   min-height: 22px;
   align-items: center;
   margin: 0 !important;
   line-height: 1.35 !important;
 }
-:root[data-theme='dark'] main .mp-output-count {
+:root main .mp-output-count {
   width: 20px !important;
   height: 20px !important;
   border: 1px solid #617a62 !important;
@@ -3730,11 +3265,11 @@ aside.mp-card .rounded-lg { background-image: none !important; }
 }
 
 /* Facility, salary and incentive summary are plain status text, not pills. */
-:root[data-theme='dark'] main .mp-summary-checks {
+:root main .mp-summary-checks {
   border: 0 !important;
   padding-top: 10px !important;
 }
-:root[data-theme='dark'] main .mp-summary-checks .mp-summary-check {
+:root main .mp-summary-checks .mp-summary-check {
   display: inline !important;
   padding: 0 !important;
   border: 0 !important;
@@ -3744,49 +3279,49 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   font-size: 10px !important;
   font-weight: 550 !important;
 }
-:root[data-theme='dark'] main .mp-summary-checks .mp-summary-check::before {
+:root main .mp-summary-checks .mp-summary-check::before {
   content: none !important;
   display: none !important;
 }
-:root[data-theme='dark'] main .mp-summary-checks .mp-summary-check.is-complete {
+:root main .mp-summary-checks .mp-summary-check.is-complete {
   color: #bac9b6 !important;
   -webkit-text-fill-color: #bac9b6 !important;
 }
-:root[data-theme='dark'] main .mp-summary-checks .mp-summary-check.is-incomplete {
+:root main .mp-summary-checks .mp-summary-check.is-incomplete {
   color: #c2a49a !important;
   -webkit-text-fill-color: #c2a49a !important;
 }
 
 /* History loading state no longer uses the old navy panel or cyan spinner. */
-:root[data-theme='dark'] .mp-history-dialog .mp-history-loading {
+:root .mp-history-dialog .mp-history-loading {
   border: 1px solid #465047 !important;
   border-radius: 9px !important;
   background: #252c27 !important;
   color: #aeb9ac !important;
 }
-:root[data-theme='dark'] .mp-history-dialog .mp-history-loading .mp-history-spinner {
+:root .mp-history-dialog .mp-history-loading .mp-history-spinner {
   border-color: #566557 !important;
   border-top-color: #a0b49c !important;
 }
 
 /* Consistent IBM Plex typography across main workspace and history. */
-:root[data-theme='dark'] main,
-:root[data-theme='dark'] main :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea),
-:root[data-theme='dark'] .mp-history-dialog,
-:root[data-theme='dark'] .mp-history-dialog :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea) {
+:root main,
+:root main :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea),
+:root .mp-history-dialog,
+:root .mp-history-dialog :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea) {
   font-family: var(--mp-font-sans) !important;
   font-synthesis: none;
 }
-:root[data-theme='dark'] main :is(h1,h2,h3,h4),
-:root[data-theme='dark'] .mp-history-dialog :is(h1,h2,h3,h4) {
+:root main :is(h1,h2,h3,h4),
+:root .mp-history-dialog :is(h1,h2,h3,h4) {
   font-weight: 650;
   letter-spacing: -0.018em;
 }
-:root[data-theme='dark'] main :is(label,p),
-:root[data-theme='dark'] .mp-history-dialog :is(label,p) {
+:root main :is(label,p),
+:root .mp-history-dialog :is(label,p) {
   font-feature-settings: 'cv11', 'ss01';
 }
-:root[data-theme='dark'] main .mp-output-copy {
+:root main .mp-output-copy {
   font-family: var(--mp-font-mono) !important;
   font-variant-numeric: tabular-nums;
 }
@@ -4223,7 +3758,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   min-height: 100vh;
   background: #202522 !important;
   color: #e8ece7 !important;
-  color-scheme: dark;
+
 }
 .mp-auth-screen .mp-auth-card {
   border: 1px solid #3b443c !important;
@@ -4279,7 +3814,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #e8ece7 !important;
   -webkit-text-fill-color: #e8ece7 !important;
   box-shadow: none !important;
-  color-scheme: dark;
+
 }
 .mp-auth-screen .mp-auth-kitchen-select option {
   background: #252c27 !important;
@@ -4346,24 +3881,24 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 }
 
 /* Defeat earlier global navy button/select rules within authentication only. */
-:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'],
-:root[data-theme='dark'] .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'] {
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'],
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'] {
   border-color: #465347 !important;
   background: #303831 !important;
   background-image: none !important;
   color: #cbd5ca !important;
   box-shadow: none !important;
 }
-:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'],
-:root[data-theme='dark'] .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'],
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
   border-color: #829a85 !important;
   background: #405343 !important;
   background-image: none !important;
   color: #f0f4ed !important;
   box-shadow: inset 0 0 0 1px rgb(166 190 166 / 12%) !important;
 }
-:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled),
-:root[data-theme='dark'] .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled) {
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled),
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled) {
   border-color: #819882 !important;
   background: #39463b !important;
   background-image: none !important;
@@ -4371,51 +3906,51 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   box-shadow: none !important;
   transform: none !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen select.mp-auth-kitchen-select,
-:root[data-theme='dark'] main.mp-auth-screen select.mp-auth-kitchen-select {
+:root main.mp-auth-screen select.mp-auth-kitchen-select,
+:root main.mp-auth-screen select.mp-auth-kitchen-select {
   border-color: #485349 !important;
   background: #252c27 !important;
   background-color: #252c27 !important;
   color: #e8ece7 !important;
   -webkit-text-fill-color: #e8ece7 !important;
-  color-scheme: dark;
+
 }
-:root:not([data-theme='light']) main.mp-auth-screen select.mp-auth-kitchen-select option,
-:root[data-theme='dark'] main.mp-auth-screen select.mp-auth-kitchen-select option {
+:root main.mp-auth-screen select.mp-auth-kitchen-select option,
+:root main.mp-auth-screen select.mp-auth-kitchen-select option {
   background: #252c27 !important;
   color: #e8ece7 !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen input.mp-auth-password-input,
-:root[data-theme='dark'] main.mp-auth-screen input.mp-auth-password-input {
+:root main.mp-auth-screen input.mp-auth-password-input,
+:root main.mp-auth-screen input.mp-auth-password-input {
   border-color: #485349 !important;
   background: #252c27 !important;
   color: #e8ece7 !important;
   -webkit-text-fill-color: #e8ece7 !important;
   caret-color: #a7c0aa !important;
 }
-:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-eye-button,
-:root[data-theme='dark'] .mp-auth-screen button.mp-auth-eye-button {
+:root .mp-auth-screen button.mp-auth-eye-button,
+:root .mp-auth-screen button.mp-auth-eye-button {
   border-color: #465347 !important;
   background: #303831 !important;
   color: #cbd5ca !important;
   box-shadow: none !important;
 }
-:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled),
-:root[data-theme='dark'] .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled) {
+:root .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled),
+:root .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled) {
   border-color: #819882 !important;
   background: #39463b !important;
   color: #f0f4ed !important;
   transform: none !important;
 }
-:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'],
-:root[data-theme='dark'] .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'] {
+:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'],
+:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'] {
   border-color: #657d68 !important;
   background: #526b56 !important;
   color: #f4f6f1 !important;
   box-shadow: none !important;
 }
-:root:not([data-theme='light']) .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root[data-theme='dark'] .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
+:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
+:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #8ba992 !important;
   background: #607b64 !important;
   color: #fff !important;
@@ -4544,10 +4079,10 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 /* Authentication: these selectors deliberately outrank the old global
    [data-button-kind='primary'] navy/gradient rules and older input tokens. */
-:root:not([data-theme='light']) main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
-:root[data-theme='dark'] main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
-:root:not([data-theme='light']) main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'],
-:root[data-theme='dark'] main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'] {
+:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
+:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'],
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'] {
   appearance: none !important;
   border: 1px solid #657d68 !important;
   border-radius: 8px !important;
@@ -4561,10 +4096,10 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   transform: none !important;
   transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root[data-theme='dark'] main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root:not([data-theme='light']) main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root[data-theme='dark'] main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
+:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
+:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #8ba992 !important;
   background: #607b64 !important;
   background-color: #607b64 !important;
@@ -4573,8 +4108,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: #fff !important;
   box-shadow: 0 0 0 2px rgb(139 169 146 / 13%) !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled,
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled {
   border-color: #4a554b !important;
   background: #414a42 !important;
   background-color: #414a42 !important;
@@ -4584,17 +4119,17 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   opacity: 1 !important;
   cursor: not-allowed !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after,
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after {
   display: none !important;
   content: none !important;
   background: none !important;
   animation: none !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button,
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button {
   appearance: none !important;
   border: 1px solid #465347 !important;
   border-radius: 7px !important;
@@ -4606,16 +4141,16 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   box-shadow: none !important;
   transform: none !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled),
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled) {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled),
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled) {
   border-color: #819882 !important;
   background: #39463b !important;
   color: #f0f4ed !important;
   -webkit-text-fill-color: #f0f4ed !important;
   box-shadow: 0 0 0 2px rgb(139 169 146 / 13%) !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card input.mp-auth-password-input,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card input.mp-auth-password-input {
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input {
   appearance: none !important;
   border: 1px solid #485349 !important;
   border-radius: 8px !important;
@@ -4627,12 +4162,12 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   caret-color: #a7c0aa !important;
   box-shadow: none !important;
   outline: none !important;
-  color-scheme: dark;
+
 }
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible {
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible {
   border: 1px solid #91aa95 !important;
   background: #252c27 !important;
   background-color: #252c27 !important;
@@ -4642,24 +4177,24 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   box-shadow: 0 0 0 2px rgb(145 170 149 / 16%) !important;
   outline: none !important;
 }
-:root:not([data-theme='light']) main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder {
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder {
   color: #89968a !important;
   -webkit-text-fill-color: #89968a !important;
   opacity: 1 !important;
 }
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card label {
+:root main.mp-auth-screen .mp-auth-card label {
   color: #cbd4ca !important;
   -webkit-text-fill-color: #cbd4ca !important;
 }
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card .mp-auth-hint {
+:root main.mp-auth-screen .mp-auth-card .mp-auth-hint {
   color: #a6afa6 !important;
   -webkit-text-fill-color: #a6afa6 !important;
 }
 /* Keep Chrome/Edge autofill from painting the password field navy or white. */
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:hover,
-:root[data-theme='dark'] main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:focus {
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:hover,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:focus {
   -webkit-text-fill-color: #e8ece7 !important;
   -webkit-box-shadow: 0 0 0 1000px #252c27 inset !important;
   box-shadow: 0 0 0 1000px #252c27 inset !important;
@@ -5031,13 +4566,13 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 /* VA is text + checkbox only. No wrapper border, fill, hover border, or pill.
-   The checkbox alone receives a slight Sage glow on hover. */
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack label.mp-va-toggle,
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack label.mp-va-toggle:focus-within,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack label.mp-va-toggle,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack label.mp-va-toggle:focus-within {
+   The checkbox alone receives a restrained accent glow on hover. */
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle,
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:focus-within,
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle,
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:focus-within {
   display: inline-flex !important;
   flex: 0 0 auto !important;
   width: max-content !important;
@@ -5060,8 +4595,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   box-shadow: none !important;
   transform: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack label.mp-va-toggle input[type='checkbox'],
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack label.mp-va-toggle input[type='checkbox'] {
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle input[type='checkbox'],
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle input[type='checkbox'] {
   width: 15px !important;
   height: 15px !important;
   min-height: 15px !important;
@@ -5074,13 +4609,13 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   outline: none !important;
   transition: box-shadow 140ms ease, filter 140ms ease !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover input[type='checkbox'],
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover input[type='checkbox'] {
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover input[type='checkbox'],
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover input[type='checkbox'] {
   box-shadow: 0 0 0 3px rgb(166 190 166 / 13%), 0 0 7px rgb(166 190 166 / 24%) !important;
   filter: brightness(1.08);
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack label.mp-va-toggle span,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack label.mp-va-toggle span {
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle span,
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle span {
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
@@ -5091,8 +4626,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 /* Final cascade locks for the legacy selectors that used to override fit sizing. */
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack select.mp-tag--custom,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack select.mp-tag--custom {
+:root .mp-app-shell main .mp-form-stack select.mp-tag--custom,
+:root .mp-app-shell main .mp-form-stack select.mp-tag--custom {
   flex: 0 0 auto !important;
   width: 90px !important;
   min-width: 90px !important;
@@ -5101,8 +4636,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   padding-right: 18px !important;
   field-sizing: content;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
+:root .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note,
+:root .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
   flex: 0 1 auto !important;
   width: max-content !important;
   min-width: 107px !important;
@@ -5110,8 +4645,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   padding-inline: 8px !important;
   field-sizing: content;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note {
+:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note,
+:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note {
   flex: 0 1 auto !important;
   width: max-content !important;
   min-width: 107px !important;
@@ -5122,7 +4657,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 /* Mapped Ops Harian / Arutala note is a real editable value in the same
    filled field treatment as mapped salary account details. */
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped {
+:root .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped {
   border: 1px solid #566457 !important;
   border-radius: 6px !important;
   background: #354137 !important;
@@ -5130,7 +4665,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: #d8e1d7 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped:focus {
+:root .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped:focus {
   border-color: #91aa95 !important;
   background: #354137 !important;
   box-shadow: 0 0 0 2px rgb(145 170 149 / 14%) !important;
@@ -5144,25 +4679,25 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input {
   text-align: right !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal {
+:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
+:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal,
+:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
+:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal {
   flex: 0 0 158px !important;
   width: 158px !important;
   min-width: 158px !important;
   max-width: 158px !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input,
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
   flex: 0 0 120px !important;
   width: 120px !important;
   min-width: 120px !important;
   max-width: 120px !important;
   field-sizing: content;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal {
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal {
   flex: 0 0 158px !important;
   width: 158px !important;
   min-width: 158px !important;
@@ -5257,199 +4792,199 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 /* Date and kitchen share one control style; summary theme rules follow. */
-:root[data-theme='dark'] main .mp-summary-panel,
-:root:not([data-theme='light']) main .mp-summary-panel {
+:root main .mp-summary-panel,
+:root main .mp-summary-panel {
   border-color: #445247 !important;
   background: #252d27 !important;
 }
-:root[data-theme='dark'] main .mp-summary-total-card,
-:root:not([data-theme='light']) main .mp-summary-total-card {
+:root main .mp-summary-total-card,
+:root main .mp-summary-total-card {
   border: 1px solid #566457 !important;
   border-radius: 9px !important;
   background: #303a32 !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] main .mp-summary-total-label,
-:root:not([data-theme='light']) main .mp-summary-total-label {
+:root main .mp-summary-total-label,
+:root main .mp-summary-total-label {
   color: #aebbaa !important;
   -webkit-text-fill-color: #aebbaa !important;
   letter-spacing: .06em;
   font-weight: 650;
 }
-:root[data-theme='dark'] main .mp-summary-total-value,
-:root:not([data-theme='light']) main .mp-summary-total-value {
+:root main .mp-summary-total-value,
+:root main .mp-summary-total-value {
   color: #f0f3ed !important;
   -webkit-text-fill-color: #f0f3ed !important;
 }
-:root[data-theme='dark'] main .mp-summary-breakdown,
-:root:not([data-theme='light']) main .mp-summary-breakdown {
+:root main .mp-summary-breakdown,
+:root main .mp-summary-breakdown {
   border-top-color: rgb(174 187 170 / 24%) !important;
   color: #aebbaa !important;
 }
-:root[data-theme='dark'] main .mp-summary-breakdown-label,
-:root:not([data-theme='light']) main .mp-summary-breakdown-label {
+:root main .mp-summary-breakdown-label,
+:root main .mp-summary-breakdown-label {
   color: #aebbaa !important;
   -webkit-text-fill-color: #aebbaa !important;
 }
-:root[data-theme='dark'] main .mp-summary-breakdown-amount,
-:root:not([data-theme='light']) main .mp-summary-breakdown-amount {
+:root main .mp-summary-breakdown-amount,
+:root main .mp-summary-breakdown-amount {
   color: #d6e0d2 !important;
   -webkit-text-fill-color: #d6e0d2 !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within,
-:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within,
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within,
-:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within,
-:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within {
+:root main .mp-form-stack .mp-rab-row:focus-within,
+:root main .mp-form-stack .mp-rab-row:focus-within,
+:root main .mp-form-stack .mp-ops-row:focus-within,
+:root main .mp-form-stack .mp-ops-row:focus-within,
+:root main .mp-form-stack .mp-payment-row:focus-within,
+:root main .mp-form-stack .mp-payment-row:focus-within {
   background: rgb(145 170 149 / 7%) !important;
   border-radius: 8px !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
-:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
-:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field,
-:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field {
+:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
+:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
+:root main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
+:root main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field,
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field {
   color: #dbe7d5 !important;
   -webkit-text-fill-color: #dbe7d5 !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary,
-:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
-:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary {
+:root main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary,
+:root main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
+:root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary {
   color: #e2ebdd !important;
   -webkit-text-fill-color: #e2ebdd !important;
 }
-:root[data-theme='dark'] main .mp-import-dialog,
-:root:not([data-theme='light']) main .mp-import-dialog {
+:root main .mp-import-dialog,
+:root main .mp-import-dialog {
   border-color: #566457 !important;
   background: #252d27 !important;
   color: #e5ece2 !important;
 }
-:root[data-theme='dark'] main .mp-import-mode,
-:root:not([data-theme='light']) main .mp-import-mode,
-:root[data-theme='dark'] main .mp-import-close,
-:root:not([data-theme='light']) main .mp-import-close {
+:root main .mp-import-mode,
+:root main .mp-import-mode,
+:root main .mp-import-close,
+:root main .mp-import-close {
   border: 1px solid #4d5c4e !important;
   background: #303a32 !important;
   color: #d4dfd0 !important;
 }
-:root[data-theme='dark'] main .mp-import-mode.is-active,
-:root:not([data-theme='light']) main .mp-import-mode.is-active {
+:root main .mp-import-mode.is-active,
+:root main .mp-import-mode.is-active {
   border-color: #91a891 !important;
   background: #3b4a3d !important;
   color: #f0f4ed !important;
   box-shadow: inset 0 0 0 1px rgb(145 168 145 / 18%) !important;
 }
-:root[data-theme='dark'] main .mp-import-textarea,
-:root:not([data-theme='light']) main .mp-import-textarea {
+:root main .mp-import-textarea,
+:root main .mp-import-textarea {
   border-color: #566457 !important;
   background: #1e2621 !important;
   color: #e4ebe1 !important;
   caret-color: #c1d4bc;
 }
-:root[data-theme='dark'] main .mp-import-textarea:focus,
-:root:not([data-theme='light']) main .mp-import-textarea:focus {
+:root main .mp-import-textarea:focus,
+:root main .mp-import-textarea:focus {
   border-color: #a0b49c !important;
   box-shadow: 0 0 0 2px rgb(160 180 156 / 14%) !important;
 }
-:root[data-theme='dark'] main .mp-import-textarea::placeholder,
-:root:not([data-theme='light']) main .mp-import-textarea::placeholder {
+:root main .mp-import-textarea::placeholder,
+:root main .mp-import-textarea::placeholder {
   color: #879586 !important;
   -webkit-text-fill-color: #879586 !important;
 }
-:root[data-theme='dark'] main .mp-import-preview,
-:root:not([data-theme='light']) main .mp-import-preview,
-:root[data-theme='dark'] main .mp-import-confirm,
-:root:not([data-theme='light']) main .mp-import-confirm {
+:root main .mp-import-preview,
+:root main .mp-import-preview,
+:root main .mp-import-confirm,
+:root main .mp-import-confirm {
   border-color: #4d5c4e !important;
   background: #2b342d !important;
   color: #d8e2d3 !important;
 }
-:root[data-theme='dark'] main .mp-import-preview-group,
-:root:not([data-theme='light']) main .mp-import-preview-group {
+:root main .mp-import-preview-group,
+:root main .mp-import-preview-group {
   border-color: #4a594a !important;
   background: #303a32 !important;
 }
-:root[data-theme='dark'] main .mp-import-errors,
-:root:not([data-theme='light']) main .mp-import-errors {
+:root main .mp-import-errors,
+:root main .mp-import-errors {
   border-color: #8c5d52 !important;
   background: #3b2925 !important;
   color: #f0c9bf !important;
 }
-:root[data-theme='dark'] main .mp-import-primary,
-:root:not([data-theme='light']) main .mp-import-primary {
+:root main .mp-import-primary,
+:root main .mp-import-primary {
   border: 1px solid #718b72 !important;
   background: #465d48 !important;
   color: #f4f6f0 !important;
 }
-:root[data-theme='dark'] main .mp-import-primary:hover:not(:disabled),
-:root:not([data-theme='light']) main .mp-import-primary:hover:not(:disabled) {
+:root main .mp-import-primary:hover:not(:disabled),
+:root main .mp-import-primary:hover:not(:disabled) {
   border-color: #a0b49c !important;
   background: #526b54 !important;
 }
 
 /* Import dialog text is explicitly legible across the Sage surface. */
-:root[data-theme='dark'] main .mp-import-dialog h2,
-:root[data-theme='dark'] main .mp-import-dialog p,
-:root[data-theme='dark'] main .mp-import-dialog span,
-:root[data-theme='dark'] main .mp-import-dialog label,
-:root:not([data-theme='light']) main .mp-import-dialog h2,
-:root:not([data-theme='light']) main .mp-import-dialog p,
-:root:not([data-theme='light']) main .mp-import-dialog span,
-:root:not([data-theme='light']) main .mp-import-dialog label {
+:root main .mp-import-dialog h2,
+:root main .mp-import-dialog p,
+:root main .mp-import-dialog span,
+:root main .mp-import-dialog label,
+:root main .mp-import-dialog h2,
+:root main .mp-import-dialog p,
+:root main .mp-import-dialog span,
+:root main .mp-import-dialog label {
   -webkit-text-fill-color: currentColor;
 }
 
 /* An active transaction row must highlight its text, not only its tag.
    The row receives a restrained surface and every sibling value uses Sage text. */
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
   border-radius: 9px !important;
   background: #2c362e !important;
   box-shadow: inset 0 0 0 1px #596e5b !important;
 }
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
   color: #b8d2b3 !important;
   -webkit-text-fill-color: #b8d2b3 !important;
 }
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
   border-color: #8ba28a !important;
   border-left-color: #8ba28a !important;
   background: #405343 !important;
   color: #e2eee0 !important;
   -webkit-text-fill-color: #e2eee0 !important;
 }
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
   color: #eef5eb !important;
   -webkit-text-fill-color: #eef5eb !important;
   caret-color: #b8d2b3 !important;
 }
 
 
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input {
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input,
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input {
   text-align: center !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder,
-:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder {
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder,
+:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder {
   text-align: center !important;
 }
 
 
 /* Date and Dapur are the same control: one token, one surface, one interaction. */
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control.mp-control-surface,
-:root[data-theme='dark'] .mp-app-shell main select.mp-kitchen-select.mp-control-surface,
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control.mp-control-surface,
-:root:not([data-theme='light']) .mp-app-shell main select.mp-kitchen-select.mp-control-surface {
+:root .mp-app-shell main .mp-date-control.mp-control-surface,
+:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface,
+:root .mp-app-shell main .mp-date-control.mp-control-surface,
+:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface {
   min-height: 36px !important;
   border: 1px solid #465347 !important;
   border-radius: 8px !important;
@@ -5457,23 +4992,23 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   background-color: #252c27 !important;
   color: #e2e9e1 !important;
   -webkit-text-fill-color: #e2e9e1 !important;
-  color-scheme: dark;
+
   box-shadow: none !important;
   outline: none;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control.mp-control-surface:hover,
-:root[data-theme='dark'] .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled),
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control.mp-control-surface:hover,
-:root:not([data-theme='light']) .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled) {
+:root .mp-app-shell main .mp-date-control.mp-control-surface:hover,
+:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled),
+:root .mp-app-shell main .mp-date-control.mp-control-surface:hover,
+:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled) {
   border-color: #718272 !important;
   background: #2a322b !important;
   background-color: #2a322b !important;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
-:root[data-theme='dark'] .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus,
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
-:root:not([data-theme='light']) .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus {
+:root .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
+:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus,
+:root .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
+:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus {
   border-color: #a0b49c !important;
   background: #252c27 !important;
   background-color: #252c27 !important;
@@ -5481,23 +5016,23 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   outline-offset: 1px;
   box-shadow: none !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control .mp-date-label,
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control .mp-date-label {
+:root .mp-app-shell main .mp-date-control .mp-date-label,
+:root .mp-app-shell main .mp-date-control .mp-date-label {
   color: #aeb9ac !important;
   -webkit-text-fill-color: #aeb9ac !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control .mp-date-value,
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control .mp-date-value {
+:root .mp-app-shell main .mp-date-control .mp-date-value,
+:root .mp-app-shell main .mp-date-control .mp-date-value {
   color: #e2e9e1 !important;
   -webkit-text-fill-color: #e2e9e1 !important;
 }
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control > input[type='date'],
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control > input[type='date'] {
+:root .mp-app-shell main .mp-date-control > input[type='date'],
+:root .mp-app-shell main .mp-date-control > input[type='date'] {
   border: 0 !important;
   background: transparent !important;
   background-color: transparent !important;
   color: transparent !important;
   -webkit-text-fill-color: transparent !important;
   box-shadow: none !important;
-  color-scheme: dark;
+
 }
