@@ -2264,6 +2264,37 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     }
   }
 
+  function cancelHistoryChange() {
+    if (!historyChangeBase) return
+
+    const source = historyChangeBase.transaction as TransactionGroup | undefined
+    if (source && Array.isArray(source.rab) && Array.isArray(source.pencairan_harian)) {
+      const restored = normalizeTransaction(
+        { ...source, id: 1 },
+        String(historyChangeBase.transactionDate ?? source.date ?? today)
+      )
+      const restoredKitchenId = String(historyChangeBase.kitchenId ?? kitchenId)
+
+      setKitchenId(restoredKitchenId)
+      setTransactions([restored])
+      setActiveTransactionId(1)
+      persistWorkspace({
+        kitchenId: restoredKitchenId,
+        activeTransactionId: 1,
+        transactions: [restored]
+      })
+    }
+
+    setHistoryChangeBase(null)
+    setHistoryEntryKeys([])
+    setHistoryShortageKeys([])
+    setHistorySaveOpen(false)
+    setHistorySaveBusy(false)
+    setCopyMessage('')
+    setHistoryMessage('Revisi dibatalkan. Tidak ada perubahan yang disimpan.')
+    setHistoryOpen(true)
+  }
+
   async function copyOutput() {
     if ((!output && !historyChangeBase) || !activeTransaction || !kitchenId) return
     setHistorySaveBusy(true)
@@ -2807,6 +2838,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         >{output}</pre>
                         <div className="flex flex-wrap items-center gap-2">
                           <button type="button" disabled={(!output && !historyChangeBase) || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
+                          {historyChangeActive && (
+                            <button type="button" disabled={historySaveBusy} onClick={cancelHistoryChange} className="mp-revision-cancel-button self-start rounded-lg px-3 py-2 text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-40">
+                              Batalkan Revisi
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -2989,7 +3025,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   </div>
                                 )}
                             </div>
-<div className={`mp-payment-nominal mp-rab-nominal flex min-w-0 items-center gap-1.5 ${hasHistoryPreviousAmount('rab:' + rule.account_id) ? 'mp-has-history-previous' : ''}`}>
+<div className={`mp-payment-nominal mp-rab-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center gap-1.5 ${hasHistoryPreviousAmount('rab:' + rule.account_id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('rab:' + rule.account_id)}
 <input
                               id={'rab-' + activeTransaction.id + '-' + rule.account_id}
@@ -3055,7 +3091,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         </button>
                                       )
                                     })}
-<div className={`mp-payment-nominal mp-rab-b3-nominal ml-auto flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('rab_b3:' + rule.account_id) ? 'mp-has-history-previous' : ''}`}>
+<div className={`mp-payment-nominal mp-rab-b3-nominal ml-auto ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('rab_b3:' + rule.account_id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('rab_b3:' + rule.account_id)}
 <input
                                       type="text"
@@ -3143,7 +3179,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     </div>
                                     <select value={entry.gasSize ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasSize: event.target.value as SimpleEntry['gasSize'] })} aria-label="Ukuran gas" className="mp-ops-field mp-payment-detail mp-gas-size h-10 min-w-0 px-2 text-center text-xs text-slate-100"><option value="">Ukuran</option><option value="12kg">12 kg</option><option value="50kg">50 kg</option></select>
                                     <input type="text" value={(entry.gasNote ?? '').slice(0, gasNoteMaxLength)} maxLength={gasNoteMaxLength} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { gasNote: event.target.value.slice(0, gasNoteMaxLength) })} placeholder="Catatan" aria-label="Catatan tambahan GAS (mengikuti sisa batas 109 karakter)" className="mp-ops-field mp-payment-detail mp-gas-note h-10 min-w-0 px-2 text-center text-xs text-slate-100" />
-                                    <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('gas:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
+                                    <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('gas:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('gas:' + entry.id)}
 <input type="text" inputMode="numeric" value={formatNumber(entry.amount)} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: event.target.value.replace(/\D/g, '') })} placeholder="Nominal" aria-label="Nominal GAS" className="mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2 text-center text-sm font-semibold text-white" />{renderHistoryShortageButton('gas:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'gas', entry.id, { amount: historyPreviousAmount('gas:' + entry.id) }))}</div>
                                   </div>
@@ -3278,7 +3314,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
                                     className={`mp-ops-field mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
-                                  <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('operasional:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
+                                  <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('operasional:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('operasional:' + entry.id)}
 <input
                                     type="text"
@@ -3329,7 +3365,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                     </div>
                                   </div>
-                                  <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('pencairan_harian:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
+                                  <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('pencairan_harian:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('pencairan_harian:' + entry.id)}
 <input
                                     type="text"
@@ -3401,7 +3437,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                                     </div>
                                   </div>
-                                  <div className={`mp-payment-nominal flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('pencairan_harian:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
+                                  <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('pencairan_harian:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('pencairan_harian:' + entry.id)}
 <input
                                     type="text"
