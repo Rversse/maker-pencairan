@@ -3650,7 +3650,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                   </section>
 
 
-                  <section className={`mp-card relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
+                  <section className={`mp-card mp-tags-no-hover relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Operasional Harian</h2>
                       <div className="relative" ref={operationalAddMenuRef}>
@@ -3862,7 +3862,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     })()}
                   </section>
 
-                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
+                  <section className="mp-card mp-tags-no-hover w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
                     <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
                     <div className="mt-3 space-y-1.5">
                       
