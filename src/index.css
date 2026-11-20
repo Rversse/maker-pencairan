@@ -5136,3 +5136,57 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   color: #c2cdc0 !important;
   -webkit-text-fill-color: #c2cdc0 !important;
 }
+
+/* Final cascade locks for the legacy selectors that used to override fit sizing. */
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack select.mp-tag--custom,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack select.mp-tag--custom {
+  flex: 0 0 auto !important;
+  width: 90px !important;
+  min-width: 90px !important;
+  max-width: 120px !important;
+  padding-left: 7px !important;
+  padding-right: 18px !important;
+  field-sizing: content;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
+  flex: 0 1 auto !important;
+  width: 107px !important;
+  min-width: 107px !important;
+  max-width: 220px !important;
+  padding-inline: 8px !important;
+  field-sizing: content;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note {
+  flex: 0 1 auto !important;
+  width: 107px !important;
+  min-width: 107px !important;
+  max-width: 220px !important;
+  padding-inline: 8px !important;
+  field-sizing: content;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal {
+  flex: 0 0 158px !important;
+  width: 158px !important;
+  min-width: 158px !important;
+  max-width: 158px !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  field-sizing: content;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal {
+  flex: 0 0 158px !important;
+  width: 158px !important;
+  min-width: 158px !important;
+  max-width: 158px !important;
+}
