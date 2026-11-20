@@ -3985,13 +3985,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     Insentif Fasilitas SPPG
                                   </div>
                                   <div className="mp-salary-account-details">
-                                    <div title={rental?.ownerName ?? 'Mapping belum tersedia'} className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                    <div title={rental?.ownerName ?? 'Mapping belum tersedia'} className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-xs font-semibold text-slate-100">
                                       <span title={rental?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{rental?.ownerName ?? 'Mapping belum tersedia'}</span>
                                     </div>
-                                    <div title={rental?.bank ?? '-'} className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                    <div title={rental?.bank ?? '-'} className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-xs font-semibold text-slate-100">
                                       {rental?.bank ?? '-'}
                                     </div>
-                                    <div className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                    <div className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-xs font-semibold text-slate-100">
                                       <span title={rental?.accountNumber ?? '-'} className="truncate">{rental?.accountNumber ?? '-'}</span>
                                     </div>
                                   </div>
@@ -4056,14 +4056,14 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                   <div className="mp-salary-account-details">
                                     <div
                                       title={mapping?.ownerName ?? 'Mapping belum tersedia'}
-                                      className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100"
+                                      className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-xs font-semibold text-slate-100"
                                     >
                                       <span title={mapping?.ownerName ?? 'Mapping belum tersedia'} className="truncate">{mapping?.ownerName ?? 'Mapping belum tersedia'}</span>
                                     </div>
-                                    <div className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                    <div className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-xs font-semibold text-slate-100">
                                       {mapping?.bank ?? '-'}
                                     </div>
-                                    <div className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
+                                    <div className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-xs font-semibold text-slate-100">
                                       <span title={mapping?.accountNumber ?? '-'} className="truncate">{mapping?.accountNumber ?? '-'}</span>
                                     </div>
                                   </div>
