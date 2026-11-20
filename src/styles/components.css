@@ -333,3 +333,191 @@
 :root :is([class*='bg-slate-900'], [class*='bg-slate-800'], [class*='bg-slate-700'], [class*='bg-gray-900'], [class*='bg-gray-800']) {
   background-color: var(--color-surface) !important;
 }
+
+
+/* Replace legacy feature-specific Sage/navy surfaces with semantic component tokens. */
+:root .mp-app-header,
+:root .mp-app-shell .mp-app-header {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-history-overlay {
+  background: var(--color-overlay) !important;
+}
+
+:root .mp-history-dialog {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+}
+
+:root .mp-history-dialog .mp-history-header {
+  background: var(--color-surface-raised) !important;
+  border-color: var(--color-divider) !important;
+}
+
+:root .mp-history-dialog .mp-history-list-item,
+:root .mp-history-dialog .mp-history-metric,
+:root .mp-history-dialog .mp-history-summary,
+:root .mp-history-dialog .mp-history-output,
+:root .mp-history-dialog .mp-history-loading,
+:root .mp-history-dialog .mp-history-timeline-item {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-history-dialog .mp-history-list-item:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-timeline-item.is-active {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+}
+
+:root .mp-history-dialog .mp-history-date-icon {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-subtle) !important;
+  color: var(--color-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-event-type,
+:root .mp-history-dialog .mp-history-event-type.is-normal {
+  color: var(--color-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-spinner {
+  border-color: var(--color-border-strong) !important;
+  border-top-color: var(--color-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-previous-amount {
+  color: var(--color-text-muted) !important;
+}
+
+:root .mp-history-dialog .mp-history-additional-toggle {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+}
+
+:root .mp-history-dialog .mp-history-additional-toggle.is-active {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-additional-switch {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-subtle) !important;
+}
+
+:root .mp-history-dialog .mp-history-additional-switch > span {
+  background: var(--color-text-muted) !important;
+}
+
+:root .mp-history-dialog .mp-history-additional-toggle.is-active .mp-history-additional-switch {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-additional-toggle.is-active .mp-history-additional-switch > span {
+  background: var(--color-on-accent) !important;
+}
+
+:root main.mp-auth-screen {
+  background: var(--color-page) !important;
+  color: var(--color-text) !important;
+}
+
+:root main.mp-auth-screen::before {
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--color-ambient-a), transparent 42%),
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-page) 100%) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+  backdrop-filter: none;
+}
+
+:root main.mp-auth-screen .mp-auth-title,
+:root main.mp-auth-screen .mp-auth-card h1,
+:root main.mp-auth-screen .mp-auth-card p {
+  color: var(--color-text);
+}
+
+:root main.mp-auth-screen .mp-auth-subtitle,
+:root main.mp-auth-screen .mp-auth-loading {
+  color: var(--color-accent) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-role-switcher {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-inset) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-role-button,
+:root main.mp-auth-screen button.mp-auth-role-button[data-option-button='true'] {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+}
+
+:root main.mp-auth-screen .mp-auth-role-button[data-selected='true'],
+:root main.mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-hint {
+  color: var(--color-text-muted) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-note {
+  color: var(--color-danger) !important;
+}
+
+:root .mp-admin-panel {
+  color: var(--color-text) !important;
+}
+
+:root .mp-admin-panel .mp-admin-card {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:root .mp-admin-panel .mp-admin-card article {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+}
+
+:root .mp-admin-panel .mp-admin-card article:hover {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface-subtle) !important;
+}
+
+:root .mp-admin-panel .mp-admin-toast {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+}
+
+:root .mp-admin-panel .mp-admin-credential-notice {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+}
+
+:root .mp-admin-panel [role='status']:not(.mp-admin-toast) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}

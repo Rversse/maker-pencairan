@@ -143,3 +143,103 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* High-specificity state rules replace legacy Sage interactions during migration. */
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible,
+:root main.mp-auth-screen .mp-auth-card select.mp-auth-kitchen-select:focus,
+:root main.mp-auth-screen .mp-auth-card select.mp-auth-kitchen-select:focus-visible {
+  border-color: var(--color-focus) !important;
+  background: var(--color-field) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
+  outline: 2px solid var(--color-focus-ring) !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:hover,
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text) !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--color-field) inset !important;
+  box-shadow: 0 0 0 1000px var(--color-field) inset !important;
+  caret-color: var(--color-accent) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-role-button:hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+  transform: none !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'],
+:root main.mp-auth-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
+:root main.mp-auth-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  background-image: none !important;
+  color: var(--color-on-accent) !important;
+  -webkit-text-fill-color: var(--color-on-accent) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-subtle) !important;
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+  opacity: 1 !important;
+}
+
+:root .mp-history-dialog .mp-history-icon-button:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-timeline-copy:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-history-dialog .mp-history-primary-button {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
+  border-color: var(--color-danger) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+}
+
+:root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped:focus-visible,
+:root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible,
+:root .mp-app-shell .mp-form-stack button:focus-visible,
+:root .mp-date-range-popover :is(button, select):focus-visible,
+:root .mp-history-dialog :is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-focus) !important;
+  outline-offset: 2px;
+}
