@@ -97,7 +97,7 @@
 }
 
 /* Every button uses the same neutral base appearance. Semantic states are fills. */
-:root button:not(.mp-row-remove):not(.mp-tag) {
+:root button:not(.mp-row-remove):not(.mp-tag):not([data-button-kind='primary']):not(.mp-import-primary):not(.mp-history-primary-button):not(.mp-history-danger-button) {
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
   background-image: none !important;
@@ -111,17 +111,17 @@
     color var(--transition-fast);
 }
 
-:root button[data-button-kind='primary'],
-:root button.mp-auth-submit[data-button-kind='primary'],
-:root .mp-import-primary,
-:root .mp-history-primary-button {
+:root button:not(.mp-row-remove):not(.mp-tag)[data-button-kind='primary'],
+:root button:not(.mp-row-remove):not(.mp-tag).mp-auth-submit[data-button-kind='primary'],
+:root button:not(.mp-row-remove):not(.mp-tag).mp-import-primary,
+:root button:not(.mp-row-remove):not(.mp-tag).mp-history-primary-button {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent) !important;
   color: var(--color-on-accent) !important;
   -webkit-text-fill-color: var(--color-on-accent) !important;
 }
 
-:root button.mp-history-danger-button {
+:root button:not(.mp-row-remove):not(.mp-tag).mp-history-danger-button {
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
@@ -129,8 +129,8 @@
 }
 
 /* On/off and selected button states change the background only. */
-:root button[aria-pressed='true'],
-:root button[data-selected='true'] {
+:root button:not(.mp-row-remove):not(.mp-tag)[aria-pressed='true'],
+:root button:not(.mp-row-remove):not(.mp-tag)[data-selected='true'] {
   border-color: var(--color-border-strong) !important;
   background: var(--color-button-selected-bg) !important;
   color: var(--color-text) !important;
@@ -144,8 +144,6 @@
   border-color: var(--color-button-hover-border) !important;
   background: var(--color-button-hover-bg) !important;
   background-image: none !important;
-  color: inherit !important;
-  -webkit-text-fill-color: currentColor !important;
   box-shadow: none !important;
   text-shadow: none !important;
   transform: none !important;
