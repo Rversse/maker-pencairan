@@ -453,7 +453,7 @@ export function DateRangePicker({
                       : inRange
                         ? 'border-teal-500/25 bg-teal-500/15 text-teal-100'
                         : 'border-transparent bg-transparent text-slate-200  ',
-                    beforePending ? 'cursor-not-allowed opacity-30' : ''
+                    beforePending ? ' opacity-30' : ''
                   ].join(' ')}
                 >
                   {Number(dateKey.slice(-2))}
