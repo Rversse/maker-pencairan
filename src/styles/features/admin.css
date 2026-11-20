@@ -12,6 +12,8 @@
 }
 
 
+
+
 .mp-admin-panel input:focus-visible,
 .mp-admin-panel select:focus-visible,
 .mp-admin-panel button:focus-visible
@@ -20,6 +22,8 @@
   outline: 2px solid var(--color-accent-border);
   outline-offset: 2px;
 }
+
+
 
 
 .mp-admin-panel input:disabled,
@@ -33,9 +37,13 @@
 
 
 
+
+
 .mp-admin-panel {
   color: var(--color-text);
 }
+
+
 
 
 
@@ -47,11 +55,15 @@
 
 
 
+
+
 .mp-admin-card article {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.52) !important;
   transition: border-color 150ms ease, background-color 150ms ease;
 }
+
+
 
 
 
@@ -62,10 +74,14 @@
 
 
 
+
+
 .mp-admin-credential-notice {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.08) !important;
 }
+
+
 
 
 
@@ -74,10 +90,14 @@
 }
 
 
+
+
 .mp-admin-panel button
 {
   transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease, opacity 140ms ease;
 }
+
+
 
 
 .mp-admin-panel button:hover:not(:disabled)
@@ -86,10 +106,14 @@
 }
 
 
+
+
 .mp-admin-panel button:disabled
 {
   cursor: not-allowed;
 }
+
+
 
 
 
@@ -103,6 +127,8 @@
 
 
 
+
+
   .mp-admin-card {
     border-radius: 16px !important;
   }
@@ -110,6 +136,8 @@
 
 
 }
+
+
 
 
 
@@ -129,10 +157,14 @@
 }
 
 
+
+
 .mp-admin-panel button:not([data-option-button]):not([data-calendar-day])
 {
   border-radius: var(--mp-radius-control);
 }
+
+
 
 /* Auth/admin form controls consume the same global geometry token. */
 .mp-admin-panel input:not([type="checkbox"]):not([type="radio"]),
@@ -143,17 +175,25 @@
 }
 
 
+
+
 :root .mp-admin-card
 { background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
+
+
 
 
 :root .mp-admin-panel
 { background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
 
 
+
+
 :root .mp-admin-panel input,
 :root .mp-admin-panel select
 { background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+
+
 
 
 /* Extracted from src/styles/components.css */
@@ -166,6 +206,8 @@
 }
 
 
+
+
 :root .mp-admin-panel button[data-button-kind='primary'],
 :root .mp-admin-panel button.mp-auth-submit
 {
@@ -176,6 +218,8 @@
 }
 
 
+
+
 :root .mp-admin-panel button[data-option-button='true']
 {
   border-color: var(--color-border-strong) !important;
@@ -183,6 +227,8 @@
   color: var(--color-text-muted) !important;
   box-shadow: none !important;
 }
+
+
 
 
 :root .mp-admin-card,
@@ -195,12 +241,6 @@
 }
 
 
-:root .mp-admin-panel [role='alert']
-{
-  border-color: var(--color-danger-border) !important;
-  background: var(--color-danger-soft) !important;
-  color: var(--color-danger) !important;
-}
 
 
 :root .mp-admin-credential-notice,
@@ -208,6 +248,8 @@
 {
   border-color: var(--color-accent-border) !important;
 }
+
+
 
 /* Bright Sky / Graphite component layer. */
 :root .mp-admin-card
@@ -218,6 +260,8 @@
 }
 
 
+
+
 :root .mp-admin-panel .mp-admin-card
 {
   background: var(--color-surface) !important;
@@ -226,10 +270,14 @@
 }
 
 
+
+
 :root .mp-admin-panel .mp-admin-card article {
   background: var(--color-surface-raised) !important;
   border-color: var(--color-border) !important;
 }
+
+
 
 
 :root .mp-admin-panel .mp-admin-card article:hover {
@@ -238,14 +286,6 @@
 }
 
 
-:root .mp-admin-panel button:not([data-option-button='true']):not([data-calendar-day='true'])
-{
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
 
 
 :root .mp-admin-panel button[data-button-kind='primary']
@@ -257,6 +297,8 @@
 }
 
 
+
+
 :root .mp-admin-panel button[class*='border-rose-']
 {
   border-color: var(--color-danger-border) !important;
@@ -265,18 +307,6 @@
 }
 
 
-:root .mp-admin-panel .mp-admin-toast {
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  box-shadow: var(--shadow-dialog) !important;
-}
-
-
-:root .mp-admin-panel .mp-admin-credential-notice {
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-}
 
 
 :root .mp-admin-panel [role='alert']
@@ -287,18 +317,14 @@
 }
 
 
-:root .mp-admin-panel [role='status']:not(.mp-admin-toast)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-accent) !important;
-}
 
 
 
 :root .mp-admin-panel {
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -310,6 +336,8 @@
 
 
 
+
+
 :root .mp-admin-panel .mp-admin-card article {
   border-color: var(--color-border) !important;
   background: var(--color-surface-raised) !important;
@@ -317,10 +345,14 @@
 
 
 
+
+
 :root .mp-admin-panel .mp-admin-card article:hover {
   border-color: var(--color-accent-border) !important;
   background: var(--color-surface-subtle) !important;
 }
+
+
 
 
 
@@ -333,10 +365,14 @@
 
 
 
+
+
 :root .mp-admin-panel .mp-admin-credential-notice {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
 }
+
+
 
 
 
@@ -347,18 +383,14 @@
 }
 
 
-/* Extracted from src/styles/forms.css */
-
-:root .mp-admin-panel input[type='checkbox']
-{
-  accent-color: var(--color-accent) !important;
-}
 
 
 :root .mp-admin-panel :is(input, select, textarea):not([type='checkbox']):not([type='radio'])
 {
   color-scheme: dark;
 }
+
+
 
 
 :root .mp-admin-panel input:not([type='checkbox']):not([type='radio']),
@@ -372,12 +404,17 @@
 }
 
 
+
+
 :root .mp-admin-panel input::placeholder,
 :root .mp-admin-panel textarea::placeholder
 {
   color: var(--color-text-subtle) !important;
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
+
+/* Extracted from src/styles/forms.css */
+
 
 
 :root .mp-admin-panel input[type='checkbox']
@@ -386,11 +423,15 @@
 }
 
 
+
+
 :root .mp-admin-panel select option
 {
   color: var(--color-text) !important;
   background: var(--color-surface) !important;
 }
+
+
 
 
 /* Extracted from src/styles/interactions.css */
@@ -405,13 +446,6 @@
 }
 
 
-:root .mp-admin-panel button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-}
 
 
 :root .mp-admin-panel button[data-button-kind='primary']:hover:not(:disabled),
@@ -423,12 +457,6 @@
 }
 
 
-:root .mp-admin-panel button[data-option-button='true'][data-selected='true']
-{
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-}
 
 
 :root .mp-admin-panel button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
@@ -440,12 +468,16 @@
 }
 
 
+
+
 :root .mp-admin-panel button[data-button-kind='primary']:hover:not(:disabled)
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
   color: var(--color-on-accent) !important;
 }
+
+
 
 
 :root .mp-admin-panel button[data-option-button='true']:hover:not(:disabled)
@@ -456,6 +488,8 @@
 }
 
 
+
+
 :root .mp-admin-panel button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
@@ -464,10 +498,14 @@
 }
 
 
+
+
 :root .mp-admin-panel :is(input, select, textarea):hover:not(:disabled):not([readonly])
 {
   border-color: var(--color-accent-border) !important;
 }
+
+
 
 
 :root .mp-admin-panel :is(input, select, textarea):focus:not(:disabled):not([readonly])
@@ -479,11 +517,15 @@
 }
 
 
+
+
 :root .mp-admin-panel :is(input, select, textarea, button):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;
   outline-offset: 2px;
 }
+
+
 
 
 :root .mp-admin-panel button[class*='border-rose-']:hover:not(:disabled)
@@ -492,6 +534,8 @@
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 @media (prefers-reduced-motion: reduce) {

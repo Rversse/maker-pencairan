@@ -1,4 +1,30 @@
 /* Authentication feature styles — Bright Sky / Graphite. */
+
+/* PIN rejection feedback; danger tone is semantic and respects reduced motion. */
+@keyframes maker-pin-shake {
+  0%, 100% { transform: translateX(0); }
+  15%, 45%, 75% { transform: translateX(-6px); }
+  30%, 60%, 90% { transform: translateX(6px); }
+}
+
+
+
+.maker-pin-shake {
+  animation: maker-pin-shake 420ms ease-in-out;
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 1px var(--color-danger-border), 0 0 12px var(--color-danger-soft) !important;
+}
+
+
+
+@media (prefers-reduced-motion: reduce) {
+  .maker-pin-shake {
+    animation: none !important;
+  }
+}
+
+
+
 /* Extracted from src/index.css */
 
 
@@ -11,6 +37,8 @@
   overflow: hidden;
   background: var(--color-page) !important;
 }
+
+
 
 
 
@@ -27,6 +55,8 @@
 
 
 
+
+
 .mp-auth-card {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.88) !important;
@@ -36,11 +66,15 @@
 
 
 
+
+
 .mp-auth-card h1,
 .mp-auth-card p,
 .mp-auth-card label {
   text-wrap: pretty;
 }
+
+
 
 
 .mp-auth-card input,
@@ -54,6 +88,8 @@
 }
 
 
+
+
 .mp-auth-card input:focus-visible,
 .mp-auth-card select:focus-visible
 {
@@ -61,6 +97,8 @@
   outline: 2px solid var(--color-accent-border);
   outline-offset: 2px;
 }
+
+
 
 
 .mp-auth-card input:disabled,
@@ -73,10 +111,14 @@
 }
 
 
+
+
 .mp-auth-card button
 {
   transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease, opacity 140ms ease;
 }
+
+
 
 
 
@@ -91,6 +133,8 @@
 
 
 
+
+
   .mp-auth-card {
     border-radius: 18px !important;
     padding: 22px 18px !important;
@@ -99,6 +143,8 @@
 
 
 }
+
+
 
 
 
@@ -118,10 +164,14 @@
 }
 
 
+
+
 .mp-auth-card button:not([data-option-button]):not([data-calendar-day])
 {
   border-radius: var(--mp-radius-control);
 }
+
+
 
 /* Auth/admin form controls consume the same global geometry token. */
 .mp-auth-card input:not([type="checkbox"]):not([type="radio"]),
@@ -132,12 +182,18 @@
 }
 
 
+
+
 :root .mp-auth-card
 { background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
 
 
+
+
 :root .mp-auth-screen
 { background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
+
+
 
 
 :root .mp-auth-card input,
@@ -145,16 +201,24 @@
 { background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
 
+
+
 :root .mp-auth-card .text-slate-300
 { color: var(--color-text-muted) !important; }
+
+
 
 
 :root .mp-auth-screen .bg-slate-950
 { background-color: var(--mp-page-bg) !important; }
 
 
+
+
 :root .mp-auth-screen .bg-slate-900
 { background-color: var(--mp-surface) !important; }
+
+
 
 
 
@@ -171,6 +235,8 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-card {
   border: 1px solid var(--color-border) !important;
   border-radius: 16px !important;
@@ -181,6 +247,8 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-title {
   color: var(--color-text) !important;
   letter-spacing: -0.025em;
@@ -188,9 +256,13 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-subtitle {
   color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -201,6 +273,8 @@
   padding: 4px !important;
   gap: 6px !important;
 }
+
+
 
 
 
@@ -217,12 +291,16 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-role-button[data-selected='true'] {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text) !important;
   box-shadow: inset 0 0 0 1px rgb(var(--color-accent-rgb) / 0.12) !important;
 }
+
+
 
 
 
@@ -235,9 +313,13 @@
 
 
 
+
+
 .mp-auth-screen label {
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -254,10 +336,14 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-kitchen-select option {
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -270,10 +356,14 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-password-input::placeholder {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -287,11 +377,15 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-eye-button:hover:not(:disabled) {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -301,9 +395,13 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-note {
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -317,11 +415,15 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-submit:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -335,11 +437,15 @@
 
 
 
+
+
 .mp-auth-screen .mp-auth-error {
   border: 1px solid var(--color-danger-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -349,17 +455,16 @@
 
 
 
+
+
 .mp-auth-screen .text-emerald-400,
 .mp-auth-screen .text-teal-300 {
   color: var(--color-accent) !important;
 }
 
-
-
-
 /* Defeat earlier global navy button/select rules within authentication only. */
-:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'],
-:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'] {
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false']
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   background-image: none !important;
@@ -368,9 +473,8 @@
 }
 
 
-
-:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'],
-:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true']
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   background-image: none !important;
@@ -379,9 +483,8 @@
 }
 
 
-
-:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled),
-:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled) {
+:root .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled)
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   background-image: none !important;
@@ -391,9 +494,8 @@
 }
 
 
-
-:root main.mp-auth-screen select.mp-auth-kitchen-select,
-:root main.mp-auth-screen select.mp-auth-kitchen-select {
+:root main.mp-auth-screen select.mp-auth-kitchen-select
+{
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
@@ -403,17 +505,15 @@
 }
 
 
-
-:root main.mp-auth-screen select.mp-auth-kitchen-select option,
-:root main.mp-auth-screen select.mp-auth-kitchen-select option {
+:root main.mp-auth-screen select.mp-auth-kitchen-select option
+{
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
 }
 
 
-
-:root main.mp-auth-screen input.mp-auth-password-input,
-:root main.mp-auth-screen input.mp-auth-password-input {
+:root main.mp-auth-screen input.mp-auth-password-input
+{
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
@@ -422,9 +522,8 @@
 }
 
 
-
-:root .mp-auth-screen button.mp-auth-eye-button,
-:root .mp-auth-screen button.mp-auth-eye-button {
+:root .mp-auth-screen button.mp-auth-eye-button
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text-muted) !important;
@@ -432,9 +531,8 @@
 }
 
 
-
-:root .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled),
-:root .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled) {
+:root .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled)
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text) !important;
@@ -442,9 +540,8 @@
 }
 
 
-
-:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'],
-:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'] {
+:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.15) !important;
   color: var(--color-text) !important;
@@ -452,28 +549,22 @@
 }
 
 
-
-:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
+:root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled)
+{
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text) !important;
   transform: none !important;
 }
 
-
-
-
 /* ==========================================================================
    Graphite & Sage · final shared field sizing and auth control normalization
    ========================================================================== */
-
 /* Authentication: these selectors deliberately outrank the old global
    [data-button-kind='primary'] navy/gradient rules and older input tokens. */
 :root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
-:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
-:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'],
-:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'] {
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']
+{
   appearance: none !important;
   border: 1px solid var(--color-border) !important;
   border-radius: 8px !important;
@@ -489,11 +580,9 @@
 }
 
 
-
 :root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
-:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled)
+{
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   background-color: rgb(var(--color-surface-rgb) / 0.92) !important;
@@ -504,9 +593,8 @@
 }
 
 
-
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled,
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   background-color: rgb(var(--color-surface-rgb) / 0.92) !important;
@@ -518,11 +606,9 @@
 }
 
 
-
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after,
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after
+{
   display: none !important;
   content: none !important;
   background: none !important;
@@ -530,9 +616,8 @@
 }
 
 
-
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button,
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button
+{
   appearance: none !important;
   border: 1px solid var(--color-border) !important;
   border-radius: 7px !important;
@@ -546,9 +631,8 @@
 }
 
 
-
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled),
-:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled) {
+:root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled)
+{
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text) !important;
@@ -557,9 +641,8 @@
 }
 
 
-
-:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input,
-:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input {
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input
+{
   appearance: none !important;
   border: 1px solid var(--color-border) !important;
   border-radius: 8px !important;
@@ -575,11 +658,9 @@
 }
 
 
-
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
-:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible,
-:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
-:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible {
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible
+{
   border: 1px solid var(--color-border-strong) !important;
   background: var(--color-surface) !important;
   background-color: var(--color-surface) !important;
@@ -591,9 +672,8 @@
 }
 
 
-
-:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder,
-:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder {
+:root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder
+{
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
   opacity: 1 !important;
@@ -601,17 +681,14 @@
 
 
 
-:root main.mp-auth-screen .mp-auth-card label {
-  color: var(--color-text-muted) !important;
-  -webkit-text-fill-color: var(--color-text-muted) !important;
-}
-
 
 
 :root main.mp-auth-screen .mp-auth-card .mp-auth-hint {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -626,6 +703,8 @@
 }
 
 
+
+
 /* Extracted from src/styles/components.css */
 /* Shared buttons, cards, dialogs, badges, notices and toast surfaces. */
 /* Application shells and major surfaces */
@@ -634,6 +713,8 @@
   color: var(--color-text) !important;
   background: var(--color-page) !important;
 }
+
+
 
 
 :root .mp-auth-screen button[data-button-kind='primary'],
@@ -649,6 +730,8 @@
 }
 
 
+
+
 :root .mp-auth-screen button[data-option-button='true']
 {
   border-color: var(--color-border-strong) !important;
@@ -656,6 +739,8 @@
   color: var(--color-text-muted) !important;
   box-shadow: none !important;
 }
+
+
 
 
 :root .mp-auth-card
@@ -667,12 +752,16 @@
 }
 
 
+
+
 :root .mp-auth-error
 {
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 /* Bright Sky / Graphite component layer. */
 :root .mp-auth-card
@@ -683,6 +772,8 @@
 }
 
 
+
+
 :root .mp-auth-screen .mp-auth-card
 {
   background: var(--color-surface) !important;
@@ -691,14 +782,6 @@
 }
 
 
-:root .mp-auth-screen button:not([data-option-button='true']):not([data-calendar-day='true'])
-{
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
 
 
 :root .mp-auth-screen button[data-button-kind='primary'],
@@ -711,12 +794,16 @@
 }
 
 
+
+
 :root .mp-auth-screen .mp-auth-error
 {
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -727,11 +814,15 @@
 
 
 
+
+
 :root main.mp-auth-screen::before {
   background:
     radial-gradient(ellipse at 50% 0%, var(--color-ambient-a), transparent 42%),
     linear-gradient(180deg, var(--color-surface) 0%, var(--color-page) 100%) !important;
 }
+
+
 
 
 
@@ -745,11 +836,15 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-title,
 :root main.mp-auth-screen .mp-auth-card h1,
 :root main.mp-auth-screen .mp-auth-card p {
   color: var(--color-text);
 }
+
+
 
 
 
@@ -760,10 +855,14 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-role-switcher {
   border-color: var(--color-border) !important;
   background: var(--color-surface-inset) !important;
 }
+
+
 
 
 
@@ -777,6 +876,8 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-role-button[data-selected='true'],
 :root main.mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
   border-color: var(--color-accent) !important;
@@ -786,9 +887,13 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-hint {
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -797,12 +902,6 @@
 }
 
 
-/* Extracted from src/styles/forms.css */
-
-:root .mp-auth-screen input[type='checkbox']
-{
-  accent-color: var(--color-accent) !important;
-}
 
 /* Date, kitchen selector and date-range popover share the same control tokens. */
 :root select.mp-auth-kitchen-select
@@ -815,10 +914,14 @@
 }
 
 
+
+
 :root .mp-auth-screen :is(input, select, textarea):not([type='checkbox']):not([type='radio'])
 {
   color-scheme: dark;
 }
+
+
 
 
 :root .mp-auth-screen .mp-auth-card input:not([type='checkbox']):not([type='radio']),
@@ -832,11 +935,16 @@
 }
 
 
+
+
 :root .mp-auth-screen .mp-auth-card input::placeholder
 {
   color: var(--color-text-subtle) !important;
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
+
+/* Extracted from src/styles/forms.css */
+
 
 
 :root .mp-auth-screen input[type='checkbox']
@@ -845,11 +953,15 @@
 }
 
 
+
+
 :root .mp-auth-screen select option
 {
   color: var(--color-text) !important;
   background: var(--color-surface) !important;
 }
+
+
 
 
 
@@ -864,10 +976,14 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder {
   color: var(--color-text-subtle) !important;
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
+
+
 
 
 
@@ -878,10 +994,14 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-card label {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
 
 
 /* Extracted from src/styles/interactions.css */
@@ -896,13 +1016,6 @@
 }
 
 
-:root .mp-auth-screen button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-}
 
 
 :root .mp-auth-screen button[data-button-kind='primary']:hover:not(:disabled),
@@ -917,12 +1030,6 @@
 }
 
 
-:root .mp-auth-screen button[data-option-button='true'][data-selected='true']
-{
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-}
 
 
 :root select.mp-auth-kitchen-select:hover:not(:disabled)
@@ -932,12 +1039,16 @@
 }
 
 
+
+
 :root select.mp-auth-kitchen-select:focus,
 :root select.mp-auth-kitchen-select:focus-visible
 {
   border-color: var(--color-focus) !important;
   outline-color: var(--color-focus-ring) !important;
 }
+
+
 
 
 :root .mp-auth-screen button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
@@ -949,6 +1060,8 @@
 }
 
 
+
+
 :root .mp-auth-screen button[data-button-kind='primary']:hover:not(:disabled),
 :root .mp-auth-screen button.mp-auth-submit:hover:not(:disabled)
 {
@@ -956,6 +1069,8 @@
   background: var(--color-accent) !important;
   color: var(--color-on-accent) !important;
 }
+
+
 
 
 :root .mp-auth-screen button[data-option-button='true']:hover:not(:disabled)
@@ -966,6 +1081,8 @@
 }
 
 
+
+
 :root .mp-auth-screen button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
@@ -974,10 +1091,14 @@
 }
 
 
+
+
 :root .mp-auth-screen :is(input, select, textarea):hover:not(:disabled):not([readonly])
 {
   border-color: var(--color-accent-border) !important;
 }
+
+
 
 
 :root .mp-auth-screen :is(input, select, textarea):focus:not(:disabled):not([readonly])
@@ -989,11 +1110,15 @@
 }
 
 
+
+
 :root .mp-auth-screen .mp-auth-card :is(input, select, textarea):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;
   outline-offset: 2px;
 }
+
+
 
 
 @media (prefers-reduced-motion: reduce) {
@@ -1007,6 +1132,8 @@
 
 
 }
+
+
 
 
 
@@ -1028,6 +1155,8 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill,
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:hover,
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:focus {
@@ -1039,11 +1168,15 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button {
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface-raised) !important;
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -1055,12 +1188,16 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-role-button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
   color: var(--color-text) !important;
   transform: none !important;
 }
+
+
 
 
 
@@ -1078,6 +1215,8 @@
 
 
 
+
+
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled {
   border-color: var(--color-border) !important;
   background: var(--color-surface-subtle) !important;
@@ -1085,6 +1224,8 @@
   -webkit-text-fill-color: var(--color-text-muted) !important;
   opacity: 1 !important;
 }
+
+
 
 
 
