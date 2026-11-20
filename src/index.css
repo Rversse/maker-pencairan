@@ -5229,3 +5229,89 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   min-width: 158px !important;
   max-width: 158px !important;
 }
+
+
+/* Final nominal sizing: 120px accommodates formatted amounts through hundreds
+   of millions. Revision controls keep a 120px input plus the 30px history action. */
+main .mp-form-stack .mp-rab-row {
+  grid-template-columns: minmax(0, 1fr) 120px !important;
+}
+main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal),
+main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal),
+main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  margin-left: auto !important;
+  justify-self: end !important;
+}
+main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal) > input,
+main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal) > input,
+main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) > input {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+}
+main .mp-form-stack .mp-salary-flex-row {
+  grid-template-columns: max-content minmax(0, 1fr) 120px !important;
+}
+main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+  justify-self: end !important;
+}
+main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) > input {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+}
+@media (min-width: 1024px) {
+  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal:not(.mp-revision-nominal),
+  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
+    flex: 0 0 120px !important;
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+  }
+}
+@media (max-width: 1023px) {
+  main .mp-form-stack .mp-rab-row {
+    grid-template-columns: minmax(0, 1fr) 120px !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row {
+    grid-template-columns: minmax(0, 1fr) 120px !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal:not(.mp-revision-nominal),
+  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
+    flex: 0 0 120px !important;
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+    margin-left: auto !important;
+  }
+}
+/* Revision nominal: 120px editable amount + 8px gap + 30px history action. */
+main .mp-form-stack .mp-revision-nominal {
+  grid-template-columns: 120px 30px !important;
+  flex: 0 0 158px !important;
+  width: 158px !important;
+  min-width: 158px !important;
+  max-width: 158px !important;
+}
+main .mp-form-stack .mp-revision-nominal > input {
+  flex: 0 0 120px !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  max-width: 120px !important;
+}
+main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
+  grid-template-columns: minmax(0, 1fr) 158px !important;
+}
+main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
+  grid-template-columns: max-content minmax(0, 1fr) 158px !important;
+}
