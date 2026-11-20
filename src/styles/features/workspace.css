@@ -4495,25 +4495,36 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal){
 
 
 
-/* Ops Harian bank field: add 5px breathing room without changing GAS. */
+/* Ops Harian bank field: widen by another 5px; GAS remains untouched. */
 @media (min-width: 640px) {
   main .mp-form-stack .mp-ops-flex-row > .mp-ops-bank {
-    min-width: 85px !important;
+    min-width: 90px !important;
   }
 
   main .mp-form-stack .mp-custom-field-wrap.mp-ops-bank > .mp-custom-field-control {
-    width: 85px !important;
-    min-width: 85px !important;
+    width: 90px !important;
+    min-width: 90px !important;
   }
 }
 
 @media (max-width: 639px) {
   main .mp-form-stack .mp-ops-flex-row > .mp-ops-bank {
-    min-width: 85px !important;
+    min-width: 90px !important;
   }
 
   main .mp-form-stack .mp-custom-field-wrap.mp-ops-bank > .mp-custom-field-control {
-    width: 85px !important;
-    min-width: 85px !important;
+    width: 90px !important;
+    min-width: 90px !important;
   }
+}
+
+/* Form content typography: one 12px control scale across RAB, Ops, and
+   Insentif/Gaji. Category tags intentionally retain their compact 10px scale. */
+:root .mp-app-shell main .mp-form-stack .mp-payment-detail:not(.mp-tag),
+:root .mp-app-shell main .mp-form-stack .mp-rab-details > div:first-child,
+:root .mp-app-shell main .mp-form-stack .mp-rab-choice,
+:root .mp-app-shell main .mp-form-stack .mp-rab-add {
+  font-family: var(--font-family-sans) !important;
+  font-size: var(--type-control) !important;
+  line-height: 1.25 !important;
 }
