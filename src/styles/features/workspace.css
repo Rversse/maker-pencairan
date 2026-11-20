@@ -1117,7 +1117,8 @@ aside.mp-card .text-lg{
 
 
 
-.mp-ops-flex-row input.mp-ops-owner, .mp-ops-flex-row input.mp-ops-account{
+.mp-ops-flex-row .mp-custom-field-wrap.mp-ops-owner > .mp-custom-field-control,
+.mp-ops-flex-row .mp-custom-field-wrap.mp-ops-account > .mp-custom-field-control {
   field-sizing: content;
 }
 
@@ -3556,7 +3557,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal){
 
 
 
-  main .mp-form-stack input.mp-ops-owner{
+  main .mp-form-stack .mp-custom-field-wrap.mp-ops-owner > .mp-custom-field-control{
     width: 103px !important;
     min-width: 103px !important;
     max-width: 260px !important;
@@ -3576,7 +3577,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal){
 
 
 
-  main .mp-form-stack select.mp-ops-bank{
+  main .mp-form-stack .mp-custom-field-wrap.mp-ops-bank > .mp-custom-field-control{
     width: 80px !important;
     min-width: 80px !important;
     max-width: 150px !important;
@@ -3599,7 +3600,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal){
 
 
 
-  main .mp-form-stack input.mp-ops-account{
+  main .mp-form-stack .mp-custom-field-wrap.mp-ops-account > .mp-custom-field-control{
     width: 107px !important;
     min-width: 107px !important;
     max-width: 230px !important;

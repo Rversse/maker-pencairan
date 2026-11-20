@@ -55,6 +55,7 @@
   --color-danger-border: rgb(252 81 48 / 48%);
   --color-warning: var(--palette-tomato);
   --color-success: var(--palette-bright-sky);
+  --color-validation-success: #34d399;
   --color-info: var(--palette-bright-sky);
 
   --color-focus: var(--palette-bright-sky);
