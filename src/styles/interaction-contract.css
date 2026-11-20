@@ -96,7 +96,12 @@
   accent-color: var(--color-accent) !important;
 }
 
-/* Every button uses the same neutral base appearance. Semantic states are fills. */
+/* Every actionable button gets a real border, including buttons without Tailwind's .border utility.
+   Row-delete and dialog-close X controls are intentional borderless exceptions. */
+:root button:not(.mp-row-remove):not(.mp-tag):not([aria-label='Tutup riwayat']) {
+  border: 1px solid var(--color-border-strong) !important;
+}
+
 :root button:not(.mp-row-remove):not(.mp-tag):not([data-button-kind='primary']):not(.mp-import-primary):not(.mp-history-danger-button):not([aria-pressed='true']):not([data-selected='true']) {
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
@@ -111,12 +116,16 @@
     color var(--transition-fast);
 }
 
-:root button:not(.mp-row-remove):not(.mp-tag).mp-history-danger-button {
-  border-color: var(--color-danger-border) !important;
-  background: var(--color-danger-soft) !important;
+/* Destructive History action: neutral outline by default, red outline on hover.
+   The label remains red in both states. */
+:root .mp-history-dialog button.mp-history-danger-button {
+  border: 1px solid var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
   color: var(--color-danger) !important;
   -webkit-text-fill-color: var(--color-danger) !important;
+  box-shadow: none !important;
 }
+
 
 /* On/off and selected button states change the background only. */
 :root button:not(.mp-row-remove):not(.mp-tag)[aria-pressed='true'],
@@ -130,7 +139,7 @@
 
 /* One hover treatment for all enabled buttons, including calendar and modal actions.
    Tags/dropdowns are not buttons and intentionally receive no hover treatment. */
-:root button:not(.mp-row-remove):not(.mp-tag):hover:not(:disabled) {
+:root button:not(.mp-row-remove):not(.mp-tag):not(.mp-history-danger-button):hover:not(:disabled) {
   border-color: var(--color-button-hover-border) !important;
   background: var(--color-button-hover-bg) !important;
   background-image: none !important;
@@ -138,6 +147,14 @@
   text-shadow: none !important;
   transform: none !important;
   filter: none !important;
+}
+
+
+:root .mp-history-dialog button.mp-history-danger-button:hover:not(:disabled) {
+  border-color: var(--color-danger-border) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+  -webkit-text-fill-color: var(--color-danger) !important;
 }
 
 /* Keep keyboard focus visible on buttons; form fields intentionally use text contrast. */
@@ -249,51 +266,47 @@
   cursor: default !important;
 }
 
-/* Compact CUSTOM completion hint: plain text and a small status dot, no badge. */
-:root .mp-app-shell .mp-custom-completion {
-  display: flex;
+/* CUSTOM input wrappers keep each tiny validation dot attached to its own field
+   without changing the payout row's grid column count. */
+:root .mp-app-shell main .mp-form-stack .mp-custom-field-wrap {
+  display: inline-flex;
   min-width: 0;
+  max-width: 100%;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 3px 0 4px 42px;
-  color: var(--color-text-muted);
-  font-size: 10px;
-  line-height: 1.45;
+  gap: 4px;
 }
 
-:root .mp-app-shell .mp-custom-completion-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 50%;
-  background: var(--color-danger);
-}
-
-:root .mp-app-shell .mp-custom-completion.is-complete .mp-custom-completion-dot {
-  background: var(--color-accent);
-}
-
-:root .mp-app-shell .mp-custom-completion-missing {
-  color: var(--color-text-subtle);
-}
-
-:root .mp-app-shell .mp-custom-validation-notice {
-  display: flex;
+:root .mp-app-shell main .mp-form-stack .mp-custom-field-wrap > .mp-custom-field-control {
   min-width: 0;
-  align-items: flex-start;
-  gap: 8px;
-  color: var(--color-text-muted);
-  font-size: 10px;
-  line-height: 1.5;
+  max-width: 100%;
+  flex: 1 1 auto;
+  box-sizing: border-box;
 }
 
-:root .mp-app-shell .mp-custom-validation-notice::before {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  margin-top: 4px;
+:root .mp-app-shell main .mp-form-stack .mp-custom-field-wrap.mp-ops-note {
+  width: max-content;
+  min-width: 107px;
+  max-width: min(420px, 45vw);
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-custom-field-wrap.mp-ops-note > .mp-custom-field-control {
+  width: 100%;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-custom-field-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
   border-radius: 50%;
   background: var(--color-danger);
-  content: '';
+  pointer-events: none;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-custom-field-dot.is-complete {
+  background: var(--color-validation-success);
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-custom-field-dot.is-missing {
+  background: var(--color-danger);
 }

@@ -300,20 +300,14 @@ function getIncompleteCustomOperationalEntries(
   transaction: TransactionGroup | null | undefined,
   isRowEnabled: (entry: SimpleEntry) => boolean = () => true
 ) {
-  let rowNumber = 0
-
   return (transaction?.operasional ?? []).flatMap((entry, index) => {
     if (!isCustomOperationalEntry(entry, index) || !isRowEnabled(entry)) return []
-    rowNumber += 1
 
     const completion = getCustomOperationalCompletion(entry)
     if (completion.complete) return []
 
     return [{
       entryId: entry.id,
-      rowNumber,
-      completed: completion.completed,
-      total: completion.total,
       missing: completion.missing
     }]
   })
