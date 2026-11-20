@@ -3663,27 +3663,7 @@ aside.mp-card .rounded-lg { background-image: none !important; }
   accent-color: #91a894 !important;
 }
 
-/* Date and kitchen selectors use the same graphite control surface. */
-:root[data-theme='dark'] main .mp-date-control {
-  border: 1px solid #465347 !important;
-  border-radius: 8px !important;
-  background: #252c27 !important;
-  box-shadow: none !important;
-  transition: border-color 140ms ease, background-color 140ms ease !important;
-}
-:root[data-theme='dark'] main .mp-date-control:hover {
-  border-color: #718272 !important;
-  background: #2a322b !important;
-}
-:root[data-theme='dark'] main .mp-date-control:focus-within {
-  border-color: #a0b49c !important;
-  background: #252c27 !important;
-  box-shadow: 0 0 0 2px rgb(160 180 156 / 13%) !important;
-}
-:root[data-theme='dark'] main .mp-date-control input[type='date'] {
-  color-scheme: dark;
-  accent-color: #91a894;
-}
+/* Shared date/kitchen control appearance is centralized at the end of this file. */
 :root[data-theme='dark'] main .mp-kitchen-select,
 :root[data-theme='dark'] main select#workspace-kitchen {
   border: 1px solid #465347 !important;
@@ -3807,34 +3787,6 @@ aside.mp-card .rounded-lg { background-image: none !important; }
 :root[data-theme='dark'] main .mp-output-copy {
   font-family: var(--mp-font-mono) !important;
   font-variant-numeric: tabular-nums;
-}
-
-/* Final user feedback: date capsule matches the kitchen control surface. */
-main .mp-date-control {
-  min-height: 36px !important;
-  border: 1px solid #465347 !important;
-  border-radius: 8px !important;
-  background: #252c27 !important;
-  background-color: #252c27 !important;
-  color: #e2e9e1 !important;
-  box-shadow: none !important;
-}
-main .mp-date-control:hover {
-  border-color: #718272 !important;
-  background: #252c27 !important;
-}
-main .mp-date-control:focus-within {
-  border-color: #a0b49c !important;
-  background: #252c27 !important;
-  box-shadow: 0 0 0 2px rgb(160 180 156 / 13%) !important;
-}
-main .mp-date-control .mp-date-label {
-  color: #aeb9ac !important;
-  -webkit-text-fill-color: #aeb9ac !important;
-}
-main .mp-date-control .mp-date-value {
-  color: #e2e9e1 !important;
-  -webkit-text-fill-color: #e2e9e1 !important;
 }
 
 /* Summary status labels are colored text only: no chip border or fill. */
@@ -5302,39 +5254,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
-/* Maker theme refinement: date selector, totals and active-row text feedback. */
-:root[data-theme='dark'] main .mp-date-control,
-:root:not([data-theme='light']) main .mp-date-control {
-  border: 1px solid #465347 !important;
-  border-radius: 8px !important;
-  background: #252c27 !important;
-  background-color: #252c27 !important;
-  color: #e2e9e1 !important;
-  box-shadow: none !important;
-}
-:root[data-theme='dark'] main .mp-date-control:hover,
-:root:not([data-theme='light']) main .mp-date-control:hover {
-  border-color: #718272 !important;
-  background: #252c27 !important;
-  background-color: #252c27 !important;
-}
-:root[data-theme='dark'] main .mp-date-control:focus-within,
-:root:not([data-theme='light']) main .mp-date-control:focus-within {
-  border-color: #a0b49c !important;
-  background: #252c27 !important;
-  background-color: #252c27 !important;
-  box-shadow: 0 0 0 2px rgb(160 180 156 / 14%) !important;
-}
-:root[data-theme='dark'] main .mp-date-control .mp-date-label,
-:root:not([data-theme='light']) main .mp-date-control .mp-date-label {
-  color: #becbb9 !important;
-  -webkit-text-fill-color: #becbb9 !important;
-}
-:root[data-theme='dark'] main .mp-date-control .mp-date-value,
-:root:not([data-theme='light']) main .mp-date-control .mp-date-value {
-  color: #f0f3ed !important;
-  -webkit-text-fill-color: #f0f3ed !important;
-}
+/* Date and kitchen share one control style; summary theme rules follow. */
 :root[data-theme='dark'] main .mp-summary-panel,
 :root:not([data-theme='light']) main .mp-summary-panel {
   border-color: #445247 !important;
@@ -5513,24 +5433,6 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
-/* Final correction from the live screenshot:
-   - Date capsule uses the same filled Sage surface as mapped account fields.
-   - Salary nominal stays in the right-hand column, but its text/caret is centered
-     inside the 120px input (not right-anchored independently of its placeholder). */
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control,
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control {
-  border: 1px solid #566457 !important;
-  background: #354137 !important;
-  background-color: #354137 !important;
-  color: #e2e9e1 !important;
-}
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control:hover,
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control:hover,
-:root[data-theme='dark'] .mp-app-shell main .mp-date-control:focus-within,
-:root:not([data-theme='light']) .mp-app-shell main .mp-date-control:focus-within {
-  background: #354137 !important;
-  background-color: #354137 !important;
-}
 :root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input,
 :root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input {
   text-align: center !important;
@@ -5538,4 +5440,62 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder,
 :root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder {
   text-align: center !important;
+}
+
+
+/* Date and Dapur are the same control: one token, one surface, one interaction. */
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control.mp-control-surface,
+:root[data-theme='dark'] .mp-app-shell main select.mp-kitchen-select.mp-control-surface,
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control.mp-control-surface,
+:root:not([data-theme='light']) .mp-app-shell main select.mp-kitchen-select.mp-control-surface {
+  min-height: 36px !important;
+  border: 1px solid #465347 !important;
+  border-radius: 8px !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
+  color: #e2e9e1 !important;
+  -webkit-text-fill-color: #e2e9e1 !important;
+  color-scheme: dark;
+  box-shadow: none !important;
+  outline: none;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control.mp-control-surface:hover,
+:root[data-theme='dark'] .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled),
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control.mp-control-surface:hover,
+:root:not([data-theme='light']) .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled) {
+  border-color: #718272 !important;
+  background: #2a322b !important;
+  background-color: #2a322b !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
+:root[data-theme='dark'] .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus,
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
+:root:not([data-theme='light']) .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus {
+  border-color: #a0b49c !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
+  outline: 2px solid rgb(160 180 156 / 12%) !important;
+  outline-offset: 1px;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control .mp-date-label,
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control .mp-date-label {
+  color: #aeb9ac !important;
+  -webkit-text-fill-color: #aeb9ac !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control .mp-date-value,
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control .mp-date-value {
+  color: #e2e9e1 !important;
+  -webkit-text-fill-color: #e2e9e1 !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control > input[type='date'],
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control > input[type='date'] {
+  border: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  box-shadow: none !important;
+  color-scheme: dark;
 }

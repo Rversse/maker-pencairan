@@ -3287,7 +3287,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             <div className="mt-3 mb-2 flex w-fit max-w-full flex-wrap items-end gap-2">
               <div className="w-[180px] shrink-0">
                 <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
-                <div className="mp-date-control relative flex h-9 cursor-pointer items-center rounded-lg border border-slate-700 bg-slate-950 px-2.5 transition">
+                <div className="mp-date-control mp-control-surface relative flex h-9 cursor-pointer items-center px-2.5 transition">
                   <span className="mp-date-label whitespace-nowrap text-[10px] font-semibold tracking-wide">TANGGAL</span>
                   <span className="mp-date-value ml-2 whitespace-nowrap text-xs font-semibold tabular-nums">{formatDate(activeDate)}</span>
                   <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
