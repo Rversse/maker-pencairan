@@ -268,6 +268,57 @@ function isCompleteAmount(value: string) {
   return Number(value.replace(/\D/g, '')) > 0
 }
 
+function isCustomOperationalEntry(entry: SimpleEntry, index: number) {
+  const isMappedOps = entry.operationalRuleType === 'ops_harian'
+  const isMappedSalary = entry.operationalRuleType === 'gaji_akuntan' ||
+    entry.operationalRuleType === 'gaji_ahli_gizi'
+  const isArutala = Boolean(entry.useArutalaAccount)
+
+  return !isMappedOps && !isMappedSalary && !isArutala &&
+    (index > 0 || Boolean(entry.customAccount))
+}
+
+function getCustomOperationalCompletion(entry: SimpleEntry) {
+  const fields = [
+    { label: 'Nama rekening', complete: Boolean(entry.ownerName?.trim()) },
+    { label: 'Nama bank', complete: Boolean(entry.bank?.trim()) },
+    { label: 'Nomor rekening', complete: Boolean(entry.accountNumber?.trim()) },
+    { label: 'Catatan', complete: Boolean(entry.need?.trim()) },
+    { label: 'Nominal', complete: isCompleteAmount(entry.amount ?? '') }
+  ]
+  const missing = fields.filter((field) => !field.complete).map((field) => field.label)
+
+  return {
+    completed: fields.length - missing.length,
+    total: fields.length,
+    complete: missing.length === 0,
+    missing
+  }
+}
+
+function getIncompleteCustomOperationalEntries(
+  transaction: TransactionGroup | null | undefined,
+  isRowEnabled: (entry: SimpleEntry) => boolean = () => true
+) {
+  let rowNumber = 0
+
+  return (transaction?.operasional ?? []).flatMap((entry, index) => {
+    if (!isCustomOperationalEntry(entry, index) || !isRowEnabled(entry)) return []
+    rowNumber += 1
+
+    const completion = getCustomOperationalCompletion(entry)
+    if (completion.complete) return []
+
+    return [{
+      entryId: entry.id,
+      rowNumber,
+      completed: completion.completed,
+      total: completion.total,
+      missing: completion.missing
+    }]
+  })
+}
+
 function sortStrings(values: string[]) {
   return [...new Set(values)].sort((a, b) =>
     a.localeCompare(b, 'id', { sensitivity: 'base' })
@@ -2230,6 +2281,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         operationalEntry.operationalRuleType === 'gaji_ahli_gizi'
       const custom = !isMappedOps && !isArutala && !isMappedSalary &&
         (operationalIndex > 0 || Boolean(operationalEntry.customAccount))
+      if (custom && !getCustomOperationalCompletion(operationalEntry).complete) continue
+
       const mappedOpsRule = isMappedOps
         ? operationalRules.find((rule) => rule.id === operationalEntry.operationalRuleId)
         : null
@@ -2535,6 +2588,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     ? getTransactionOutput(outputTransaction).join('\n')
     : ''
   const outputDetailLines = output ? output.split('\n').slice(1).filter((line) => line.trim()) : []
+  const incompleteCustomOperationalRows = getIncompleteCustomOperationalEntries(
+    outputTransaction,
+    (entry) => isHistoryRowEnabled('operasional', entry.id)
+  )
+  const customOperationalValidationMessage = incompleteCustomOperationalRows
+    .map((row) => `CUSTOM #${row.rowNumber}: ${row.missing.join(', ')}`)
+    .join(' · ')
+  const customOperationalValidationNotice = incompleteCustomOperationalRows.length > 0
+    ? `Lengkapi data CUSTOM sebelum disimpan. ${customOperationalValidationMessage}.`
+    : ''
   const outputLineCount = outputDetailLines.length
   const hasOutputAmount = (prefix: string, accountNumber: string, amount: string) => {
     const normalizedAccount = (accountNumber ?? '').trim()
@@ -2734,7 +2797,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
 
   async function copyOutputText() {
-    if (!output) return
+    if (incompleteCustomOperationalRows.length > 0 || !output) return
     try {
       await navigator.clipboard.writeText(output)
       setCopyMessage('Output berhasil disalin')
@@ -2777,6 +2840,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
 
   async function copyOutput() {
+    if (incompleteCustomOperationalRows.length > 0) return
     if ((!output && !historyChangeBase) || !activeTransaction || !kitchenId) return
     setHistorySaveBusy(true)
     try {
@@ -2830,6 +2894,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   }
 
   async function confirmHistorySave() {
+    if (incompleteCustomOperationalRows.length > 0) return
     if (!activeTransaction || !historyChangeBase) return
     setHistorySaveBusy(true)
     try {
@@ -3282,10 +3347,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             <div className="mt-3 mb-2 flex w-fit max-w-full flex-wrap items-end gap-2">
               <div className="w-[180px] shrink-0">
                 <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
-                <div className="mp-date-control mp-control-surface relative flex h-9 cursor-pointer items-center px-2.5 transition">
+                <div className="mp-date-control mp-control-surface relative flex h-9 items-center px-2.5 transition">
                   <span className="mp-date-label whitespace-nowrap text-[10px] font-semibold tracking-wide">TANGGAL</span>
                   <span className="mp-date-value ml-2 whitespace-nowrap text-xs font-semibold tabular-nums">{formatDate(activeDate)}</span>
-                  <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full cursor-pointer opacity-0" />
+                  <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full opacity-0" />
                 </div>
               </div>
               {!fixedKitchen && (
@@ -3360,12 +3425,19 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         </div>
                       </div>
 
+                      {incompleteCustomOperationalRows.length > 0 && (
+                        <div id="mp-custom-validation-notice" className="mp-custom-validation-notice" role="alert">
+                          <span>{customOperationalValidationNotice}</span>
+                        </div>
+                      )}
+
                       <div className="mt-2 flex min-h-[135px] flex-1 flex-col gap-2">
                         <pre
                           role="button"
-                          tabIndex={output ? 0 : -1}
+                          tabIndex={output && incompleteCustomOperationalRows.length === 0 ? 0 : -1}
+                          aria-disabled={!output || incompleteCustomOperationalRows.length > 0}
                           aria-label="Klik untuk menyalin output"
-                          title="Klik untuk menyalin output"
+                          title={incompleteCustomOperationalRows.length > 0 ? 'Lengkapi semua data CUSTOM sebelum menyalin output' : 'Klik untuk menyalin output'}
                           onClick={() => void copyOutputText()}
                           onKeyDown={(event) => {
                             if (event.key === 'Enter' || event.key === ' ') {
@@ -3376,9 +3448,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           className="mp-output-copy max-h-[30vh] flex-1 overflow-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-gradient-to-b from-slate-950 to-slate-900/80 p-2 text-left text-[10px] leading-4 text-slate-200 shadow-inner shadow-black/20"
                         >{output}</pre>
                         <div className="flex flex-wrap items-center gap-2">
-                          <button type="button" disabled={(!output && !historyChangeBase) || historySaveBusy} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40">{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
+                          <button type="button" disabled={(!output && !historyChangeBase) || historySaveBusy || incompleteCustomOperationalRows.length > 0} onClick={() => void copyOutput()} className="self-start rounded-lg border border-emerald-700 bg-emerald-950/50 px-3 py-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-40" title={incompleteCustomOperationalRows.length > 0 ? 'Lengkapi semua data CUSTOM sebelum disimpan' : undefined}>{historySaveBusy ? 'Menyimpan...' : 'Copy dan Simpan'}</button>
                           {historyChangeActive && (
-                            <button type="button" disabled={historySaveBusy} onClick={cancelHistoryChange} className="mp-revision-cancel-button self-start rounded-lg px-3 py-2 text-[11px] font-semibold disabled:cursor-not-allowed disabled:opacity-40">
+                            <button type="button" disabled={historySaveBusy} onClick={cancelHistoryChange} className="mp-revision-cancel-button self-start rounded-lg px-3 py-2 text-[11px] font-semibold disabled:opacity-40">
                               Batalkan Revisi
                             </button>
                           )}
@@ -3515,7 +3587,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       }))
                                     }
                                     disabled={!historyEnabled || (customProducts.length >= 3 && !customRabOpen[rule.account_id])}
-                                    className="mp-rab-add inline-flex h-9 items-center rounded-md border border-dashed px-2.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="mp-rab-add inline-flex h-9 items-center rounded-md border border-dashed px-2.5 text-xs font-semibold transition disabled:opacity-40"
                                   >
                                     + Item Lain
                                   </button>
@@ -3577,7 +3649,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       b3Amount: entry.b3Enabled ? '' : (entry.b3Amount ?? ''),
                                       b3ProductTypes: entry.b3Enabled ? [] : (entry.b3ProductTypes ?? [])
                                     })}
-                                    className="rounded-md border border-amber-700/70 bg-amber-950/40 px-2.5 py-1.5 text-[11px] font-semibold text-amber-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="rounded-md border border-amber-700/70 bg-amber-950/40 px-2.5 py-1.5 text-[11px] font-semibold text-amber-100 disabled:opacity-40"
                                   >
                                     {entry.b3Enabled ? 'Tutup B3' : '+ Tambah B3'}
                                   </button>
@@ -3657,8 +3729,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             ))}
                             {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian — Mapping belum tersedia</button>}
                             {!isCihaurKitchen && <>
-                              <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
-                              <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 disabled:cursor-not-allowed disabled:opacity-40">GAS</button>
+                              <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 disabled:opacity-40">Arutala</button>
+                              <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 disabled:opacity-40">GAS</button>
                             </>}
                             <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100">Lain-lain</button>
                           </div>
@@ -3715,6 +3787,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                                         const isMappedOps = entry.operationalRuleType === 'ops_harian'
                             const custom = !isMappedOps && (index > 0 || Boolean(entry.customAccount))
                             const isArutala = Boolean(entry.useArutalaAccount)
+                            const isStrictCustom = isCustomOperationalEntry(entry, index)
+                            const customCompletion = getCustomOperationalCompletion(entry)
                             const mappedOpsRule = isMappedOps
                               ? opsMappings.find((rule) => rule.id === entry.operationalRuleId)
                               : null
@@ -3758,7 +3832,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     disabled={!historyEnabled}
                                     title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
-                                    className="mp-row-remove h-9 w-9 shrink-0 text-base text-slate-400 disabled:cursor-not-allowed disabled:opacity-25"
+                                    className="mp-row-remove h-9 w-9 shrink-0 text-base text-slate-400 disabled:opacity-25"
                                   >×</button>
                                   {isMappedOps ? (
                                     <div className="mp-tag mp-tag--ops">OPS HARIAN</div>
@@ -3790,7 +3864,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         })
                                       }}
                                       aria-label="Jenis transaksi tambahan Operasional Harian"
-                                      className="mp-tag mp-tag--custom mp-payment-detail h-9 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-extrabold uppercase outline-none transition"
+                                      className="mp-tag mp-tag--custom mp-payment-detail h-9 w-full min-w-0 appearance-none px-2 text-center text-[10px] font-extrabold uppercase outline-none transition"
                                     >
                                       <option value="">Custom</option>
                                       <option value="gaji_akuntan">Gaji AK</option>
@@ -3805,13 +3879,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       <span>VA</span>
                                     </label>
                                   )}
-                                  {!(showVirtualAccount && entry.isVirtualAccount) && (custom && !isMappedSalary && !isArutala ? (
+                                  {custom && !isMappedSalary && !isArutala ? (
                                     <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
                                   ))}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <select value={entry.bank ?? ''} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-xs text-slate-100 outline-none transition">
+                                    <select value={entry.bank ?? ''} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 appearance-none px-2 text-center text-xs text-slate-100 outline-none transition">
                                       <option value="">Nama bank</option>
                                       {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
                                     </select>
@@ -3845,9 +3919,18 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     aria-label="Nominal Ops Harian"
                                     
                                     placeholder="Nominal"
-                                    className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition  disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition   disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryAdditionalButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
                                 </div>
+                                {isStrictCustom && historyEnabled && (
+                                  <div className={`mp-custom-completion ${customCompletion.complete ? 'is-complete' : 'is-incomplete'}`} aria-live="polite">
+                                    <span className="mp-custom-completion-dot" aria-hidden="true" />
+                                    <span>{customCompletion.complete ? 'CUSTOM LENGKAP' : `${customCompletion.completed}/${customCompletion.total} TERISI`}</span>
+                                    {!customCompletion.complete && (
+                                      <span className="mp-custom-completion-missing">· Belum: {customCompletion.missing.join(', ')}</span>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             )
                           })}
@@ -3857,7 +3940,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     })()}
                   </section>
 
-                  <section className="mp-card  w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
+                  <section className="mp-card w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
                     <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
                     <div className="mt-3 space-y-1.5">
                       
@@ -3901,7 +3984,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Insentif Fasilitas SPPG"
-                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition  disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition   disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryAdditionalButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                               </div>
                             )
@@ -3973,7 +4056,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition  disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition   disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryAdditionalButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                                 </div>
                               </div>
@@ -4081,7 +4164,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             <div className="mt-4 flex flex-wrap justify-end gap-2 border-t pt-3">
               <button type="button" disabled={importBusy} onClick={() => { setImportOpen(false); setImportConfirmOpen(false) }} className="mp-import-close rounded-lg px-3 py-2 text-xs">Batal</button>
               {!importConfirmOpen && (
-                <button type="button" disabled={importBusy || importParse.errors.length > 0 || importParse.groups.length === 0} onClick={() => setImportConfirmOpen(true)} className="mp-import-primary rounded-lg px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40">
+                <button type="button" disabled={importBusy || importParse.errors.length > 0 || importParse.groups.length === 0} onClick={() => setImportConfirmOpen(true)} className="mp-import-primary rounded-lg px-3 py-2 text-xs font-bold disabled:opacity-40">
                   Periksa & Konfirmasi
                 </button>
               )}

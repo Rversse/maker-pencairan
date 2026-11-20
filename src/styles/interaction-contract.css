@@ -97,7 +97,7 @@
 }
 
 /* Every button uses the same neutral base appearance. Semantic states are fills. */
-:root button:not(.mp-row-remove):not(.mp-tag):not([data-button-kind='primary']):not(.mp-import-primary):not(.mp-history-primary-button):not(.mp-history-danger-button):not([aria-pressed='true']):not([data-selected='true']) {
+:root button:not(.mp-row-remove):not(.mp-tag):not([data-button-kind='primary']):not(.mp-import-primary):not(.mp-history-danger-button):not([aria-pressed='true']):not([data-selected='true']) {
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
   background-image: none !important;
@@ -109,16 +109,6 @@
     background-color var(--transition-fast),
     border-color var(--transition-fast),
     color var(--transition-fast);
-}
-
-:root button:not(.mp-row-remove):not(.mp-tag)[data-button-kind='primary'],
-:root button:not(.mp-row-remove):not(.mp-tag).mp-auth-submit[data-button-kind='primary'],
-:root button:not(.mp-row-remove):not(.mp-tag).mp-import-primary,
-:root button:not(.mp-row-remove):not(.mp-tag).mp-history-primary-button {
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
-  -webkit-text-fill-color: var(--color-on-accent) !important;
 }
 
 :root button:not(.mp-row-remove):not(.mp-tag).mp-history-danger-button {
@@ -222,4 +212,88 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+/* Cursor affordance follows real interactivity, not the visual tag style. */
+:root button:not(:disabled),
+:root select:not(:disabled),
+:root input[type='checkbox']:not(:disabled),
+:root input[type='radio']:not(:disabled),
+:root input[type='date']:not(:disabled),
+:root input[type='file']:not(:disabled),
+:root a[href],
+:root [role='button']:not([aria-disabled='true']) {
+  cursor: pointer !important;
+}
+
+:root button:disabled,
+:root select:disabled,
+:root input:disabled,
+:root textarea:disabled,
+:root [aria-disabled='true'] {
+  cursor: not-allowed !important;
+}
+
+:root .mp-date-control:has(input[type='date']:not(:disabled)),
+:root .mp-history-date:has(input[type='date']:not(:disabled)),
+:root .mp-va-toggle:has(input[type='checkbox']:not(:disabled)) {
+  cursor: pointer !important;
+}
+
+:root .mp-output-copy:not([aria-disabled='true']) {
+  cursor: copy !important;
+}
+
+:root .mp-output-copy[aria-disabled='true'] {
+  cursor: default !important;
+}
+
+/* Compact CUSTOM completion hint: plain text and a small status dot, no badge. */
+:root .mp-app-shell .mp-custom-completion {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 3px 0 4px 42px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+:root .mp-app-shell .mp-custom-completion-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: var(--color-danger);
+}
+
+:root .mp-app-shell .mp-custom-completion.is-complete .mp-custom-completion-dot {
+  background: var(--color-accent);
+}
+
+:root .mp-app-shell .mp-custom-completion-missing {
+  color: var(--color-text-subtle);
+}
+
+:root .mp-app-shell .mp-custom-validation-notice {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+:root .mp-app-shell .mp-custom-validation-notice::before {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  content: '';
 }

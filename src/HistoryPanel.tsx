@@ -427,7 +427,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   value={selectedDate}
                   onClick={event => event.currentTarget.showPicker?.()}
                   onChange={event => setSelectedDate(event.target.value)}
-                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0 [color-scheme:dark]"
+                  className="absolute inset-0 h-full w-full opacity-0 [color-scheme:dark]"
                 />
               </label>
             )}
@@ -565,7 +565,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   <h4 className="text-sm font-semibold text-slate-100">Output</h4>
                   <div className="flex flex-wrap items-center gap-2">
                     {canEdit && (
-                      <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload)} className="mp-history-primary-button rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
+                      <button type="button" disabled={busy} onClick={() => onStartChange(detail.history.payload)} className="rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">
                         Revisi
                       </button>
                     )}
