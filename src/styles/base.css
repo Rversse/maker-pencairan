@@ -1,6 +1,4 @@
-/* Global document baseline. Theme values are consumed only through tokens. */
-/* Global document defaults. Layout and component geometry stay in their
-   existing feature stylesheets during the staged migration. */
+/* Global document baseline and ambient page treatment. */
 html,
 body,
 #root {
@@ -9,20 +7,52 @@ body,
 
 html {
   color-scheme: dark;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   color: var(--color-text);
   background-color: var(--color-page);
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+
+main {
+  background: transparent;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::before {
+  background:
+    radial-gradient(1000px 560px at 8% -8%, var(--color-ambient-a), transparent 62%),
+    radial-gradient(860px 520px at 104% 2%, var(--color-ambient-b), transparent 58%),
+    radial-gradient(900px 620px at 50% 112%, transparent, transparent 62%);
+}
+
+body::after {
+  background-image:
+    linear-gradient(var(--color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, var(--color-page) 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, var(--color-page) 20%, transparent 75%);
 }
 
 ::selection {
   color: var(--color-on-accent);
-  background: var(--color-accent);
+  background: rgb(var(--color-accent-rgb) / 0.32);
 }
 
 * {
+  scrollbar-width: thin;
   scrollbar-color: var(--color-border-strong) transparent;
 }
-

@@ -8,12 +8,18 @@
 
 
 
+
+
 :root .mp-app-header {
   color: var(--color-text) !important;
-  background: rgb(48 48 54 / 94%) !important;
+  background: var(--color-surface-raised) !important;
   border-color: var(--color-border) !important;
   box-shadow: 0 1px 3px var(--color-shadow) !important;
+
+  box-shadow: 0 8px 24px var(--color-shadow) !important;
 }
+
+
 
 
 
@@ -28,9 +34,13 @@
 
 
 
+
+
 :root .mp-card::before {
   background: radial-gradient(ellipse at 0% 0%, var(--color-accent-soft), transparent 62%) !important;
 }
+
+
 
 
 
@@ -40,10 +50,14 @@
 
 
 
+
+
 :root .mp-card h2::before {
   background: var(--color-accent) !important;
   box-shadow: 0 0 0 3px var(--color-focus-ring), 0 0 9px var(--color-accent-border) !important;
 }
+
+
 
 
 
@@ -57,9 +71,13 @@
 
 
 
+
+
 :root .mp-card[class*='border-amber-500']::before {
   background: radial-gradient(ellipse at 0% 0%, var(--color-danger-soft), transparent 62%) !important;
 }
+
+
 
 
 
@@ -67,6 +85,8 @@
 :root .mp-card[class*='border-amber-500'] h2::before {
   background: var(--color-danger) !important;
 }
+
+
 
 :root .mp-app-shell button[data-button-kind='primary'],
 :root .mp-import-primary
@@ -77,6 +97,8 @@
   box-shadow: none !important;
 }
 
+
+
 :root .mp-app-shell button[data-option-button='true']
 {
   border-color: var(--color-border-strong) !important;
@@ -84,6 +106,8 @@
   color: var(--color-text-muted) !important;
   box-shadow: none !important;
 }
+
+
 
 :root .mp-import-dialog,
 :root [role='dialog'][aria-label*='rentang']
@@ -93,6 +117,8 @@
   color: var(--color-text) !important;
   box-shadow: var(--shadow-dialog) !important;
 }
+
+
 
 :root .mp-import-preview,
 :root .mp-import-confirm,
@@ -105,11 +131,15 @@
 
 
 
+
+
 :root :is(.mp-summary-panel, .mp-summary-total-card) {
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface-raised) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -122,11 +152,15 @@
 
 
 
+
+
 :root .mp-summary-total-value,
 :root .mp-summary-breakdown-amount {
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
+
+
 
 :root .mp-import-errors
 {
@@ -136,76 +170,6 @@
 }
 
 
-
-/* Tailwind utility colors are redirected to the same palette during the
-   staged feature-by-feature migration. Semantic danger utilities stay Tomato. */
-:root :is([class*='text-emerald-'], [class*='text-teal-'], [class*='text-cyan-'], [class*='text-sky-'], [class*='text-blue-']) {
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
-}
-
-
-
-:root :is([class*='border-emerald-'], [class*='border-teal-'], [class*='border-cyan-'], [class*='border-sky-'], [class*='border-blue-']) {
-  border-color: var(--color-accent-border) !important;
-}
-
-
-
-:root :is([class*='bg-emerald-'], [class*='bg-teal-'], [class*='bg-cyan-'], [class*='bg-sky-'], [class*='bg-blue-']) {
-  background-color: var(--color-accent-soft) !important;
-}
-
-
-
-:root :is([class*='text-rose-'], [class*='text-red-'], [class*='text-orange-'], [class*='text-amber-']) {
-  color: var(--color-danger) !important;
-  -webkit-text-fill-color: var(--color-danger) !important;
-}
-
-
-
-:root :is([class*='border-rose-'], [class*='border-red-'], [class*='border-orange-'], [class*='border-amber-']) {
-  border-color: var(--color-danger-border) !important;
-}
-
-
-
-:root :is([class*='bg-rose-'], [class*='bg-red-'], [class*='bg-orange-'], [class*='bg-amber-']) {
-  background-color: var(--color-danger-soft) !important;
-}
-
-
-
-:root :is([class*='text-slate-50'], [class*='text-slate-100'], [class*='text-slate-200'], [class*='text-white']) {
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-}
-
-
-
-:root :is([class*='text-slate-300'], [class*='text-slate-400'], [class*='text-slate-500'], [class*='text-slate-600']) {
-  color: var(--color-text-muted) !important;
-  -webkit-text-fill-color: var(--color-text-muted) !important;
-}
-
-
-
-:root :is([class*='border-slate-600'], [class*='border-slate-700'], [class*='border-slate-800'], [class*='border-gray-']) {
-  border-color: var(--color-border) !important;
-}
-
-
-
-:root :is([class*='bg-slate-950'], [class*='bg-gray-950']) {
-  background-color: var(--color-page) !important;
-}
-
-
-
-:root :is([class*='bg-slate-900'], [class*='bg-slate-800'], [class*='bg-slate-700'], [class*='bg-gray-900'], [class*='bg-gray-800']) {
-  background-color: var(--color-surface) !important;
-}
 /* Bright Sky / Graphite component layer. */
 :root .mp-card,
 :root .mp-import-dialog
@@ -216,6 +180,8 @@
 }
 
 
+
+
 :root .mp-app-shell .mp-card {
   background:
     linear-gradient(145deg, var(--color-surface), var(--color-surface)) padding-box,
@@ -224,10 +190,14 @@
 }
 
 
+
+
 :root .mp-app-shell .mp-card:hover {
   border-color: var(--color-accent-border) !important;
   box-shadow: var(--shadow-card-hover) !important;
 }
+
+
 
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true'])
 {
@@ -238,6 +208,8 @@
   text-shadow: none !important;
 }
 
+
+
 :root .mp-app-shell button[data-button-kind='primary'],
 :root .mp-import-primary
 {
@@ -247,6 +219,10 @@
   box-shadow: none !important;
 }
 
+/* Tailwind utility colors are redirected to the same palette during the
+   staged feature-by-feature migration. Semantic danger utilities stay Tomato. */
+
+
 
 /* Existing Tailwind color utilities resolve to the permanent semantic palette. */
 :root :is([class*='text-emerald-'], [class*='text-teal-'], [class*='text-cyan-'], [class*='text-sky-'], [class*='text-blue-']) {
@@ -255,14 +231,20 @@
 }
 
 
+
+
 :root :is([class*='border-emerald-'], [class*='border-teal-'], [class*='border-cyan-'], [class*='border-sky-'], [class*='border-blue-']) {
   border-color: var(--color-accent-border) !important;
 }
 
 
+
+
 :root :is([class*='bg-emerald-'], [class*='bg-teal-'], [class*='bg-cyan-'], [class*='bg-sky-'], [class*='bg-blue-']) {
   background-color: var(--color-accent-soft) !important;
 }
+
+
 
 
 :root :is([class*='text-rose-'], [class*='text-red-'], [class*='text-orange-'], [class*='text-amber-']) {
@@ -271,14 +253,20 @@
 }
 
 
+
+
 :root :is([class*='border-rose-'], [class*='border-red-'], [class*='border-orange-'], [class*='border-amber-']) {
   border-color: var(--color-danger-border) !important;
 }
 
 
+
+
 :root :is([class*='bg-rose-'], [class*='bg-red-'], [class*='bg-orange-'], [class*='bg-amber-']) {
   background-color: var(--color-danger-soft) !important;
 }
+
+
 
 
 :root :is([class*='text-slate-50'], [class*='text-slate-100'], [class*='text-slate-200'], [class*='text-white']) {
@@ -287,10 +275,14 @@
 }
 
 
+
+
 :root :is([class*='text-slate-300'], [class*='text-slate-400'], [class*='text-slate-500'], [class*='text-slate-600']) {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
 
 
 :root :is([class*='border-slate-600'], [class*='border-slate-700'], [class*='border-slate-800'], [class*='border-gray-']) {
@@ -298,14 +290,20 @@
 }
 
 
+
+
 :root :is([class*='bg-slate-950'], [class*='bg-gray-950']) {
   background-color: var(--color-page) !important;
 }
 
 
+
+
 :root :is([class*='bg-slate-900'], [class*='bg-slate-800'], [class*='bg-slate-700'], [class*='bg-gray-900'], [class*='bg-gray-800']) {
   background-color: var(--color-surface) !important;
 }
+
+
 
 
 
@@ -320,9 +318,13 @@
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-history-previous-amount {
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -334,11 +336,15 @@
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-history-additional-toggle.is-active {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
   color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -349,9 +355,13 @@
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-history-additional-switch > span {
   background: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -362,8 +372,59 @@
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-history-additional-toggle.is-active .mp-history-additional-switch > span {
   background: var(--color-on-accent) !important;
 }
 
 
+
+
+
+
+/* Shared primary action sheen and app-shell header transitions. */
+button[data-button-kind='primary'] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+
+
+button[data-button-kind='primary']::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -80%;
+  width: 60%;
+  background: linear-gradient(100deg, transparent, rgb(var(--color-text-rgb) / 0.34), transparent);
+  transform: skewX(-18deg);
+  transition: left 600ms ease;
+  pointer-events: none;
+}
+
+
+
+button[data-button-kind='primary']:hover:not(:disabled)::after {
+  left: 130%;
+}
+
+
+
+.mp-app-header button {
+  transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+
+
+.mp-app-header button:hover:not(:disabled) {
+  border-color: var(--color-accent-border);
+}
+
+
+
+.mp-app-header button:disabled {
+  cursor: not-allowed;
+}

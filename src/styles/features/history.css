@@ -14,6 +14,8 @@
 
 
 
+
+
 .mp-history-dialog {
   border-color: var(--color-border) !important;
   background:
@@ -26,9 +28,13 @@
 
 
 
+
+
 .mp-history-header {
   background: rgb(var(--color-page-rgb) / 0.92);
 }
+
+
 
 
 
@@ -37,6 +43,8 @@
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.72) !important;
 }
+
+
 
 
 
@@ -62,10 +70,14 @@
 
 
 
+
+
 .mp-history-date input:focus {
   border: 0 !important;
   box-shadow: none !important;
 }
+
+
 
 
 
@@ -84,11 +96,15 @@
 
 
 
+
+
 .mp-history-dialog .mp-history-icon-button {
   border-color: var(--color-border) !important;
   background: linear-gradient(145deg, var(--color-surface), var(--color-surface)) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -102,11 +118,15 @@
 
 
 
+
+
 .mp-history-dialog .mp-history-secondary-button {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.54) !important;
   color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -120,11 +140,15 @@
 
 
 
+
+
 .mp-history-dialog .mp-history-danger-button {
   border-color: var(--color-danger-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.24) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -138,6 +162,8 @@
 
 
 
+
+
 .mp-history-dialog .mp-history-primary-button {
   border: 1px solid var(--color-accent-border) !important;
   background: linear-gradient(145deg, rgb(var(--color-accent-rgb) / 0.15), rgb(var(--color-accent-rgb) / 0.15)) !important;
@@ -147,10 +173,14 @@
 
 
 
+
+
 .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: linear-gradient(145deg, rgb(var(--color-accent-rgb) / 0.15), rgb(var(--color-accent-rgb) / 0.15)) !important;
 }
+
+
 
 
 
@@ -165,11 +195,15 @@
 
 
 
+
+
 .mp-history-dialog .mp-history-list-item:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: linear-gradient(145deg, rgb(var(--color-page-rgb) / 0.92), rgb(var(--color-page-rgb) / 0.98)) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -181,9 +215,13 @@
 
 
 
+
+
 .mp-history-list-totals {
   font-variant-numeric: tabular-nums;
 }
+
+
 
 
 
@@ -196,10 +234,14 @@
 
 
 
+
+
 .mp-history-summary {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.34) !important;
 }
+
+
 
 
 
@@ -224,6 +266,8 @@
 
 
 
+
+
 .mp-history-status {
   display: inline-flex;
   align-items: center;
@@ -238,11 +282,15 @@
 
 
 
+
+
 .mp-history-status--editable {
   border: 1px solid var(--color-accent-border);
   background: rgb(var(--color-accent-rgb) / 0.12);
   color: var(--color-accent);
 }
+
+
 
 
 
@@ -256,10 +304,14 @@
 
 
 
+
+
 .mp-history-output {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.42) !important;
 }
+
+
 
 
 
@@ -280,10 +332,14 @@
 
 
 
+
+
 .mp-history-timeline-item.is-active {
   border-color: var(--color-accent-border);
   background: rgb(var(--color-accent-rgb) / 0.09);
 }
+
+
 
 
 
@@ -305,10 +361,14 @@
 
 
 
+
+
 .mp-history-timeline-item.is-active .mp-history-timeline-marker {
   background: var(--color-accent);
   box-shadow: 0 0 0 4px rgb(var(--color-accent-rgb) / 0.16);
 }
+
+
 
 
 
@@ -324,9 +384,13 @@
 
 
 
+
+
 .mp-history-event-type.is-normal {
   color: var(--color-accent);
 }
+
+
 
 
 
@@ -336,6 +400,8 @@
   background: rgb(var(--color-page-rgb) / 0.48) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -350,11 +416,15 @@
 
 
 
+
+
 .mp-history-dialog .mp-history-timeline-copy {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.26) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -366,7 +436,11 @@
 
 
 
+
+
 @keyframes mp-history-spin { to { transform: rotate(360deg); } }
+
+
 
 
 
@@ -379,12 +453,16 @@
 
 
 
+
+
 @media (max-width: 639px) {
 
 
 
 
   .mp-history-overlay { padding: 0 !important; }
+
+
 
 
 
@@ -400,7 +478,11 @@
 
 
 
+
+
   .mp-history-header { padding: 12px 14px; }
+
+
 
 
 
@@ -410,7 +492,11 @@
 
 
 
+
+
   .mp-history-list-item { gap: 10px; padding: 11px; }
+
+
 
 
 
@@ -420,11 +506,15 @@
 
 
 
+
+
   .mp-history-timeline-item { gap: 8px; padding: 10px; }
 
 
 
 }
+
+
 
 
 
@@ -450,6 +540,8 @@
 
 
 
+
+
 /* Keep the native date control inside its bordered date-picker capsule.
    Remove browser underline/link-like treatment from the editable date text. */
 .mp-history-date input[type="date"] {
@@ -468,6 +560,8 @@
 
 
 
+
+
 .mp-history-date input[type="date"]:focus,
 .mp-history-date input[type="date"]:focus-visible {
   border: 0 !important;
@@ -475,6 +569,8 @@
   box-shadow: none !important;
   outline: none !important;
 }
+
+
 
 
 
@@ -487,9 +583,13 @@
 
 
 
+
+
 .mp-history-list-totals {
   justify-items: end;
 }
+
+
 
 
 
@@ -498,6 +598,8 @@
   min-width: 0;
   text-align: right;
 }
+
+
 
 
 
@@ -514,6 +616,8 @@
 
 
 
+
+
 .mp-history-date:hover {
   border-color: var(--color-accent-border) !important;
   box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.12), 0 0 12px rgb(var(--color-accent-rgb) / 0.09);
@@ -523,10 +627,14 @@
 
 
 
+
+
 .mp-history-date:focus-within {
   border-color: var(--color-accent-border) !important;
   box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.2), 0 0 12px rgb(var(--color-accent-rgb) / 0.1);
 }
+
+
 
 
 
@@ -548,9 +656,13 @@
 
 
 
+
+
 .mp-history-date input[type="date"]::-webkit-datetime-edit-text {
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -563,9 +675,13 @@
 
 
 
+
+
 .mp-history-dialog {
   border-radius: var(--mp-radius-dialog) !important;
 }
+
+
 
 
 
@@ -586,6 +702,8 @@
 
 
 
+
+
 @media (prefers-reduced-motion: reduce) {
 
 
@@ -599,6 +717,8 @@
 
 
 }
+
+
 
 
 
@@ -624,11 +744,15 @@
 
 
 
+
+
 .mp-history-event-tag.is-normal {
   border-color: var(--color-accent-border);
   background: rgb(var(--color-accent-rgb) / 0.16);
   color: var(--color-accent);
 }
+
+
 
 
 
@@ -642,11 +766,15 @@
 
 
 
+
+
 .mp-history-event-tag.is-shortage {
   border-color: var(--color-danger-border);
   background: rgb(var(--color-danger-rgb) / 0.16);
   color: var(--color-danger);
 }
+
+
 
 
 
@@ -658,12 +786,18 @@
 }
 
 
+
+
 :root .mp-history-date
 { background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
 
+
+
 :root .mp-history-dialog
 { background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
+
+
 
 
 
@@ -674,6 +808,8 @@
   background: rgb(var(--color-page-rgb) / 0.82) !important;
   backdrop-filter: blur(5px) !important;
 }
+
+
 
 
 
@@ -690,10 +826,14 @@
 
 
 
+
+
 :root .mp-history-header {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
 }
+
+
 
 
 
@@ -710,13 +850,19 @@
 
 
 
+
+
 :root .mp-history-dialog .text-slate-300 { color: var(--color-text-muted) !important; }
+
+
 
 
 
 
 :root .mp-history-dialog .text-slate-400,
 :root .mp-history-dialog .text-slate-500 { color: var(--color-text-muted) !important; }
+
+
 
 
 
@@ -730,7 +876,11 @@
 
 
 
+
+
 :root .mp-history-date svg { color: var(--color-accent) !important; }
+
+
 
 
 
@@ -745,12 +895,16 @@
 
 
 
+
+
 :root .mp-history-list-item:hover:not(:disabled) {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   background-image: none !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -764,10 +918,14 @@
 
 
 
+
+
 :root .mp-history-summary {
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
 }
+
+
 
 
 
@@ -781,10 +939,14 @@
 
 
 
+
+
 :root .mp-history-output {
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
 }
+
+
 
 
 
@@ -797,6 +959,8 @@
 
 
 
+
+
 :root .mp-history-timeline-item {
   border-color: var(--color-border) !important;
   background: var(--color-surface) !important;
@@ -805,10 +969,14 @@
 
 
 
+
+
 :root .mp-history-timeline-item.is-active {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
 }
+
+
 
 
 
@@ -822,10 +990,14 @@
 
 
 
+
+
 :root .mp-history-timeline-item.is-active .mp-history-timeline-marker {
   background: var(--color-accent) !important;
   box-shadow: none !important;
 }
+
+
 
 
 
@@ -847,6 +1019,8 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-icon-button:hover:not(:disabled),
 :root .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled),
 :root .mp-history-dialog .mp-history-timeline-copy:hover:not(:disabled),
@@ -855,6 +1029,8 @@
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -868,10 +1044,14 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.15) !important;
 }
+
+
 
 
 
@@ -885,11 +1065,15 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: var(--color-danger-border) !important;
   background: rgb(var(--color-danger-rgb) / 0.15) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -907,7 +1091,11 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-event-tag.is-normal { border-color: var(--color-border) !important; background: rgb(var(--color-surface-rgb) / 0.92) !important; color: var(--color-text-muted) !important; }
+
+
 
 
 
@@ -917,7 +1105,11 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-event-tag.is-shortage { border-color: var(--color-danger-border) !important; background: rgb(var(--color-danger-rgb) / 0.15) !important; color: var(--color-danger) !important; }
+
+
 
 
 
@@ -927,12 +1119,18 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-status--editable { border: 1px solid var(--color-accent-border) !important; background: rgb(var(--color-accent-rgb) / 0.15) !important; color: var(--color-accent) !important; }
 
 
 
 
+
+
 :root .mp-history-dialog .mp-history-status--locked { border: 1px solid var(--color-danger-border) !important; background: rgb(var(--color-danger-rgb) / 0.15) !important; color: var(--color-danger) !important; }
+
+
 
 
 
@@ -944,8 +1142,12 @@
 
 
 
+
+
 :root .mp-history-dialog .text-emerald-200,
 :root .mp-history-dialog .text-emerald-300 { color: var(--color-accent) !important; }
+
+
 
 
 
@@ -956,7 +1158,11 @@
 
 
 
+
+
 :root .mp-history-dialog .text-rose-200 { color: var(--color-danger) !important; }
+
+
 
 
 
@@ -973,10 +1179,14 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-loading .mp-history-spinner {
   border-color: var(--color-border) !important;
   border-top-color: var(--color-accent-border) !important;
 }
+
+
 
 /* Consistent IBM Plex typography across main workspace and history. */
 :root .mp-history-dialog,
@@ -987,6 +1197,8 @@
 }
 
 
+
+
 :root .mp-history-dialog :is(h1,h2,h3,h4)
 {
   font-weight: 650;
@@ -994,10 +1206,14 @@
 }
 
 
+
+
 :root .mp-history-dialog :is(label,p)
 {
   font-feature-settings: 'cv11', 'ss01';
 }
+
+
 
 
 /* Extracted from src/styles/components.css */
@@ -1012,6 +1228,8 @@
 }
 
 
+
+
 :root .mp-history-dialog button[data-option-button='true']
 {
   border-color: var(--color-border-strong) !important;
@@ -1021,13 +1239,6 @@
 }
 
 
-:root .mp-history-dialog
-{
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  box-shadow: var(--shadow-dialog) !important;
-}
 
 
 :root .mp-history-list-item,
@@ -1043,11 +1254,15 @@
 
 
 
+
+
 :root .mp-history-event-tag {
   border-color: var(--color-border) !important;
   background: var(--color-surface-raised) !important;
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -1061,12 +1276,16 @@
 }
 
 
+
+
 :root .mp-history-event-tag.is-shortage
 {
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -1078,9 +1297,13 @@
 
 
 
+
+
 :root .mp-history-loading .mp-history-spinner {
   border-top-color: var(--color-accent) !important;
 }
+
+
 
 /* Bright Sky / Graphite component layer. */
 :root .mp-history-dialog
@@ -1091,14 +1314,6 @@
 }
 
 
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true'])
-{
-  border-color: var(--color-border-strong) !important;
-  background: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
 
 
 :root .mp-history-dialog button[data-button-kind='primary'],
@@ -1109,6 +1324,8 @@
   color: var(--color-on-accent) !important;
   box-shadow: none !important;
 }
+
+
 
 
 
@@ -1124,12 +1341,16 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-danger-button
 {
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -1144,6 +1365,8 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-event-tag.is-normal,
 :root .mp-history-dialog .mp-history-event-tag.is-revision,
 :root .mp-history-dialog .mp-history-event-tag.is-addition,
@@ -1152,6 +1375,8 @@
   background: var(--color-accent-soft) !important;
   color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -1164,6 +1389,8 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-timeline-marker,
 :root .mp-history-dialog .mp-history-timeline-item.is-active .mp-history-timeline-marker {
   border-color: var(--color-accent) !important;
@@ -1173,12 +1400,16 @@
 
 
 
+
+
 :root .mp-history-dialog [role='alert']
 {
   border-color: var(--color-danger-border) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 
@@ -1192,9 +1423,13 @@
 
 
 
+
+
 :root .mp-history-overlay {
   background: var(--color-overlay) !important;
 }
+
+
 
 
 
@@ -1209,10 +1444,14 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-header {
   background: var(--color-surface-raised) !important;
   border-color: var(--color-divider) !important;
 }
+
+
 
 
 
@@ -1231,11 +1470,15 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-list-item:hover:not(:disabled),
 :root .mp-history-dialog .mp-history-timeline-item.is-active {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
 }
+
+
 
 
 
@@ -1249,6 +1492,8 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-event-type,
 :root .mp-history-dialog .mp-history-event-type.is-normal {
   color: var(--color-accent) !important;
@@ -1257,10 +1502,14 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-spinner {
   border-color: var(--color-border-strong) !important;
   border-top-color: var(--color-accent) !important;
 }
+
+
 
 
 /* Extracted from src/styles/forms.css */
@@ -1276,11 +1525,15 @@
 
 
 
+
+
 :root .mp-history-date:focus-within {
   border-color: var(--color-focus) !important;
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
 }
+
+
 
 
 /* Extracted from src/styles/interactions.css */
@@ -1295,13 +1548,6 @@
 }
 
 
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
-{
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-  box-shadow: none !important;
-}
 
 
 :root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
@@ -1313,12 +1559,6 @@
 }
 
 
-:root .mp-history-dialog button[data-option-button='true'][data-selected='true']
-{
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-}
 
 
 :root .mp-history-date:hover:not(:disabled)
@@ -1328,12 +1568,16 @@
 }
 
 
+
+
 :root .mp-history-date:focus,
 :root .mp-history-date:focus-visible
 {
   border-color: var(--color-focus) !important;
   outline-color: var(--color-focus-ring) !important;
 }
+
+
 
 
 :root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
@@ -1345,6 +1589,8 @@
 }
 
 
+
+
 :root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
 :root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled)
 {
@@ -1352,6 +1598,8 @@
   background: var(--color-accent) !important;
   color: var(--color-on-accent) !important;
 }
+
+
 
 
 :root .mp-history-dialog button[data-option-button='true']:hover:not(:disabled)
@@ -1362,12 +1610,16 @@
 }
 
 
+
+
 :root .mp-history-dialog button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent-soft) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 :root .mp-history-dialog :is(input, select, textarea, button):focus-visible
@@ -1377,13 +1629,6 @@
 }
 
 
-
-:root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled)
-{
-  border-color: var(--color-danger) !important;
-  background: var(--color-danger-soft) !important;
-  color: var(--color-danger) !important;
-}
 
 
 
@@ -1400,11 +1645,15 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-primary-button {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
   color: var(--color-on-accent) !important;
 }
+
+
 
 
 
@@ -1418,11 +1667,15 @@
 
 
 
+
+
 :root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: var(--color-danger) !important;
   background: var(--color-danger-soft) !important;
   color: var(--color-danger) !important;
 }
+
+
 
 
 :root .mp-history-dialog :is(button, input, select, textarea):focus-visible
