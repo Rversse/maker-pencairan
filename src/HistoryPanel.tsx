@@ -602,7 +602,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                     <div className="whitespace-pre-wrap font-sans">
                       {outputDisplayLines.map((line, index) => {
                         const highlightClass = (line.kind === 'additional' || line.kind === 'shortage')
-                          ? 'text-amber-200 underline decoration-amber-400/80 decoration-2 underline-offset-4'
+                          ? 'text-emerald-200 underline decoration-emerald-400/80 decoration-2 underline-offset-4'
                           : line.kind === 'addition'
                             ? 'text-emerald-200 underline decoration-emerald-400/80 decoration-2 underline-offset-4'
                             : line.kind === 'removal'
@@ -611,7 +611,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                         return (
                           <div key={index} className={line.kind ? 'py-0.5' : ''}>
                             <span className={line.kind ? highlightClass : ''}>{line.text}</span>
-                            {line.suffix && <span className={(line.kind === 'additional' || line.kind === 'shortage') ? 'ml-1 text-amber-300' : 'ml-1 text-teal-300'}>{line.suffix}</span>}
+                            {line.suffix && <span className={(line.kind === 'additional' || line.kind === 'shortage') ? 'ml-1 text-emerald-300' : 'ml-1 text-teal-300'}>{line.suffix}</span>}
                           </div>
                         )
                       })}
@@ -639,7 +639,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                               {tags.map(tag => (
-                                <span key={tag} className={`mp-history-event-tag ${tag === 'Pencairan Awal' ? 'is-normal' : tag === 'Revisi' ? 'is-revision' : tag === 'Tambahan' ? 'is-addition' : 'is-addition'}`}>{tag}</span>
+                                <span key={tag} className={`mp-history-event-tag ${tag === 'Pencairan Awal' ? 'is-normal' : tag === 'Revisi' ? 'is-revision' : 'is-addition'}`}>{tag}</span>
                               ))}
                               <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
                             </div>
