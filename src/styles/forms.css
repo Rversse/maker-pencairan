@@ -12,22 +12,6 @@
 }
 
 
-:root .mp-app-shell .mp-form-stack input[type='checkbox'],
-:root .mp-app-shell .mp-form-stack input[type='radio']
-{
-  accent-color: var(--color-accent) !important;
-}
-
-
-
-:root .mp-app-shell .mp-form-stack .mp-static-field,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
-:root .mp-app-shell .mp-form-stack .mp-salary-field {
-  border-color: var(--color-border) !important;
-  background: var(--color-surface-raised) !important;
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-}
 /* Date, kitchen selector and date-range popover share the same control tokens. */
 :root .mp-date-control,
 :root .mp-kitchen-select
@@ -41,15 +25,6 @@
 
 
 
-:root .mp-app-shell .mp-form-stack .mp-tag,
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
-  border-color: var(--color-border-strong) !important;
-  border-left-color: var(--color-accent) !important;
-  background: var(--color-surface-raised) !important;
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
-}
-
 
 
 :root .mp-app-shell .mp-form-stack :is(input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']), select:not(.mp-tag--custom), textarea) {
@@ -57,6 +32,8 @@
   -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
 }
+
+
 
 
 :root .mp-app-shell .mp-form-stack .mp-static-field,
@@ -69,6 +46,8 @@
 }
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-tag,
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   border-color: var(--color-border-strong) !important;
@@ -77,6 +56,8 @@
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
+
+
 
 
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
@@ -90,10 +71,14 @@
 }
 
 
+
+
 :root .mp-app-shell :is(input, select, textarea):not([type='checkbox']):not([type='radio'])
 {
   color-scheme: dark;
 }
+
+
 
 
 :root .mp-app-shell .mp-form-stack input::placeholder,
@@ -104,17 +89,23 @@
 }
 
 
+
+
 :root .mp-app-shell .mp-form-stack input[type='checkbox'],
 :root .mp-app-shell .mp-form-stack input[type='radio']
 {
   accent-color: var(--color-accent) !important;
 }
 
+
+
 :root .mp-app-shell select option
 {
   color: var(--color-text) !important;
   background: var(--color-surface) !important;
 }
+
+
 /* Boxed shared controls outside the workspace underline-only rows. */
 :root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea
 {
@@ -123,6 +114,8 @@
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -135,11 +128,15 @@
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped:focus {
   border-color: var(--color-focus) !important;
   background: var(--color-surface-raised) !important;
   box-shadow: 0 0 0 2px var(--color-focus-ring) !important;
 }
+
+
 
 
 :root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea {
@@ -149,6 +146,8 @@
   -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
 }
+
+
 
 
 :root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea::placeholder {
