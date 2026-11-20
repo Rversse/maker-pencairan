@@ -3299,9 +3299,9 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               )}
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
-                  <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-emerald-700/70 bg-emerald-950/50 px-3 text-[10px] font-semibold text-emerald-200 shadow-sm transition hover:border-emerald-500">Riwayat</button>
+                  <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
                   {role === 'admin' && (
-                    <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="h-9 rounded-lg border border-[#637864] bg-[#354137] px-3 text-[10px] font-semibold text-[#dce6d9] shadow-sm transition hover:border-[#9caf9a] hover:bg-[#3b493d]">Import Data</button>
+                    <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import Data</button>
                   )}
                   <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800">Reset</button>
                 </div>
@@ -3499,12 +3499,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                             product
                                           )
                                         }
-                                        className={[
-                                          'mp-rab-choice inline-flex h-9 items-center rounded-md border px-2.5 text-xs font-medium transition',
-                                          selected
-                                            ? 'border-emerald-500 bg-emerald-600 text-white'
-                                            : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
-                                        ].join(' ')}
+                                        className="mp-rab-choice inline-flex h-9 items-center rounded-md border border-slate-700 bg-slate-900 px-2.5 text-xs font-medium text-slate-300 transition"
                                       >
                                         {selected ? '✓ ' : ''}
                                         {product}
@@ -3693,7 +3688,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
                                   <div className="mp-gas-flex-row grid min-w-0 items-center gap-2">
-                                    <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 hover:text-rose-300">×</button>
+                                    <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 ">×</button>
                                     <div className="mp-tag mp-tag--gas">GAS</div>
                                     <div title={accountName} className="mp-ops-field mp-payment-detail mp-gas-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="mp-ops-field mp-payment-detail mp-gas-bank flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank}</div>
@@ -3763,7 +3758,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     disabled={!historyEnabled}
                                     title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
-                                    className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70 hover:text-rose-300 disabled:cursor-not-allowed disabled:opacity-25"
+                                    className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70  disabled:cursor-not-allowed disabled:opacity-25"
                                   >×</button>
                                   {isMappedOps ? (
                                     <div className="mp-tag mp-tag--ops">OPS HARIAN</div>

@@ -1,0 +1,70 @@
+/*
+ * Shared interaction contract
+ * All enabled buttons use one hover surface; hover never recolors their text.
+ * Selected RAB products change their background only.
+ */
+
+/* A single hover treatment for workspace, history and administration buttons. */
+:root .mp-app-shell button:not([data-calendar-day='true']):hover:not(:disabled),
+:root .mp-history-dialog button:not([data-calendar-day='true']):hover:not(:disabled),
+:root .mp-admin-panel button:not([data-calendar-day='true']):hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background-color: var(--color-accent-soft) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* RAB choices: selected state is expressed by fill only, never text or border. */
+:root .mp-app-shell main .mp-form-stack .mp-rab-choice,
+:root .mp-app-shell main .mp-form-stack .mp-rab-choice:hover:not(:disabled),
+:root .mp-app-shell main .mp-form-stack .mp-rab-choice[data-selected='true'] {
+  border-color: var(--color-border) !important;
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-rab-choice {
+  background: var(--color-surface) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-rab-choice[data-selected='true'] {
+  background: var(--color-accent-soft) !important;
+}
+
+/* Focus on a row must not tint the card or sibling account metadata. */
+:root .mp-app-shell main .mp-form-stack :is(.mp-rab-row, .mp-ops-row, .mp-payment-row):focus-within {
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
+:root .mp-app-shell main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+/* Bank fields stay neutral when another control in their row receives focus. */
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-gas-bank,
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-ops-bank,
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-account-details > .mp-salary-field:nth-child(2) {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+/* Additional-balance toggles keep their text color in both states. */
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle,
+:root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle.is-active {
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}

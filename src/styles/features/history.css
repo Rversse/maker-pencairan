@@ -112,7 +112,6 @@
 .mp-history-dialog .mp-history-icon-button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.18) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -134,7 +133,6 @@
 .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.15) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -156,7 +154,6 @@
 .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: var(--color-danger-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.24) !important;
-  color: var(--color-danger) !important;
 }
 
 
@@ -200,7 +197,6 @@
 .mp-history-dialog .mp-history-list-item:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: linear-gradient(145deg, rgb(var(--color-page-rgb) / 0.92), rgb(var(--color-page-rgb) / 0.98)) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -410,7 +406,6 @@
 .mp-history-dialog .mp-history-timeline-open[aria-pressed="true"] {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.16) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -901,7 +896,6 @@
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
   background-image: none !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -1027,7 +1021,6 @@
 :root .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled) {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-surface-rgb) / 0.92) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -1070,7 +1063,6 @@
 :root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: var(--color-danger-border) !important;
   background: rgb(var(--color-danger-rgb) / 0.15) !important;
-  color: var(--color-danger) !important;
 }
 
 
@@ -1555,7 +1547,6 @@
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
 }
 
 
@@ -1584,7 +1575,7 @@
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
+
   box-shadow: none !important;
 }
 
@@ -1596,7 +1587,6 @@
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
 }
 
 
@@ -1606,7 +1596,6 @@
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -1639,7 +1628,6 @@
 :root .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -1661,7 +1649,6 @@
 :root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
 }
 
 
@@ -1672,7 +1659,6 @@
 :root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: var(--color-danger) !important;
   background: var(--color-danger-soft) !important;
-  color: var(--color-danger) !important;
 }
 
 

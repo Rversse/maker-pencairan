@@ -453,7 +453,6 @@
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
 }
 
 
@@ -463,7 +462,7 @@
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
+
   box-shadow: none !important;
 }
 
@@ -474,7 +473,6 @@
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
 }
 
 
@@ -484,7 +482,6 @@
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
 }
 
 
@@ -532,7 +529,6 @@
 {
   border-color: var(--color-danger) !important;
   background: var(--color-danger-soft) !important;
-  color: var(--color-danger) !important;
 }
 
 
