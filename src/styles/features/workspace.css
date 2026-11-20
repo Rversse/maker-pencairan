@@ -2321,10 +2321,13 @@ main select.mp-control-surface:disabled {
 
 
 
-.mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
-  border-color: var(--color-tag-border-hover) !important;
-  background-color: var(--color-tag-surface-hover) !important;
-  box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.1) !important;
+/* Custom highlights on focus, not pointer hover. */
+.mp-form-stack select.mp-tag--custom:focus:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background-color: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.12) !important;
 }
 
 
@@ -5404,13 +5407,10 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: var(--color-accent) !important;
 }
 
-/* Bank labels follow the same Bright Sky text state as the rest of a
-   hovered or active payout row. Keep the selector limited to bank fields. */
-:root .mp-app-shell main .mp-form-stack .mp-ops-row:hover .mp-gas-bank,
+/* Bank labels change only when their payout row contains the active control.
+   Pointer hover alone must never change account metadata. */
 :root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-gas-bank,
-:root .mp-app-shell main .mp-form-stack .mp-ops-row:hover .mp-ops-bank,
 :root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-ops-bank,
-:root .mp-app-shell main .mp-form-stack .mp-payment-row:hover .mp-salary-account-details > .mp-salary-field:nth-child(2),
 :root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-account-details > .mp-salary-field:nth-child(2) {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
@@ -5565,4 +5565,17 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   filter: none !important;
   transform: none !important;
   transition: none !important;
+}
+
+/* Focus is the interaction state for the Custom transaction selector.
+   Keep its tag identity, but make the active control visibly follow the row highlight. */
+:root .mp-app-shell main .mp-form-stack select.mp-tag--custom:focus:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  border-left-color: var(--color-accent) !important;
+  background-color: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+  outline: 2px solid var(--color-accent-border) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.12) !important;
 }
