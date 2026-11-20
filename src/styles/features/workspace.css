@@ -5584,7 +5584,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 /* Operational and payroll cards: hover is deliberately inert.
    Visual feedback for these rows is driven by :focus / :focus-within only.
    This overrides the earlier generic tag, static-field and control hover rules. */
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row) :is(.mp-tag, .mp-static-field, .mp-ops-field, .mp-salary-field):hover {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row):not(:focus-within) :is(.mp-tag, .mp-static-field, .mp-ops-field, .mp-salary-field):hover {
   border-color: var(--color-accent-border) !important;
   border-left-color: var(--color-tag-accent-border) !important;
   background: var(--mp-tag-surface) !important;
@@ -5599,7 +5599,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 /* Editable controls in these cards keep their base appearance on hover;
    their focused state is still handled by the existing :focus rules. */
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row) :is(input, select, textarea):hover:not(:disabled):not([readonly]) {
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row):not(:focus-within) :is(input, select, textarea):hover:not(:disabled):not([readonly]) {
   border-color: var(--mp-field-border) !important;
   background-color: var(--color-surface) !important;
   color: var(--color-text) !important;
