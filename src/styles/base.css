@@ -1,0 +1,28 @@
+/* Global document baseline. Theme values are consumed only through tokens. */
+/* Global document defaults. Layout and component geometry stay in their
+   existing feature stylesheets during the staged migration. */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  color: var(--color-text);
+  background-color: var(--color-page);
+}
+
+::selection {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+* {
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
