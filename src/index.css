@@ -5,38 +5,12 @@ body,
   min-height: 100%;
 }
 
+
 body {
   background: #080d19;
   transition: background-color 220ms ease, color 220ms ease;
 }
-/* Premium financial UI: subtle edge glow and elevated card surfaces. */
-.mp-card {
-  position: relative;
-  isolation: isolate;
-  border: 1px solid transparent !important;
-  border-radius: 12px !important;
-  background:
-    linear-gradient(145deg, var(--mp-card-top), var(--mp-card-bottom)) padding-box,
-    linear-gradient(135deg, var(--mp-card-rim-a), var(--mp-card-rim-b)) border-box !important;
-  box-shadow: var(--mp-card-shadow), inset 0 1px 0 rgb(255 255 255 / 3%);
-  transition: box-shadow 200ms ease, --mp-card-rim-a 200ms ease, --mp-card-rim-b 200ms ease;
-}
 
-.mp-card::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(ellipse at 0% 0%, var(--mp-card-glow), transparent 62%);
-  pointer-events: none;
-}
-
-.mp-card:hover {
-  --mp-card-rim-a: rgb(100 126 158 / 78%);
-  --mp-card-rim-b: rgb(16 185 129 / 62%);
-  box-shadow: var(--mp-card-shadow-hover), inset 0 1px 0 rgb(255 255 255 / 4%);
-}
 
 /* Every completed/valid data field uses a shared active border. */
 :root .mp-field--has-output,
@@ -49,17 +23,6 @@ body {
   box-shadow: 0 0 0 1px rgb(248 250 252 / 18%), 0 0 6px rgb(248 250 252 / 18%) !important;
 }
 
-/* Compact corner radius for cards, controls, and bordered fields inside the workspace. */
-.mp-card [class*='rounded-lg'][class*='border'],
-.mp-card [class*='rounded-md'][class*='border']:not([class*='rounded-full']) {
-  border-radius: 6px !important;
-}
-
- .mp-card input,
-.mp-card select,
-.mp-card textarea {
-  border-radius: var(--mp-radius-control) !important;
-}
 
 /* Shared action button states:
    dark surfaces invert to light on hover; light surfaces invert to dark. */
@@ -72,6 +35,7 @@ button:not([data-option-button]):not([data-calendar-day]) {
   transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
 }
 
+
 :root button:not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
   border-color: var(--mp-action-hover-border) !important;
   background: var(--mp-action-hover-bg) !important;
@@ -80,14 +44,17 @@ button:not([data-option-button]):not([data-calendar-day]) {
   transform: translateY(-1px);
 }
 
+
 button:not([data-option-button]):not([data-calendar-day]):focus-visible {
   outline: 2px solid #10b981;
   outline-offset: 3px;
 }
 
+
 button:not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
   transform: translateY(0) scale(0.985);
 }
+
 
 button:not([data-option-button]):not([data-calendar-day]):disabled {
   cursor: not-allowed;
@@ -96,6 +63,7 @@ button:not([data-option-button]):not([data-calendar-day]):disabled {
   transform: none;
 }
 
+
 button[data-button-kind='primary'] {
   border-color: #059669 !important;
   background: linear-gradient(145deg, #10b981, #047857) !important;
@@ -103,11 +71,13 @@ button[data-button-kind='primary'] {
   box-shadow: 0 4px 12px rgb(5 150 105 / 20%), inset 0 1px 0 rgb(255 255 255 / 12%);
 }
 
+
 :root button[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #f8fafc !important;
   background: #f8fafc !important;
   color: #101827 !important;
 }
+
 
 /* Product buttons are persistent choices, so keep their selected state visible.
    Unselected choices still invert on hover to match the theme's action buttons. */
@@ -117,11 +87,13 @@ button[data-option-button='true'] {
   transition: background 170ms ease, color 170ms ease, border-color 170ms ease, box-shadow 170ms ease, transform 170ms ease;
 }
 
+
 :root button[data-option-button='true'][data-selected='false'] {
   border-color: #34445a !important;
   background: linear-gradient(145deg, #172235, #0d1726) !important;
   color: #dbe5f1 !important;
 }
+
 
 :root button[data-option-button='true'][data-selected='false']:hover {
   border-color: #f8fafc !important;
@@ -130,6 +102,7 @@ button[data-option-button='true'] {
   transform: translateY(-1px);
 }
 
+
 button[data-option-button='true'][data-selected='true'] {
   border-color: #10b981 !important;
   background: linear-gradient(145deg, #10b981, #047857) !important;
@@ -137,23 +110,30 @@ button[data-option-button='true'][data-selected='true'] {
   box-shadow: 0 3px 9px rgb(5 150 105 / 16%);
 }
 
+
 button[data-option-button='true'][data-selected='true']:hover {
   border-color: #34d399 !important;
   background: linear-gradient(145deg, #34d399, #059669) !important;
   color: #ffffff !important;
 }
 
+
 button[data-option-button='true']:focus-visible {
   outline: 2px solid #10b981;
   outline-offset: 2px;
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .mp-card,
-  button,
-  button[data-option-button='true'] {
+
+button,
+button[data-option-button='true']
+{
     transition: none !important;
   }
+
+
 }
+
 
 
 /* Native select and option menus use the permanent dark color scheme. */
@@ -163,26 +143,19 @@ button[data-option-button='true']:focus-visible {
 
 }
 
+
 :root select option,
 :root select optgroup {
   color: #e7edf7 !important;
   background: #0d1726 !important;
 }
 
+
 :root select option:checked {
   color: #f0fdf4 !important;
   background: #1f3a36 !important;
 }
 
-
-/* One shared spacing rhythm for every form card. */
-.mp-form-stack {
-  gap: 8px;
-}
-
-.mp-form-stack > .mp-card {
-  margin-block: 0 !important;
-}
 
 /* ==========================================================================
    Premium polish layer (CSS-only). Appended last so it wins the cascade.
@@ -195,6 +168,7 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+
 html,
 body {
   font-family: var(--mp-font-sans);
@@ -204,23 +178,28 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+
 ::selection {
   background: rgb(16 185 129 / 32%);
 }
+
 
 * {
   scrollbar-width: thin;
   scrollbar-color: rgb(100 116 139 / 50%) transparent;
 }
 
+
 /* Ambient background: soft colour glows + faint fading grid -------------- */
 body {
   background-color: var(--mp-page-bg);
 }
 
+
 main {
   background: transparent;
 }
+
 
 body::before,
 body::after {
@@ -231,12 +210,14 @@ body::after {
   pointer-events: none;
 }
 
+
 body::before {
   background:
     radial-gradient(1000px 560px at 8% -8%, var(--mp-ambient-a), transparent 62%),
     radial-gradient(860px 520px at 104% 2%, var(--mp-ambient-b), transparent 58%),
     radial-gradient(900px 620px at 50% 112%, var(--mp-ambient-c), transparent 62%);
 }
+
 
 body::after {
   background-image:
@@ -246,6 +227,7 @@ body::after {
   -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 20%, transparent 75%);
 }
+
 
 /* Header ------------------------------------------------------------------ */
 main header h1 {
@@ -259,6 +241,7 @@ main header h1 {
   -webkit-text-fill-color: transparent;
 }
 
+
 main header > div > span:first-child {
   border-radius: 16px;
   border-color: rgb(16 185 129 / 40%);
@@ -269,57 +252,6 @@ main header > div > span:first-child {
     inset 0 1px 0 rgb(255 255 255 / 12%);
 }
 
-/* Cards: per-section accent, accent line, glow, entrance ------------------ */
-.mp-card {
-  --mp-accent: var(--color-accent-rgb);
-  --mp-card-rim-b: rgb(var(--mp-accent) / 36%);
-  animation: mp-rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.mp-card[class*='border-amber-500'] { --mp-accent: var(--color-danger-rgb); }
-.mp-card[class*='border-cyan-600'] { --mp-accent: var(--color-accent-rgb); }
-.mp-card[class*='border-teal-600'] { --mp-accent: var(--color-accent-rgb); }
-.mp-card[class*='border-sky-600'] { --mp-accent: var(--color-accent-rgb); }
-.mp-card[class*='border-orange-600'] { --mp-accent: var(--color-danger-rgb); }
-.mp-card[class*='border-violet-600'] { --mp-accent: var(--color-accent-rgb); }
-
-.mp-card:hover {
-  --mp-card-rim-b: rgb(var(--mp-accent) / 62%);
-}
-
-.mp-card::before {
-  background: radial-gradient(ellipse at 0% 0%, rgb(var(--mp-accent) / 10%), transparent 60%);
-}
-
-.mp-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 18px;
-  right: 18px;
-  height: 2px;
-  border-radius: 0 0 4px 4px;
-  background: linear-gradient(90deg, transparent, rgb(var(--mp-accent) / 90%), transparent);
-  opacity: 0.85;
-  pointer-events: none;
-}
-
-.mp-card h2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  letter-spacing: -0.01em;
-}
-
-.mp-card h2::before {
-  content: '';
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: rgb(var(--mp-accent));
-  box-shadow: 0 0 0 3px rgb(var(--mp-accent) / 16%), 0 0 12px rgb(var(--mp-accent) / 70%);
-}
 
 @keyframes mp-rise {
   from {
@@ -332,51 +264,6 @@ main header > div > span:first-child {
   }
 }
 
-.mp-form-stack > .mp-card:nth-child(1) { animation-delay: 40ms; }
-.mp-form-stack > .mp-card:nth-child(2) { animation-delay: 90ms; }
-.mp-form-stack > .mp-card:nth-child(3) { animation-delay: 140ms; }
-.mp-form-stack > .mp-card:nth-child(4) { animation-delay: 190ms; }
-.mp-form-stack > .mp-card:nth-child(5) { animation-delay: 240ms; }
-.mp-form-stack > .mp-card:nth-child(n + 6) { animation-delay: 290ms; }
-
-/* Rows inside cards ------------------------------------------------------- */
-.mp-card div[class*='rounded-lg'][class*='border-slate-800'] {
-  transition: border-color 160ms ease, background-color 160ms ease;
-}
-
-.mp-card div[class*='rounded-lg'][class*='border-slate-800']:hover {
-  border-color: rgb(var(--mp-accent) / 32%);
-}
-
-/* Fields ------------------------------------------------------------------ */
-.mp-card input[class*='bg-gradient-to-b'] {
-  background-image: linear-gradient(180deg, #0b1424, #081020);
-}
-
-.mp-card input:not([type='checkbox']):not([type='radio']),
-.mp-card select {
-  box-shadow: inset 0 1px 2px var(--mp-inset-shadow);
-  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
-}
-
-.mp-card input:not([type='checkbox']):not([type='radio']):focus,
-.mp-card select:focus {
-  border-color: rgb(var(--mp-accent) / 85%);
-  box-shadow: inset 0 1px 2px var(--mp-inset-shadow), 0 0 0 3px rgb(var(--mp-accent) / 20%);
-}
-
-/* Product chips ----------------------------------------------------------- */
-.mp-card button[data-option-button='true'] {
-  font-weight: 600;
-  letter-spacing: 0.005em;
-}
-
-.mp-card button[data-option-button='true'][data-selected='true'] {
-  box-shadow:
-    0 0 0 1px rgb(16 185 129 / 35%),
-    0 8px 18px -6px rgb(16 185 129 / 55%),
-    inset 0 1px 0 rgb(255 255 255 / 22%);
-}
 
 /* Primary button: light sweep on hover ----------------------------------- */
 button[data-button-kind='primary'] {
@@ -384,6 +271,7 @@ button[data-button-kind='primary'] {
   overflow: hidden;
   isolation: isolate;
 }
+
 
 button[data-button-kind='primary']::after {
   content: '';
@@ -398,43 +286,11 @@ button[data-button-kind='primary']::after {
   pointer-events: none;
 }
 
+
 button[data-button-kind='primary']:hover:not(:disabled)::after {
   left: 130%;
 }
 
-/* Output panel: terminal-style mono -------------------------------------- */
-.mp-card pre {
-  font-family: var(--mp-font-mono);
-  font-size: 11px;
-  line-height: 1.65;
-  letter-spacing: -0.005em;
-  background: var(--mp-pre-bg);
-  border-color: var(--mp-pre-border);
-  box-shadow: inset 0 8px 28px rgb(0 0 0 / 28%), inset 0 0 0 1px rgb(255 255 255 / 2%);
-}
-
-/* Totals sidebar ---------------------------------------------------------- */
-aside.mp-card .rounded-lg {
-  background-image: linear-gradient(160deg, rgb(var(--mp-accent) / 9%), transparent 60%);
-}
-
-aside.mp-card .rounded-lg > div:first-child {
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  font-size: 9.5px;
-  font-weight: 600;
-}
-
-aside.mp-card .text-lg {
-  font-size: 1.4rem;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  background: linear-gradient(180deg, var(--mp-amount-from), var(--mp-amount-to));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
 
 /* Filled / unfilled status pills ----------------------------------------- */
 aside [title='Sudah diisi'],
@@ -448,6 +304,7 @@ aside [title='Belum diisi'] {
   border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
 }
 
+
 aside [title='Sudah diisi']::before,
 aside [title='Belum diisi']::before {
   content: '';
@@ -458,6 +315,7 @@ aside [title='Belum diisi']::before {
   box-shadow: 0 0 8px currentColor;
 }
 
+
 /* Date range popover ------------------------------------------------------ */
 [role='dialog'][aria-label*='rentang'] {
   border-radius: 14px;
@@ -465,33 +323,21 @@ aside [title='Belum diisi']::before {
   backdrop-filter: blur(14px);
 }
 
-/* Date field column: Inter is wider than the old font, so the fixed 145px
-   column made "TANGGAL 09-Nov-2026" spill out of its box. */
-@media (min-width: 640px) {
-  .mp-card div[class*='grid-cols-[145px_minmax(0,1fr)]'] {
-    grid-template-columns: 176px minmax(0, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .mp-card div[class*='grid-cols-[145px_minmax(180px,260px)_auto]'] {
-    grid-template-columns: 176px minmax(180px, 260px) auto;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
+
   html {
     scroll-behavior: auto;
   }
 
-  .mp-card {
-    animation: none !important;
-  }
 
   button[data-button-kind='primary']::after {
     display: none;
   }
+
+
 }
+
 
 
 /* PIN rejection feedback mirrors the SIM-SPPG interaction. */
@@ -500,42 +346,20 @@ aside [title='Belum diisi']::before {
   15%, 45%, 75% { transform: translateX(-6px); }
   30%, 60%, 90% { transform: translateX(6px); }
 }
+
 .maker-pin-shake {
   animation: maker-pin-shake 420ms ease-in-out;
   border-color: #f43f5e !important;
   box-shadow: 0 0 0 1px rgb(244 63 94 / 45%), 0 0 12px rgb(244 63 94 / 18%) !important;
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   .maker-pin-shake { animation: none !important; }
-}
 
 
-/* Operational transaction rows: clean ledger treatment, no nested boxes. */
-.mp-ops-row {
-  min-width: 0;
-  padding: 9px 6px;
-  border-bottom: 1px solid rgb(100 116 139 / 28%);
-  background: transparent;
 }
-.mp-ops-row:last-child { border-bottom-color: transparent; }
-.mp-ops-field {
-  min-width: 0;
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 48%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.mp-ops-field:focus,
-.mp-ops-field:focus-visible {
-  border-bottom-color: rgb(45 212 191 / 90%) !important;
-  box-shadow: 0 1px 0 rgb(45 212 191 / 55%) !important;
-  outline: none;
-}
-.mp-ops-field:disabled { opacity: .72; }
-@media (max-width: 639px) {
-  .mp-ops-row { padding: 10px 2px; }
-}
+
 
 
 /* ==========================================================================
@@ -558,11 +382,13 @@ main textarea {
   transition: border-color 160ms ease, box-shadow 160ms ease, color 160ms ease, opacity 160ms ease;
 }
 
+
 main input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):hover:not(:disabled):not([readonly]),
 main select:hover:not(:disabled),
 main textarea:hover:not(:disabled):not([readonly]) {
   border-bottom-color: rgb(148 163 184 / 90%) !important;
 }
+
 
 main input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus,
 main select:focus,
@@ -571,6 +397,7 @@ main textarea:focus {
   box-shadow: 0 1px 0 rgb(45 212 191 / 72%) !important;
   outline: none;
 }
+
 
 main input:disabled,
 main select:disabled,
@@ -584,11 +411,13 @@ main textarea[readonly] {
   box-shadow: none !important;
 }
 
+
 main input[class*='border-rose']:not(:disabled),
 main select[class*='border-rose']:not(:disabled),
 main textarea[class*='border-rose']:not(:disabled) {
   border-bottom-color: rgb(251 113 133 / 88%) !important;
 }
+
 
 /* Preserve the separate, recognizable checkbox and radio affordance. */
 main input[type='checkbox'],
@@ -596,20 +425,13 @@ main input[type='radio'] {
   accent-color: #2dd4bf;
   cursor: pointer;
 }
+
 main input[type='checkbox']:disabled,
 main input[type='radio']:disabled {
   cursor: not-allowed;
   opacity: .42;
 }
 
-/* Static account values: readable, but never mistaken for editable fields. */
-.mp-card .mp-ops-field:not(input):not(select):not(textarea) {
-  border: 0 !important;
-  border-bottom: 1px solid rgb(71 85 105 / 38%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
 
 /* Clickable actions: solid hit area and clear hover/focus feedback. */
 main button:not([data-option-button='true']):not([data-calendar-day]):not(:disabled):not([aria-disabled='true']) {
@@ -621,6 +443,7 @@ main button:not([data-option-button='true']):not([data-calendar-day]):not(:disab
   transition: background 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+
 main button:not([data-option-button='true']):not([data-calendar-day]):hover:not(:disabled):not([aria-disabled='true']) {
   border-color: rgb(45 212 191 / 76%) !important;
   background: linear-gradient(145deg, rgb(13 148 136 / 24%), rgb(15 23 42 / 96%)) !important;
@@ -629,10 +452,12 @@ main button:not([data-option-button='true']):not([data-calendar-day]):hover:not(
   transform: translateY(-1px);
 }
 
+
 main button:not([data-option-button='true']):focus-visible {
   outline: 2px solid rgb(45 212 191 / 88%);
   outline-offset: 3px;
 }
+
 
 /* Disabled actions are visibly inert, not merely lower-opacity active buttons. */
 main button:disabled,
@@ -647,6 +472,7 @@ main button[aria-disabled='true'] {
   transform: none !important;
 }
 
+
 main button[data-option-button='true']:disabled {
   border-color: rgb(71 85 105 / 24%) !important;
   background: rgb(51 65 85 / 18%) !important;
@@ -656,6 +482,7 @@ main button[data-option-button='true']:disabled {
   opacity: 1 !important;
 }
 
+
 /* Keep primary actions distinct from secondary actions. */
 main button[data-button-kind='primary']:not(:disabled) {
   border-color: #059669 !important;
@@ -663,11 +490,13 @@ main button[data-button-kind='primary']:not(:disabled) {
   color: #f0fdf4 !important;
   box-shadow: 0 4px 12px rgb(5 150 105 / 22%), inset 0 1px 0 rgb(255 255 255 / 12%);
 }
+
 main button[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #34d399 !important;
   background: linear-gradient(145deg, #059669, #065f46) !important;
   color: #ffffff !important;
 }
+
 
 /* Destructive actions keep a restrained red identity. */
 main button[class*='border-rose']:not(:disabled):not([data-option-button='true']) {
@@ -675,11 +504,13 @@ main button[class*='border-rose']:not(:disabled):not([data-option-button='true']
   background: rgb(159 18 57 / 12%) !important;
   color: #fda4af !important;
 }
+
 main button[class*='border-rose']:hover:not(:disabled):not([data-option-button='true']) {
   border-color: rgb(251 113 133 / 82%) !important;
   background: rgb(159 18 57 / 26%) !important;
   color: #ffe4e6 !important;
 }
+
 
 /* Choice chips distinguish selected, unselected and unavailable states. */
 main button[data-option-button='true'][data-selected='false']:not(:disabled) {
@@ -688,6 +519,7 @@ main button[data-option-button='true'][data-selected='false']:not(:disabled) {
   background: rgb(15 23 42 / 76%) !important;
   color: #cbd5e1 !important;
 }
+
 main button[data-option-button='true'][data-selected='true']:not(:disabled) {
   cursor: pointer;
   border-color: rgb(16 185 129 / 78%) !important;
@@ -695,119 +527,20 @@ main button[data-option-button='true'][data-selected='true']:not(:disabled) {
   color: #ffffff !important;
 }
 
-/* Transaction and history rows read as ledgers, not nested cards. */
-.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/60']:not([role='alert']):not([role='note']),
-.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/40']:not([role='alert']):not([role='note']) {
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 28%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/60']:not([role='alert']):not([role='note']):last-child,
-.mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/40']:not([role='alert']):not([role='note']):last-child {
-  border-bottom-color: transparent !important;
-}
 
 /* Respect reduced-motion preferences across the shared interaction layer. */
 @media (prefers-reduced-motion: reduce) {
+
   main input,
   main select,
   main textarea,
   main button {
     transition: none !important;
   }
-}
 
 
-/* Unified row primitives across RAB, GAS, Ops, and Insentif/Gaji. */
-.mp-static-field {
-  min-width: 0;
-  border: 0 !important;
-  border-bottom: 1px solid rgb(71 85 105 / 38%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.mp-payment-row {
-  padding: 8px 2px;
-  border-bottom: 1px solid rgb(100 116 139 / 28%);
-}
-.mp-payment-row:last-child { border-bottom-color: transparent; }
-.mp-ops-kind {
-  border: 0 !important;
-  border-radius: 7px !important;
-  background: rgb(45 212 191 / 9%) !important;
-  color: #99f6e4 !important;
-  box-shadow: inset 2px 0 0 rgb(45 212 191 / 72%) !important;
-  letter-spacing: .01em;
-}
-.mp-card .mp-ops-row .mp-ops-kind {
-  border-bottom: 0 !important;
-}
-@media (max-width: 639px) {
-  .mp-payment-row { padding: 10px 0; }
 }
 
-
-/* RAB ledger: flatten supplier cards and give choices/amounts a consistent rhythm. */
-.mp-rab-row {
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 30%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.mp-rab-row:last-child { border-bottom-color: transparent !important; }
-.mp-rab-choice {
-  border-color: rgb(100 116 139 / 42%) !important;
-  background: rgb(15 23 42 / 74%) !important;
-  color: #cbd5e1 !important;
-  box-shadow: none !important;
-}
-.mp-rab-choice[data-selected='true'] {
-  border-color: rgb(16 185 129 / 78%) !important;
-  background: linear-gradient(145deg, #047857, #065f46) !important;
-  color: #ecfdf5 !important;
-}
-.mp-rab-choice:hover:not(:disabled) {
-  border-color: rgb(45 212 191 / 78%) !important;
-  background: rgb(13 148 136 / 18%) !important;
-  color: #f0fdfa !important;
-}
-.mp-rab-add {
-  border-color: rgb(56 189 248 / 48%) !important;
-  background: rgb(2 132 199 / 9%) !important;
-  color: #bae6fd !important;
-}
-.mp-rab-add:hover:not(:disabled) {
-  border-color: rgb(56 189 248 / 82%) !important;
-  background: rgb(2 132 199 / 20%) !important;
-  color: #e0f2fe !important;
-}
-.mp-rab-amount {
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 58%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.mp-rab-amount:focus {
-  border-bottom-color: #2dd4bf !important;
-  box-shadow: 0 1px 0 rgb(45 212 191 / 70%) !important;
-}
-.mp-rab-amount:disabled {
-  background: rgb(15 23 42 / 42%) !important;
-  color: rgb(148 163 184 / 68%) !important;
-}
-.mp-static-field {
-  background: rgb(15 23 42 / 38%) !important;
-  border-radius: 5px !important;
-}
-.mp-card .mp-ops-row .mp-ops-field:not(input):not(select):not(textarea) {
-  background: rgb(15 23 42 / 34%) !important;
-  border-radius: 5px !important;
-}
 main input:disabled,
 main select:disabled,
 main textarea:disabled,
@@ -815,55 +548,7 @@ main input[readonly],
 main textarea[readonly] {
   background: rgb(15 23 42 / 42%) !important;
 }
-@media (max-width: 639px) {
-  .mp-rab-row { padding-inline: 2px !important; }
-}
 
-
-/* Maker visual system — final consolidation pass.
-   Navy/slate surfaces, teal interaction, semantic amber/red only. */
-/* One shared navy/slate card surface; amber remains reserved for RAB. */
-.mp-card {
-  --mp-accent: var(--color-accent-rgb) !important;
-  --mp-card-rim-a: rgb(71 85 105 / 66%) !important;
-  --mp-card-rim-b: rgb(45 212 191 / 32%) !important;
-  --mp-card-glow: rgb(45 212 191 / 5%) !important;
-  background:
-    linear-gradient(145deg, #111c2c, #0b1422) padding-box,
-    linear-gradient(135deg, rgb(71 85 105 / 68%), rgb(45 212 191 / 32%)) border-box !important;
-}
-.mp-card[class*='border-amber-500'] {
-  --mp-accent: var(--color-danger-rgb) !important;
-  --mp-card-rim-b: rgb(245 158 11 / 42%) !important;
-  background:
-    linear-gradient(145deg, #111c2c, #0b1422) padding-box,
-    linear-gradient(135deg, rgb(100 116 139 / 70%), rgb(245 158 11 / 42%)) border-box !important;
-}
-.mp-card[class*='border-cyan-600'],
-.mp-card[class*='border-teal-600'],
-.mp-card[class*='border-sky-600'],
-.mp-card[class*='border-orange-600'],
-.mp-card[class*='border-violet-600'] { --mp-accent: var(--color-accent-rgb) !important; }
-.mp-card::before {
-  background: radial-gradient(ellipse at 0% 0%, rgb(45 212 191 / 5%), transparent 62%) !important;
-}
-.mp-card[class*='border-amber-500']::before {
-  background: radial-gradient(ellipse at 0% 0%, rgb(245 158 11 / 5%), transparent 62%) !important;
-}
-.mp-card::after {
-  background: linear-gradient(90deg, transparent, rgb(45 212 191 / 54%), transparent) !important;
-}
-.mp-card[class*='border-amber-500']::after {
-  background: linear-gradient(90deg, transparent, rgb(245 158 11 / 58%), transparent) !important;
-}
-.mp-card h2::before {
-  background: #2dd4bf !important;
-  box-shadow: 0 0 0 3px rgb(45 212 191 / 12%), 0 0 9px rgb(45 212 191 / 36%) !important;
-}
-.mp-card[class*='border-amber-500'] h2::before {
-  background: #f59e0b !important;
-  box-shadow: 0 0 0 3px rgb(245 158 11 / 12%), 0 0 9px rgb(245 158 11 / 32%) !important;
-}
 
 /* No bright-white hover inversion; keep hover feedback within teal/slate. */
 :root button:not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
@@ -871,16 +556,19 @@ main textarea[readonly] {
   background: linear-gradient(145deg, rgb(13 148 136 / 22%), #101a2a) !important;
   color: #f0fdfa !important;
 }
+
 :root button[data-option-button='true'][data-selected='false']:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 72%) !important;
   background: rgb(13 148 136 / 16%) !important;
   color: #f0fdfa !important;
 }
+
 :root button[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #34d399 !important;
   background: linear-gradient(145deg, #059669, #065f46) !important;
   color: #ffffff !important;
 }
+
 
 /* Output-linked values use the same teal confirmation/focus language. */
 :root .mp-field--has-output,
@@ -893,12 +581,6 @@ main textarea[readonly] {
   box-shadow: 0 0 0 1px rgb(45 212 191 / 22%), 0 0 7px rgb(45 212 191 / 14%) !important;
 }
 
-/* Read-only account values are subtly recessed, not mistaken for inputs. */
-.mp-static-field,
-.mp-card .mp-ops-row .mp-ops-field:not(input):not(select):not(textarea) {
-  background: rgb(15 23 42 / 34%) !important;
-  border-radius: 5px !important;
-}
 main input:disabled,
 main select:disabled,
 main textarea:disabled,
@@ -908,14 +590,19 @@ main textarea[readonly] {
   color: rgb(148 163 184 / 66%) !important;
 }
 
+
 /* Informational cyan/sky accents become teal; semantic red/amber stay intact. */
 main [class*='text-sky-'],
 main [class*='text-cyan-'] { color: #99f6e4 !important; }
+
 main [class*='border-sky-'],
 main [class*='border-cyan-'] { border-color: rgb(45 212 191 / 38%) !important; }
+
 main [class*='bg-sky-'],
 main [class*='bg-cyan-'] { background-color: rgb(13 148 136 / 10%) !important; }
+
 main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
+
 
 /* Shared popovers and overlays inherit the same deep surface. */
 [role='dialog'],
@@ -925,461 +612,11 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   background-color: #0b1422 !important;
 }
 
-
-
-
-/* ── Maker form system · Batch 1 ─────────────────────────────────────── */
-
-/* One quiet navy surface across all main form cards. RAB keeps only a
-   restrained amber cue; all other sections share the same teal identity. */
-.mp-form-stack > .mp-card {
-  --mp-card-top: #101b2b !important;
-  --mp-card-bottom: #0a1321 !important;
-  --mp-card-rim-a: rgb(71 85 105 / 58%) !important;
-  --mp-card-rim-b: rgb(45 212 191 / 27%) !important;
-  --mp-card-glow: rgb(45 212 191 / 4%) !important;
-  border-color: transparent !important;
-  box-shadow: 0 10px 24px rgb(0 0 0 / 16%), inset 0 1px 0 rgb(255 255 255 / 2%) !important;
-}
-.mp-form-stack > .mp-card:hover {
-  --mp-card-rim-a: rgb(100 116 139 / 68%) !important;
-  --mp-card-rim-b: rgb(45 212 191 / 40%) !important;
-  box-shadow: 0 12px 28px rgb(0 0 0 / 20%) !important;
-}
-.mp-form-stack > .mp-card[class*="border-amber"] {
-  --mp-card-rim-b: rgb(245 158 11 / 36%) !important;
-  --mp-card-glow: rgb(245 158 11 / 3%) !important;
-}
-.mp-form-stack > .mp-card::before { opacity: .34 !important; }
-.mp-form-stack > .mp-card::after { opacity: .18 !important; }
-.mp-form-stack > .mp-card h2::before {
-  background: #2dd4bf !important;
-  box-shadow: 0 0 8px rgb(45 212 191 / 18%) !important;
-}
-.mp-form-stack > .mp-card[class*="border-amber"] h2::before {
-  background: #f59e0b !important;
-  box-shadow: none !important;
-}
-
-/* Editable, read-only and disabled controls must be visually distinct. */
-.mp-form-stack input:not([type="checkbox"]):not([type="radio"]),
-.mp-form-stack select,
-.mp-form-stack textarea {
-  min-width: 0;
-  color: #e2e8f0;
-  text-align: center;
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 58%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
-}
-.mp-form-stack input::placeholder,
-.mp-form-stack textarea::placeholder {
-  color: #64748b !important;
-  text-align: center;
-}
-.mp-form-stack input:hover:not(:disabled):not([readonly]),
-.mp-form-stack select:hover:not(:disabled),
-.mp-form-stack textarea:hover:not(:disabled):not([readonly]) {
-  border-bottom-color: #94a3b8 !important;
-}
-.mp-form-stack input:focus,
-.mp-form-stack select:focus,
-.mp-form-stack textarea:focus {
-  border-bottom-color: #2dd4bf !important;
-  box-shadow: 0 1px 0 rgb(45 212 191 / 66%) !important;
-  outline: none;
-}
-.mp-form-stack input:disabled,
-.mp-form-stack select:disabled,
-.mp-form-stack textarea:disabled,
-.mp-form-stack input[readonly],
-.mp-form-stack textarea[readonly] {
-  color: #cbd5e1 !important;
-  -webkit-text-fill-color: #cbd5e1 !important;
-  background: rgb(51 65 85 / 58%) !important;
-  border-bottom-color: rgb(100 116 139 / 46%) !important;
-  cursor: not-allowed;
-  opacity: 1 !important;
-  box-shadow: none !important;
-}
-.mp-form-stack input[type="checkbox"] { accent-color: #2dd4bf; }
-.mp-form-stack option { color: #e2e8f0; background: #0d1725; }
-
-/* Read-only account data: subtle dark inset, without a full rectangular box. */
-.mp-form-stack .mp-static-field,
-.mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
-  color: #dbe5f2 !important;
-  background: rgb(8 15 27 / 48%) !important;
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 36%) !important;
-  border-radius: 5px 5px 0 0 !important;
-  box-shadow: none !important;
-  text-align: center !important;
-}
-.mp-form-stack .mp-payment-detail {
-  color: #dbe5f2 !important;
-  text-align: center !important;
-  -webkit-text-fill-color: #dbe5f2 !important;
-}
-.mp-form-stack .mp-payment-detail::placeholder {
-  color: #64748b !important;
-  -webkit-text-fill-color: #64748b !important;
-  text-align: center !important;
-}
-
-/* Type labels are tags, not input fields. They size to their text and stay
-   uppercase so account identity is clear at a glance. */
-.mp-form-stack .mp-tag {
-  display: inline-flex;
-  width: max-content !important;
-  min-width: max-content !important;
-  max-width: 100%;
-  min-height: 36px;
-  align-items: center;
-  justify-content: center;
-  padding: 0 12px;
-  border: 1px solid rgb(45 212 191 / 25%) !important;
-  border-left: 2px solid #2dd4bf !important;
-  border-radius: 7px !important;
-  background: rgb(13 148 136 / 12%) !important;
-  color: #99f6e4 !important;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .045em;
-  line-height: 1;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-  box-shadow: none !important;
-}
-.mp-form-stack .mp-tag--gas { border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 15%) !important; }
-.mp-form-stack .mp-tag--ops { border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 11%) !important; }
-.mp-form-stack .mp-tag--arutala { border-color: rgb(45 212 191 / 25%) !important; border-left-color: #2dd4bf !important; background: rgb(13 148 136 / 12%) !important; color: #99f6e4 !important; }
-.mp-form-stack .mp-tag--custom {
-  border-color: rgb(100 116 139 / 44%) !important;
-  border-left-color: #64748b !important;
-  background: rgb(30 41 59 / 54%) !important;
-  color: #dbe5f2 !important;
-  appearance: auto !important;
-  cursor: pointer;
-}
-.mp-form-stack .mp-tag--salary {
-  border-color: rgb(45 212 191 / 25%) !important;
-  border-left-color: #2dd4bf !important;
-  background: rgb(13 148 136 / 12%) !important;
-  color: #99f6e4 !important;
-  letter-spacing: .045em;
-}
-.mp-form-stack .mp-tag--custom:focus {
-  border-bottom-color: #2dd4bf !important;
-}
-
-/* RAB: supplier and product information stay on the left; nominal is a
-   separate flexible area on the right. Product chips wrap naturally, not
-   into one-character columns. */
-.mp-form-stack .mp-rab-row {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, .34fr) !important;
-  align-items: center !important;
-  column-gap: 18px !important;
-  row-gap: 10px !important;
-  padding: 12px 8px !important;
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 30%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.mp-form-stack .mp-rab-row:last-child { border-bottom-color: transparent !important; }
-.mp-rab-details { min-width: 0; text-align: left !important; }
-.mp-rab-details > div:first-child {
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left !important;
-  white-space: nowrap;
-}
-.mp-rab-details > div:nth-child(2) {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start !important;
-  gap: 7px;
-}
-.mp-form-stack .mp-rab-choice,
-.mp-form-stack .mp-rab-add {
-  flex: 0 0 auto;
-  min-height: 34px;
-  white-space: nowrap;
-  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
-}
-.mp-form-stack .mp-rab-choice {
-  border-color: rgb(100 116 139 / 42%) !important;
-  background: #111e2e !important;
-  color: #dbe5f2 !important;
-  box-shadow: none !important;
-}
-.mp-form-stack .mp-rab-choice[data-selected="true"] {
-  border-color: #2dd4bf !important;
-  background: #0f766e !important;
-  color: #ecfeff !important;
-}
-.mp-form-stack .mp-rab-choice:hover:not(:disabled),
-.mp-form-stack .mp-rab-add:hover:not(:disabled) {
-  transform: translateY(-1px);
-  border-color: #2dd4bf !important;
-}
-.mp-form-stack .mp-rab-add {
-  border-color: rgb(100 116 139 / 48%) !important;
-  background: rgb(30 41 59 / 42%) !important;
-  color: #cbd5e1 !important;
-}
-.mp-rab-nominal {
-  width: 100%;
-  min-width: 0;
-  justify-self: stretch;
-  justify-content: center !important;
-}
-.mp-rab-nominal > input {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  flex: 1 1 0 !important;
-  text-align: center !important;
-}
-.mp-rab-row > .col-span-2 { grid-column: 1 / -1; min-width: 0; }
-.mp-rab-b3-nominal {
-  width: min(100%, 320px);
-  min-width: 0;
-  margin-left: auto;
-}
-.mp-rab-b3-nominal > input {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  flex: 1 1 0 !important;
-  text-align: center !important;
-}
-
-/* Operational rows share the same account sequence. The VA state explicitly
-   changes only the relevant tracks; the remove action is always 36px. */
-.mp-form-stack .mp-ops-row {
-  min-width: 0;
-  /* Match RAB's right inset: RAB card 14px + row 8px = 22px;
-     Ops card 12px + row 10px = the same 22px. */
-  padding: 9px 10px 9px 4px;
-  border-bottom: 1px solid rgb(100 116 139 / 28%);
-  background: transparent;
-}
-.mp-form-stack .mp-ops-row:last-child { border-bottom-color: transparent; }
-.mp-form-stack .mp-gas-flex-row {
-  display: grid !important;
-  grid-template-columns: max-content max-content max-content max-content minmax(64px, .42fr) minmax(90px, .55fr) minmax(150px, .9fr) 36px !important;
-  align-items: center !important;
-  gap: 9px !important;
-}
-.mp-gas-owner, .mp-gas-bank, .mp-gas-account {
-  width: max-content;
-  max-width: 220px;
-  padding-inline: 12px;
-}
-.mp-gas-quantity { width: 100%; min-width: 64px; max-width: 110px; }
-.mp-gas-size { width: 100%; min-width: 90px; max-width: 120px; }
-.mp-form-stack .mp-ops-flex-row {
-  display: grid !important;
-  grid-template-columns: max-content max-content max-content max-content minmax(150px, 1.2fr) minmax(170px, .9fr) 36px !important;
-  align-items: center !important;
-  gap: 9px !important;
-}
-.mp-form-stack .mp-ops-flex-row.has-va {
-  grid-template-columns: max-content 54px max-content max-content max-content minmax(140px, 1.15fr) minmax(170px, .9fr) 36px !important;
-}
-.mp-form-stack .mp-ops-flex-row.is-va {
-  grid-template-columns: max-content 54px max-content max-content minmax(140px, 1.15fr) minmax(170px, .9fr) 36px !important;
-}
-.mp-ops-flex-row .mp-va-toggle {
-  width: 54px !important;
-  min-width: 54px !important;
-  max-width: 54px !important;
-  min-height: 36px;
-  justify-self: center;
-  flex: 0 0 54px !important;
-  white-space: nowrap;
-}
-.mp-ops-flex-row .mp-ops-type-select {
-  min-width: 82px;
-  max-width: 170px;
-  justify-self: start;
-}
-.mp-ops-flex-row .mp-ops-owner,
-.mp-ops-flex-row .mp-ops-bank,
-.mp-ops-flex-row .mp-ops-account {
-  width: max-content;
-  min-width: 76px;
-  max-width: 220px;
-}
-.mp-ops-flex-row input.mp-ops-owner,
-.mp-ops-flex-row input.mp-ops-account {
-  field-sizing: content;
-}
-.mp-ops-flex-row .mp-ops-note {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-}
-.mp-ops-flex-row .mp-payment-nominal,
-.mp-gas-flex-row .mp-payment-nominal {
-  display: flex;
-  width: 100%;
-  min-width: 0;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-}
-.mp-ops-flex-row .mp-payment-nominal > input,
-.mp-gas-flex-row .mp-payment-nominal > input {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  flex: 1 1 0;
-  text-align: center !important;
-}
-.mp-form-stack .mp-row-remove {
-  width: 36px !important;
-  min-width: 36px !important;
-  max-width: 36px !important;
-  height: 36px !important;
-  justify-self: end;
-  flex: 0 0 36px !important;
-  padding: 0 !important;
-}
-
-/* Incentive/salary: the category itself is the tag, account metadata remains
-   quiet read-only cells, and the nominal input is flexible. No table header. */
-.mp-form-stack .mp-payment-row {
-  padding: 10px 5px;
-  border: 0 !important;
-  border-bottom: 1px solid rgb(100 116 139 / 28%) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-.mp-form-stack .mp-payment-row:last-child { border-bottom-color: transparent !important; }
-.mp-form-stack .mp-salary-flex-row {
-  display: grid !important;
-  grid-template-columns: max-content max-content max-content max-content minmax(170px, 1fr) !important;
-  align-items: center !important;
-  gap: 9px !important;
-}
-.mp-salary-flex-row .mp-salary-field {
-  width: max-content;
-  max-width: 240px;
-  padding-inline: 12px;
-}
-.mp-salary-flex-row .mp-payment-nominal {
-  width: 100%;
-  min-width: 0;
-  justify-content: center;
-}
-.mp-salary-flex-row .mp-payment-nominal > input {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  flex: 1 1 0;
-  text-align: center !important;
-}
-
-/* Nominal is not hard-coded to a fixed width; it uses the space assigned by
-   its row. Numeric values are centered inside each editable field. */
-.mp-form-stack .mp-nominal-input,
-.mp-form-stack .mp-payment-nominal > input,
-.mp-form-stack .mp-rab-amount {
-  text-align: center !important;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Subtle entrance feedback; disable motion for accessibility preferences. */
-.mp-rab-row, .mp-ops-row, .mp-payment-row {
-  animation: mp-row-enter 180ms ease both;
-}
 @keyframes mp-row-enter {
   from { opacity: .65; transform: translateY(3px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@media (prefers-reduced-motion: reduce) {
-  .mp-rab-row, .mp-ops-row, .mp-payment-row { animation: none !important; }
-}
 
-/* Tablet: preserve field order, then let nominal span available width. */
-@media (max-width: 1023px) {
-  .mp-form-stack .mp-rab-row { grid-template-columns: minmax(0, 1fr) !important; }
-  .mp-rab-nominal { grid-column: 1; width: 100%; }
-  .mp-form-stack .mp-gas-flex-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
-  }
-  .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; }
-  .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; }
-  .mp-gas-flex-row > .mp-gas-bank { grid-column: 3; }
-  .mp-gas-flex-row > .mp-gas-account { grid-column: 4; }
-  .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; max-width: none; }
-  .mp-gas-flex-row > .mp-gas-size { grid-column: 2; max-width: none; }
-  .mp-gas-flex-row > .mp-payment-nominal { grid-column: 3 / 5; }
-  .mp-gas-flex-row > .mp-row-remove { grid-column: 5; grid-row: 1 / span 2; }
-
-  .mp-form-stack .mp-ops-flex-row,
-  .mp-form-stack .mp-ops-flex-row.has-va,
-  .mp-form-stack .mp-ops-flex-row.is-va {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) 36px !important;
-  }
-  .mp-ops-flex-row > .mp-tag { grid-column: 1; }
-  .mp-ops-flex-row > .mp-va-toggle { grid-column: 2; }
-  .mp-ops-flex-row > .mp-ops-owner { grid-column: 1; }
-  .mp-ops-flex-row > .mp-ops-bank { grid-column: 2; }
-  .mp-ops-flex-row > .mp-ops-account { grid-column: 1; }
-  .mp-ops-flex-row > .mp-ops-note { grid-column: 2; }
-  .mp-ops-flex-row > .mp-payment-nominal { grid-column: 1 / 3; }
-  .mp-ops-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 4; }
-
-  .mp-form-stack .mp-salary-flex-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-  .mp-salary-flex-row > .mp-payment-nominal { grid-column: 1 / -1; }
-}
-@media (max-width: 639px) {
-  .mp-form-stack > .mp-card { padding: 12px !important; }
-  .mp-rab-row { padding-inline: 2px !important; }
-  .mp-gas-flex-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important;
-  }
-  .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; }
-  .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; }
-  .mp-gas-flex-row > .mp-gas-bank { grid-column: 1; }
-  .mp-gas-flex-row > .mp-gas-account { grid-column: 2; }
-  .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; }
-  .mp-gas-flex-row > .mp-gas-size { grid-column: 2; }
-  .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 3; }
-  .mp-gas-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 4; }
-
-  .mp-ops-flex-row,
-  .mp-ops-flex-row.has-va,
-  .mp-ops-flex-row.is-va { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important; }
-  .mp-ops-flex-row > .mp-tag { grid-column: 1; }
-  .mp-ops-flex-row > .mp-va-toggle { grid-column: 2; }
-  .mp-ops-flex-row > .mp-ops-owner { grid-column: 1; }
-  .mp-ops-flex-row > .mp-ops-bank { grid-column: 2; }
-  .mp-ops-flex-row > .mp-ops-account { grid-column: 1; }
-  .mp-ops-flex-row > .mp-ops-note { grid-column: 2; }
-  .mp-ops-flex-row > .mp-payment-nominal { grid-column: 1 / 3; }
-  .mp-ops-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 4; }
-
-  .mp-salary-flex-row { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .mp-salary-flex-row > .mp-payment-nominal { grid-column: 1 / -1; }
-}
 
 
 /* ── History dialog · Batch 2 ─────────────────────────────────────────── */
@@ -1387,6 +624,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   isolation: isolate;
   overscroll-behavior: contain;
 }
+
 .mp-history-dialog {
   border-color: rgb(71 85 105 / 70%) !important;
   background:
@@ -1395,13 +633,16 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   color: #e2e8f0;
   animation: mp-history-enter 180ms ease-out both;
 }
+
 .mp-history-header {
   background: rgb(13 23 38 / 92%);
 }
+
 .mp-history-date {
   border-color: rgb(71 85 105 / 72%) !important;
   background: rgb(15 23 42 / 72%) !important;
 }
+
 .mp-history-date input {
   position: absolute !important;
   inset: 0 !important;
@@ -1419,10 +660,12 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   opacity: 0 !important;
   cursor: pointer;
 }
+
 .mp-history-date input:focus {
   border: 0 !important;
   box-shadow: none !important;
 }
+
 .mp-history-icon-button,
 .mp-history-secondary-button,
 .mp-history-danger-button,
@@ -1433,70 +676,85 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   box-shadow: none !important;
   transform: none !important;
 }
+
 .mp-history-dialog .mp-history-icon-button {
   border-color: rgb(100 116 139 / 52%) !important;
   background: linear-gradient(145deg, #172235, #101a2a) !important;
   color: #cbd5e1 !important;
 }
+
 .mp-history-dialog .mp-history-icon-button:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 74%) !important;
   background: rgb(13 148 136 / 18%) !important;
   color: #f0fdfa !important;
 }
+
 .mp-history-dialog .mp-history-secondary-button {
   border-color: rgb(100 116 139 / 50%) !important;
   background: rgb(30 41 59 / 54%) !important;
   color: #dbe5f2 !important;
 }
+
 .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 65%) !important;
   background: rgb(13 148 136 / 15%) !important;
   color: #f0fdfa !important;
 }
+
 .mp-history-dialog .mp-history-danger-button {
   border-color: rgb(244 63 94 / 42%) !important;
   background: rgb(159 18 57 / 13%) !important;
   color: #fda4af !important;
 }
+
 .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: rgb(251 113 133 / 76%) !important;
   background: rgb(159 18 57 / 24%) !important;
   color: #ffe4e6 !important;
 }
+
 .mp-history-dialog .mp-history-primary-button {
   border: 1px solid rgb(13 148 136 / 72%) !important;
   background: linear-gradient(145deg, #0f766e, #115e59) !important;
   color: #ecfdf5 !important;
 }
+
 .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
   border-color: #5eead4 !important;
   background: linear-gradient(145deg, #0d9488, #0f766e) !important;
 }
+
 .mp-history-dialog .mp-history-list-item {
   border-color: rgb(71 85 105 / 42%) !important;
   background: linear-gradient(145deg, rgb(17 30 46 / 82%), rgb(11 20 34 / 96%)) !important;
   color: #e2e8f0 !important;
   text-align: left;
 }
+
 .mp-history-dialog .mp-history-list-item:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 55%) !important;
   background: linear-gradient(145deg, rgb(19 45 58 / 92%), rgb(12 28 43 / 98%)) !important;
   color: #f8fafc !important;
 }
+
 .mp-history-date-icon {
   background: rgb(30 41 59 / 65%);
 }
+
 .mp-history-list-totals {
   font-variant-numeric: tabular-nums;
 }
+
 .mp-history-metric {
   border: 1px solid rgb(71 85 105 / 38%);
   background: linear-gradient(155deg, rgb(17 30 46 / 84%), rgb(10 19 33 / 90%));
 }
+
 .mp-history-summary {
   border-color: rgb(71 85 105 / 48%) !important;
   background: rgb(15 23 42 / 34%) !important;
 }
+
 .mp-history-event-badge {
   display: inline-flex;
   align-items: center;
@@ -1513,6 +771,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   text-transform: uppercase;
   white-space: nowrap;
 }
+
 .mp-history-status {
   display: inline-flex;
   align-items: center;
@@ -1523,20 +782,24 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   font-weight: 800;
   letter-spacing: .06em;
 }
+
 .mp-history-status--editable {
   border: 1px solid rgb(45 212 191 / 34%);
   background: rgb(13 148 136 / 12%);
   color: #99f6e4;
 }
+
 .mp-history-status--locked {
   border: 1px solid rgb(244 63 94 / 44%);
   background: rgb(159 18 57 / 14%);
   color: #fda4af;
 }
+
 .mp-history-output {
   border-color: rgb(71 85 105 / 46%) !important;
   background: rgb(15 23 42 / 42%) !important;
 }
+
 .mp-history-timeline-item {
   position: relative;
   display: flex;
@@ -1549,10 +812,12 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   background: rgb(15 23 42 / 28%);
   transition: border-color 150ms ease, background-color 150ms ease;
 }
+
 .mp-history-timeline-item.is-active {
   border-color: rgb(45 212 191 / 46%);
   background: rgb(13 148 136 / 9%);
 }
+
 .mp-history-timeline-marker {
   position: relative;
   z-index: 1;
@@ -1566,10 +831,12 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   background: #0f766e;
   box-shadow: 0 0 0 3px rgb(13 148 136 / 12%);
 }
+
 .mp-history-timeline-item.is-active .mp-history-timeline-marker {
   background: #99f6e4;
   box-shadow: 0 0 0 4px rgb(45 212 191 / 16%);
 }
+
 .mp-history-event-type {
   color: #99f6e4;
   font-size: 10px;
@@ -1577,35 +844,45 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   letter-spacing: .045em;
   text-transform: uppercase;
 }
+
 .mp-history-event-type.is-normal {
   color: #93c5fd;
 }
+
 .mp-history-dialog .mp-history-timeline-open {
   border: 1px solid rgb(100 116 139 / 44%) !important;
   background: rgb(30 41 59 / 48%) !important;
   color: #cbd5e1 !important;
 }
+
 .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled),
 .mp-history-dialog .mp-history-timeline-open[aria-pressed="true"] {
   border-color: rgb(45 212 191 / 54%) !important;
   background: rgb(13 148 136 / 16%) !important;
   color: #ccfbf1 !important;
 }
+
 .mp-history-dialog .mp-history-timeline-copy {
   border-color: rgb(100 116 139 / 38%) !important;
   background: rgb(30 41 59 / 26%) !important;
   color: #cbd5e1 !important;
 }
+
 .mp-history-spinner {
   animation: mp-history-spin .8s linear infinite;
 }
+
 @keyframes mp-history-spin { to { transform: rotate(360deg); } }
+
 @keyframes mp-history-enter {
   from { opacity: 0; transform: translateY(8px) scale(.992); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
 @media (max-width: 639px) {
+
   .mp-history-overlay { padding: 0 !important; }
+
   .mp-history-dialog {
     width: 100%;
     height: 100dvh;
@@ -1613,13 +890,22 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     border: 0 !important;
     border-radius: 0 !important;
   }
+
   .mp-history-header { padding: 12px 14px; }
+
   .mp-history-body { padding: 13px 14px calc(16px + env(safe-area-inset-bottom)); }
+
   .mp-history-list-item { gap: 10px; padding: 11px; }
+
   .mp-history-list-totals { gap: 7px; }
+
   .mp-history-timeline-item { gap: 8px; padding: 10px; }
+
+
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   .mp-history-dialog,
   .mp-history-spinner,
   .mp-history-timeline-item,
@@ -1627,300 +913,10 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     animation: none !important;
     transition: none !important;
   }
-}
 
 
-/* ── Nominal sizing refinement · 203px fields ─────────────────────────── */
-.mp-form-stack .mp-rab-row {
-  grid-template-columns: minmax(0, 1fr) max-content !important;
-}
-.mp-form-stack .mp-rab-nominal {
-  width: max-content;
-  max-width: 100%;
-  justify-self: end;
-  justify-content: flex-end !important;
-}
-.mp-form-stack .mp-rab-b3-nominal {
-  width: max-content;
-  max-width: 100%;
-  margin-left: auto;
-  justify-content: flex-end !important;
 }
 
-/* Left-side operational fields size to their content. The nominal track
-   uses remaining room as a spacer, with the amount input aligned at right. */
-.mp-form-stack .mp-gas-flex-row {
-  grid-template-columns: max-content max-content max-content max-content max-content max-content minmax(0, 1fr) 36px !important;
-}
-.mp-form-stack .mp-ops-flex-row {
-  grid-template-columns: max-content max-content max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
-}
-.mp-form-stack .mp-ops-flex-row.has-va {
-  grid-template-columns: max-content 54px max-content max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
-}
-.mp-form-stack .mp-ops-flex-row.is-va {
-  grid-template-columns: max-content 54px max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
-}
-.mp-form-stack .mp-ops-flex-row .mp-ops-note {
-  width: max-content;
-  min-width: 120px;
-  max-width: 280px;
-  field-sizing: content;
-}
-.mp-form-stack .mp-ops-flex-row .mp-payment-nominal,
-.mp-form-stack .mp-gas-flex-row .mp-payment-nominal,
-.mp-form-stack .mp-salary-flex-row .mp-payment-nominal {
-  width: 100%;
-  min-width: 0;
-  justify-content: flex-end !important;
-}
-.mp-form-stack .mp-salary-flex-row {
-  grid-template-columns: max-content max-content max-content max-content minmax(0, 1fr) !important;
-}
-
-/* Fixed preferred width; fields shrink only when a smaller viewport requires it. */
-.mp-form-stack .mp-rab-row .mp-rab-nominal > input,
-.mp-form-stack .mp-rab-row .mp-rab-b3-nominal > input,
-.mp-form-stack .mp-gas-flex-row .mp-payment-nominal > input,
-.mp-form-stack .mp-ops-flex-row .mp-payment-nominal > input,
-.mp-form-stack .mp-salary-flex-row .mp-payment-nominal > input {
-  width: 203px !important;
-  min-width: 0 !important;
-  max-width: min(203px, 100%) !important;
-  flex: 0 1 203px !important;
-  margin-left: auto !important;
-  text-align: center !important;
-}
-.mp-form-stack .mp-rab-nominal,
-.mp-form-stack .mp-rab-b3-nominal { gap: 7px; }
-.mp-form-stack .mp-payment-nominal > button { flex: 0 0 auto; }
-
-@media (max-width: 1023px) {
-  .mp-form-stack .mp-rab-row { grid-template-columns: minmax(0, 1fr) !important; }
-  .mp-form-stack .mp-rab-nominal,
-  .mp-form-stack .mp-rab-b3-nominal { justify-self: end; }
-  .mp-form-stack .mp-gas-flex-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
-  }
-  .mp-form-stack .mp-ops-flex-row,
-  .mp-form-stack .mp-ops-flex-row.has-va,
-  .mp-form-stack .mp-ops-flex-row.is-va {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) 36px !important;
-  }
-  .mp-form-stack .mp-salary-flex-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
-
-/* ── Output copy + three-zone salary rows ──────────────────────────────── */
-.mp-output-copy {
-  cursor: copy;
-  user-select: text;
-  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
-}
-.mp-output-copy:hover,
-.mp-output-copy:focus-visible {
-  border-color: rgb(45 212 191 / 64%) !important;
-  box-shadow: 0 0 0 2px rgb(45 212 191 / 9%), inset 0 1px 0 rgb(255 255 255 / 2%) !important;
-  outline: none;
-}
-.mp-output-copy:active {
-  background: rgb(13 148 136 / 10%) !important;
-}
-
-/* Desktop: category tag | account details (owner, bank, number) | nominal. */
-.mp-form-stack .mp-salary-flex-row {
-  grid-template-columns: max-content minmax(0, 1fr) 203px !important;
-  grid-template-areas: "tag account amount";
-  align-items: center !important;
-  column-gap: clamp(12px, 1.8vw, 24px) !important;
-  row-gap: 8px !important;
-}
-.mp-salary-flex-row > .mp-tag--salary {
-  grid-area: tag;
-  justify-self: start;
-}
-.mp-salary-account-details {
-  grid-area: account;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
-  align-items: center;
-  gap: 9px;
-  min-width: 0;
-  width: 100%;
-}
-.mp-salary-account-details > .mp-salary-field {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-  justify-self: stretch;
-}
-.mp-salary-account-details > .mp-salary-field:first-child,
-.mp-salary-account-details > .mp-salary-field:last-child {
-  overflow: hidden;
-}
-.mp-salary-flex-row > .mp-payment-nominal {
-  grid-area: amount;
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: 100%;
-  justify-self: end;
-  justify-content: flex-end !important;
-}
-.mp-salary-flex-row > .mp-payment-nominal > input {
-  width: 203px !important;
-  min-width: 203px !important;
-  max-width: 203px !important;
-  flex: 0 0 203px !important;
-  margin-left: 0 !important;
-  text-align: center !important;
-}
-
-/* Tablet and phone: tag and nominal share the top line; account details
-   occupy one readable row underneath without pushing the nominal away. */
-@media (max-width: 1023px) {
-  .mp-form-stack .mp-salary-flex-row {
-    grid-template-columns: minmax(0, 1fr) max-content !important;
-    grid-template-areas:
-      "tag amount"
-      "account account";
-    column-gap: 12px !important;
-    row-gap: 9px !important;
-  }
-  .mp-salary-flex-row > .mp-tag--salary { grid-area: tag; }
-  .mp-salary-account-details {
-    grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
-    gap: 8px;
-  }
-  .mp-salary-flex-row > .mp-payment-nominal {
-    grid-area: amount;
-    justify-self: end;
-  }
-}
-@media (max-width: 639px) {
-  .mp-salary-account-details {
-    grid-template-columns: minmax(0, 1fr) max-content minmax(0, 1fr);
-    gap: 6px;
-  }
-  .mp-salary-account-details > .mp-salary-field {
-    padding-inline: 6px !important;
-    font-size: 11px !important;
-  }
-  .mp-salary-flex-row > .mp-payment-nominal > input {
-    width: min(203px, 42vw) !important;
-    min-width: 0 !important;
-    max-width: 203px !important;
-    flex: 1 1 auto !important;
-  }
-}
-
-
-/* ── History editing controls and compact history list ─────────────────── */
-.mp-form-stack .mp-history-additional-toggle {
-  display: inline-flex;
-  min-height: 32px;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 1px solid rgb(100 116 139 / 48%) !important;
-  border-radius: 8px !important;
-  background: rgb(30 41 59 / 38%) !important;
-  color: #cbd5e1 !important;
-  white-space: nowrap;
-}
-.mp-form-stack .mp-history-additional-toggle:hover:not(:disabled) {
-  border-color: rgb(45 212 191 / 58%) !important;
-  background: rgb(13 148 136 / 10%) !important;
-  color: #e2e8f0 !important;
-}
-.mp-form-stack .mp-history-additional-toggle.is-active {
-  border-color: rgb(45 212 191 / 70%) !important;
-  background: rgb(13 148 136 / 18%) !important;
-  color: #99f6e4 !important;
-}
-.mp-history-additional-switch {
-  position: relative;
-  display: inline-flex;
-  width: 23px;
-  height: 14px;
-  flex: 0 0 23px;
-  align-items: center;
-  border: 1px solid rgb(100 116 139 / 58%);
-  border-radius: 999px;
-  padding: 2px;
-  background: #1e293b;
-  transition: background-color 150ms ease, border-color 150ms ease;
-}
-.mp-history-additional-switch > span {
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #cbd5e1;
-  transform: translateX(0);
-  transition: transform 150ms ease, background-color 150ms ease;
-}
-.mp-history-additional-toggle.is-active .mp-history-additional-switch {
-  border-color: #0f766e;
-  background: #0f766e;
-}
-.mp-history-additional-toggle.is-active .mp-history-additional-switch > span {
-  background: #ecfeff;
-  transform: translateX(9px);
-}
-
-/* Show the original value above the editable field only while a History
-   revision is active. The amount field and shortage switch remain side by side. */
-.mp-form-stack .mp-payment-nominal.mp-has-history-previous {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end !important;
-  row-gap: 2px;
-  padding-top: 14px;
-}
-.mp-history-previous-amount {
-  display: block;
-  min-width: 0;
-  flex: 0 0 100%;
-  order: -1;
-  overflow: hidden;
-  color: #94a3b8;
-  font-size: 9px;
-  font-weight: 600;
-  line-height: 12px;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-.mp-form-stack .mp-gas-quantity-stack {
-  display: flex;
-  width: 68px !important;
-  min-width: 68px !important;
-  max-width: 68px !important;
-  flex: 0 0 68px !important;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 2px;
-}
-.mp-form-stack .mp-gas-quantity-input {
-  width: 68px !important;
-  min-width: 68px !important;
-  max-width: 68px !important;
-  text-align: center !important;
-}
-.mp-form-stack .mp-gas-flex-row {
-  grid-template-columns: max-content max-content max-content max-content 68px max-content minmax(0, 1fr) 36px !important;
-}
-.mp-form-stack .mp-gas-flex-row > .mp-gas-size {
-  width: max-content;
-  min-width: 90px;
-  max-width: 112px;
-}
 
 /* Keep the native date control inside its bordered date-picker capsule.
    Remove browser underline/link-like treatment from the editable date text. */
@@ -1936,6 +932,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   text-decoration: none !important;
   text-underline-offset: 0 !important;
 }
+
 .mp-history-date input[type="date"]:focus,
 .mp-history-date input[type="date"]:focus-visible {
   border: 0 !important;
@@ -1943,33 +940,21 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   box-shadow: none !important;
   outline: none !important;
 }
+
 .mp-history-date input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: .8;
 }
+
 .mp-history-list-totals {
   justify-items: end;
 }
+
 .mp-history-list-totals > span {
   min-width: 0;
   text-align: right;
 }
-@media (max-width: 1023px) {
-  .mp-form-stack .mp-gas-flex-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
-  }
-  .mp-form-stack .mp-gas-quantity-stack {
-    justify-self: start;
-  }
-}
-@media (max-width: 639px) {
-  .mp-form-stack .mp-gas-flex-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important;
-  }
-  .mp-form-stack .mp-gas-quantity-stack {
-    justify-self: start;
-  }
-}
+
 
 
 /* ── Batch 3 · Admin, authentication and application shell ───────────── */
@@ -1979,6 +964,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   overflow: hidden;
   background: #080f1b !important;
 }
+
 .mp-auth-screen::before {
   position: absolute;
   inset: 0;
@@ -1989,17 +975,20 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     radial-gradient(ellipse at 50% 0%, rgb(20 184 166 / 11%), transparent 42%),
     linear-gradient(180deg, #0b1422 0%, #080f1b 100%);
 }
+
 .mp-auth-card {
   border-color: rgb(71 85 105 / 58%) !important;
   background: rgb(15 23 42 / 88%) !important;
   box-shadow: 0 24px 70px rgb(0 0 0 / 32%) !important;
   backdrop-filter: blur(18px);
 }
+
 .mp-auth-card h1,
 .mp-auth-card p,
 .mp-auth-card label {
   text-wrap: pretty;
 }
+
 .mp-auth-card input,
 .mp-auth-card select,
 .mp-admin-panel input,
@@ -2010,6 +999,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   color: #e2e8f0;
   transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
 }
+
 .mp-auth-card input:focus-visible,
 .mp-auth-card select:focus-visible,
 .mp-admin-panel input:focus-visible,
@@ -2019,6 +1009,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   outline: 2px solid rgb(45 212 191 / 28%);
   outline-offset: 2px;
 }
+
 .mp-auth-card input:disabled,
 .mp-auth-card select:disabled,
 .mp-admin-panel input:disabled,
@@ -2028,81 +1019,104 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   color: #64748b;
   cursor: not-allowed;
 }
+
 .mp-app-header {
   background: rgb(8 15 27 / 92%);
   box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
 }
+
 .mp-admin-panel {
   color: #e2e8f0;
 }
+
 .mp-admin-card {
   border-color: rgb(71 85 105 / 54%) !important;
   background: rgb(15 23 42 / 58%) !important;
   box-shadow: 0 12px 32px rgb(0 0 0 / 12%);
 }
+
 .mp-admin-card article {
   border-color: rgb(71 85 105 / 55%) !important;
   background: rgb(8 15 27 / 52%) !important;
   transition: border-color 150ms ease, background-color 150ms ease;
 }
+
 .mp-admin-card article:hover {
   border-color: rgb(100 116 139 / 76%) !important;
   background: rgb(11 20 34 / 78%) !important;
 }
+
 .mp-admin-credential-notice {
   border-color: rgb(13 148 136 / 52%) !important;
   background: rgb(13 148 136 / 8%) !important;
 }
+
 .mp-admin-toast {
   box-shadow: 0 14px 40px rgb(0 0 0 / 34%);
 }
+
 .mp-app-header button,
 .mp-auth-card button,
 .mp-admin-panel button {
   transition: color 140ms ease, border-color 140ms ease, background-color 140ms ease, opacity 140ms ease;
 }
+
 .mp-app-header button:hover:not(:disabled),
 .mp-admin-panel button:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 62%);
 }
+
 .mp-app-header button:disabled,
 .mp-admin-panel button:disabled {
   cursor: not-allowed;
 }
+
 @media (max-width: 639px) {
+
   .mp-auth-screen {
     min-height: 100svh;
     padding: 20px 14px calc(20px + env(safe-area-inset-bottom));
   }
+
   .mp-auth-card {
     border-radius: 18px !important;
     padding: 22px 18px !important;
   }
+
   .mp-app-header {
     position: sticky;
     top: 0;
   }
+
   .mp-app-header > div {
     align-items: center;
     gap: 10px;
   }
+
   .mp-app-header > div > div:last-child {
     width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   }
+
   .mp-app-header > div > div:last-child button {
     min-height: 40px;
     padding-inline: 10px;
   }
+
   .mp-admin-panel {
     padding-bottom: env(safe-area-inset-bottom);
   }
+
   .mp-admin-card {
     border-radius: 16px !important;
   }
+
+
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   .mp-auth-card *,
   .mp-admin-panel *,
   .mp-app-header * {
@@ -2111,7 +1125,10 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+
+
 }
+
 
 
 /* Calendar/date-range picker — shared form control surface */
@@ -2120,100 +1137,47 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   background: #0b1422 !important;
   box-shadow: none !important;
 }
+
 .mp-date-range-trigger:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 62%) !important;
   background: #111c2b !important;
 }
+
 .mp-date-range-popover {
   border-color: rgb(71 85 105 / 74%) !important;
   background: #0b1422 !important;
   box-shadow: 0 18px 48px rgb(0 0 0 / 42%) !important;
   animation: mp-history-enter 140ms ease-out both;
 }
+
 .mp-date-range-popover button:focus-visible,
 .mp-date-range-popover select:focus-visible {
   outline: 2px solid rgb(45 212 191 / 55%);
   outline-offset: 2px;
 }
+
 .mp-date-range-popover [data-calendar-day="true"]:disabled {
   background: transparent;
 }
+
 @media (prefers-reduced-motion: reduce) {
+
   .mp-date-range-popover { animation: none !important; }
-}
 
 
-/* ── Shared control geometry and interaction tokens ───────────────────── */
-/* Use this primitive for selects and other boxed form controls. */
-.mp-control-surface,
-main select.mp-control-surface {
-  min-width: 0;
-  border: 1px solid var(--mp-control-border) !important;
-  border-radius: var(--mp-radius-control) !important;
-  background: var(--mp-control-surface) !important;
-  color: #e2e8f0 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
-  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
-.mp-control-surface:hover:not(:disabled),
-main select.mp-control-surface:hover:not(:disabled) {
-  border-color: rgb(16 185 129 / 78%) !important;
-  box-shadow: 0 0 0 2px var(--mp-control-focus-glow), 0 0 12px rgb(16 185 129 / 9%);
-}
-.mp-control-surface:focus-visible,
-main select.mp-control-surface:focus-visible {
-  border-color: var(--mp-control-focus) !important;
-  outline: 2px solid rgb(16 185 129 / 22%);
-  outline-offset: 1px;
-  box-shadow: 0 0 0 3px var(--mp-control-focus-glow);
-}
-.mp-control-surface:disabled,
-main select.mp-control-surface:disabled {
-  border-color: rgb(71 85 105 / 42%) !important;
-  background: #111c2b !important;
-  color: #64748b !important;
-  cursor: not-allowed;
-}
+
 .mp-app-shell button:not([data-option-button]):not([data-calendar-day]),
 .mp-app-header button:not([data-option-button]):not([data-calendar-day]),
 .mp-auth-card button:not([data-option-button]):not([data-calendar-day]),
 .mp-admin-panel button:not([data-option-button]):not([data-calendar-day]) {
   border-radius: var(--mp-radius-control);
 }
+
 button[data-option-button='true'] {
   border-radius: var(--mp-radius-control);
 }
-.mp-form-stack .mp-tag {
-  border-radius: var(--mp-radius-control) !important;
-}
 
-/* Badge-style dropdown: keep the same tag surface and accent as GAS/Ops/Arutala. */
-.mp-form-stack select.mp-tag--custom {
-  border: 1px solid rgb(45 212 191 / 28%) !important;
-  border-left: 2px solid #2dd4bf !important;
-  border-radius: var(--mp-radius-control) !important;
-  background-color: rgb(13 148 136 / 12%) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2399f6e4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 8px center !important;
-  background-size: 12px 12px !important;
-  color: #99f6e4 !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  padding-right: 26px !important;
-  text-align-last: center;
-  cursor: pointer;
-}
-.mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
-  border-color: rgb(45 212 191 / 72%) !important;
-  background-color: rgb(13 148 136 / 18%) !important;
-  box-shadow: 0 0 0 2px rgb(45 212 191 / 10%) !important;
-}
-.mp-form-stack select.mp-tag--custom:focus-visible {
-  border-color: #2dd4bf !important;
-  outline: 2px solid rgb(45 212 191 / 24%);
-  outline-offset: 2px;
-}
 
 /* History date selector: same bordered capsule and emerald hover/focus glow
    as the transaction date control; remove browser date-segment underlines. */
@@ -2222,15 +1186,18 @@ button[data-option-button='true'] {
   background: #0b1422 !important;
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
+
 .mp-history-date:hover {
   border-color: rgb(16 185 129 / 78%) !important;
   box-shadow: 0 0 0 2px rgb(16 185 129 / 12%), 0 0 12px rgb(16 185 129 / 9%);
   background: #0d1726 !important;
 }
+
 .mp-history-date:focus-within {
   border-color: #10b981 !important;
   box-shadow: 0 0 0 2px rgb(16 185 129 / 20%), 0 0 12px rgb(16 185 129 / 10%);
 }
+
 .mp-history-date input[type="date"]::-webkit-datetime-edit,
 .mp-history-date input[type="date"]::-webkit-datetime-edit-fields-wrapper,
 .mp-history-date input[type="date"]::-webkit-datetime-edit-text,
@@ -2244,30 +1211,43 @@ button[data-option-button='true'] {
   text-decoration: none !important;
   text-underline-offset: 0 !important;
 }
+
 .mp-history-date input[type="date"]::-webkit-datetime-edit-text {
   color: #94a3b8 !important;
 }
+
 .mp-history-date input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: .82;
   filter: invert(84%) sepia(10%) saturate(290%) hue-rotate(176deg);
 }
+
 .mp-history-dialog {
   border-radius: var(--mp-radius-dialog) !important;
 }
+
 .mp-date-range-trigger {
   border-radius: var(--mp-radius-control) !important;
 }
+
 @media (max-width: 639px) {
+
   .mp-history-dialog {
     border-radius: 0 !important;
   }
+
+
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .mp-control-surface,
-  .mp-history-date {
+
+.mp-history-date
+{
     transition: none !important;
   }
+
+
 }
+
 
 
 /* Auth/admin form controls consume the same global geometry token. */
@@ -2279,34 +1259,11 @@ button[data-option-button='true'] {
 .mp-admin-panel textarea {
   border-radius: var(--mp-radius-control) !important;
 }
+
 .mp-control-radius {
   border-radius: var(--mp-radius-control) !important;
 }
 
-
-/* Final cleanup: only remove the ledger separators called out in the review. */
-.mp-form-stack .mp-rab-row,
-.mp-form-stack .mp-ops-row {
-  border-bottom: 0 !important;
-}
-
-/* The focused editable field gets a clearly visible teal value, so the
-   accountant can tell exactly which control is currently being edited. */
-.mp-form-stack input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="hidden"]):not(:disabled):not([readonly]):focus,
-.mp-form-stack textarea:focus:not(:disabled):not([readonly]) {
-  color: #5eead4 !important;
-  -webkit-text-fill-color: #5eead4 !important;
-  caret-color: #5eead4 !important;
-}
-.mp-form-stack select:focus:not(:disabled) {
-  color: #5eead4 !important;
-  caret-color: #5eead4 !important;
-}
-.mp-form-stack input:focus:not(:disabled):not([readonly])::placeholder,
-.mp-form-stack textarea:focus:not(:disabled):not([readonly])::placeholder {
-  color: rgb(94 234 212 / 72%) !important;
-  -webkit-text-fill-color: rgb(94 234 212 / 72%) !important;
-}
 
 
 /* Active input content: highlight the value in every editable field, not only
@@ -2318,61 +1275,12 @@ main :is(input, select, textarea):focus:not(:disabled):not([readonly]) {
   border-bottom-color: #2dd4bf !important;
   box-shadow: 0 1px 0 rgb(45 212 191 / 72%) !important;
 }
+
 main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   color: rgb(94 234 212 / 72%) !important;
   -webkit-text-fill-color: rgb(94 234 212 / 72%) !important;
 }
 
-
-/* Highlight the whole active transaction row, not only the focused input.
-   Ops account metadata is often rendered as read-only divs, so :focus on the
-   input alone cannot color those sibling values. :focus-within ties them to
-   the row containing the active control. */
-.mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-.mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
-.mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-.mp-form-stack .mp-payment-row:focus-within .mp-static-field {
-  color: #5eead4 !important;
-  -webkit-text-fill-color: #5eead4 !important;
-}
-
-/* Supplier identity is a static block beside the editable RAB nominal.
-   Highlight it when that supplier row contains the active control. */
-.mp-form-stack .mp-rab-row:focus-within .mp-rab-details {
-  color: #5eead4 !important;
-}
-.mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
-  color: #5eead4 !important;
-}
-
-
-/* Batch 4 · small-screen row fit (320–639px).
-   Keep long labels and notes inside their grid tracks instead of forcing
-   horizontal overflow on narrow phones. */
-@media (max-width: 639px) {
-  .mp-form-stack .mp-ops-flex-row .mp-ops-note {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    field-sizing: fixed !important;
-  }
-
-  .mp-form-stack .mp-salary-flex-row > .mp-tag--salary {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    padding-inline: 8px !important;
-  }
-
-  .mp-form-stack .mp-salary-flex-row > .mp-tag--salary > span {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
 
 
 /* History audit event tags: one activity may contain multiple change kinds. */
@@ -2390,38 +1298,43 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   letter-spacing: .035em;
   text-transform: uppercase;
 }
+
 .mp-history-event-tag.is-normal {
   border-color: rgb(59 130 246 / 32%);
   background: rgb(30 64 175 / 16%);
   color: #93c5fd;
 }
+
 .mp-history-event-tag.is-revision {
   border-color: rgb(45 212 191 / 34%);
   background: rgb(13 148 136 / 14%);
   color: #99f6e4;
 }
+
 .mp-history-event-tag.is-shortage {
   border-color: rgb(251 146 60 / 38%);
   background: rgb(154 52 18 / 16%);
   color: #fdba74;
 }
+
 .mp-history-event-tag.is-addition {
   border-color: rgb(52 211 153 / 34%);
   background: rgb(6 95 70 / 16%);
   color: #6ee7b7;
 }
 
+
 /* Legacy Light Theme layer removed. One permanent palette is defined in styles/theme.css. */
 :root .mp-app-header { background: rgb(32 37 34 / 94%) !important; }
-:root .mp-card,
+
 :root .mp-auth-card,
-:root .mp-admin-card { background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
+:root .mp-admin-card
+{ background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
+
 :root .mp-auth-screen,
 :root .mp-app-shell,
 :root .mp-admin-panel { background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
-:root .mp-card pre { background: var(--mp-pre-bg) !important; border-color: var(--mp-pre-border) !important; color: var(--mp-ink) !important; }
-:root .mp-control-surface,
-:root main select.mp-control-surface,
+
 :root .mp-date-range-trigger,
 :root .mp-history-date,
 :root .mp-auth-card input,
@@ -2430,54 +1343,35 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
 :root .mp-admin-panel select,
 :root main input:not([type='checkbox']):not([type='radio']),
 :root main select,
-:root main textarea { background: #252c27 !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+:root main textarea
+{ background: #252c27 !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+
 :root button[data-option-button='true'] { background: #2c332d !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
+
 :root button[data-option-button='true'][data-selected='true'] { background: #35463a !important; color: #d7e6d8 !important; border-color: #667f6b !important; }
+
 :root button[data-button-kind='primary'] { background: #5e8067 !important; color: #fff !important; border-color: #5e8067 !important; }
+
 :root .mp-auth-card .text-slate-300,
 :root .mp-app-shell .text-slate-300 { color: #c2cbc2 !important; }
+
 :root .mp-auth-screen .bg-slate-950,
 :root .mp-app-shell .bg-slate-950 { background-color: var(--mp-page-bg) !important; }
+
 :root .mp-auth-screen .bg-slate-900,
 :root .mp-app-shell .bg-slate-900 { background-color: var(--mp-surface) !important; }
+
 :root .mp-date-range-popover,
 :root .mp-history-dialog,
 :root [role='dialog'][aria-label*='rentang'] { background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
+
 @media (prefers-reduced-motion: reduce) {
+
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+
+
 }
 
-/* ==========================================================================
-   Paper & Ink · dark-surface refinement
-   Fixes remaining legacy navy controls, history surfaces and focus treatment.
-   ========================================================================== */
-
-/* Operational add menu: match the graphite workspace instead of navy. */
-:root .mp-app-shell .mp-operational-add-menu {
-  border: 1px solid #485349 !important;
-  border-radius: 10px !important;
-  background: #292f2a !important;
-  padding: 5px !important;
-  box-shadow: 0 14px 30px rgb(0 0 0 / 30%) !important;
-}
-:root .mp-app-shell .mp-operational-add-menu > button {
-  min-height: 38px;
-  border: 1px solid #414b42 !important;
-  border-radius: 7px !important;
-  background: #303831 !important;
-  color: #e1e8e1 !important;
-  box-shadow: none !important;
-  text-align: left;
-}
-:root .mp-app-shell .mp-operational-add-menu > button:hover:not(:disabled) {
-  border-color: #687d6b !important;
-  background: #39463b !important;
-  color: #f0f4ef !important;
-}
-:root .mp-app-shell .mp-operational-add-menu > button:disabled {
-  background: #2b312c !important;
-  color: #899389 !important;
-}
 
 /* All workspace action buttons use graphite/forest. More specific than the
    earlier theme experiments so the old navy gradients cannot win the cascade. */
@@ -2491,6 +1385,7 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   text-shadow: none !important;
   transform: none !important;
 }
+
 :root .mp-app-shell button:not([data-option-button]):not([data-calendar-day]):hover:not(:disabled) {
   border-color: #718574 !important;
   background: #3d493f !important;
@@ -2499,20 +1394,24 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   box-shadow: none !important;
   transform: none !important;
 }
+
 :root .mp-app-shell button:not([data-option-button]):not([data-calendar-day]):active:not(:disabled) {
   background: #303a32 !important;
   transform: none !important;
 }
+
 :root .mp-app-shell button[data-button-kind='primary'] {
   border-color: #6c8c72 !important;
   background: #5e8067 !important;
   color: #fff !important;
 }
+
 :root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #83a188 !important;
   background: #6a8b72 !important;
   color: #fff !important;
 }
+
 /* Product/type selection buttons previously retained the old midnight-blue fill. */
 :root .mp-app-shell button[data-option-button='true'],
 :root .mp-app-shell button[data-option-button='true'][data-selected='false'] {
@@ -2524,47 +1423,34 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   box-shadow: none !important;
   text-shadow: none !important;
 }
+
 :root .mp-app-shell button[data-option-button='true'][data-selected='false']:hover {
   border-color: #738976 !important;
   background: #3b473d !important;
   color: #f0f4ef !important;
   transform: none !important;
 }
+
 :root .mp-app-shell button[data-option-button='true'][data-selected='true'] {
   border-color: #718a73 !important;
   background: #405343 !important;
   color: #dce9dc !important;
   box-shadow: inset 0 0 0 1px rgb(139 169 146 / 9%) !important;
 }
+
 :root .mp-app-shell button[data-option-button='true'][data-selected='true']:hover {
   border-color: #8ba992 !important;
   background: #485d4b !important;
   color: #f0f5ef !important;
 }
 
-/* Summary completion labels: no more bright white pills. */
-:root .mp-app-shell aside.mp-card [title='Sudah diisi'] {
-  border: 1px solid #526b55 !important;
-  background: #354638 !important;
-  color: #bfd3c0 !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell aside.mp-card [title='Belum diisi'] {
-  border: 1px solid #73574b !important;
-  background: #45372f !important;
-  color: #d7b6a0 !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell aside.mp-card [title='Sudah diisi']::before,
-:root .mp-app-shell aside.mp-card [title='Belum diisi']::before {
-  box-shadow: none !important;
-}
 
 /* History list and detail: bring every surface into the same graphite palette. */
 :root .mp-history-overlay {
   background: rgb(16 20 17 / 82%) !important;
   backdrop-filter: blur(5px) !important;
 }
+
 :root .mp-history-dialog {
   border: 1px solid #485349 !important;
   border-radius: 14px !important;
@@ -2573,10 +1459,12 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   color: #e6ebe5 !important;
   box-shadow: 0 18px 50px rgb(0 0 0 / 34%) !important;
 }
+
 :root .mp-history-header {
   border-color: #414b42 !important;
   background: #303831 !important;
 }
+
 :root .mp-history-dialog h2,
 :root .mp-history-dialog h3,
 :root .mp-history-dialog h4,
@@ -2585,66 +1473,82 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
 :root .mp-history-dialog .text-slate-200 {
   color: #e5ebe4 !important;
 }
+
 :root .mp-history-dialog .text-slate-300 { color: #c3ccc2 !important; }
+
 :root .mp-history-dialog .text-slate-400,
 :root .mp-history-dialog .text-slate-500 { color: #98a397 !important; }
+
 :root .mp-history-date {
   border-color: #4b574d !important;
   background: #292f2a !important;
   color: #e0e7df !important;
 }
+
 :root .mp-history-date svg { color: #a2b9a4 !important; }
+
 :root .mp-history-list-item {
   border-color: #465047 !important;
   background: #252c27 !important;
   background-image: none !important;
   color: #e4eae3 !important;
 }
+
 :root .mp-history-list-item:hover:not(:disabled) {
   border-color: #718574 !important;
   background: #303a32 !important;
   background-image: none !important;
   color: #f0f4ef !important;
 }
+
 :root .mp-history-date-icon {
   border-color: #4b574d !important;
   background: #303831 !important;
   color: #a8c0aa !important;
 }
+
 :root .mp-history-summary {
   border-color: #414b42 !important;
   background: #252c27 !important;
 }
+
 :root .mp-history-metric {
   border: 1px solid #465047 !important;
   background: #303831 !important;
   color: #e5ebe4 !important;
 }
+
 :root .mp-history-output {
   border-color: #465047 !important;
   background: #252c27 !important;
 }
+
 :root .mp-history-output > div:first-child {
   border-color: #414b42 !important;
   background: #303831 !important;
 }
+
 :root .mp-history-timeline-item {
   border-color: #465047 !important;
   background: #252c27 !important;
 }
+
 :root .mp-history-timeline-item.is-active {
   border-color: #708773 !important;
   background: #303b32 !important;
 }
+
 :root .mp-history-timeline-marker {
   border-color: #8ba992 !important;
   background: #526d58 !important;
   box-shadow: none !important;
 }
+
 :root .mp-history-timeline-item.is-active .mp-history-timeline-marker {
   background: #a8c0aa !important;
   box-shadow: none !important;
 }
+
 
 /* History actions: neutral buttons with one restrained forest primary action. */
 :root .mp-history-dialog .mp-history-icon-button,
@@ -2658,6 +1562,7 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   color: #dce4dc !important;
   box-shadow: none !important;
 }
+
 :root .mp-history-dialog .mp-history-icon-button:hover:not(:disabled),
 :root .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled),
 :root .mp-history-dialog .mp-history-timeline-copy:hover:not(:disabled),
@@ -2666,25 +1571,30 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   background: #3d493f !important;
   color: #f0f4ef !important;
 }
+
 :root .mp-history-dialog .mp-history-primary-button {
   border: 1px solid #6c8c72 !important;
   background: #5e8067 !important;
   color: #fff !important;
 }
+
 :root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
   border-color: #83a188 !important;
   background: #6a8b72 !important;
 }
+
 :root .mp-history-dialog .mp-history-danger-button {
   border: 1px solid #74504b !important;
   background: #46332f !important;
   color: #e2b9ae !important;
 }
+
 :root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
   border-color: #95665e !important;
   background: #523b35 !important;
   color: #f0d0c7 !important;
 }
+
 
 /* Status and event tags are muted, not neon. */
 :root .mp-history-dialog .mp-history-event-tag,
@@ -2694,515 +1604,33 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   color: #c4d5c3 !important;
   box-shadow: none !important;
 }
+
 :root .mp-history-dialog .mp-history-event-tag.is-normal { border-color: #52677a !important; background: #303c47 !important; color: #c1d1df !important; }
+
 :root .mp-history-dialog .mp-history-event-tag.is-revision { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+
 :root .mp-history-dialog .mp-history-event-tag.is-shortage { border-color: #755d45 !important; background: #463a2e !important; color: #dec5a4 !important; }
+
 :root .mp-history-dialog .mp-history-event-tag.is-addition { border-color: #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+
 :root .mp-history-dialog .mp-history-status--editable { border: 1px solid #526b55 !important; background: #354638 !important; color: #c4d5c3 !important; }
+
 :root .mp-history-dialog .mp-history-status--locked { border: 1px solid #74504b !important; background: #46332f !important; color: #e2b9ae !important; }
+
 :root .mp-history-dialog .text-teal-200,
 :root .mp-history-dialog .text-teal-300,
 :root .mp-history-dialog .text-teal-100 { color: #b8cbb9 !important; }
+
 :root .mp-history-dialog .text-emerald-200,
 :root .mp-history-dialog .text-emerald-300 { color: #bfd2c0 !important; }
+
 :root .mp-history-dialog .text-amber-200,
 :root .mp-history-dialog .text-amber-300 { color: #ddc59f !important; }
+
 :root .mp-history-dialog .text-rose-200 { color: #dfb5ae !important; }
-
-/* Nominal fields are deliberately underline-only, including while focused.
-   Keep a visible, quiet forest cue on the active field and its parent row. */
-:root .mp-app-shell .mp-form-stack .mp-nominal-input,
-:root .mp-app-shell .mp-form-stack .mp-payment-nominal > input,
-:root .mp-app-shell .mp-form-stack .mp-rab-amount {
-  border: 0 !important;
-  border-bottom: 1px solid #59665b !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-image: none !important;
-  color: #dfe7de !important;
-  -webkit-text-fill-color: #dfe7de !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus,
-:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus-visible,
-:root .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus,
-:root .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus-visible,
-:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
-:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus-visible {
-  border: 0 !important;
-  border-bottom: 2px solid #91aa95 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: #e6eee5 !important;
-  -webkit-text-fill-color: #e6eee5 !important;
-  caret-color: #a8c0aa !important;
-  box-shadow: 0 1px 0 rgb(145 170 149 / 35%) !important;
-  outline: none !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-ops-field:focus,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
-  border-top: 0 !important;
-  border-right: 0 !important;
-  border-left: 0 !important;
-  border-bottom: 2px solid #91aa95 !important;
-  color: #e6eee5 !important;
-  -webkit-text-fill-color: #e6eee5 !important;
-  box-shadow: 0 1px 0 rgb(145 170 149 / 35%) !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
-:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
-:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
-  border-radius: 8px;
-  background: rgb(139 169 146 / 6%) !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
-:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
-  color: #c2d4c3 !important;
-  -webkit-text-fill-color: #c2d4c3 !important;
-}
-
-/* ==========================================================================
-   Paper & Ink · operational field consistency
-   Tags, VA toggle, account surfaces, editable underline, focus and placeholders.
-   ========================================================================== */
-/* One restrained tag treatment for GAS, Ops Harian, Arutala, Custom and Salary. */
-:root .mp-app-shell .mp-form-stack .mp-tag {
-  border: 1px solid var(--mp-tag-border) !important;
-  border-left: 2px solid #819983 !important;
-  border-radius: 7px !important;
-  background: var(--mp-tag-surface) !important;
-  background-image: none !important;
-  color: var(--mp-tag-text) !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-  font-weight: 700 !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-tag--gas,
-:root .mp-app-shell .mp-form-stack .mp-tag--ops,
-:root .mp-app-shell .mp-form-stack .mp-tag--arutala,
-:root .mp-app-shell .mp-form-stack .mp-tag--salary {
-  border-color: var(--mp-tag-border) !important;
-  border-left-color: #819983 !important;
-  background: var(--mp-tag-surface) !important;
-  color: var(--mp-tag-text) !important;
-}
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
-  border: 1px solid var(--mp-tag-border) !important;
-  border-left: 2px solid #819983 !important;
-  background-color: var(--mp-tag-surface) !important;
-  background-image: none !important;
-  color: var(--mp-tag-text) !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled),
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom:focus-visible {
-  border-color: #718574 !important;
-  background-color: #3b473d !important;
-  color: #e2ebe1 !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom option {
-  background: #292f2a !important;
-  color: #e2e9e1 !important;
-}
-
-/* The VA control is a simple toggle label, not a filled button/chip. */
-:root .mp-app-shell .mp-form-stack .mp-va-toggle {
-  border: 1px solid #4b574d !important;
-  border-radius: 7px !important;
-  background: transparent !important;
-  color: #b9c5b8 !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-va-toggle:hover {
-  border-color: #718574 !important;
-  background: transparent !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-va-toggle input[type='checkbox'] {
-  accent-color: #91a894 !important;
-  background: transparent !important;
-}
-
-/* Read-only mapped account values use the same lifted graphite surface.
-   Disabled editable fields are slightly recessed and quieter, but stay legible. */
-:root .mp-app-shell .mp-form-stack .mp-static-field,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
-:root .mp-app-shell .mp-form-stack .mp-salary-field {
-  border: 1px solid #3f4a41 !important;
-  border-radius: 6px !important;
-  background: var(--mp-field-surface) !important;
-  background-image: none !important;
-  color: #d8e1d7 !important;
-  -webkit-text-fill-color: #d8e1d7 !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell .mp-form-stack input:disabled,
-:root .mp-app-shell .mp-form-stack select:disabled,
-:root .mp-app-shell .mp-form-stack textarea:disabled,
-:root .mp-app-shell .mp-form-stack input[readonly],
-:root .mp-app-shell .mp-form-stack textarea[readonly] {
-  border: 0 !important;
-  border-bottom: 1px solid #414b42 !important;
-  border-radius: 0 !important;
-  background: var(--mp-field-disabled) !important;
-  color: #8e9a8e !important;
-  -webkit-text-fill-color: #8e9a8e !important;
-  cursor: not-allowed !important;
-  opacity: 1 !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell .mp-form-stack input:disabled::placeholder,
-:root .mp-app-shell .mp-form-stack textarea:disabled::placeholder {
-  color: #778477 !important;
-  -webkit-text-fill-color: #778477 !important;
-}
-
-/* Every editable data field has underline-only geometry. The custom type tag
-   remains a tag-style select; ordinary text/select controls share this rule. */
-:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']),
-:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom),
-:root .mp-app-shell .mp-form-stack textarea,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:not(:is(div, span)) {
-  border: 0 !important;
-  border-bottom: 1px solid var(--mp-field-border) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-image: none !important;
-  color: #dfe7de !important;
-  -webkit-text-fill-color: #dfe7de !important;
-  box-shadow: none !important;
-  outline: none !important;
-  transition: border-color 140ms ease, color 140ms ease !important;
-}
-:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):hover:not(:disabled):not([readonly]),
-:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):hover:not(:disabled),
-:root .mp-app-shell .mp-form-stack textarea:hover:not(:disabled):not([readonly]) {
-  border-bottom-color: var(--mp-field-border-hover) !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Focus changes text/caret and the underline only—never the field or row fill. */
-:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
-:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
-:root .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
-:root .mp-app-shell .mp-form-stack .mp-ops-field:focus,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
-  border: 0 !important;
-  border-bottom: 1px solid var(--mp-field-focus) !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-image: none !important;
-  color: #e5ede4 !important;
-  -webkit-text-fill-color: #e5ede4 !important;
-  caret-color: #a8bca9 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
-:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
-  border: 0 !important;
-  border-bottom: 1px solid var(--mp-field-focus) !important;
-  background: transparent !important;
-  color: #e5ede4 !important;
-  -webkit-text-fill-color: #e5ede4 !important;
-  caret-color: #a8bca9 !important;
-  box-shadow: none !important;
-}
-/* Do not tint the whole row or neighboring static values while editing. */
-:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
-:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
-:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within .mp-ops-field,
-:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
-  color: #d8e1d7 !important;
-  -webkit-text-fill-color: #d8e1d7 !important;
-}
-
-/* Placeholder typography is global: Nominal, Catatan, Nama rekening,
-   Nomor rekening, Jumlah, and other text fields all use the same treatment. */
-:root .mp-app-shell .mp-form-stack input::placeholder,
-:root .mp-app-shell .mp-form-stack textarea::placeholder,
-:root .mp-app-shell .mp-form-stack .mp-payment-detail::placeholder {
-  color: var(--mp-field-placeholder) !important;
-  -webkit-text-fill-color: var(--mp-field-placeholder) !important;
-  font-family: var(--mp-font-sans) !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-  text-align: center !important;
-  opacity: 1 !important;
-}
-:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):has(option:checked[value='']) {
-  color: var(--mp-field-placeholder) !important;
-  -webkit-text-fill-color: var(--mp-field-placeholder) !important;
-  font-family: var(--mp-font-sans) !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-}
-:root .mp-app-shell .mp-form-stack option {
-  background: #292f2a !important;
-  color: #e2e9e1 !important;
-}
-
-/* Keep selected values in editable fields visually consistent with static data. */
-:root .mp-app-shell .mp-form-stack .mp-ops-row .mp-payment-detail:focus-within,
-:root .mp-app-shell .mp-form-stack .mp-payment-row .mp-payment-detail:focus-within {
-  background: transparent !important;
-}
-
-/* ==========================================================================
-   Paper & Ink · final tag hierarchy and stronger focus state
-   Tags sit behind locked account fields; focus remains background-free.
-   ========================================================================== */
-
-/* Tags are compact labels: centered, content-sized, uniform border on all sides. */
-:root .mp-app-shell .mp-form-stack .mp-tag,
-:root .mp-app-shell .mp-form-stack .mp-tag--gas,
-:root .mp-app-shell .mp-form-stack .mp-tag--ops,
-:root .mp-app-shell .mp-form-stack .mp-tag--arutala,
-:root .mp-app-shell .mp-form-stack .mp-tag--salary,
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
-  width: max-content !important;
-  min-width: max-content !important;
-  max-width: 100% !important;
-  min-height: 36px;
-  justify-content: center !important;
-  padding-inline: 12px !important;
-  border: 1px solid #536153 !important;
-  border-left: 1px solid #536153 !important;
-  border-radius: 7px !important;
-  background: #29332c !important;
-  background-color: #29332c !important;
-  background-image: none !important;
-  color: #d5dfd3 !important;
-  -webkit-text-fill-color: #d5dfd3 !important;
-  text-align: center !important;
-  text-indent: 0 !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-  font-weight: 750 !important;
-  letter-spacing: .025em !important;
-  line-height: 1.2 !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-tag > span {
-  display: block;
-  width: 100%;
-  text-align: center !important;
-}
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
-  appearance: auto !important;
-  cursor: pointer;
-}
-:root .mp-app-shell .mp-form-stack .mp-tag--gas,
-:root .mp-app-shell .mp-form-stack .mp-tag--ops,
-:root .mp-app-shell .mp-form-stack .mp-tag--arutala,
-:root .mp-app-shell .mp-form-stack .mp-tag--salary {
-  border-left-width: 1px !important;
-  background: #29332c !important;
-  color: #d5dfd3 !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-tag:hover,
-:root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
-  border-color: #718272 !important;
-  border-left-color: #718272 !important;
-  background: #303b33 !important;
-  color: #e5ece3 !important;
-}
-
-/* Locked/mapped account fields are intentionally brighter than category tags. */
-:root .mp-app-shell .mp-form-stack .mp-static-field,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
-:root .mp-app-shell .mp-form-stack .mp-salary-field {
-  border: 1px solid #566457 !important;
-  border-radius: 6px !important;
-  background: #354137 !important;
-  background-image: none !important;
-  color: #e0e8df !important;
-  -webkit-text-fill-color: #e0e8df !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-static-field:hover,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea):hover,
-:root .mp-app-shell .mp-form-stack .mp-salary-field:hover {
-  background: #39473b !important;
-  border-color: #637464 !important;
-}
-
-/* Focus must be immediately visible without filling the control or its row.
-   A brighter 2px sage underline and clearer text weight are sufficient. */
-:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
-:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
-:root .mp-app-shell .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
-:root .mp-app-shell .mp-form-stack .mp-ops-field:focus,
-:root .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible,
-:root .mp-app-shell .mp-form-stack .mp-rab-amount:focus,
-:root .mp-app-shell .mp-form-stack .mp-nominal-input:focus {
-  border-top: 0 !important;
-  border-right: 0 !important;
-  border-left: 0 !important;
-  border-bottom: 2px solid #b0c5ac !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-image: none !important;
-  color: #f0f4ed !important;
-  -webkit-text-fill-color: #f0f4ed !important;
-  caret-color: #c2d4bd !important;
-  font-weight: 650 !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-:root .mp-app-shell .mp-form-stack input:focus::placeholder,
-:root .mp-app-shell .mp-form-stack textarea:focus::placeholder {
-  color: #bdcbb9 !important;
-  -webkit-text-fill-color: #bdcbb9 !important;
-}
-:root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
-:root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
-:root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* ==========================================================================
-   Paper & Ink · operational alignment and application polish
-   ========================================================================== */
-
-/* An active transaction row must highlight its text, not only its tag.
-   The row receives a restrained surface and every sibling value uses Sage text. */
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
-  border-radius: 9px !important;
-  background: #2c362e !important;
-  box-shadow: inset 0 0 0 1px #596e5b !important;
-}
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
-  color: #b8d2b3 !important;
-  -webkit-text-fill-color: #b8d2b3 !important;
-}
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
-  border-color: #8ba28a !important;
-  border-left-color: #8ba28a !important;
-  background: #405343 !important;
-  color: #e2eee0 !important;
-  -webkit-text-fill-color: #e2eee0 !important;
-}
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
-  color: #eef5eb !important;
-  -webkit-text-fill-color: #eef5eb !important;
-  caret-color: #b8d2b3 !important;
-}
-:root main .mp-form-stack input:focus::placeholder,
-:root main .mp-form-stack textarea:focus::placeholder {
-  color: #bdcbb9 !important;
-  -webkit-text-fill-color: #bdcbb9 !important;
-}
-
-/* Tags and read-only data fields share a 40px control height. */
-:root main .mp-form-stack .mp-tag,
-:root main .mp-form-stack select.mp-tag--custom {
-  height: 40px !important;
-  min-height: 40px !important;
-  line-height: 1.2 !important;
-}
-:root main .mp-form-stack .mp-static-field,
-:root main .mp-form-stack .mp-salary-field,
-:root main .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
-  height: 40px !important;
-  min-height: 40px !important;
-}
-
-/* GAS row now includes a note field immediately after the size selector. */
-:root main .mp-form-stack .mp-gas-flex-row {
-  grid-template-columns:
-    max-content max-content max-content max-content
-    minmax(64px, .42fr) minmax(90px, .55fr)
-    minmax(110px, .72fr) minmax(150px, .9fr) 36px !important;
-  align-items: center !important;
-}
-:root main .mp-form-stack .mp-gas-flex-row .mp-gas-note {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  text-align: center !important;
-}
-@media (min-width: 1024px) {
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
-    grid-column: 7;
-  }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal {
-    grid-column: 8;
-  }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-row-remove {
-    grid-column: 9;
-  }
-}
-@media (max-width: 1023px) {
-  :root main .mp-form-stack .mp-gas-flex-row {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) 36px !important;
-    row-gap: 8px !important;
-  }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 3; grid-row: 1; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 4; grid-row: 1; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 2; max-width: none; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 2; max-width: none; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 3 / 5; grid-row: 2; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 5; grid-row: 3; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 5; grid-row: 1 / span 3; }
-}
-@media (max-width: 639px) {
-  :root main .mp-form-stack .mp-gas-flex-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 36px !important;
-    row-gap: 8px !important;
-  }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas { grid-column: 1; grid-row: 1; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner { grid-column: 2; grid-row: 1; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank { grid-column: 1; grid-row: 2; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-account { grid-column: 2; grid-row: 2; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-quantity { grid-column: 1; grid-row: 3; max-width: none; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-size { grid-column: 2; grid-row: 3; max-width: none; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-gas-note { grid-column: 1 / 3; grid-row: 4; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal { grid-column: 1 / 3; grid-row: 5; }
-  :root main .mp-form-stack .mp-gas-flex-row > .mp-row-remove { grid-column: 3; grid-row: 1 / span 5; }
-}
-
-/* VA remains a label + checkbox only; no enclosing button-like border. */
-:root main .mp-form-stack .mp-va-toggle,
-:root main .mp-form-stack .mp-va-toggle:hover {
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  justify-content: center !important;
-  padding: 0 3px !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: #c2cdc0 !important;
-  box-shadow: none !important;
-}
-:root main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
-  width: 15px;
-  height: 15px;
-  accent-color: #91a894 !important;
-}
-
 /* Shared date/kitchen control appearance is centralized at the end of this file. */
-:root main .mp-kitchen-select,
-:root main select#workspace-kitchen {
+:root main select#workspace-kitchen
+{
   border: 1px solid #465347 !important;
   border-radius: 8px !important;
   background: #252c27 !important;
@@ -3213,84 +1641,32 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   accent-color: #91a894;
   box-shadow: none !important;
 }
-:root main .mp-kitchen-select:hover,
-:root main select#workspace-kitchen:hover {
+
+:root main select#workspace-kitchen:hover
+{
   border-color: #718272 !important;
   background: #2a322b !important;
 }
-:root main .mp-kitchen-select:focus,
-:root main select#workspace-kitchen:focus {
+
+:root main select#workspace-kitchen:focus
+{
   border-color: #a0b49c !important;
   outline: 2px solid rgb(160 180 156 / 12%) !important;
   outline-offset: 1px;
 }
-:root main .mp-kitchen-select option,
-:root main select#workspace-kitchen option {
+
+:root main select#workspace-kitchen option
+{
   background: #29332c !important;
   color: #e2e9e1 !important;
 }
-:root main .mp-kitchen-select option:checked,
-:root main select#workspace-kitchen option:checked {
+
+:root main select#workspace-kitchen option:checked
+{
   background: #435645 !important;
   color: #f2f5ef !important;
 }
 
-/* Output header: title, count and review note share the same vertical center. */
-:root main .mp-output-header {
-  min-height: 34px !important;
-  align-items: center !important;
-  padding-top: 4px !important;
-  padding-bottom: 2px;
-}
-:root main .mp-output-header > div {
-  min-height: 24px;
-  align-items: center !important;
-}
-:root main .mp-output-header [role='note'] {
-  display: flex;
-  min-height: 22px;
-  align-items: center;
-  margin: 0 !important;
-  line-height: 1.35 !important;
-}
-:root main .mp-output-count {
-  width: 20px !important;
-  height: 20px !important;
-  border: 1px solid #617a62 !important;
-  border-radius: 50% !important;
-  background: #344438 !important;
-  color: #c5d5c1 !important;
-  -webkit-text-fill-color: #c5d5c1 !important;
-  box-shadow: none !important;
-}
-
-/* Facility, salary and incentive summary are plain status text, not pills. */
-:root main .mp-summary-checks {
-  border: 0 !important;
-  padding-top: 10px !important;
-}
-:root main .mp-summary-checks .mp-summary-check {
-  display: inline !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  font-size: 10px !important;
-  font-weight: 550 !important;
-}
-:root main .mp-summary-checks .mp-summary-check::before {
-  content: none !important;
-  display: none !important;
-}
-:root main .mp-summary-checks .mp-summary-check.is-complete {
-  color: #bac9b6 !important;
-  -webkit-text-fill-color: #bac9b6 !important;
-}
-:root main .mp-summary-checks .mp-summary-check.is-incomplete {
-  color: #c2a49a !important;
-  -webkit-text-fill-color: #c2a49a !important;
-}
 
 /* History loading state no longer uses the old navy panel or cyan spinner. */
 :root .mp-history-dialog .mp-history-loading {
@@ -3299,10 +1675,12 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   background: #252c27 !important;
   color: #aeb9ac !important;
 }
+
 :root .mp-history-dialog .mp-history-loading .mp-history-spinner {
   border-color: #566557 !important;
   border-top-color: #a0b49c !important;
 }
+
 
 /* Consistent IBM Plex typography across main workspace and history. */
 :root main,
@@ -3312,444 +1690,18 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
   font-family: var(--mp-font-sans) !important;
   font-synthesis: none;
 }
+
 :root main :is(h1,h2,h3,h4),
 :root .mp-history-dialog :is(h1,h2,h3,h4) {
   font-weight: 650;
   letter-spacing: -0.018em;
 }
+
 :root main :is(label,p),
 :root .mp-history-dialog :is(label,p) {
   font-feature-settings: 'cv11', 'ss01';
 }
-:root main .mp-output-copy {
-  font-family: var(--mp-font-mono) !important;
-  font-variant-numeric: tabular-nums;
-}
 
-/* Summary status labels are colored text only: no chip border or fill. */
-main .mp-summary-checks .mp-summary-check,
-main .mp-summary-checks .mp-summary-check:hover {
-  display: inline !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
-  outline: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-  text-decoration: none !important;
-  font-size: 10px !important;
-  font-weight: 550 !important;
-}
-main .mp-summary-checks .mp-summary-check.is-complete {
-  color: #bac9b6 !important;
-  -webkit-text-fill-color: #bac9b6 !important;
-}
-main .mp-summary-checks .mp-summary-check.is-incomplete {
-  color: #c2a49a !important;
-  -webkit-text-fill-color: #c2a49a !important;
-}
-
-/* VA label stays unboxed, including hover. Only the checkbox gets hover feedback. */
-main .mp-form-stack .mp-va-toggle,
-main .mp-form-stack .mp-va-toggle:hover,
-main .mp-form-stack .mp-va-toggle:focus-within {
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  min-height: 0 !important;
-  padding: 0 3px !important;
-  border: 0 !important;
-  outline: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  color: #c2cdc0 !important;
-  box-shadow: none !important;
-}
-main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
-  width: 15px !important;
-  height: 15px !important;
-  accent-color: #91a894 !important;
-  outline: 1px solid transparent;
-  outline-offset: 1px;
-}
-main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
-  outline-color: #a7b5a5;
-}
-
-/* ==========================================================================
-   Maker-Pencairan · shared flex rhythm for operational input rows
-   Every editable/read-only field follows its content width and a uniform 8px gap.
-   Nominal is the only field pushed to the far right.
-   ========================================================================== */
-
-@media (min-width: 1024px) {
-  main .mp-form-stack .mp-gas-flex-row,
-  main .mp-form-stack .mp-ops-flex-row,
-  main .mp-form-stack .mp-ops-flex-row.is-standard,
-  main .mp-form-stack .mp-ops-flex-row.has-va,
-  main .mp-form-stack .mp-ops-flex-row.is-va {
-    display: flex !important;
-    flex-flow: row nowrap !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  main .mp-form-stack .mp-gas-flex-row > *,
-  main .mp-form-stack .mp-ops-flex-row > * {
-    flex: 0 0 auto !important;
-    min-width: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Delete, type tag, mapped account fields. */
-  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove,
-  main .mp-form-stack .mp-ops-flex-row > .mp-row-remove {
-    flex: 0 0 32px !important;
-    width: 32px !important;
-    min-width: 32px !important;
-    max-width: 32px !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas,
-  main .mp-form-stack .mp-ops-flex-row > .mp-tag {
-    flex: 0 0 auto !important;
-    width: max-content !important;
-    min-width: max-content !important;
-    max-width: none !important;
-  }
-  main .mp-form-stack .mp-gas-owner,
-  main .mp-form-stack .mp-gas-bank,
-  main .mp-form-stack .mp-gas-account,
-  main .mp-form-stack .mp-ops-owner,
-  main .mp-form-stack .mp-ops-bank,
-  main .mp-form-stack .mp-ops-account {
-    flex: 0 0 auto !important;
-    width: max-content !important;
-    min-width: 76px !important;
-    max-width: 220px !important;
-  }
-
-  /* Quantity and size stay compact. */
-  main .mp-form-stack .mp-gas-quantity-stack {
-    flex: 0 0 64px !important;
-    width: 64px !important;
-    min-width: 64px !important;
-    max-width: 64px !important;
-  }
-  main .mp-form-stack .mp-gas-size {
-    flex: 0 0 84px !important;
-    width: 84px !important;
-    min-width: 84px !important;
-    max-width: 84px !important;
-  }
-
-  /* Notes use content sizing, with a practical minimum/maximum width. */
-  main .mp-form-stack .mp-gas-note,
-  main .mp-form-stack .mp-ops-note {
-    flex: 0 1 auto !important;
-    width: max-content !important;
-    min-width: 104px !important;
-    max-width: 180px !important;
-    field-sizing: content;
-  }
-  main .mp-form-stack .mp-ops-note {
-    padding-inline: 8px !important;
-  }
-
-  /* Nominal alone consumes the remaining space on the far right. */
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal,
-  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal {
-    flex: 0 0 160px !important;
-    width: 160px !important;
-    min-width: 160px !important;
-    max-width: 160px !important;
-    margin-left: auto !important;
-    overflow: visible !important;
-  }
-  main .mp-form-stack .mp-payment-nominal > input {
-    flex: 1 1 auto !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-}
-
-/* Responsive layouts keep the remove/tag order and wrap only below desktop. */
-@media (max-width: 1023px) {
-  main .mp-form-stack .mp-gas-flex-row,
-  main .mp-form-stack .mp-ops-flex-row,
-  main .mp-form-stack .mp-ops-flex-row.is-standard,
-  main .mp-form-stack .mp-ops-flex-row.has-va,
-  main .mp-form-stack .mp-ops-flex-row.is-va {
-    display: flex !important;
-    flex-flow: row wrap !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-row-remove,
-  main .mp-form-stack .mp-ops-flex-row > .mp-row-remove {
-    order: 0;
-    flex: 0 0 32px !important;
-    width: 32px !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-tag--gas,
-  main .mp-form-stack .mp-ops-flex-row > .mp-tag { order: 1; }
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal,
-  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal {
-    order: 20;
-    flex: 1 1 100% !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    margin-left: 0 !important;
-  }
-}
-
-/* Summary indicators: plain text only. The inline JSX color is the sole status cue.
-   This also neutralizes the former [title='Sudah diisi'] pill selector. */
-main .mp-summary-checks,
-main .mp-summary-checks > span {
-  border: 0 !important;
-  outline: 0 !important;
-  border-radius: 0 !important;
-  background: none !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  text-decoration: none !important;
-  appearance: none !important;
-}
-main .mp-summary-checks > span::before,
-main .mp-summary-checks > span::after {
-  content: none !important;
-  display: none !important;
-}
-
-/* ==========================================================================
-   Maker-Pencairan · parser-safe text limits, uniform nominal width, wrapping summary
-   ========================================================================== */
-
-/* All nominal controls share the same 160px footprint: RAB, B3, GAS,
-   operational, and incentive/payroll. Fields on the left remain flexible. */
-main .mp-form-stack .mp-rab-row {
-  grid-template-columns: minmax(0, 1fr) 160px !important;
-}
-main .mp-form-stack .mp-rab-nominal,
-main .mp-form-stack .mp-rab-b3-nominal,
-main .mp-form-stack .mp-payment-nominal {
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  min-width: 160px !important;
-  max-width: 160px !important;
-  justify-self: end !important;
-  margin-left: auto !important;
-}
-main .mp-form-stack .mp-rab-nominal > input,
-main .mp-form-stack .mp-rab-b3-nominal > input,
-main .mp-form-stack .mp-payment-nominal > input {
-  flex: 1 1 0% !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-}
-main .mp-form-stack .mp-salary-flex-row {
-  grid-template-columns: max-content minmax(0, 1fr) 160px !important;
-}
-main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal {
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  min-width: 160px !important;
-  max-width: 160px !important;
-  justify-self: end !important;
-}
-main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input {
-  flex: 1 1 0% !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-}
-
-/* Long category/detail labels wrap inside the summary card instead of
-   pushing the Rupiah amount beyond the card boundary. */
-main .mp-summary-breakdown {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-}
-main .mp-summary-breakdown-row {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: baseline;
-  justify-content: center;
-  gap: 2px 8px;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  text-align: center;
-}
-main .mp-summary-breakdown-label {
-  flex: 0 1 auto;
-  min-width: 0;
-  max-width: 100%;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  text-align: center;
-}
-main .mp-summary-breakdown-amount {
-  flex: 0 0 auto;
-  min-width: 0;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Keep the 160px nominal width at responsive sizes too; left-side fields
-   wrap independently and never compress or overlap the amount. */
-@media (max-width: 1023px) {
-  main .mp-form-stack .mp-rab-row {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
-  main .mp-form-stack .mp-rab-nominal,
-  main .mp-form-stack .mp-rab-b3-nominal,
-  main .mp-form-stack .mp-payment-nominal {
-    flex-basis: 160px !important;
-    width: 160px !important;
-    min-width: 160px !important;
-    max-width: 160px !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row {
-    grid-template-columns: minmax(0, 1fr) 160px !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal {
-    grid-area: amount;
-    flex-basis: 160px !important;
-    width: 160px !important;
-    min-width: 160px !important;
-    max-width: 160px !important;
-  }
-}
-
-/* ==========================================================================
-   Revision amount controls: 160px nominal + separate shortage action
-   ========================================================================== */
-main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) > input,
-main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal) > input,
-main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal) > input {
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  min-width: 160px !important;
-  max-width: 160px !important;
-}
-main .mp-form-stack .mp-revision-nominal {
-  display: grid !important;
-  grid-template-columns: 160px max-content !important;
-  grid-template-rows: 12px 36px !important;
-  align-items: center !important;
-  justify-content: end !important;
-  column-gap: 8px !important;
-  row-gap: 2px !important;
-  flex: 0 0 252px !important;
-  width: 252px !important;
-  min-width: 252px !important;
-  max-width: 252px !important;
-  margin-left: auto !important;
-  padding-top: 0 !important;
-  overflow: visible !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) {
-  grid-template-rows: 36px !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
-  grid-column: 1 / 3 !important;
-  grid-row: 1 !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  text-align: right !important;
-}
-main .mp-form-stack .mp-revision-nominal > input {
-  grid-column: 1 !important;
-  grid-row: 2 !important;
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  min-width: 160px !important;
-  max-width: 160px !important;
-  margin: 0 !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > input {
-  grid-row: 1 !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
-  grid-column: 2 !important;
-  grid-row: 2 !important;
-  width: max-content !important;
-  min-width: max-content !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  justify-self: start !important;
-  margin: 0 !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-additional-toggle {
-  grid-row: 1 !important;
-}
-main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
-  grid-template-columns: minmax(0, 1fr) 252px !important;
-}
-main .mp-form-stack .mp-rab-row > .mp-revision-nominal,
-main .mp-form-stack .mp-rab-row .mp-rab-b3-nominal.mp-revision-nominal {
-  justify-self: end !important;
-  width: 252px !important;
-  min-width: 252px !important;
-  max-width: 252px !important;
-}
-main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-  grid-template-columns: max-content minmax(0, 1fr) 252px !important;
-}
-main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
-main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal.mp-revision-nominal,
-main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
-  flex: 0 0 252px !important;
-  width: 252px !important;
-  min-width: 252px !important;
-  max-width: 252px !important;
-}
-@media (max-width: 1023px) {
-  main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
-  main .mp-form-stack .mp-revision-nominal {
-    width: min(252px, 100%) !important;
-    min-width: 0 !important;
-    max-width: 252px !important;
-    justify-self: end !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-    grid-template-columns: minmax(0, 1fr) 252px !important;
-  }
-}
-
-/* Secondary action for discarding an in-progress revision. */
-.mp-revision-cancel-button {
-  border: 1px solid #56685a !important;
-  background: #29332b !important;
-  color: #d7e2d5 !important;
-  box-shadow: none !important;
-}
-.mp-revision-cancel-button:hover:not(:disabled) {
-  border-color: #8ba992 !important;
-  background: #344237 !important;
-  color: #f0f4ef !important;
-}
 
 /* ==========================================================================
    Login and credential screens: Graphite & Sage
@@ -3760,6 +1712,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #e8ece7 !important;
 
 }
+
 .mp-auth-screen .mp-auth-card {
   border: 1px solid #3b443c !important;
   border-radius: 16px !important;
@@ -3767,13 +1720,16 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #e8ece7 !important;
   box-shadow: 0 14px 34px rgb(0 0 0 / 20%) !important;
 }
+
 .mp-auth-screen .mp-auth-title {
   color: #e8ece7 !important;
   letter-spacing: -0.025em;
 }
+
 .mp-auth-screen .mp-auth-subtitle {
   color: #9eb69f !important;
 }
+
 .mp-auth-screen .mp-auth-role-switcher {
   border: 1px solid #414b42 !important;
   border-radius: 10px !important;
@@ -3781,6 +1737,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   padding: 4px !important;
   gap: 6px !important;
 }
+
 .mp-auth-screen .mp-auth-role-button,
 .mp-auth-screen button.mp-auth-role-button[data-option-button='true'] {
   border: 1px solid #465347 !important;
@@ -3791,21 +1748,25 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   box-shadow: none !important;
   min-height: 40px;
 }
+
 .mp-auth-screen .mp-auth-role-button[data-selected='true'] {
   border-color: #829a85 !important;
   background: #405343 !important;
   color: #f0f4ed !important;
   box-shadow: inset 0 0 0 1px rgb(166 190 166 / 12%) !important;
 }
+
 .mp-auth-screen .mp-auth-role-button:hover:not(:disabled) {
   border-color: #819882 !important;
   background: #39463b !important;
   color: #f0f4ed !important;
   transform: none !important;
 }
+
 .mp-auth-screen label {
   color: #cbd4ca !important;
 }
+
 .mp-auth-screen .mp-auth-kitchen-select,
 .mp-auth-screen .mp-auth-password-input {
   border: 1px solid #485349 !important;
@@ -3816,20 +1777,24 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   box-shadow: none !important;
 
 }
+
 .mp-auth-screen .mp-auth-kitchen-select option {
   background: #252c27 !important;
   color: #e8ece7 !important;
 }
+
 .mp-auth-screen .mp-auth-kitchen-select:focus,
 .mp-auth-screen .mp-auth-password-input:focus {
   border-color: #8ba992 !important;
   outline: 2px solid rgb(139 169 146 / 15%) !important;
   outline-offset: 1px;
 }
+
 .mp-auth-screen .mp-auth-password-input::placeholder {
   color: #89968a !important;
   -webkit-text-fill-color: #89968a !important;
 }
+
 .mp-auth-screen .mp-auth-eye-button {
   border: 1px solid #465347 !important;
   border-radius: 7px !important;
@@ -3837,17 +1802,21 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #cbd5ca !important;
   box-shadow: none !important;
 }
+
 .mp-auth-screen .mp-auth-eye-button:hover:not(:disabled) {
   border-color: #819882 !important;
   background: #39463b !important;
   color: #f0f4ef !important;
 }
+
 .mp-auth-screen .mp-auth-hint {
   color: #a6afa6 !important;
 }
+
 .mp-auth-screen .mp-auth-note {
   color: #c5b79a !important;
 }
+
 .mp-auth-screen .mp-auth-submit {
   border: 1px solid #657d68 !important;
   border-radius: 8px !important;
@@ -3855,11 +1824,13 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #f4f6f1 !important;
   box-shadow: none !important;
 }
+
 .mp-auth-screen .mp-auth-submit:hover:not(:disabled) {
   border-color: #8ba992 !important;
   background: #607b64 !important;
   color: #fff !important;
 }
+
 .mp-auth-screen .mp-auth-submit:disabled {
   border-color: #4a554b !important;
   background: #414a42 !important;
@@ -3867,18 +1838,22 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   opacity: 1 !important;
   cursor: not-allowed;
 }
+
 .mp-auth-screen .mp-auth-error {
   border: 1px solid #75534d !important;
   background: #382c29 !important;
   color: #e0b6ad !important;
 }
+
 .mp-auth-screen .mp-auth-loading {
   color: #a8c1a9 !important;
 }
+
 .mp-auth-screen .text-emerald-400,
 .mp-auth-screen .text-teal-300 {
   color: #9eb69f !important;
 }
+
 
 /* Defeat earlier global navy button/select rules within authentication only. */
 :root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='false'],
@@ -3889,6 +1864,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #cbd5ca !important;
   box-shadow: none !important;
 }
+
 :root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'],
 :root .mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
   border-color: #829a85 !important;
@@ -3897,6 +1873,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #f0f4ed !important;
   box-shadow: inset 0 0 0 1px rgb(166 190 166 / 12%) !important;
 }
+
 :root .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled),
 :root .mp-auth-screen button.mp-auth-role-button[data-option-button='true']:hover:not(:disabled) {
   border-color: #819882 !important;
@@ -3906,6 +1883,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   box-shadow: none !important;
   transform: none !important;
 }
+
 :root main.mp-auth-screen select.mp-auth-kitchen-select,
 :root main.mp-auth-screen select.mp-auth-kitchen-select {
   border-color: #485349 !important;
@@ -3915,11 +1893,13 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   -webkit-text-fill-color: #e8ece7 !important;
 
 }
+
 :root main.mp-auth-screen select.mp-auth-kitchen-select option,
 :root main.mp-auth-screen select.mp-auth-kitchen-select option {
   background: #252c27 !important;
   color: #e8ece7 !important;
 }
+
 :root main.mp-auth-screen input.mp-auth-password-input,
 :root main.mp-auth-screen input.mp-auth-password-input {
   border-color: #485349 !important;
@@ -3928,6 +1908,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   -webkit-text-fill-color: #e8ece7 !important;
   caret-color: #a7c0aa !important;
 }
+
 :root .mp-auth-screen button.mp-auth-eye-button,
 :root .mp-auth-screen button.mp-auth-eye-button {
   border-color: #465347 !important;
@@ -3935,6 +1916,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #cbd5ca !important;
   box-shadow: none !important;
 }
+
 :root .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled),
 :root .mp-auth-screen button.mp-auth-eye-button:hover:not(:disabled) {
   border-color: #819882 !important;
@@ -3942,6 +1924,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #f0f4ed !important;
   transform: none !important;
 }
+
 :root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'],
 :root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary'] {
   border-color: #657d68 !important;
@@ -3949,6 +1932,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: #f4f6f1 !important;
   box-shadow: none !important;
 }
+
 :root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
 :root .mp-auth-screen button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
   border-color: #8ba992 !important;
@@ -3957,121 +1941,6 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   transform: none !important;
 }
 
-/* ── Revision refinements: additive deltas, baseline labels and row alignment ── */
-
-/* Previous amount belongs to the input only, not the Tambahan control. */
-main .mp-form-stack .mp-revision-nominal {
-  grid-template-columns: 160px max-content !important;
-  grid-template-rows: 12px 40px !important;
-  column-gap: 8px !important;
-  row-gap: 2px !important;
-  flex: 0 0 260px !important;
-  width: 260px !important;
-  min-width: 260px !important;
-  max-width: 260px !important;
-  align-items: center !important;
-  padding-top: 0 !important;
-  overflow: visible !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) {
-  grid-template-rows: 40px !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
-  grid-column: 1 !important;
-  grid-row: 1 !important;
-  width: 160px !important;
-  min-width: 0 !important;
-  flex: none !important;
-  text-align: center !important;
-}
-main .mp-form-stack .mp-revision-nominal > input {
-  grid-column: 1 !important;
-  grid-row: 2 !important;
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  min-width: 160px !important;
-  max-width: 160px !important;
-  margin: 0 !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > input {
-  grid-row: 1 !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
-  grid-column: 2 !important;
-  grid-row: 2 !important;
-  width: max-content !important;
-  min-width: max-content !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  justify-self: start !important;
-  margin: 0 !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-additional-toggle {
-  grid-row: 1 !important;
-}
-
-/* The older salary-specific selector forced width:0 on this input. This
-   equally-specific rule intentionally wins for every revision salary row. */
-main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
-  flex: 0 0 160px !important;
-  width: 160px !important;
-  min-width: 160px !important;
-  max-width: 160px !important;
-}
-
-/* Keep enough room for the 160px field, 40px Tambahan control and their gap. */
-main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
-  grid-template-columns: minmax(0, 1fr) 260px !important;
-}
-main .mp-form-stack .mp-rab-row > .mp-revision-nominal,
-main .mp-form-stack .mp-rab-row .mp-rab-b3-nominal.mp-revision-nominal,
-main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
-main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal.mp-revision-nominal,
-main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
-  flex: 0 0 260px !important;
-  width: 260px !important;
-  min-width: 260px !important;
-  max-width: 260px !important;
-}
-main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-  grid-template-columns: max-content minmax(0, 1fr) 260px !important;
-}
-
-/* In GAS rows, fields share the nominal input's baseline when the previous
-   value is displayed above it. The remove action stays centered vertically. */
-@media (min-width: 1024px) {
-  main .mp-form-stack .mp-gas-flex-row:has(.mp-has-history-previous) {
-    align-items: flex-end !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row:has(.mp-has-history-previous) > .mp-row-remove {
-    align-self: center !important;
-  }
-}
-
-/* Responsive: the complete nominal + Tambahan group remains inside the card. */
-@media (max-width: 1023px) {
-  main .mp-form-stack .mp-revision-nominal {
-    grid-template-columns: minmax(0, 160px) max-content !important;
-    width: min(260px, 100%) !important;
-    min-width: 0 !important;
-    max-width: 260px !important;
-    justify-self: end !important;
-  }
-  main .mp-form-stack .mp-revision-nominal > input {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 160px !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 260px) !important;
-    grid-template-areas: "tag amount" "account account" !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal {
-    width: min(260px, 100%) !important;
-    min-width: 0 !important;
-    max-width: 260px !important;
-  }
-}
 
 /* ==========================================================================
    Graphite & Sage · final shared field sizing and auth control normalization
@@ -4096,6 +1965,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   transform: none !important;
   transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease !important;
 }
+
 :root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
 :root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
 :root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
@@ -4108,6 +1978,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: #fff !important;
   box-shadow: 0 0 0 2px rgb(139 169 146 / 13%) !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled,
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:disabled {
   border-color: #4a554b !important;
@@ -4119,6 +1990,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   opacity: 1 !important;
   cursor: not-allowed !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::after,
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']::before,
@@ -4128,6 +2000,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   background: none !important;
   animation: none !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button,
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button {
   appearance: none !important;
@@ -4141,6 +2014,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   box-shadow: none !important;
   transform: none !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled),
 :root main.mp-auth-screen .mp-auth-card button.mp-auth-eye-button:hover:not(:disabled) {
   border-color: #819882 !important;
@@ -4149,6 +2023,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: #f0f4ed !important;
   box-shadow: 0 0 0 2px rgb(139 169 146 / 13%) !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input,
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input {
   appearance: none !important;
@@ -4164,6 +2039,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   outline: none !important;
 
 }
+
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus-visible,
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:focus,
@@ -4177,20 +2053,24 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   box-shadow: 0 0 0 2px rgb(145 170 149 / 16%) !important;
   outline: none !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder,
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input::placeholder {
   color: #89968a !important;
   -webkit-text-fill-color: #89968a !important;
   opacity: 1 !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card label {
   color: #cbd4ca !important;
   -webkit-text-fill-color: #cbd4ca !important;
 }
+
 :root main.mp-auth-screen .mp-auth-card .mp-auth-hint {
   color: #a6afa6 !important;
   -webkit-text-fill-color: #a6afa6 !important;
 }
+
 /* Keep Chrome/Edge autofill from painting the password field navy or white. */
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill,
 :root main.mp-auth-screen .mp-auth-card input.mp-auth-password-input:-webkit-autofill:hover,
@@ -4201,838 +2081,3 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   caret-color: #a7c0aa !important;
 }
 
-/* Base sizes are intrinsic starting points, not fixed widths. Chrome's
-   field-sizing:content lets longer values expand until the available row ends. */
-@media (min-width: 1024px) {
-  main .mp-form-stack .mp-gas-flex-row,
-  main .mp-form-stack .mp-ops-flex-row,
-  main .mp-form-stack .mp-ops-flex-row.is-standard,
-  main .mp-form-stack .mp-ops-flex-row.has-va,
-  main .mp-form-stack .mp-ops-flex-row.is-va {
-    gap: 8px !important;
-  }
-
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner,
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank,
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-account,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-owner,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-bank,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-account,
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-note,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-note {
-    flex: 0 1 auto !important;
-    width: max-content !important;
-    field-sizing: content;
-    box-sizing: border-box !important;
-    text-overflow: ellipsis;
-  }
-
-  /* Account holder / owner: start at 103px, grow to fit text. */
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-owner,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-owner {
-    min-width: 103px !important;
-    max-width: 260px !important;
-    padding-inline: 9px !important;
-  }
-  main .mp-form-stack input.mp-ops-owner {
-    width: 103px !important;
-    min-width: 103px !important;
-    max-width: 260px !important;
-  }
-
-  /* Bank selector/read-only bank: minimum 80px, then fit the bank name. */
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-bank,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-bank {
-    min-width: 80px !important;
-    max-width: 150px !important;
-    padding-inline: 8px !important;
-  }
-  main .mp-form-stack select.mp-ops-bank {
-    width: 80px !important;
-    min-width: 80px !important;
-    max-width: 150px !important;
-    field-sizing: content;
-    padding-left: 8px !important;
-    padding-right: 19px !important;
-  }
-
-  /* Account number: 107px baseline, expandable for long account numbers. */
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-account,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-account {
-    min-width: 107px !important;
-    max-width: 230px !important;
-    padding-inline: 8px !important;
-  }
-  main .mp-form-stack input.mp-ops-account {
-    width: 107px !important;
-    min-width: 107px !important;
-    max-width: 230px !important;
-  }
-
-  /* Notes: 107px baseline; longer notes grow naturally but stay in the row. */
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-note,
-  main .mp-form-stack .mp-ops-flex-row > .mp-ops-note {
-    width: 107px !important;
-    min-width: 107px !important;
-    max-width: 220px !important;
-    padding-inline: 8px !important;
-  }
-
-  /* GAS quantity and size are intentionally compact. */
-  main .mp-form-stack .mp-gas-quantity-stack {
-    flex: 0 1 auto !important;
-    width: 25px !important;
-    min-width: 25px !important;
-    max-width: 80px !important;
-  }
-  main .mp-form-stack .mp-gas-quantity-input {
-    width: 25px !important;
-    min-width: 25px !important;
-    max-width: 80px !important;
-    padding-inline: 2px !important;
-    field-sizing: content;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-size {
-    flex: 0 1 auto !important;
-    width: 75px !important;
-    min-width: 75px !important;
-    max-width: 110px !important;
-    padding-left: 7px !important;
-    padding-right: 18px !important;
-    field-sizing: content;
-  }
-
-  /* Lain-Lain selector: compact 90px baseline, including the native arrow. */
-  main .mp-form-stack select.mp-tag--custom {
-    flex: 0 0 auto !important;
-    width: 90px !important;
-    min-width: 90px !important;
-    max-width: 120px !important;
-    padding-left: 7px !important;
-    padding-right: 18px !important;
-    field-sizing: content;
-  }
-
-  /* Non-revision nominal: 120px default; values can grow without stretching
-     the close button or consuming the whole operational row. */
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal,
-  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal,
-  main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal,
-  main .mp-form-stack .mp-rab-nominal,
-  main .mp-form-stack .mp-rab-b3-nominal {
-    flex: 0 1 auto !important;
-    width: max-content !important;
-    min-width: 120px !important;
-    max-width: 190px !important;
-    margin-left: auto !important;
-    overflow: visible !important;
-  }
-  main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) > input,
-  main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal) > input,
-  main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal) > input {
-    flex: 0 1 auto !important;
-    width: 120px !important;
-    min-width: 120px !important;
-    max-width: 190px !important;
-    field-sizing: content;
-    margin: 0 !important;
-  }
-
-  main .mp-form-stack .mp-rab-row {
-    grid-template-columns: minmax(0, 1fr) max-content !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row {
-    grid-template-columns: max-content minmax(0, 1fr) 160px !important;
-    grid-template-areas: "tag account amount" !important;
-    column-gap: 8px !important;
-    row-gap: 8px !important;
-  }
-  main .mp-form-stack .mp-salary-account-details {
-    display: flex !important;
-    flex: 0 1 auto !important;
-    flex-flow: row nowrap !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
-    flex: 0 0 160px !important;
-    width: 160px !important;
-    min-width: 160px !important;
-    max-width: 160px !important;
-    justify-self: end !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) > input {
-    flex: 0 0 160px !important;
-    width: 160px !important;
-    min-width: 160px !important;
-    max-width: 160px !important;
-    text-align: right !important;
-  }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field {
-    flex: 0 1 auto !important;
-    width: max-content !important;
-    min-width: 0 !important;
-    max-width: 260px !important;
-    white-space: nowrap !important;
-    padding-inline: 8px !important;
-  }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field:first-child {
-    min-width: 103px !important;
-  }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field:nth-child(2) {
-    min-width: 80px !important;
-  }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field:last-child {
-    min-width: 107px !important;
-  }
-}
-
-/* Narrow viewports: preserve the same field baselines while allowing the
-   metadata fields to wrap below the tag, instead of shrinking into overlap. */
-@media (max-width: 1023px) {
-  main .mp-form-stack .mp-gas-flex-row,
-  main .mp-form-stack .mp-ops-flex-row,
-  main .mp-form-stack .mp-ops-flex-row.is-standard,
-  main .mp-form-stack .mp-ops-flex-row.has-va,
-  main .mp-form-stack .mp-ops-flex-row.is-va {
-    gap: 8px !important;
-  }
-  main .mp-form-stack .mp-gas-owner,
-  main .mp-form-stack .mp-ops-owner,
-  main .mp-form-stack .mp-gas-account,
-  main .mp-form-stack .mp-ops-account,
-  main .mp-form-stack .mp-gas-note,
-  main .mp-form-stack .mp-ops-note {
-    width: max-content !important;
-    field-sizing: content;
-    max-width: min(220px, 100%) !important;
-  }
-  main .mp-form-stack .mp-gas-owner,
-  main .mp-form-stack .mp-ops-owner { min-width: 103px !important; }
-  main .mp-form-stack .mp-gas-bank,
-  main .mp-form-stack .mp-ops-bank { min-width: 80px !important; }
-  main .mp-form-stack .mp-gas-account,
-  main .mp-form-stack .mp-ops-account { min-width: 107px !important; }
-  main .mp-form-stack .mp-gas-note,
-  main .mp-form-stack .mp-ops-note { min-width: 107px !important; }
-  main .mp-form-stack select.mp-tag--custom {
-    width: 90px !important;
-    min-width: 90px !important;
-    max-width: 120px !important;
-    padding-left: 7px !important;
-    padding-right: 18px !important;
-  }
-  main .mp-form-stack .mp-gas-quantity-stack,
-  main .mp-form-stack .mp-gas-quantity-input {
-    width: 25px !important;
-    min-width: 25px !important;
-    max-width: 80px !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-gas-size {
-    width: 75px !important;
-    min-width: 75px !important;
-    max-width: 110px !important;
-  }
-  main .mp-form-stack .mp-salary-account-details {
-    display: flex !important;
-    flex-flow: row wrap !important;
-    align-items: center !important;
-    gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field {
-    flex: 0 1 auto !important;
-    width: max-content !important;
-    max-width: 100% !important;
-    white-space: nowrap !important;
-  }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field:first-child { min-width: 103px !important; }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field:nth-child(2) { min-width: 80px !important; }
-  main .mp-form-stack .mp-salary-account-details > .mp-salary-field:last-child { min-width: 107px !important; }
-}
-
-/* In revision mode the 120px nominal and compact 30px icon remain separate.
-   The previous-value label sits only above the nominal input, never above
-   the icon; close buttons and account metadata are not modified. */
-main .mp-form-stack .mp-revision-nominal {
-  display: grid !important;
-  grid-template-columns: 120px 30px !important;
-  grid-template-rows: 12px 40px !important;
-  align-items: center !important;
-  justify-content: end !important;
-  column-gap: 8px !important;
-  row-gap: 2px !important;
-  flex: 0 0 158px !important;
-  width: 158px !important;
-  min-width: 158px !important;
-  max-width: 158px !important;
-  margin-left: auto !important;
-  padding: 0 !important;
-  overflow: visible !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) {
-  grid-template-rows: 40px !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
-  grid-column: 1 !important;
-  grid-row: 1 !important;
-  width: 120px !important;
-  min-width: 0 !important;
-  flex: none !important;
-  text-align: center !important;
-}
-main .mp-form-stack .mp-revision-nominal > input {
-  grid-column: 1 !important;
-  grid-row: 2 !important;
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
-  margin: 0 !important;
-  field-sizing: content;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > input {
-  grid-row: 1 !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
-  grid-column: 2 !important;
-  grid-row: 2 !important;
-  display: inline-grid !important;
-  place-items: center !important;
-  flex: 0 0 30px !important;
-  width: 30px !important;
-  min-width: 30px !important;
-  max-width: 30px !important;
-  height: 30px !important;
-  min-height: 30px !important;
-  padding: 0 !important;
-  border: 1px solid #536653 !important;
-  border-radius: 8px !important;
-  background: #303a32 !important;
-  color: #c1d0bf !important;
-  box-shadow: none !important;
-  justify-self: center !important;
-  margin: 0 !important;
-}
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-additional-toggle {
-  grid-row: 1 !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle:hover:not(:disabled) {
-  border-color: #91aa95 !important;
-  background: #39483b !important;
-  color: #f0f4ed !important;
-  box-shadow: 0 0 0 2px rgb(145 170 149 / 14%) !important;
-}
-main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle.is-active {
-  border-color: #8ba992 !important;
-  background: #405343 !important;
-  color: #f0f4ed !important;
-}
-main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
-  grid-template-columns: minmax(0, 1fr) 158px !important;
-}
-main .mp-form-stack .mp-rab-row > .mp-revision-nominal,
-main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
-main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal.mp-revision-nominal,
-main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
-  flex: 0 0 158px !important;
-  width: 158px !important;
-  min-width: 158px !important;
-  max-width: 158px !important;
-}
-main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-  grid-template-columns: max-content minmax(0, 1fr) 158px !important;
-}
-@media (max-width: 1023px) {
-  main .mp-form-stack .mp-revision-nominal {
-    grid-template-columns: 120px 30px !important;
-    width: min(158px, 100%) !important;
-    min-width: 158px !important;
-    max-width: 158px !important;
-  }
-  main .mp-form-stack .mp-revision-nominal > input {
-    width: 120px !important;
-    min-width: 120px !important;
-    max-width: 120px !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-    grid-template-columns: minmax(0, 1fr) 158px !important;
-    grid-template-areas: "tag amount" "account account" !important;
-  }
-}
-
-/* VA is text + checkbox only. No wrapper border, fill, hover border, or pill.
-   The checkbox alone receives a restrained accent glow on hover. */
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle,
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:focus-within,
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle,
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:focus-within {
-  display: inline-flex !important;
-  flex: 0 0 auto !important;
-  width: max-content !important;
-  min-width: 0 !important;
-  max-width: max-content !important;
-  min-height: 0 !important;
-  height: 36px !important;
-  padding: 0 3px !important;
-  border: 0 !important;
-  border-width: 0 !important;
-  border-style: none !important;
-  border-color: transparent !important;
-  border-radius: 0 !important;
-  outline: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  color: #c2cdc0 !important;
-  -webkit-text-fill-color: #c2cdc0 !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle input[type='checkbox'],
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle input[type='checkbox'] {
-  width: 15px !important;
-  height: 15px !important;
-  min-height: 15px !important;
-  flex: 0 0 15px !important;
-  margin: 0 !important;
-  accent-color: #91a894 !important;
-  border: 1px solid #69786a !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: none !important;
-  transition: box-shadow 140ms ease, filter 140ms ease !important;
-}
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover input[type='checkbox'],
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover input[type='checkbox'] {
-  box-shadow: 0 0 0 3px rgb(166 190 166 / 13%), 0 0 7px rgb(166 190 166 / 24%) !important;
-  filter: brightness(1.08);
-}
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle span,
-:root .mp-app-shell main .mp-form-stack label.mp-va-toggle span {
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: #c2cdc0 !important;
-  -webkit-text-fill-color: #c2cdc0 !important;
-}
-
-/* Final cascade locks for the legacy selectors that used to override fit sizing. */
-:root .mp-app-shell main .mp-form-stack select.mp-tag--custom,
-:root .mp-app-shell main .mp-form-stack select.mp-tag--custom {
-  flex: 0 0 auto !important;
-  width: 90px !important;
-  min-width: 90px !important;
-  max-width: 120px !important;
-  padding-left: 7px !important;
-  padding-right: 18px !important;
-  field-sizing: content;
-}
-:root .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note,
-:root .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note {
-  flex: 0 1 auto !important;
-  width: max-content !important;
-  min-width: 107px !important;
-  max-width: min(420px, 45vw) !important;
-  padding-inline: 8px !important;
-  field-sizing: content;
-}
-:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note,
-:root .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note {
-  flex: 0 1 auto !important;
-  width: max-content !important;
-  min-width: 107px !important;
-  max-width: min(420px, 45vw) !important;
-  padding-inline: 8px !important;
-  field-sizing: content;
-}
-
-/* Mapped Ops Harian / Arutala note is a real editable value in the same
-   filled field treatment as mapped salary account details. */
-:root .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped {
-  border: 1px solid #566457 !important;
-  border-radius: 6px !important;
-  background: #354137 !important;
-  color: #d8e1d7 !important;
-  -webkit-text-fill-color: #d8e1d7 !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped:focus {
-  border-color: #91aa95 !important;
-  background: #354137 !important;
-  box-shadow: 0 0 0 2px rgb(145 170 149 / 14%) !important;
-  outline: none !important;
-}
-
-/* Salary nominal follows the same right-edge alignment as the RAB ledger. */
-.mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
-  justify-content: flex-end !important;
-}
-.mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input {
-  text-align: right !important;
-}
-:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
-:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal,
-:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
-:root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-b3-nominal.mp-revision-nominal {
-  flex: 0 0 158px !important;
-  width: 158px !important;
-  min-width: 158px !important;
-  max-width: 158px !important;
-}
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input,
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
-  field-sizing: content;
-}
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal {
-  flex: 0 0 158px !important;
-  width: 158px !important;
-  min-width: 158px !important;
-  max-width: 158px !important;
-}
-
-
-/* Final nominal sizing: 120px accommodates formatted amounts through hundreds
-   of millions. Revision controls keep a 120px input plus the 30px history action. */
-main .mp-form-stack .mp-rab-row {
-  grid-template-columns: minmax(0, 1fr) 120px !important;
-}
-main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal),
-main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal),
-main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) {
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
-  margin-left: auto !important;
-  justify-self: end !important;
-}
-main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal) > input,
-main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal) > input,
-main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) > input {
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
-}
-main .mp-form-stack .mp-salary-flex-row {
-  grid-template-columns: max-content minmax(0, 1fr) 120px !important;
-}
-main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
-  justify-self: end !important;
-}
-main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) > input {
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
-}
-@media (min-width: 1024px) {
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal:not(.mp-revision-nominal),
-  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
-    flex: 0 0 120px !important;
-    width: 120px !important;
-    min-width: 120px !important;
-    max-width: 120px !important;
-  }
-}
-@media (max-width: 1023px) {
-  main .mp-form-stack .mp-rab-row {
-    grid-template-columns: minmax(0, 1fr) 120px !important;
-  }
-  main .mp-form-stack .mp-salary-flex-row {
-    grid-template-columns: minmax(0, 1fr) 120px !important;
-  }
-  main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal:not(.mp-revision-nominal),
-  main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
-    flex: 0 0 120px !important;
-    width: 120px !important;
-    min-width: 120px !important;
-    max-width: 120px !important;
-    margin-left: auto !important;
-  }
-}
-/* Revision nominal: 120px editable amount + 8px gap + 30px history action. */
-main .mp-form-stack .mp-revision-nominal {
-  grid-template-columns: 120px 30px !important;
-  flex: 0 0 158px !important;
-  width: 158px !important;
-  min-width: 158px !important;
-  max-width: 158px !important;
-}
-main .mp-form-stack .mp-revision-nominal > input {
-  flex: 0 0 120px !important;
-  width: 120px !important;
-  min-width: 120px !important;
-  max-width: 120px !important;
-}
-main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
-  grid-template-columns: minmax(0, 1fr) 158px !important;
-}
-main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-  grid-template-columns: max-content minmax(0, 1fr) 158px !important;
-}
-
-
-/* Date and kitchen share one control style; summary theme rules follow. */
-:root main .mp-summary-panel,
-:root main .mp-summary-panel {
-  border-color: #445247 !important;
-  background: #252d27 !important;
-}
-:root main .mp-summary-total-card,
-:root main .mp-summary-total-card {
-  border: 1px solid #566457 !important;
-  border-radius: 9px !important;
-  background: #303a32 !important;
-  box-shadow: none !important;
-}
-:root main .mp-summary-total-label,
-:root main .mp-summary-total-label {
-  color: #aebbaa !important;
-  -webkit-text-fill-color: #aebbaa !important;
-  letter-spacing: .06em;
-  font-weight: 650;
-}
-:root main .mp-summary-total-value,
-:root main .mp-summary-total-value {
-  color: #f0f3ed !important;
-  -webkit-text-fill-color: #f0f3ed !important;
-}
-:root main .mp-summary-breakdown,
-:root main .mp-summary-breakdown {
-  border-top-color: rgb(174 187 170 / 24%) !important;
-  color: #aebbaa !important;
-}
-:root main .mp-summary-breakdown-label,
-:root main .mp-summary-breakdown-label {
-  color: #aebbaa !important;
-  -webkit-text-fill-color: #aebbaa !important;
-}
-:root main .mp-summary-breakdown-amount,
-:root main .mp-summary-breakdown-amount {
-  color: #d6e0d2 !important;
-  -webkit-text-fill-color: #d6e0d2 !important;
-}
-:root main .mp-form-stack .mp-rab-row:focus-within,
-:root main .mp-form-stack .mp-rab-row:focus-within,
-:root main .mp-form-stack .mp-ops-row:focus-within,
-:root main .mp-form-stack .mp-ops-row:focus-within,
-:root main .mp-form-stack .mp-payment-row:focus-within,
-:root main .mp-form-stack .mp-payment-row:focus-within {
-  background: rgb(145 170 149 / 7%) !important;
-  border-radius: 8px !important;
-}
-:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
-:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
-:root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details *,
-:root main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
-:root main .mp-form-stack .mp-ops-row:focus-within .mp-payment-detail,
-:root main .mp-form-stack .mp-ops-row:focus-within .mp-ops-field:not(input):not(select):not(textarea),
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field,
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-payment-detail,
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-static-field,
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-salary-field {
-  color: #dbe7d5 !important;
-  -webkit-text-fill-color: #dbe7d5 !important;
-}
-:root main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary,
-:root main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
-:root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary {
-  color: #e2ebdd !important;
-  -webkit-text-fill-color: #e2ebdd !important;
-}
-:root main .mp-import-dialog,
-:root main .mp-import-dialog {
-  border-color: #566457 !important;
-  background: #252d27 !important;
-  color: #e5ece2 !important;
-}
-:root main .mp-import-mode,
-:root main .mp-import-mode,
-:root main .mp-import-close,
-:root main .mp-import-close {
-  border: 1px solid #4d5c4e !important;
-  background: #303a32 !important;
-  color: #d4dfd0 !important;
-}
-:root main .mp-import-mode.is-active,
-:root main .mp-import-mode.is-active {
-  border-color: #91a891 !important;
-  background: #3b4a3d !important;
-  color: #f0f4ed !important;
-  box-shadow: inset 0 0 0 1px rgb(145 168 145 / 18%) !important;
-}
-:root main .mp-import-textarea,
-:root main .mp-import-textarea {
-  border-color: #566457 !important;
-  background: #1e2621 !important;
-  color: #e4ebe1 !important;
-  caret-color: #c1d4bc;
-}
-:root main .mp-import-textarea:focus,
-:root main .mp-import-textarea:focus {
-  border-color: #a0b49c !important;
-  box-shadow: 0 0 0 2px rgb(160 180 156 / 14%) !important;
-}
-:root main .mp-import-textarea::placeholder,
-:root main .mp-import-textarea::placeholder {
-  color: #879586 !important;
-  -webkit-text-fill-color: #879586 !important;
-}
-:root main .mp-import-preview,
-:root main .mp-import-preview,
-:root main .mp-import-confirm,
-:root main .mp-import-confirm {
-  border-color: #4d5c4e !important;
-  background: #2b342d !important;
-  color: #d8e2d3 !important;
-}
-:root main .mp-import-preview-group,
-:root main .mp-import-preview-group {
-  border-color: #4a594a !important;
-  background: #303a32 !important;
-}
-:root main .mp-import-errors,
-:root main .mp-import-errors {
-  border-color: #8c5d52 !important;
-  background: #3b2925 !important;
-  color: #f0c9bf !important;
-}
-:root main .mp-import-primary,
-:root main .mp-import-primary {
-  border: 1px solid #718b72 !important;
-  background: #465d48 !important;
-  color: #f4f6f0 !important;
-}
-:root main .mp-import-primary:hover:not(:disabled),
-:root main .mp-import-primary:hover:not(:disabled) {
-  border-color: #a0b49c !important;
-  background: #526b54 !important;
-}
-
-/* Import dialog text is explicitly legible across the Sage surface. */
-:root main .mp-import-dialog h2,
-:root main .mp-import-dialog p,
-:root main .mp-import-dialog span,
-:root main .mp-import-dialog label,
-:root main .mp-import-dialog h2,
-:root main .mp-import-dialog p,
-:root main .mp-import-dialog span,
-:root main .mp-import-dialog label {
-  -webkit-text-fill-color: currentColor;
-}
-
-/* An active transaction row must highlight its text, not only its tag.
-   The row receives a restrained surface and every sibling value uses Sage text. */
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
-  border-radius: 9px !important;
-  background: #2c362e !important;
-  box-shadow: inset 0 0 0 1px #596e5b !important;
-}
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
-  color: #b8d2b3 !important;
-  -webkit-text-fill-color: #b8d2b3 !important;
-}
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
-  border-color: #8ba28a !important;
-  border-left-color: #8ba28a !important;
-  background: #405343 !important;
-  color: #e2eee0 !important;
-  -webkit-text-fill-color: #e2eee0 !important;
-}
-:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
-  color: #eef5eb !important;
-  -webkit-text-fill-color: #eef5eb !important;
-  caret-color: #b8d2b3 !important;
-}
-
-
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input,
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input {
-  text-align: center !important;
-}
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder,
-:root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder {
-  text-align: center !important;
-}
-
-
-/* Date and Dapur are the same control: one token, one surface, one interaction. */
-:root .mp-app-shell main .mp-date-control.mp-control-surface,
-:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface,
-:root .mp-app-shell main .mp-date-control.mp-control-surface,
-:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface {
-  min-height: 36px !important;
-  border: 1px solid #465347 !important;
-  border-radius: 8px !important;
-  background: #252c27 !important;
-  background-color: #252c27 !important;
-  color: #e2e9e1 !important;
-  -webkit-text-fill-color: #e2e9e1 !important;
-
-  box-shadow: none !important;
-  outline: none;
-}
-:root .mp-app-shell main .mp-date-control.mp-control-surface:hover,
-:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled),
-:root .mp-app-shell main .mp-date-control.mp-control-surface:hover,
-:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled) {
-  border-color: #718272 !important;
-  background: #2a322b !important;
-  background-color: #2a322b !important;
-  box-shadow: none !important;
-}
-:root .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
-:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus,
-:root .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
-:root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus {
-  border-color: #a0b49c !important;
-  background: #252c27 !important;
-  background-color: #252c27 !important;
-  outline: 2px solid rgb(160 180 156 / 12%) !important;
-  outline-offset: 1px;
-  box-shadow: none !important;
-}
-:root .mp-app-shell main .mp-date-control .mp-date-label,
-:root .mp-app-shell main .mp-date-control .mp-date-label {
-  color: #aeb9ac !important;
-  -webkit-text-fill-color: #aeb9ac !important;
-}
-:root .mp-app-shell main .mp-date-control .mp-date-value,
-:root .mp-app-shell main .mp-date-control .mp-date-value {
-  color: #e2e9e1 !important;
-  -webkit-text-fill-color: #e2e9e1 !important;
-}
-:root .mp-app-shell main .mp-date-control > input[type='date'],
-:root .mp-app-shell main .mp-date-control > input[type='date'] {
-  border: 0 !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  color: transparent !important;
-  -webkit-text-fill-color: transparent !important;
-  box-shadow: none !important;
-
-}
