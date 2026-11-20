@@ -5511,3 +5511,31 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: #eef5eb !important;
   caret-color: #b8d2b3 !important;
 }
+
+
+/* Final correction from the live screenshot:
+   - Date capsule uses the same filled Sage surface as mapped account fields.
+   - Salary nominal stays in the right-hand column, but its text/caret is centered
+     inside the 120px input (not right-anchored independently of its placeholder). */
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control,
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control {
+  border: 1px solid #566457 !important;
+  background: #354137 !important;
+  background-color: #354137 !important;
+  color: #e2e9e1 !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control:hover,
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control:hover,
+:root[data-theme='dark'] .mp-app-shell main .mp-date-control:focus-within,
+:root:not([data-theme='light']) .mp-app-shell main .mp-date-control:focus-within {
+  background: #354137 !important;
+  background-color: #354137 !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input {
+  text-align: center !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder,
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder {
+  text-align: center !important;
+}
