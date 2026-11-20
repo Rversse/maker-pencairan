@@ -1,0 +1,546 @@
+/* Shared buttons, cards, dialogs, badges, notices and toast surfaces. */
+/* Application shells and major surfaces */
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel) {
+  color: var(--color-text) !important;
+  background: var(--color-page) !important;
+}
+
+:root .mp-app-header {
+  color: var(--color-text) !important;
+  background: rgb(48 48 54 / 94%) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: 0 1px 3px var(--color-shadow) !important;
+}
+
+:root .mp-card {
+  color: var(--color-text);
+  border-color: var(--color-border-strong) !important;
+  background:
+    linear-gradient(145deg, var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(135deg, var(--color-border-strong), var(--color-accent-border)) border-box !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:root .mp-card::before {
+  background: radial-gradient(ellipse at 0% 0%, var(--color-accent-soft), transparent 62%) !important;
+}
+
+:root .mp-card::after {
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent) !important;
+}
+
+:root .mp-card h2::before {
+  background: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px var(--color-focus-ring), 0 0 9px var(--color-accent-border) !important;
+}
+
+:root .mp-card[class*='border-amber-500'] {
+  --mp-accent: var(--color-danger-rgb) !important;
+  --mp-card-rim-b: var(--color-danger-border) !important;
+  background:
+    linear-gradient(145deg, var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(135deg, var(--color-border-strong), var(--color-danger-border)) border-box !important;
+}
+
+:root .mp-card[class*='border-amber-500']::before {
+  background: radial-gradient(ellipse at 0% 0%, var(--color-danger-soft), transparent 62%) !important;
+}
+
+:root .mp-card[class*='border-amber-500']::after,
+:root .mp-card[class*='border-amber-500'] h2::before {
+  background: var(--color-danger) !important;
+}
+
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button[data-button-kind='primary'],
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button.mp-auth-submit,
+:root .mp-import-primary,
+:root .mp-history-primary-button {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+  box-shadow: none !important;
+}
+
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button[data-option-button='true'] {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+}
+
+:root :is(.mp-date-range-popover, .mp-history-dialog, .mp-import-dialog, .mp-auth-card, .mp-admin-card, .mp-admin-panel [role='dialog'], [role='dialog'][aria-label*='rentang']) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+}
+
+:root :is(.mp-history-list-item, .mp-history-summary, .mp-history-output, .mp-history-loading, .mp-import-preview, .mp-import-confirm, .mp-import-preview-group) {
+  border-color: var(--color-border) !important;
+  background-color: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+:root :is(.mp-summary-panel, .mp-summary-total-card) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-summary-total-label,
+:root .mp-summary-breakdown,
+:root .mp-summary-breakdown-label {
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+
+:root .mp-summary-total-value,
+:root .mp-summary-breakdown-amount {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root .mp-history-event-tag {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+}
+
+:root .mp-history-event-tag.is-normal,
+:root .mp-history-event-tag.is-revision,
+:root .mp-history-event-tag.is-addition {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+:root .mp-history-event-tag.is-shortage,
+:root .mp-import-errors,
+:root .mp-auth-error,
+:root .mp-admin-panel [role='alert'] {
+  border-color: var(--color-danger-border) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+}
+
+:root .mp-admin-credential-notice,
+:root .mp-admin-toast,
+:root .mp-history-loading .mp-history-spinner {
+  border-color: var(--color-accent-border) !important;
+}
+
+:root .mp-history-loading .mp-history-spinner {
+  border-top-color: var(--color-accent) !important;
+}
+
+/* Tailwind utility colors are redirected to the same palette during the
+   staged feature-by-feature migration. Semantic danger utilities stay Tomato. */
+:root :is([class*='text-emerald-'], [class*='text-teal-'], [class*='text-cyan-'], [class*='text-sky-'], [class*='text-blue-']) {
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+}
+
+:root :is([class*='border-emerald-'], [class*='border-teal-'], [class*='border-cyan-'], [class*='border-sky-'], [class*='border-blue-']) {
+  border-color: var(--color-accent-border) !important;
+}
+
+:root :is([class*='bg-emerald-'], [class*='bg-teal-'], [class*='bg-cyan-'], [class*='bg-sky-'], [class*='bg-blue-']) {
+  background-color: var(--color-accent-soft) !important;
+}
+
+:root :is([class*='text-rose-'], [class*='text-red-'], [class*='text-orange-'], [class*='text-amber-']) {
+  color: var(--color-danger) !important;
+  -webkit-text-fill-color: var(--color-danger) !important;
+}
+
+:root :is([class*='border-rose-'], [class*='border-red-'], [class*='border-orange-'], [class*='border-amber-']) {
+  border-color: var(--color-danger-border) !important;
+}
+
+:root :is([class*='bg-rose-'], [class*='bg-red-'], [class*='bg-orange-'], [class*='bg-amber-']) {
+  background-color: var(--color-danger-soft) !important;
+}
+
+:root :is([class*='text-slate-50'], [class*='text-slate-100'], [class*='text-slate-200'], [class*='text-white']) {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root :is([class*='text-slate-300'], [class*='text-slate-400'], [class*='text-slate-500'], [class*='text-slate-600']) {
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+
+:root :is([class*='border-slate-600'], [class*='border-slate-700'], [class*='border-slate-800'], [class*='border-gray-']) {
+  border-color: var(--color-border) !important;
+}
+
+:root :is([class*='bg-slate-950'], [class*='bg-gray-950']) {
+  background-color: var(--color-page) !important;
+}
+
+:root :is([class*='bg-slate-900'], [class*='bg-slate-800'], [class*='bg-slate-700'], [class*='bg-gray-900'], [class*='bg-gray-800']) {
+  background-color: var(--color-surface) !important;
+}
+
+/* Bright Sky / Graphite component layer. */
+:root :is(.mp-card, .mp-auth-card, .mp-admin-card, .mp-history-dialog, .mp-date-range-popover, .mp-import-dialog) {
+  color: var(--color-text) !important;
+  border-color: var(--color-border-strong) !important;
+  background-color: var(--color-surface) !important;
+}
+:root .mp-app-shell .mp-card {
+  background:
+    linear-gradient(145deg, var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(135deg, var(--color-border-strong), var(--color-accent-border)) border-box !important;
+  box-shadow: var(--shadow-card) !important;
+}
+:root .mp-app-shell .mp-card:hover {
+  border-color: var(--color-accent-border) !important;
+  box-shadow: var(--shadow-card-hover) !important;
+}
+:root .mp-auth-screen .mp-auth-card,
+:root .mp-admin-panel .mp-admin-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border-strong) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+:root .mp-admin-panel .mp-admin-card article {
+  background: var(--color-surface-raised) !important;
+  border-color: var(--color-border) !important;
+}
+:root .mp-admin-panel .mp-admin-card article:hover {
+  background: var(--color-surface-subtle) !important;
+  border-color: var(--color-accent-border) !important;
+}
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button:not([data-option-button='true']):not([data-calendar-day='true']) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button[data-button-kind='primary'],
+:root .mp-auth-screen button.mp-auth-submit,
+:root .mp-import-primary,
+:root .mp-history-dialog .mp-history-primary-button {
+  border: 1px solid var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+  box-shadow: none !important;
+}
+:root .mp-history-dialog .mp-history-secondary-button,
+:root .mp-history-dialog .mp-history-icon-button,
+:root .mp-history-dialog .mp-history-timeline-copy,
+:root .mp-history-dialog .mp-history-timeline-open {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+:root .mp-history-dialog .mp-history-danger-button,
+:root .mp-admin-panel button[class*='border-rose-'] {
+  border-color: var(--color-danger-border) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+}
+:root .mp-history-dialog .mp-history-event-tag,
+:root .mp-history-dialog .mp-history-event-badge,
+:root .mp-history-dialog .mp-history-status {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+}
+:root .mp-history-dialog .mp-history-event-tag.is-normal,
+:root .mp-history-dialog .mp-history-event-tag.is-revision,
+:root .mp-history-dialog .mp-history-event-tag.is-addition,
+:root .mp-history-dialog .mp-history-status--editable {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+:root .mp-history-dialog .mp-history-event-tag.is-shortage,
+:root .mp-history-dialog .mp-history-status--locked {
+  border-color: var(--color-danger-border) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+}
+:root .mp-history-dialog .mp-history-timeline-marker,
+:root .mp-history-dialog .mp-history-timeline-item.is-active .mp-history-timeline-marker {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px var(--color-focus-ring) !important;
+}
+:root .mp-admin-panel .mp-admin-toast {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+}
+:root .mp-admin-panel .mp-admin-credential-notice {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+}
+:root .mp-admin-panel [role='alert'],
+:root .mp-auth-screen .mp-auth-error,
+:root .mp-history-dialog [role='alert'] {
+  border-color: var(--color-danger-border) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+}
+:root .mp-admin-panel [role='status']:not(.mp-admin-toast),
+:root .mp-history-dialog [role='status'] {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+/* Existing Tailwind color utilities resolve to the permanent semantic palette. */
+:root :is([class*='text-emerald-'], [class*='text-teal-'], [class*='text-cyan-'], [class*='text-sky-'], [class*='text-blue-']) {
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+}
+:root :is([class*='border-emerald-'], [class*='border-teal-'], [class*='border-cyan-'], [class*='border-sky-'], [class*='border-blue-']) {
+  border-color: var(--color-accent-border) !important;
+}
+:root :is([class*='bg-emerald-'], [class*='bg-teal-'], [class*='bg-cyan-'], [class*='bg-sky-'], [class*='bg-blue-']) {
+  background-color: var(--color-accent-soft) !important;
+}
+:root :is([class*='text-rose-'], [class*='text-red-'], [class*='text-orange-'], [class*='text-amber-']) {
+  color: var(--color-danger) !important;
+  -webkit-text-fill-color: var(--color-danger) !important;
+}
+:root :is([class*='border-rose-'], [class*='border-red-'], [class*='border-orange-'], [class*='border-amber-']) {
+  border-color: var(--color-danger-border) !important;
+}
+:root :is([class*='bg-rose-'], [class*='bg-red-'], [class*='bg-orange-'], [class*='bg-amber-']) {
+  background-color: var(--color-danger-soft) !important;
+}
+:root :is([class*='text-slate-50'], [class*='text-slate-100'], [class*='text-slate-200'], [class*='text-white']) {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+:root :is([class*='text-slate-300'], [class*='text-slate-400'], [class*='text-slate-500'], [class*='text-slate-600']) {
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+:root :is([class*='border-slate-600'], [class*='border-slate-700'], [class*='border-slate-800'], [class*='border-gray-']) {
+  border-color: var(--color-border) !important;
+}
+:root :is([class*='bg-slate-950'], [class*='bg-gray-950']) {
+  background-color: var(--color-page) !important;
+}
+:root :is([class*='bg-slate-900'], [class*='bg-slate-800'], [class*='bg-slate-700'], [class*='bg-gray-900'], [class*='bg-gray-800']) {
+  background-color: var(--color-surface) !important;
+}
+
+
+/* Replace legacy feature-specific Sage/navy surfaces with semantic component tokens. */
+:root .mp-app-header,
+:root .mp-app-shell .mp-app-header {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-history-overlay {
+  background: var(--color-overlay) !important;
+}
+
+:root .mp-history-dialog {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+}
+
+:root .mp-history-dialog .mp-history-header {
+  background: var(--color-surface-raised) !important;
+  border-color: var(--color-divider) !important;
+}
+
+:root .mp-history-dialog .mp-history-list-item,
+:root .mp-history-dialog .mp-history-metric,
+:root .mp-history-dialog .mp-history-summary,
+:root .mp-history-dialog .mp-history-output,
+:root .mp-history-dialog .mp-history-loading,
+:root .mp-history-dialog .mp-history-timeline-item {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-history-dialog .mp-history-list-item:hover:not(:disabled),
+:root .mp-history-dialog .mp-history-timeline-item.is-active {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+}
+
+:root .mp-history-dialog .mp-history-date-icon {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-subtle) !important;
+  color: var(--color-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-event-type,
+:root .mp-history-dialog .mp-history-event-type.is-normal {
+  color: var(--color-accent) !important;
+}
+
+:root .mp-history-dialog .mp-history-spinner {
+  border-color: var(--color-border-strong) !important;
+  border-top-color: var(--color-accent) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-history-previous-amount {
+  color: var(--color-text-muted) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-history-additional-toggle {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-history-additional-toggle.is-active {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-history-additional-switch {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-subtle) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-history-additional-switch > span {
+  background: var(--color-text-muted) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-history-additional-toggle.is-active .mp-history-additional-switch {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-history-additional-toggle.is-active .mp-history-additional-switch > span {
+  background: var(--color-on-accent) !important;
+}
+
+:root main.mp-auth-screen {
+  background: var(--color-page) !important;
+  color: var(--color-text) !important;
+}
+
+:root main.mp-auth-screen::before {
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--color-ambient-a), transparent 42%),
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-page) 100%) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-card {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+  backdrop-filter: none;
+}
+
+:root main.mp-auth-screen .mp-auth-title,
+:root main.mp-auth-screen .mp-auth-card h1,
+:root main.mp-auth-screen .mp-auth-card p {
+  color: var(--color-text);
+}
+
+:root main.mp-auth-screen .mp-auth-subtitle,
+:root main.mp-auth-screen .mp-auth-loading {
+  color: var(--color-accent) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-role-switcher {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-inset) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-role-button,
+:root main.mp-auth-screen button.mp-auth-role-button[data-option-button='true'] {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+}
+
+:root main.mp-auth-screen .mp-auth-role-button[data-selected='true'],
+:root main.mp-auth-screen button.mp-auth-role-button[data-option-button='true'][data-selected='true'] {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-hint {
+  color: var(--color-text-muted) !important;
+}
+
+:root main.mp-auth-screen .mp-auth-note {
+  color: var(--color-danger) !important;
+}
+
+:root .mp-admin-panel {
+  color: var(--color-text) !important;
+}
+
+:root .mp-admin-panel .mp-admin-card {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:root .mp-admin-panel .mp-admin-card article {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+}
+
+:root .mp-admin-panel .mp-admin-card article:hover {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface-subtle) !important;
+}
+
+:root .mp-admin-panel .mp-admin-toast {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+}
+
+:root .mp-admin-panel .mp-admin-credential-notice {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+}
+
+:root .mp-admin-panel [role='status']:not(.mp-admin-toast) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+
+:root .mp-date-range-popover button:not([data-calendar-day='true']) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+:root .mp-date-range-popover button[data-calendar-day='true'] {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-text);
+}
+:root .mp-date-range-popover button[data-calendar-day='true']:hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+}
+:root .mp-date-range-popover button[data-calendar-day='true'][aria-pressed='true'] {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+}
