@@ -4018,11 +4018,11 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2">
-              <button type="button" disabled={importBusy} onClick={() => { setImportMode('insert'); setImportConfirmOpen(false) }} className={\`mp-import-mode rounded-lg border px-3 py-2.5 text-left text-xs font-semibold \${importMode === 'insert' ? 'is-active' : ''}\`}>
+              <button type="button" disabled={importBusy} onClick={() => { setImportMode('insert'); setImportConfirmOpen(false) }} className={'mp-import-mode rounded-lg border px-3 py-2.5 text-left text-xs font-semibold' + (importMode === 'insert' ? ' is-active' : '')}>
                 Import Baru
                 <span className="mt-1 block text-[10px] font-normal opacity-75">Hanya tanggal yang belum memiliki snapshot aktif.</span>
               </button>
-              <button type="button" disabled={importBusy} onClick={() => { setImportMode('replace'); setImportConfirmOpen(false) }} className={\`mp-import-mode rounded-lg border px-3 py-2.5 text-left text-xs font-semibold \${importMode === 'replace' ? 'is-active' : ''}\`}>
+              <button type="button" disabled={importBusy} onClick={() => { setImportMode('replace'); setImportConfirmOpen(false) }} className={'mp-import-mode rounded-lg border px-3 py-2.5 text-left text-xs font-semibold' + (importMode === 'replace' ? ' is-active' : '')}>
                 Replace Data
                 <span className="mt-1 block text-[10px] font-normal opacity-75">Ganti seluruh snapshot aktif untuk setiap dapur dan tanggal yang dipaste.</span>
               </button>
