@@ -5404,6 +5404,19 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: var(--color-accent) !important;
 }
 
+/* Bank labels follow the same Bright Sky text state as the rest of a
+   hovered or active payout row. Keep the selector limited to bank fields. */
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:hover .mp-gas-bank,
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-gas-bank,
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:hover .mp-ops-bank,
+:root .mp-app-shell main .mp-form-stack .mp-ops-row:focus-within .mp-ops-bank,
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:hover .mp-salary-account-details > .mp-salary-field:nth-child(2),
+:root .mp-app-shell main .mp-form-stack .mp-payment-row:focus-within .mp-salary-account-details > .mp-salary-field:nth-child(2) {
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+}
+
+
 
 
 
