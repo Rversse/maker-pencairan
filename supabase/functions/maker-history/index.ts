@@ -268,7 +268,7 @@ Deno.serve(async (request: Request) => {
         const headerDay = headerMatch ? Number(headerMatch[3]) : 0;
         const headerYear = headerMatch ? Number(headerMatch[5]) : 0;
         const headerParsed = headerMonth ? new Date(Date.UTC(headerYear, headerMonth - 1, headerDay)) : null;
-        const headerDate = headerParsed &&
+        const headerDate = headerMonth !== undefined && headerParsed &&
           headerParsed.getUTCFullYear() === headerYear &&
           headerParsed.getUTCMonth() === headerMonth - 1 &&
           headerParsed.getUTCDate() === headerDay
