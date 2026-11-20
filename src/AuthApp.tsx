@@ -149,11 +149,11 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
                   <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
                 </div>
               </label>
-              <p className="mp-auth-hint text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p>
+              {role !== 'admin' && <p className="mp-auth-hint text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p>}
               {error && <p role="alert" className="mp-auth-error rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
               {busy && <p className="mp-auth-loading text-center text-xs text-emerald-400">Memverifikasi...</p>}
               <button type="submit" data-button-kind="primary" disabled={busy || (role === 'accountant' && (!kitchenId || loadingKitchens)) || (!PASSWORD_PATTERN.test(password) && !(role === 'admin' && /^\d{8}$/.test(password)))} className="mp-auth-submit h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Memverifikasi...' : 'Masuk'}</button>
-              {role === 'admin' && <p className="mp-auth-note text-[11px] text-amber-300">Transisi satu kali: PIN lama masih dapat digunakan untuk masuk dan langsung membuat password baru.</p>}
+
             </form>
           )}
         </div>
