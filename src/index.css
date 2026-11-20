@@ -4165,3 +4165,243 @@ main .mp-summary-breakdown-amount {
     max-width: 160px !important;
   }
 }
+
+/* ==========================================================================
+   Revision amount controls: 160px nominal + separate shortage action
+   ========================================================================== */
+main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) > input,
+main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal) > input,
+main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal) > input {
+  flex: 0 0 160px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+}
+main .mp-form-stack .mp-revision-nominal {
+  display: grid !important;
+  grid-template-columns: 160px max-content !important;
+  grid-template-rows: 12px 36px !important;
+  align-items: center !important;
+  justify-content: end !important;
+  column-gap: 8px !important;
+  row-gap: 2px !important;
+  flex: 0 0 252px !important;
+  width: 252px !important;
+  min-width: 252px !important;
+  max-width: 252px !important;
+  margin-left: auto !important;
+  padding-top: 0 !important;
+  overflow: visible !important;
+}
+main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) {
+  grid-template-rows: 36px !important;
+}
+main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
+  grid-column: 1 / 3 !important;
+  grid-row: 1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  text-align: right !important;
+}
+main .mp-form-stack .mp-revision-nominal > input {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  flex: 0 0 160px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  margin: 0 !important;
+}
+main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > input {
+  grid-row: 1 !important;
+}
+main .mp-form-stack .mp-revision-nominal > .mp-history-shortage-toggle {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  justify-self: start !important;
+  margin: 0 !important;
+}
+main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-shortage-toggle {
+  grid-row: 1 !important;
+}
+main .mp-form-stack .mp-rab-row {
+  grid-template-columns: minmax(0, 1fr) 252px !important;
+}
+main .mp-form-stack .mp-rab-row > .mp-revision-nominal,
+main .mp-form-stack .mp-rab-row .mp-rab-b3-nominal.mp-revision-nominal {
+  justify-self: end !important;
+  width: 252px !important;
+  min-width: 252px !important;
+  max-width: 252px !important;
+}
+main .mp-form-stack .mp-salary-flex-row {
+  grid-template-columns: max-content minmax(0, 1fr) 252px !important;
+}
+main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
+main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal.mp-revision-nominal,
+main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
+  flex: 0 0 252px !important;
+  width: 252px !important;
+  min-width: 252px !important;
+  max-width: 252px !important;
+}
+@media (max-width: 1023px) {
+  main .mp-form-stack .mp-rab-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  main .mp-form-stack .mp-revision-nominal {
+    width: min(252px, 100%) !important;
+    min-width: 0 !important;
+    max-width: 252px !important;
+    justify-self: end !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row {
+    grid-template-columns: minmax(0, 1fr) 252px !important;
+  }
+}
+
+/* Secondary action for discarding an in-progress revision. */
+.mp-revision-cancel-button {
+  border: 1px solid #56685a !important;
+  background: #29332b !important;
+  color: #d7e2d5 !important;
+  box-shadow: none !important;
+}
+.mp-revision-cancel-button:hover:not(:disabled) {
+  border-color: #8ba992 !important;
+  background: #344237 !important;
+  color: #f0f4ef !important;
+}
+
+/* ==========================================================================
+   Login and credential screens: Graphite & Sage
+   ========================================================================== */
+.mp-auth-screen {
+  min-height: 100vh;
+  background: #202522 !important;
+  color: #e8ece7 !important;
+  color-scheme: dark;
+}
+.mp-auth-screen .mp-auth-card {
+  border: 1px solid #3b443c !important;
+  border-radius: 16px !important;
+  background: #292f2a !important;
+  color: #e8ece7 !important;
+  box-shadow: 0 14px 34px rgb(0 0 0 / 20%) !important;
+}
+.mp-auth-screen .mp-auth-title {
+  color: #e8ece7 !important;
+  letter-spacing: -0.025em;
+}
+.mp-auth-screen .mp-auth-subtitle {
+  color: #9eb69f !important;
+}
+.mp-auth-screen .mp-auth-role-switcher {
+  border: 1px solid #414b42 !important;
+  border-radius: 10px !important;
+  background: #242b26 !important;
+  padding: 4px !important;
+  gap: 6px !important;
+}
+.mp-auth-screen .mp-auth-role-button,
+.mp-auth-screen button.mp-auth-role-button[data-option-button='true'] {
+  border: 1px solid #465347 !important;
+  border-radius: 8px !important;
+  background: #303831 !important;
+  background-image: none !important;
+  color: #cbd5ca !important;
+  box-shadow: none !important;
+  min-height: 40px;
+}
+.mp-auth-screen .mp-auth-role-button[data-selected='true'] {
+  border-color: #829a85 !important;
+  background: #405343 !important;
+  color: #f0f4ed !important;
+  box-shadow: inset 0 0 0 1px rgb(166 190 166 / 12%) !important;
+}
+.mp-auth-screen .mp-auth-role-button:hover:not(:disabled) {
+  border-color: #819882 !important;
+  background: #39463b !important;
+  color: #f0f4ed !important;
+  transform: none !important;
+}
+.mp-auth-screen label {
+  color: #cbd4ca !important;
+}
+.mp-auth-screen .mp-auth-kitchen-select,
+.mp-auth-screen .mp-auth-password-input {
+  border: 1px solid #485349 !important;
+  border-radius: 8px !important;
+  background: #252c27 !important;
+  color: #e8ece7 !important;
+  -webkit-text-fill-color: #e8ece7 !important;
+  box-shadow: none !important;
+  color-scheme: dark;
+}
+.mp-auth-screen .mp-auth-kitchen-select option {
+  background: #252c27 !important;
+  color: #e8ece7 !important;
+}
+.mp-auth-screen .mp-auth-kitchen-select:focus,
+.mp-auth-screen .mp-auth-password-input:focus {
+  border-color: #8ba992 !important;
+  outline: 2px solid rgb(139 169 146 / 15%) !important;
+  outline-offset: 1px;
+}
+.mp-auth-screen .mp-auth-password-input::placeholder {
+  color: #89968a !important;
+  -webkit-text-fill-color: #89968a !important;
+}
+.mp-auth-screen .mp-auth-eye-button {
+  border: 1px solid #465347 !important;
+  border-radius: 7px !important;
+  background: #303831 !important;
+  color: #cbd5ca !important;
+  box-shadow: none !important;
+}
+.mp-auth-screen .mp-auth-eye-button:hover:not(:disabled) {
+  border-color: #819882 !important;
+  background: #39463b !important;
+  color: #f0f4ef !important;
+}
+.mp-auth-screen .mp-auth-hint {
+  color: #a6afa6 !important;
+}
+.mp-auth-screen .mp-auth-note {
+  color: #c5b79a !important;
+}
+.mp-auth-screen .mp-auth-submit {
+  border: 1px solid #657d68 !important;
+  border-radius: 8px !important;
+  background: #526b56 !important;
+  color: #f4f6f1 !important;
+  box-shadow: none !important;
+}
+.mp-auth-screen .mp-auth-submit:hover:not(:disabled) {
+  border-color: #8ba992 !important;
+  background: #607b64 !important;
+  color: #fff !important;
+}
+.mp-auth-screen .mp-auth-submit:disabled {
+  border-color: #4a554b !important;
+  background: #414a42 !important;
+  color: #9ba69a !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
+.mp-auth-screen .mp-auth-error {
+  border: 1px solid #75534d !important;
+  background: #382c29 !important;
+  color: #e0b6ad !important;
+}
+.mp-auth-screen .mp-auth-loading {
+  color: #a8c1a9 !important;
+}
+.mp-auth-screen .text-emerald-400,
+.mp-auth-screen .text-teal-300 {
+  color: #9eb69f !important;
+}
