@@ -167,3 +167,22 @@
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
+:root .mp-date-range-popover select {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-field) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+:root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-field) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
+}
+:root .mp-app-shell .mp-import-dialog textarea.mp-import-textarea::placeholder {
+  color: var(--color-text-subtle) !important;
+  -webkit-text-fill-color: var(--color-text-subtle) !important;
+}

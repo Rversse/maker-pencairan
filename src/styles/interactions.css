@@ -243,3 +243,18 @@
   outline: 2px solid var(--color-focus) !important;
   outline-offset: 2px;
 }
+
+
+:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary'],
+:root main.mp-auth-screen.mp-auth-login-screen .mp-auth-card--login button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled),
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary'],
+:root main.mp-auth-screen.mp-auth-change-screen .mp-auth-card button.mp-auth-submit[data-button-kind='primary']:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  background-color: var(--color-accent) !important;
+  background-image: none !important;
+  color: var(--color-on-accent) !important;
+  -webkit-text-fill-color: var(--color-on-accent) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
