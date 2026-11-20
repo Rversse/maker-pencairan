@@ -1917,7 +1917,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
 
 
 /* ── History editing controls and compact history list ─────────────────── */
-.mp-form-stack .mp-history-shortage-toggle {
+.mp-form-stack .mp-history-additional-toggle {
   display: inline-flex;
   min-height: 32px;
   flex: 0 0 auto;
@@ -1930,17 +1930,17 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   color: #cbd5e1 !important;
   white-space: nowrap;
 }
-.mp-form-stack .mp-history-shortage-toggle:hover:not(:disabled) {
+.mp-form-stack .mp-history-additional-toggle:hover:not(:disabled) {
   border-color: rgb(45 212 191 / 58%) !important;
   background: rgb(13 148 136 / 10%) !important;
   color: #e2e8f0 !important;
 }
-.mp-form-stack .mp-history-shortage-toggle.is-active {
+.mp-form-stack .mp-history-additional-toggle.is-active {
   border-color: rgb(45 212 191 / 70%) !important;
   background: rgb(13 148 136 / 18%) !important;
   color: #99f6e4 !important;
 }
-.mp-history-shortage-switch {
+.mp-history-additional-switch {
   position: relative;
   display: inline-flex;
   width: 23px;
@@ -1953,7 +1953,7 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   background: #1e293b;
   transition: background-color 150ms ease, border-color 150ms ease;
 }
-.mp-history-shortage-switch > span {
+.mp-history-additional-switch > span {
   display: block;
   width: 8px;
   height: 8px;
@@ -1962,11 +1962,11 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
   transform: translateX(0);
   transition: transform 150ms ease, background-color 150ms ease;
 }
-.mp-history-shortage-toggle.is-active .mp-history-shortage-switch {
+.mp-history-additional-toggle.is-active .mp-history-additional-switch {
   border-color: #0f766e;
   background: #0f766e;
 }
-.mp-history-shortage-toggle.is-active .mp-history-shortage-switch > span {
+.mp-history-additional-toggle.is-active .mp-history-additional-switch > span {
   background: #ecfeff;
   transform: translateX(9px);
 }
@@ -4215,7 +4215,7 @@ main .mp-form-stack .mp-revision-nominal > input {
 main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > input {
   grid-row: 1 !important;
 }
-main .mp-form-stack .mp-revision-nominal > .mp-history-shortage-toggle {
+main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
   grid-column: 2 !important;
   grid-row: 2 !important;
   width: max-content !important;
@@ -4225,7 +4225,7 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-shortage-toggle {
   justify-self: start !important;
   margin: 0 !important;
 }
-main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-shortage-toggle {
+main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-additional-toggle {
   grid-row: 1 !important;
 }
 main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
@@ -4481,4 +4481,120 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   background: #607b64 !important;
   color: #fff !important;
   transform: none !important;
+}
+
+/* ── Revision refinements: additive deltas, baseline labels and row alignment ── */
+
+/* Previous amount belongs to the input only, not the Tambahan control. */
+main .mp-form-stack .mp-revision-nominal {
+  grid-template-columns: 160px max-content !important;
+  grid-template-rows: 12px 40px !important;
+  column-gap: 8px !important;
+  row-gap: 2px !important;
+  flex: 0 0 260px !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  align-items: center !important;
+  padding-top: 0 !important;
+  overflow: visible !important;
+}
+main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) {
+  grid-template-rows: 40px !important;
+}
+main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  width: 160px !important;
+  min-width: 0 !important;
+  flex: none !important;
+  text-align: center !important;
+}
+main .mp-form-stack .mp-revision-nominal > input {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  flex: 0 0 160px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+  margin: 0 !important;
+}
+main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > input {
+  grid-row: 1 !important;
+}
+main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  justify-self: start !important;
+  margin: 0 !important;
+}
+main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-additional-toggle {
+  grid-row: 1 !important;
+}
+
+/* The older salary-specific selector forced width:0 on this input. This
+   equally-specific rule intentionally wins for every revision salary row. */
+main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
+  flex: 0 0 160px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+}
+
+/* Keep enough room for the 160px field, 40px Tambahan control and their gap. */
+main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
+  grid-template-columns: minmax(0, 1fr) 260px !important;
+}
+main .mp-form-stack .mp-rab-row > .mp-revision-nominal,
+main .mp-form-stack .mp-rab-row .mp-rab-b3-nominal.mp-revision-nominal,
+main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal,
+main .mp-form-stack .mp-ops-flex-row > .mp-payment-nominal.mp-revision-nominal,
+main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
+  flex: 0 0 260px !important;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+}
+main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
+  grid-template-columns: max-content minmax(0, 1fr) 260px !important;
+}
+
+/* In GAS rows, fields share the nominal input's baseline when the previous
+   value is displayed above it. The remove action stays centered vertically. */
+@media (min-width: 1024px) {
+  main .mp-form-stack .mp-gas-flex-row:has(.mp-has-history-previous) {
+    align-items: flex-end !important;
+  }
+  main .mp-form-stack .mp-gas-flex-row:has(.mp-has-history-previous) > .mp-row-remove {
+    align-self: center !important;
+  }
+}
+
+/* Responsive: the complete nominal + Tambahan group remains inside the card. */
+@media (max-width: 1023px) {
+  main .mp-form-stack .mp-revision-nominal {
+    grid-template-columns: minmax(0, 160px) max-content !important;
+    width: min(260px, 100%) !important;
+    min-width: 0 !important;
+    max-width: 260px !important;
+    justify-self: end !important;
+  }
+  main .mp-form-stack .mp-revision-nominal > input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 160px !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 260px) !important;
+    grid-template-areas: "tag amount" "account account" !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal {
+    width: min(260px, 100%) !important;
+    min-width: 0 !important;
+    max-width: 260px !important;
+  }
 }
