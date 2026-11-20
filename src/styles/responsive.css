@@ -1,0 +1,23 @@
+/* Shared shell responsive behavior. Feature-specific breakpoints stay with their owners. */
+@media (max-width: 639px) {
+  .mp-app-header {
+    position: sticky;
+    top: 0;
+  }
+
+  .mp-app-header > div {
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mp-app-header > div > div:last-child {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  }
+
+  .mp-app-header > div > div:last-child button {
+    min-height: 40px;
+    padding-inline: 10px;
+  }
+}
