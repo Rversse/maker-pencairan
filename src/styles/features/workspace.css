@@ -5579,3 +5579,40 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   outline-offset: 2px !important;
   box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.12) !important;
 }
+
+
+/* Operational and payroll cards: hover is deliberately inert.
+   Visual feedback for these rows is driven by :focus / :focus-within only.
+   This overrides the earlier generic tag, static-field and control hover rules. */
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row) :is(.mp-tag, .mp-static-field, .mp-ops-field, .mp-salary-field):hover {
+  border-color: var(--color-accent-border) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
+  background: var(--mp-tag-surface) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+/* Editable controls in these cards keep their base appearance on hover;
+   their focused state is still handled by the existing :focus rules. */
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row) :is(input, select, textarea):hover:not(:disabled):not([readonly]) {
+  border-color: var(--mp-field-border) !important;
+  background-color: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+/* Category tags retain their muted identity when hovered, even while another
+   field in the same row is focused. The active selector itself uses :focus. */
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row) .mp-tag:hover {
+  border-color: var(--mp-tag-border) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
+  background: var(--mp-tag-surface) !important;
+  color: var(--mp-tag-text) !important;
+  -webkit-text-fill-color: var(--mp-tag-text) !important;
+}
