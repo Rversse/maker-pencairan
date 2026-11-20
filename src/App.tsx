@@ -278,22 +278,41 @@ function isCustomOperationalEntry(entry: SimpleEntry, index: number) {
     (index > 0 || Boolean(entry.customAccount))
 }
 
-function getCustomOperationalCompletion(entry: SimpleEntry) {
-  const fields = [
-    { label: 'Nama rekening', complete: Boolean(entry.ownerName?.trim()) },
-    { label: 'Nama bank', complete: Boolean(entry.bank?.trim()) },
-    { label: 'Nomor rekening', complete: Boolean(entry.accountNumber?.trim()) },
-    { label: 'Catatan', complete: Boolean(entry.need?.trim()) },
-    { label: 'Nominal', complete: isCompleteAmount(entry.amount ?? '') }
-  ]
-  const missing = fields.filter((field) => !field.complete).map((field) => field.label)
+type CustomOperationalField = 'ownerName' | 'bank' | 'accountNumber' | 'need' | 'amount'
+type CustomOperationalFieldStatus = 'is-complete' | 'is-missing' | 'not-required'
 
-  return {
-    completed: fields.length - missing.length,
-    total: fields.length,
-    complete: missing.length === 0,
-    missing
-  }
+function getCustomOperationalFieldStatus(
+  entry: SimpleEntry,
+  field: CustomOperationalField
+): CustomOperationalFieldStatus {
+  if (field === 'ownerName' && entry.isVirtualAccount) return 'not-required'
+
+  const complete = field === 'ownerName'
+    ? Boolean(entry.ownerName?.trim())
+    : field === 'bank'
+      ? Boolean(entry.bank?.trim())
+      : field === 'accountNumber'
+        ? Boolean(entry.accountNumber?.trim())
+        : field === 'need'
+          ? Boolean(entry.need?.trim())
+          : isCompleteAmount(entry.amount ?? '')
+
+  return complete ? 'is-complete' : 'is-missing'
+}
+
+function getCustomOperationalCompletion(entry: SimpleEntry) {
+  const fields: Array<{ label: string; field: CustomOperationalField }> = [
+    ...(!entry.isVirtualAccount ? [{ label: 'Nama rekening', field: 'ownerName' as const }] : []),
+    { label: 'Nama bank', field: 'bank' },
+    { label: 'Nomor rekening', field: 'accountNumber' },
+    { label: 'Catatan', field: 'need' },
+    { label: 'Nominal', field: 'amount' }
+  ]
+  const missing = fields
+    .filter(({ field }) => getCustomOperationalFieldStatus(entry, field) === 'is-missing')
+    .map(({ label }) => label)
+
+  return { complete: missing.length === 0, missing }
 }
 
 function getIncompleteCustomOperationalEntries(
@@ -306,10 +325,7 @@ function getIncompleteCustomOperationalEntries(
     const completion = getCustomOperationalCompletion(entry)
     if (completion.complete) return []
 
-    return [{
-      entryId: entry.id,
-      missing: completion.missing
-    }]
+    return [{ entryId: entry.id, missing: completion.missing }]
   })
 }
 
@@ -2312,14 +2328,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               : mappedOperationalAccount?.ownerName ?? '').trim()
       const note = (operationalEntry.need?.trim() || (isMappedOps || isArutala ? 'Ops Harian' : '')).trim().slice(0, 109)
       const outputOwnerName = ownerName ? capitalizeEachWord(ownerName.slice(0, 30)) : '-'
+      const outputOwnerPrefix = custom && operationalEntry.isVirtualAccount && !ownerName
+        ? ''
+        : outputOwnerName + ' - '
       const outputBank = bank || '-'
       const outputAccountNumber = accountNumber || '-'
       outputs.push({
         bank: outputBank,
         line:
           'OPS HARIAN : ' +
-          outputOwnerName +
-          ' - ' +
+          outputOwnerPrefix +
           outputBank +
           ' / ' +
           outputAccountNumber +
@@ -2586,12 +2604,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
     outputTransaction,
     (entry) => isHistoryRowEnabled('operasional', entry.id)
   )
-  const customOperationalValidationMessage = incompleteCustomOperationalRows
-    .map((row) => `CUSTOM #${row.rowNumber}: ${row.missing.join(', ')}`)
-    .join(' · ')
-  const customOperationalValidationNotice = incompleteCustomOperationalRows.length > 0
-    ? `Lengkapi data CUSTOM sebelum disimpan. ${customOperationalValidationMessage}.`
-    : ''
   const outputLineCount = outputDetailLines.length
   const hasOutputAmount = (prefix: string, accountNumber: string, amount: string) => {
     const normalizedAccount = (accountNumber ?? '').trim()
@@ -3419,12 +3431,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         </div>
                       </div>
 
-                      {incompleteCustomOperationalRows.length > 0 && (
-                        <div id="mp-custom-validation-notice" className="mp-custom-validation-notice" role="alert">
-                          <span>{customOperationalValidationNotice}</span>
-                        </div>
-                      )}
-
                       <div className="mt-2 flex min-h-[135px] flex-1 flex-col gap-2">
                         <pre
                           role="button"
@@ -3782,7 +3788,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             const custom = !isMappedOps && (index > 0 || Boolean(entry.customAccount))
                             const isArutala = Boolean(entry.useArutalaAccount)
                             const isStrictCustom = isCustomOperationalEntry(entry, index)
-                            const customCompletion = getCustomOperationalCompletion(entry)
+                            const customFieldStatus = {
+                              ownerName: getCustomOperationalFieldStatus(entry, 'ownerName'),
+                              bank: getCustomOperationalFieldStatus(entry, 'bank'),
+                              accountNumber: getCustomOperationalFieldStatus(entry, 'accountNumber'),
+                              need: getCustomOperationalFieldStatus(entry, 'need'),
+                              amount: getCustomOperationalFieldStatus(entry, 'amount')
+                            }
                             const mappedOpsRule = isMappedOps
                               ? opsMappings.find((rule) => rule.id === entry.operationalRuleId)
                               : null
@@ -3874,34 +3886,60 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     </label>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
+                                    <div className="mp-custom-field-wrap mp-ops-owner">
+                                      <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-custom-field-control mp-ops-field mp-payment-detail h-10 min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
+                                      {isStrictCustom && customFieldStatus.ownerName !== 'not-required' && (
+                                        <span className={`mp-custom-field-dot ${customFieldStatus.ownerName}`} role="img" aria-label={customFieldStatus.ownerName === 'is-complete' ? 'Nama rekening terisi' : 'Nama rekening belum diisi'} title={customFieldStatus.ownerName === 'is-complete' ? 'Nama rekening terisi' : 'Nama rekening belum diisi'} />
+                                      )}
+                                    </div>
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <select value={entry.bank ?? ''} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 appearance-none px-2 text-center text-xs text-slate-100 outline-none transition">
-                                      <option value="">Nama bank</option>
-                                      {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
-                                    </select>
+                                    <div className="mp-custom-field-wrap mp-ops-bank">
+                                      <select value={entry.bank ?? ''} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-custom-field-control mp-ops-field mp-payment-detail h-10 min-w-0 appearance-none px-2 text-center text-xs text-slate-100 outline-none transition">
+                                        <option value="">Nama bank</option>
+                                        {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
+                                      </select>
+                                      <span className={`mp-custom-field-dot ${customFieldStatus.bank}`} role="img" aria-label={customFieldStatus.bank === 'is-complete' ? 'Nama bank terisi' : 'Nama bank belum diisi'} title={customFieldStatus.bank === 'is-complete' ? 'Nama bank terisi' : 'Nama bank belum diisi'} />
+                                    </div>
                                   ) : (
                                     <div title={bank || '-'} className="mp-ops-field mp-payment-detail mp-ops-bank flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" inputMode="numeric" value={entry.accountNumber} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-account h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
+                                    <div className="mp-custom-field-wrap mp-ops-account">
+                                      <input type="text" inputMode="numeric" value={entry.accountNumber} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="mp-custom-field-control mp-ops-field mp-payment-detail h-10 min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
+                                      <span className={`mp-custom-field-dot ${customFieldStatus.accountNumber}`} role="img" aria-label={customFieldStatus.accountNumber === 'is-complete' ? 'Nomor rekening terisi' : 'Nomor rekening belum diisi'} title={customFieldStatus.accountNumber === 'is-complete' ? 'Nomor rekening terisi' : 'Nomor rekening belum diisi'} />
+                                    </div>
                                   ) : (
                                     <div title={accountNumber || '-'} className="mp-ops-field mp-payment-detail mp-ops-account flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
                                   )}
-                                  <input
-                                    type="text"
-                                    
-                                    disabled={!historyEnabled}
-                                    value={entry.need || ((isMappedOps || isArutala) ? 'Ops Harian' : '')}
-                                    maxLength={109}
-                                    onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
-                                    placeholder={(isMappedOps || isArutala) ? 'Ops Harian' : 'Catatan'}
-                                    aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
-                                    className={`mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${isMappedOps || isArutala ? 'mp-static-field mp-salary-field mp-ops-note--mapped' : 'mp-ops-field'} ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition `}
-                                  />
+                                  {custom && !isMappedSalary && !isArutala ? (
+                                    <div className="mp-custom-field-wrap mp-ops-note">
+                                      <input
+                                        type="text"
+                                        disabled={!historyEnabled}
+                                        value={entry.need}
+                                        maxLength={109}
+                                        onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
+                                        placeholder="Catatan"
+                                        aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
+                                        className="mp-custom-field-control mp-payment-detail mp-ops-field h-10 min-w-0 text-center px-2.5 text-xs text-slate-100 placeholder:text-slate-500 outline-none transition"
+                                      />
+                                      <span className={`mp-custom-field-dot ${customFieldStatus.need}`} role="img" aria-label={customFieldStatus.need === 'is-complete' ? 'Catatan terisi' : 'Catatan belum diisi'} title={customFieldStatus.need === 'is-complete' ? 'Catatan terisi' : 'Catatan belum diisi'} />
+                                    </div>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      disabled={!historyEnabled}
+                                      value={entry.need || ((isMappedOps || isArutala) ? 'Ops Harian' : '')}
+                                      maxLength={109}
+                                      onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
+                                      placeholder={(isMappedOps || isArutala) ? 'Ops Harian' : 'Catatan'}
+                                      aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
+                                      className={`mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${isMappedOps || isArutala ? 'mp-static-field mp-salary-field mp-ops-note--mapped' : 'mp-ops-field'} ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition `}
+                                    />
+                                  )}
                                   <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('operasional:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('operasional:' + entry.id)}
 <input
@@ -3914,17 +3952,10 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     
                                     placeholder="Nominal"
                                     className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition   disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
-                                  />{renderHistoryAdditionalButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
+                                  />{isStrictCustom && (
+                                    <span className={`mp-custom-field-dot ${customFieldStatus.amount}`} role="img" aria-label={customFieldStatus.amount === 'is-complete' ? 'Nominal terisi' : 'Nominal belum diisi'} title={customFieldStatus.amount === 'is-complete' ? 'Nominal terisi' : 'Nominal belum diisi'} />
+                                  )}{renderHistoryAdditionalButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
                                 </div>
-                                {isStrictCustom && historyEnabled && (
-                                  <div className={`mp-custom-completion ${customCompletion.complete ? 'is-complete' : 'is-incomplete'}`} aria-live="polite">
-                                    <span className="mp-custom-completion-dot" aria-hidden="true" />
-                                    <span>{customCompletion.complete ? 'CUSTOM LENGKAP' : `${customCompletion.completed}/${customCompletion.total} TERISI`}</span>
-                                    {!customCompletion.complete && (
-                                      <span className="mp-custom-completion-missing">· Belum: {customCompletion.missing.join(', ')}</span>
-                                    )}
-                                  </div>
-                                )}
                               </div>
                             )
                           })}
