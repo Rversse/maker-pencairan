@@ -658,12 +658,10 @@
 }
 
 
-:root .mp-history-date,
 :root .mp-history-date
 { background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
 
-:root .mp-history-dialog,
 :root .mp-history-dialog
 { background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
 
@@ -982,8 +980,6 @@
 
 /* Consistent IBM Plex typography across main workspace and history. */
 :root .mp-history-dialog,
-:root .mp-history-dialog,
-:root .mp-history-dialog :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea),
 :root .mp-history-dialog :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea)
 {
   font-family: var(--mp-font-sans) !important;
@@ -991,7 +987,6 @@
 }
 
 
-:root .mp-history-dialog :is(h1,h2,h3,h4),
 :root .mp-history-dialog :is(h1,h2,h3,h4)
 {
   font-weight: 650;
@@ -999,7 +994,6 @@
 }
 
 
-:root .mp-history-dialog :is(label,p),
 :root .mp-history-dialog :is(label,p)
 {
   font-feature-settings: 'cv11', 'ss01';
@@ -1009,8 +1003,6 @@
 /* Extracted from src/styles/components.css */
 
 :root .mp-history-dialog button[data-button-kind='primary'],
-:root .mp-history-dialog button[data-button-kind='primary'],
-:root .mp-history-primary-button,
 :root .mp-history-primary-button
 {
   border-color: var(--color-accent) !important;
@@ -1020,7 +1012,6 @@
 }
 
 
-:root .mp-history-dialog button[data-option-button='true'],
 :root .mp-history-dialog button[data-option-button='true']
 {
   border-color: var(--color-border-strong) !important;
@@ -1030,7 +1021,6 @@
 }
 
 
-:root .mp-history-dialog,
 :root .mp-history-dialog
 {
   border-color: var(--color-border-strong) !important;
@@ -1043,8 +1033,7 @@
 :root .mp-history-list-item,
 :root .mp-history-summary,
 :root .mp-history-output,
-:root .mp-history-loading,
-:root :is(.mp-history-list-item, .mp-history-summary, .mp-history-output, .mp-history-loading, .mp-import-preview, .mp-import-confirm, .mp-import-preview-group)
+:root .mp-history-loading
 {
   border-color: var(--color-border) !important;
   background-color: var(--color-surface-raised) !important;
@@ -1072,7 +1061,6 @@
 }
 
 
-:root .mp-history-event-tag.is-shortage,
 :root .mp-history-event-tag.is-shortage
 {
   border-color: var(--color-danger-border) !important;
@@ -1095,7 +1083,6 @@
 }
 
 /* Bright Sky / Graphite component layer. */
-:root .mp-history-dialog,
 :root .mp-history-dialog
 {
   color: var(--color-text) !important;
@@ -1104,7 +1091,6 @@
 }
 
 
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']),
 :root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true'])
 {
   border-color: var(--color-border-strong) !important;
@@ -1116,8 +1102,6 @@
 
 
 :root .mp-history-dialog button[data-button-kind='primary'],
-:root .mp-history-dialog button[data-button-kind='primary'],
-:root .mp-history-dialog .mp-history-primary-button,
 :root .mp-history-dialog .mp-history-primary-button
 {
   border: 1px solid var(--color-accent) !important;
@@ -1281,7 +1265,6 @@
 
 /* Extracted from src/styles/forms.css */
 /* Date, kitchen selector and date-range popover share the same control tokens. */
-:root .mp-history-date,
 :root .mp-history-date
 {
   border-color: var(--color-border-strong) !important;
@@ -1302,7 +1285,6 @@
 
 /* Extracted from src/styles/interactions.css */
 /* Buttons: one neutral action treatment, one primary accent treatment. */
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']),
 :root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true'])
 {
   border-color: var(--color-border-strong) !important;
@@ -1313,7 +1295,6 @@
 }
 
 
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
 :root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -1324,8 +1305,6 @@
 
 
 :root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-history-primary-button:hover:not(:disabled),
 :root .mp-history-primary-button:hover:not(:disabled)
 {
   border-color: var(--color-accent) !important;
@@ -1334,7 +1313,6 @@
 }
 
 
-:root .mp-history-dialog button[data-option-button='true'][data-selected='true'],
 :root .mp-history-dialog button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
@@ -1343,7 +1321,6 @@
 }
 
 
-:root .mp-history-date:hover:not(:disabled),
 :root .mp-history-date:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -1352,8 +1329,6 @@
 
 
 :root .mp-history-date:focus,
-:root .mp-history-date:focus,
-:root .mp-history-date:focus-visible,
 :root .mp-history-date:focus-visible
 {
   border-color: var(--color-focus) !important;
@@ -1361,7 +1336,6 @@
 }
 
 
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
 :root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -1372,8 +1346,6 @@
 
 
 :root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled),
 :root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled)
 {
   border-color: var(--color-accent) !important;
@@ -1382,7 +1354,6 @@
 }
 
 
-:root .mp-history-dialog button[data-option-button='true']:hover:not(:disabled),
 :root .mp-history-dialog button[data-option-button='true']:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -1391,7 +1362,6 @@
 }
 
 
-:root .mp-history-dialog button[data-option-button='true'][data-selected='true'],
 :root .mp-history-dialog button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
@@ -1400,7 +1370,6 @@
 }
 
 
-:root .mp-history-dialog :is(input, select, textarea, button):focus-visible,
 :root .mp-history-dialog :is(input, select, textarea, button):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;
@@ -1456,7 +1425,6 @@
 }
 
 
-:root .mp-history-dialog :is(button, input, select, textarea):focus-visible,
 :root .mp-history-dialog :is(button, input, select, textarea):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;

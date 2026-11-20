@@ -68,19 +68,16 @@
 }
 
 
-:root .mp-date-range-trigger,
 :root .mp-date-range-trigger
 { background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
 
-:root .mp-date-range-popover,
 :root .mp-date-range-popover
 { background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
 
 
 /* Extracted from src/styles/components.css */
 
-:root .mp-date-range-popover,
 :root .mp-date-range-popover
 {
   border-color: var(--color-border-strong) !important;
@@ -90,7 +87,6 @@
 }
 
 /* Bright Sky / Graphite component layer. */
-:root .mp-date-range-popover,
 :root .mp-date-range-popover
 {
   color: var(--color-text) !important;
@@ -136,7 +132,6 @@
 
 /* Extracted from src/styles/forms.css */
 /* Date, kitchen selector and date-range popover share the same control tokens. */
-:root .mp-date-range-trigger,
 :root .mp-date-range-trigger
 {
   border-color: var(--color-border-strong) !important;
@@ -147,7 +142,6 @@
 }
 
 
-:root .mp-date-range-popover select option,
 :root .mp-date-range-popover select option
 {
   color: var(--color-text) !important;
@@ -155,7 +149,6 @@
 }
 
 /* Boxed shared controls outside the workspace underline-only rows. */
-:root .mp-date-range-popover select,
 :root .mp-date-range-popover select
 {
   border-color: var(--color-border-strong) !important;
@@ -186,7 +179,6 @@
 
 /* Extracted from src/styles/interactions.css */
 
-:root .mp-date-range-trigger:hover:not(:disabled),
 :root .mp-date-range-trigger:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -195,8 +187,6 @@
 
 
 :root .mp-date-range-trigger:focus,
-:root .mp-date-range-trigger:focus,
-:root .mp-date-range-trigger:focus-visible,
 :root .mp-date-range-trigger:focus-visible
 {
   border-color: var(--color-focus) !important;
@@ -204,7 +194,6 @@
 }
 
 
-:root .mp-date-range-popover button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
 :root .mp-date-range-popover button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -214,7 +203,6 @@
 }
 
 
-:root .mp-date-range-popover :is(input, select, textarea, button):focus-visible,
 :root .mp-date-range-popover :is(input, select, textarea, button):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;
@@ -230,7 +218,6 @@
 }
 
 
-:root .mp-date-range-popover :is(button, select):focus-visible,
 :root .mp-date-range-popover :is(button, select):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;

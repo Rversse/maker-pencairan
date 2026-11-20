@@ -923,10 +923,7 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
 { background: var(--mp-page-bg) !important; color: var(--mp-ink) !important; }
 
 :root main input:not([type='checkbox']):not([type='radio']),
-:root main input:not([type='checkbox']):not([type='radio']),
 :root main select,
-:root main select,
-:root main textarea,
 :root main textarea
 { background: #252c27 !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
 
@@ -954,7 +951,6 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
 :root .mp-app-shell .bg-slate-900
 { background-color: var(--mp-surface) !important; }
 
-:root [role='dialog'][aria-label*='rentang'],
 :root [role='dialog'][aria-label*='rentang']
 { background: var(--mp-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-border) !important; }
 
@@ -1112,22 +1108,18 @@ main :is(input, textarea):focus:not(:disabled):not([readonly])::placeholder {
 }
 /* Consistent IBM Plex typography across main workspace and history. */
 :root main,
-:root main,
-:root main :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea),
 :root main :is(h1,h2,h3,h4,p,label,span,button,input,select,textarea)
 {
   font-family: var(--mp-font-sans) !important;
   font-synthesis: none;
 }
 
-:root main :is(h1,h2,h3,h4),
 :root main :is(h1,h2,h3,h4)
 {
   font-weight: 650;
   letter-spacing: -0.018em;
 }
 
-:root main :is(label,p),
 :root main :is(label,p)
 {
   font-feature-settings: 'cv11', 'ss01';

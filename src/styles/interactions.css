@@ -4,7 +4,6 @@
   box-shadow: var(--shadow-card-hover) !important;
 }
 /* Buttons: one neutral action treatment, one primary accent treatment. */
-:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']),
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true'])
 {
   border-color: var(--color-border-strong) !important;
@@ -14,7 +13,6 @@
   text-shadow: none !important;
 }
 
-:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -24,8 +22,6 @@
 }
 
 :root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-import-primary:hover:not(:disabled),
 :root .mp-import-primary:hover:not(:disabled)
 {
   border-color: var(--color-accent) !important;
@@ -33,7 +29,6 @@
   color: var(--color-on-accent) !important;
 }
 
-:root .mp-app-shell button[data-option-button='true'][data-selected='true'],
 :root .mp-app-shell button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
@@ -86,8 +81,6 @@
 }
 
 :root .mp-date-control:hover:not(:disabled),
-:root .mp-date-control:hover:not(:disabled),
-:root .mp-kitchen-select:hover:not(:disabled),
 :root .mp-kitchen-select:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -95,12 +88,8 @@
 }
 
 :root .mp-date-control:focus,
-:root .mp-date-control:focus,
-:root .mp-kitchen-select:focus,
 :root .mp-kitchen-select:focus,
 :root .mp-date-control:focus-visible,
-:root .mp-date-control:focus-visible,
-:root .mp-kitchen-select:focus-visible,
 :root .mp-kitchen-select:focus-visible
 {
   border-color: var(--color-focus) !important;
@@ -115,7 +104,6 @@
   background: var(--color-accent-soft) !important;
 }
 
-:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -125,8 +113,6 @@
 }
 
 :root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-import-primary:hover:not(:disabled),
 :root .mp-import-primary:hover:not(:disabled)
 {
   border-color: var(--color-accent) !important;
@@ -134,7 +120,6 @@
   color: var(--color-on-accent) !important;
 }
 
-:root .mp-app-shell button[data-option-button='true']:hover:not(:disabled),
 :root .mp-app-shell button[data-option-button='true']:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
@@ -142,7 +127,6 @@
   color: var(--color-text) !important;
 }
 
-:root .mp-app-shell button[data-option-button='true'][data-selected='true'],
 :root .mp-app-shell button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
@@ -165,7 +149,6 @@
   caret-color: var(--color-accent) !important;
 }
 
-:root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible,
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;
@@ -191,10 +174,7 @@
 }
 
 :root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped:focus-visible,
-:root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped:focus-visible,
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible,
-:root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible,
-:root .mp-app-shell .mp-form-stack button:focus-visible,
 :root .mp-app-shell .mp-form-stack button:focus-visible
 {
   outline: 2px solid var(--color-focus) !important;

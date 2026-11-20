@@ -69,8 +69,6 @@
 }
 
 :root .mp-app-shell button[data-button-kind='primary'],
-:root .mp-app-shell button[data-button-kind='primary'],
-:root .mp-import-primary,
 :root .mp-import-primary
 {
   border-color: var(--color-accent) !important;
@@ -79,7 +77,6 @@
   box-shadow: none !important;
 }
 
-:root .mp-app-shell button[data-option-button='true'],
 :root .mp-app-shell button[data-option-button='true']
 {
   border-color: var(--color-border-strong) !important;
@@ -89,8 +86,6 @@
 }
 
 :root .mp-import-dialog,
-:root .mp-import-dialog,
-:root [role='dialog'][aria-label*='rentang'],
 :root [role='dialog'][aria-label*='rentang']
 {
   border-color: var(--color-border-strong) !important;
@@ -133,7 +128,6 @@
   -webkit-text-fill-color: var(--color-text) !important;
 }
 
-:root .mp-import-errors,
 :root .mp-import-errors
 {
   border-color: var(--color-danger-border) !important;
@@ -214,8 +208,6 @@
 }
 /* Bright Sky / Graphite component layer. */
 :root .mp-card,
-:root .mp-card,
-:root .mp-import-dialog,
 :root .mp-import-dialog
 {
   color: var(--color-text) !important;
@@ -237,7 +229,6 @@
   box-shadow: var(--shadow-card-hover) !important;
 }
 
-:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']),
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true'])
 {
   border-color: var(--color-border-strong) !important;
@@ -248,8 +239,6 @@
 }
 
 :root .mp-app-shell button[data-button-kind='primary'],
-:root .mp-app-shell button[data-button-kind='primary'],
-:root .mp-import-primary,
 :root .mp-import-primary
 {
   border: 1px solid var(--color-accent) !important;
