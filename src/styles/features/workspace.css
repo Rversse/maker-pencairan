@@ -5680,3 +5680,24 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   outline: 2px solid var(--color-accent-border) !important;
   outline-offset: 2px !important;
 }
+
+/* Ops Harian and Gaji/Insentif: focus feedback is border-only.
+   Keep text colors neutral while preserving each control's existing
+   focus border, outline, background and category-tag identity. */
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row):focus-within :not(.mp-tag):not(.mp-tag *) {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+/* Category tags keep their own text color, including the focused Custom tag. */
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row):focus-within .mp-tag,
+:root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-payment-row):focus-within .mp-tag * {
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
+}
+
+/* Custom's focused state retains its explicit accent text treatment. */
+:root .mp-app-shell main .mp-form-stack .mp-ops-row select.mp-tag--custom:focus:not(:disabled) {
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+}
