@@ -1272,7 +1272,9 @@ main [class*='decoration-sky-'] { text-decoration-color: #5eead4 !important; }
    changes only the relevant tracks; the remove action is always 36px. */
 .mp-form-stack .mp-ops-row {
   min-width: 0;
-  padding: 9px 4px;
+  /* Match RAB's right inset: RAB card 14px + row 8px = 22px;
+     Ops card 12px + row 10px = the same 22px. */
+  padding: 9px 10px 9px 4px;
   border-bottom: 1px solid rgb(100 116 139 / 28%);
   background: transparent;
 }
