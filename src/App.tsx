@@ -3883,7 +3883,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
-                                  ))}
+                                  )}
                                   {custom && !isMappedSalary && !isArutala ? (
                                     <select value={entry.bank ?? ''} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 appearance-none px-2 text-center text-xs text-slate-100 outline-none transition">
                                       <option value="">Nama bank</option>
