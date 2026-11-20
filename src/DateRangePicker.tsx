@@ -402,7 +402,7 @@ export function DateRangePicker({
                 aria-label={WEEK_DAY_LONG[index]}
                 className={[
                   'text-center font-black uppercase text-slate-400',
-                  density === 'normal' ? 'pb-1 text-[9px]' : density === 'compact' ? 'pb-0.5 text-[8px]' : 'text-[7px]'
+                  density === 'normal' ? 'pb-1 text-[10px]' : density === 'compact' ? 'pb-0.5 text-[10px]' : 'text-[10px]'
                 ].join(' ')}
               >{day}</span>
             ))}
@@ -447,7 +447,7 @@ export function DateRangePicker({
                       ? 'h-8 text-[11px]'
                       : density === 'compact'
                         ? 'h-7 text-[10px]'
-                        : 'h-6 text-[9px]',
+                        : 'h-6 text-[10px]',
                     isStart || isEnd
                       ? 'border-teal-400 bg-teal-500 text-slate-950'
                       : inRange
@@ -467,8 +467,8 @@ export function DateRangePicker({
             density === 'normal'
               ? 'min-h-9 py-2 text-[10px]'
               : density === 'compact'
-                ? 'min-h-7 py-1 text-[9px]'
-                : 'min-h-6 py-0.5 text-[8px]'
+                ? 'min-h-7 py-1 text-[10px]'
+                : 'min-h-6 py-0.5 text-[10px]'
           ].join(' ')}>
             <span>{pendingStart ? 'Pilih tanggal akhir' : 'Pilih tanggal awal lalu tanggal akhir'}</span>
             {pendingStart && (

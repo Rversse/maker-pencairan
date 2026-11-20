@@ -282,7 +282,7 @@ main header > div > span:first-child{
 /* Output panel: terminal-style mono -------------------------------------- */
 .mp-card pre{
   font-family: var(--mp-font-mono);
-  font-size: 11px;
+  font-size: var(--type-caption);
   line-height: 1.65;
   letter-spacing: -0.005em;
   background: var(--mp-pre-bg);
@@ -306,7 +306,7 @@ aside.mp-card .rounded-lg{
 aside.mp-card .rounded-lg > div:first-child{
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  font-size: 9.5px;
+  font-size: var(--type-micro);
   font-weight: 600;
 }
 
@@ -315,7 +315,7 @@ aside.mp-card .rounded-lg > div:first-child{
 
 
 aside.mp-card .text-lg{
-  font-size: 1.4rem;
+  font-size: var(--type-kpi);
   line-height: 1.2;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -815,7 +815,7 @@ aside.mp-card .text-lg{
   border-radius: 7px !important;
   background: var(--color-tag-surface) !important;
   color: var(--color-tag-text) !important;
-  font-size: 10px;
+  font-size: var(--type-micro);
   font-weight: 800;
   letter-spacing: .045em;
   line-height: 1;
@@ -1802,7 +1802,7 @@ aside.mp-card .text-lg{
 
   .mp-salary-account-details > .mp-salary-field{
     padding-inline: 6px !important;
-    font-size: 11px !important;
+    font-size: var(--type-control) !important;
   }
 
 
@@ -1894,7 +1894,7 @@ aside.mp-card .text-lg{
   order: -1;
   overflow: hidden;
   color: var(--color-text-muted);
-  font-size: 9px;
+  font-size: var(--type-micro);
   font-weight: 600;
   line-height: 12px;
   text-align: center;
@@ -2316,7 +2316,7 @@ aside.mp-card .text-lg{
   color: var(--mp-field-placeholder) !important;
   -webkit-text-fill-color: var(--mp-field-placeholder) !important;
   font-family: var(--mp-font-sans) !important;
-  font-size: 12px !important;
+  font-size: var(--type-control) !important;
   font-weight: 500 !important;
   letter-spacing: 0 !important;
   text-align: center !important;
@@ -2330,7 +2330,7 @@ aside.mp-card .text-lg{
   color: var(--mp-field-placeholder) !important;
   -webkit-text-fill-color: var(--mp-field-placeholder) !important;
   font-family: var(--mp-font-sans) !important;
-  font-size: 12px !important;
+  font-size: var(--type-control) !important;
   font-weight: 500 !important;
 }
 
@@ -2732,7 +2732,7 @@ aside.mp-card .text-lg{
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  font-size: 10px !important;
+  font-size: var(--type-micro) !important;
   font-weight: 550 !important;
 }
 
@@ -2784,7 +2784,7 @@ main .mp-summary-checks .mp-summary-check{
   background-color: transparent !important;
   box-shadow: none !important;
   text-decoration: none !important;
-  font-size: 10px !important;
+  font-size: var(--type-micro) !important;
   font-weight: 550 !important;
 }
 

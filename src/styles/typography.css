@@ -33,3 +33,96 @@ main header h1 {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+
+/* Semantic type scale — repeated UI roles use one consistent size everywhere. */
+:root {
+  --type-micro: 0.625rem;       /* 10px: tags, table headers, compact metadata */
+  --type-caption: 0.6875rem;    /* 11px: secondary captions and output text */
+  --type-control: 0.75rem;      /* 12px: buttons, labels, and form values */
+  --type-body: 0.8125rem;       /* 13px: standard body copy */
+  --type-card-title: 1rem;      /* 16px: primary card headings */
+  --type-subheading: 0.875rem;  /* 14px: nested section headings */
+  --type-kpi: 1.4rem;           /* 22.4px: monetary totals */
+}
+
+:root .mp-app-shell :is(
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']),
+  select:not(.mp-tag--custom),
+  textarea
+) {
+  font-size: var(--type-control) !important;
+}
+
+:root .mp-app-shell button,
+:root .mp-history-dialog button {
+  font-size: var(--type-control) !important;
+}
+
+:root .mp-app-shell main h2,
+:root .mp-history-dialog h2 {
+  font-size: var(--type-card-title) !important;
+  line-height: 1.3 !important;
+}
+
+:root .mp-app-shell main h3,
+:root .mp-history-dialog h3 {
+  font-size: var(--type-subheading) !important;
+}
+
+:root .mp-app-shell main label {
+  font-size: var(--type-control) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-tag {
+  font-size: var(--type-micro) !important;
+}
+
+:root .mp-app-shell .mp-summary-total-label,
+:root .mp-app-shell .mp-summary-breakdown,
+:root .mp-app-shell .mp-summary-breakdown-label,
+:root .mp-app-shell .mp-summary-check,
+:root .mp-app-shell .mp-history-previous-amount,
+:root .mp-history-dialog .mp-history-event-badge,
+:root .mp-history-dialog .mp-history-status {
+  font-size: var(--type-micro) !important;
+}
+
+:root .mp-app-shell .mp-card pre {
+  font-size: var(--type-caption) !important;
+}
+
+/* Slow, restrained RGB rim for the three primary payout cards. */
+@property --mp-card-rgb-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes mp-card-rgb-border-rotate {
+  to { --mp-card-rgb-angle: 360deg; }
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-card--rgb-rim {
+  border: 1px solid transparent !important;
+  background:
+    linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+    conic-gradient(
+      from var(--mp-card-rgb-angle),
+      rgb(48 188 237 / 0.54) 0deg,
+      rgb(102 112 255 / 0.42) 100deg,
+      rgb(174 104 242 / 0.38) 190deg,
+      rgb(72 204 180 / 0.46) 280deg,
+      rgb(48 188 237 / 0.54) 360deg
+    ) border-box !important;
+  animation:
+    mp-rise 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both,
+    mp-card-rgb-border-rotate 32s linear infinite !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root .mp-app-shell main .mp-form-stack .mp-card--rgb-rim {
+    animation: none !important;
+    --mp-card-rgb-angle: 110deg;
+  }
+}
