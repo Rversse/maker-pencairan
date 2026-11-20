@@ -48,7 +48,7 @@ function PasswordGuidance({ value }: { value: string }) {
   const checks = [{ label: '8 karakter', valid: value.length >= 8 }, { label: 'Huruf', valid: /[A-Za-z]/.test(value) }, { label: 'Angka', valid: /\d/.test(value) }]
   const score = checks.filter((item) => item.valid).length + (/[\W_]/.test(value) ? 1 : 0)
   const strength = !value ? 'Belum diisi' : score <= 1 ? 'Lemah' : score === 2 ? 'Cukup' : score === 3 ? 'Baik' : 'Kuat'
-  return <div className="mt-2 space-y-2"><div className="flex h-1.5 gap-1 overflow-hidden rounded-full bg-slate-800">{[1,2,3,4].map((n) => <span key={n} className={`flex-1 rounded-full ${score >= n ? 'bg-emerald-400' : 'bg-slate-800'}`} />)}</div><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[11px] text-slate-500">Kekuatan: {strength}</span><div className="flex flex-wrap gap-x-3">{checks.map((item) => <span key={item.label} className={`text-[11px] ${item.valid ? 'text-emerald-400' : 'text-slate-500'}`}>{item.valid ? '✓' : '○'} {item.label}</span>)}</div></div><p className="text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p></div>
+  return <div className="mt-2 space-y-2"><div className="flex h-1.5 gap-1 overflow-hidden rounded-full bg-slate-800">{[1,2,3,4].map((n) => <span key={n} className={`flex-1 rounded-full ${score >= n ? 'bg-emerald-400' : 'bg-slate-800'}`} />)}</div><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[11px] text-slate-500">Kekuatan: {strength}</span><div className="flex flex-wrap gap-x-3">{checks.map((item) => <span key={item.label} className={`text-[11px] ${item.valid ? 'text-emerald-400' : 'text-slate-500'}`}>{item.valid ? '✓' : '○'} {item.label}</span>)}</div></div><p className="mp-auth-hint text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p></div>
 }
 type KitchenOption = { id: string; name: string }
 
@@ -117,22 +117,22 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
   }
 
   return (
-    <main className="mp-auth-screen flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
-      <div className="mp-auth-card w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/85 p-6 shadow-xl sm:p-8">
+    <main className="mp-auth-screen mp-auth-login-screen flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
+      <div className="mp-auth-card mp-auth-card--change w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/85 p-6 shadow-xl sm:p-8">
         <div className="mb-7 text-center">
-          <p className="text-lg font-bold tracking-tight text-white">Maker Pencairan</p>
-          <h1 className="mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
+          <p className="mp-auth-title text-lg font-bold tracking-tight text-white">Maker Pencairan</p>
+          <h1 className="mp-auth-subtitle mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
         </div>
-        <div className="grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-1">
-          <button type="button" data-option-button="true" data-selected={role === 'admin'} onClick={() => { setRole('admin'); setLoadingKitchens(false); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Admin</button>
-          <button type="button" data-option-button="true" data-selected={role === 'accountant'} onClick={() => { setRole('accountant'); setLoadingKitchens(kitchens.length === 0); setError(''); setPassword('') }} className="rounded-lg px-3 py-2.5 text-sm font-semibold">Akuntan</button>
+        <div className="mp-auth-role-switcher grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-1">
+          <button type="button" data-option-button="true" data-selected={role === 'admin'} onClick={() => { setRole('admin'); setLoadingKitchens(false); setError(''); setPassword('') }} className="mp-auth-role-button rounded-lg px-3 py-2.5 text-sm font-semibold">Admin</button>
+          <button type="button" data-option-button="true" data-selected={role === 'accountant'} onClick={() => { setRole('accountant'); setLoadingKitchens(kitchens.length === 0); setError(''); setPassword('') }} className="mp-auth-role-button rounded-lg px-3 py-2.5 text-sm font-semibold">Akuntan</button>
         </div>
-        <div className={`overflow-hidden transition-all duration-300 ease-out ${role ? 'mt-5 max-h-[420px] translate-y-0 opacity-100' : 'max-h-0 translate-y-2 opacity-0'}`}>
+        <div className={`mp-auth-fields overflow-hidden transition-all duration-300 ease-out ${role ? 'mt-5 max-h-[420px] translate-y-0 opacity-100' : 'max-h-0 translate-y-2 opacity-0'}`}>
           {role && (
-            <form onSubmit={(event) => { event.preventDefault(); void submit() }} className="space-y-4">
+            <form onSubmit={(event) => { event.preventDefault(); void submit() }} className="mp-auth-form space-y-4">
               {role === 'accountant' && (
                 <label className="block text-sm font-medium text-slate-300">Pilih dapur
-                  <select value={kitchenId} onChange={(event) => { setKitchenId(event.target.value); setError('') }} disabled={loadingKitchens || kitchens.length === 0} className="mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500">
+                  <select value={kitchenId} onChange={(event) => { setKitchenId(event.target.value); setError('') }} disabled={loadingKitchens || kitchens.length === 0} className="mp-auth-kitchen-select mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500">
                     {loadingKitchens && <option value="">Memuat dapur...</option>}
                     {!loadingKitchens && !kitchens.length && <option value="">Tidak ada akun dapur aktif</option>}
                     {kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
@@ -145,19 +145,19 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
                     onChange={(event) => { setPassword(event.target.value.slice(0, 16)); setError('') }}
                     onAnimationEnd={() => setShake(false)}
                     placeholder="Masukkan password"
-                    className={`h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${error ? 'border-rose-500' : 'border-slate-700 focus:border-emerald-500'} ${shake ? 'maker-pin-shake' : ''}`} />
-                  <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
+                    className={`mp-auth-password-input h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${error ? 'border-rose-500' : 'border-slate-700 focus:border-emerald-500'} ${shake ? 'maker-pin-shake' : ''}`} />
+                  <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
                 </div>
               </label>
               <p className="text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p>
-              {error && <p role="alert" className="rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
-              {busy && <p className="text-center text-xs text-emerald-400">Memverifikasi...</p>}
-              <button type="submit" data-button-kind="primary" disabled={busy || (role === 'accountant' && (!kitchenId || loadingKitchens)) || (!PASSWORD_PATTERN.test(password) && !(role === 'admin' && /^\d{8}$/.test(password)))} className="h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Memverifikasi...' : 'Masuk'}</button>
-              {role === 'admin' && <p className="text-[11px] text-amber-300">Transisi satu kali: PIN lama masih dapat digunakan untuk masuk dan langsung membuat password baru.</p>}
+              {error && <p role="alert" className="mp-auth-error rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
+              {busy && <p className="mp-auth-loading text-center text-xs text-emerald-400">Memverifikasi...</p>}
+              <button type="submit" data-button-kind="primary" disabled={busy || (role === 'accountant' && (!kitchenId || loadingKitchens)) || (!PASSWORD_PATTERN.test(password) && !(role === 'admin' && /^\d{8}$/.test(password)))} className="mp-auth-submit h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Memverifikasi...' : 'Masuk'}</button>
+              {role === 'admin' && <p className="mp-auth-note text-[11px] text-amber-300">Transisi satu kali: PIN lama masih dapat digunakan untuk masuk dan langsung membuat password baru.</p>}
             </form>
           )}
         </div>
-        {!role && <p className="mt-4 text-center text-xs text-slate-500">Pilih jenis akun untuk melanjutkan.</p>}
+        {!role && <p className="mp-auth-hint mt-4 text-center text-xs text-slate-500">Pilih jenis akun untuk melanjutkan.</p>}
       </div>
     </main>
   )
@@ -187,15 +187,15 @@ function ChangePasswordScreen({ onSave }: { onSave: (password: string, confirmPa
   }
 
   return (
-    <main className="mp-auth-screen flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
+    <main className="mp-auth-screen mp-auth-change-screen flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
       <div className="mp-auth-card w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/85 p-6 shadow-xl sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-300">Keamanan akun</p>
-        <h1 className="mt-2 text-2xl font-bold">Buat password baru</h1>
+        <p className="mp-auth-subtitle text-xs font-semibold uppercase tracking-[0.18em] text-teal-300">Keamanan akun</p>
+        <h1 className="mp-auth-title mt-2 text-2xl font-bold">Buat password baru</h1>
         
-        <form onSubmit={(event) => void submit(event)} className="mt-6 space-y-4">
+        <form onSubmit={(event) => void submit(event)} className="mp-auth-form mt-6 space-y-4">
           <label className="block text-sm font-medium text-slate-300">Password baru
             <div className="relative mt-1.5">
-              <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={password} onChange={(event) => setPassword(event.target.value.slice(0, 16))} className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
+              <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={password} onChange={(event) => setPassword(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
               <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
             </div>
           </label>
