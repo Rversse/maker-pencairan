@@ -3303,7 +3303,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                   {role === 'admin' && (
                     <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import Data</button>
                   )}
-                  <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition hover:border-rose-500/70 hover:bg-slate-800">Reset</button>
+                  <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition">Reset</button>
                 </div>
               )}
               {historyMessage && <span className="pb-2 text-[10px] text-emerald-300">{historyMessage}</span>}
@@ -3322,7 +3322,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               <button
                 type="button"
                 onClick={() => void loadMasterData()}
-                className="mt-3 rounded-lg bg-slate-800 px-3 py-2 text-sm text-white hover:bg-stone-700"
+                className="mt-3 rounded-lg bg-slate-800 px-3 py-2 text-sm text-white"
               >
                 Coba Lagi
               </button>
@@ -3539,7 +3539,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                           )
                                         }
                                         placeholder={'Item ' + (fieldIndex + 1)}
-                                        className={`h-8 w-[100px] rounded-md border border-slate-700 bg-slate-900 px-2 text-[11px] text-slate-100 placeholder:text-slate-500 outline-none focus:border-sky-500 ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) && Boolean((customDraft[fieldIndex] ?? '').trim()) ? 'mp-field--has-output' : ''}`}
+                                        className={`h-8 w-[100px] rounded-md border border-slate-700 bg-slate-900 px-2 text-[11px] text-slate-100 placeholder:text-slate-500 outline-none  ${hasOutputAmount('RAB : ', rule.accounts?.account_number ?? '-', entry.amount) && Boolean((customDraft[fieldIndex] ?? '').trim()) ? 'mp-field--has-output' : ''}`}
                                       />
                                     ))}
                                   </div>
@@ -3605,7 +3605,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                           }}
                                           className={'inline-flex h-8 items-center rounded-md border px-2 text-[11px] font-medium ' + (selected
                                             ? 'border-amber-500 bg-amber-700 text-white'
-                                            : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800')}
+                                            : 'border-slate-700 bg-slate-900 text-slate-300 ')}
                                         >
                                           {selected ? '✓ ' : ''}{product}
                                         </button>
@@ -3645,22 +3645,22 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                   </section>
 
 
-                  <section className={`mp-card mp-tags-no-hover relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
+                  <section className={`mp-card  relative w-full min-w-0 rounded-xl border border-teal-600/70 bg-slate-900/40 p-3 ${operationalAddMenuOpen ? 'z-40' : 'z-0'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-base font-semibold text-white">Pencairan Operasional Harian</h2>
                       <div className="relative" ref={operationalAddMenuRef}>
-                        <button type="button" aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition hover:border-teal-500/70 hover:bg-slate-700">+ Transaksi</button>
+                        <button type="button" aria-expanded={operationalAddMenuOpen} onClick={() => setOperationalAddMenuOpen((open) => !open)} className="h-9 shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 text-xs font-semibold text-slate-100 transition">+ Transaksi</button>
                         {operationalAddMenuOpen && (
                           <div className="mp-operational-add-menu absolute right-0 z-[60] mt-1 flex min-w-48 flex-col gap-1 rounded-lg border border-slate-700 bg-slate-950 p-1.5 shadow-2xl">
                             {opsMappings.map((rule) => (
-                              <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Ops Harian — {rule.owner_name}</button>
+                              <button key={rule.id} type="button" onClick={() => addMappedOperationalEntry(rule.id)} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100">Ops Harian — {rule.owner_name}</button>
                             ))}
                             {opsMappings.length === 0 && <button type="button" disabled className="rounded-md px-3 py-2.5 text-left text-xs text-slate-500">Ops Harian — Mapping belum tersedia</button>}
                             {!isCihaurKitchen && <>
-                              <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
-                              <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40">GAS</button>
+                              <button type="button" onClick={addArutalaOtherEntry} disabled={!arutalaGasRule?.accounts} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 disabled:cursor-not-allowed disabled:opacity-40">Arutala</button>
+                              <button type="button" onClick={addGasEntry} disabled={!arutalaGasRule?.accounts || (activeTransaction.gas ?? []).filter((entry, index) => entry.transactionType === 'gas' || (index === 0 && !entry.transactionType)).length >= 2} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 disabled:cursor-not-allowed disabled:opacity-40">GAS</button>
                             </>}
-                            <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100 hover:bg-slate-800">Lain-lain</button>
+                            <button type="button" onClick={addOperationalEntry} className="rounded-md px-3 py-2.5 text-left text-xs font-semibold text-slate-100">Lain-lain</button>
                           </div>
                         )}
                       </div>
@@ -3688,7 +3688,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                               return (
                                 <div key={entry.id} className={`mp-ops-row ${!historyEnabled ? "opacity-45" : ""}`}>
                                   <div className="mp-gas-flex-row grid min-w-0 items-center gap-2">
-                                    <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base text-slate-400 hover:border-rose-500/70 ">×</button>
+                                    <button type="button" onClick={() => removeGasEntry(entry.id)} disabled={!historyEnabled} aria-label="Hapus transaksi GAS" title="Hapus transaksi" className="mp-row-remove h-9 w-9 shrink-0 text-base text-slate-400">×</button>
                                     <div className="mp-tag mp-tag--gas">GAS</div>
                                     <div title={accountName} className="mp-ops-field mp-payment-detail mp-gas-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountName}</span></div>
                                     <div className="mp-ops-field mp-payment-detail mp-gas-bank flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank}</div>
@@ -3758,7 +3758,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     disabled={!historyEnabled}
                                     title="Hapus transaksi tambahan Operasional Harian"
                                     aria-label="Hapus transaksi Ops Harian"
-                                    className="mp-row-remove h-9 w-9 shrink-0 rounded-md border border-slate-800 bg-slate-900 text-base font-semibold text-slate-400 transition hover:border-rose-500/70  disabled:cursor-not-allowed disabled:opacity-25"
+                                    className="mp-row-remove h-9 w-9 shrink-0 text-base text-slate-400 disabled:cursor-not-allowed disabled:opacity-25"
                                   >×</button>
                                   {isMappedOps ? (
                                     <div className="mp-tag mp-tag--ops">OPS HARIAN</div>
@@ -3790,7 +3790,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                         })
                                       }}
                                       aria-label="Jenis transaksi tambahan Operasional Harian"
-                                      className="mp-tag mp-tag--custom mp-payment-detail h-9 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-extrabold uppercase outline-none transition focus:border-teal-500"
+                                      className="mp-tag mp-tag--custom mp-payment-detail h-9 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-[10px] font-extrabold uppercase outline-none transition"
                                     >
                                       <option value="">Custom</option>
                                       <option value="gaji_akuntan">Gaji AK</option>
@@ -3806,12 +3806,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     </label>
                                   )}
                                   {!(showVirtualAccount && entry.isVirtualAccount) && (custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" value={ownerName} maxLength={30} disabled={!historyEnabled} onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { ownerName: event.target.value.slice(0, 30) })} placeholder="Nama rekening" aria-label="Nama rekening Ops Harian (maksimal 30 karakter)" className="mp-ops-field mp-payment-detail mp-ops-owner h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
                                   ) : (
                                     <div title={ownerName || 'Mapping belum tersedia'} className="mp-ops-field mp-payment-detail mp-ops-owner flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{capitalizeEachWord(ownerName || 'Mapping belum tersedia')}</span></div>
                                   ))}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <select value={entry.bank ?? ''} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-xs text-slate-100 outline-none transition focus:border-teal-500">
+                                    <select value={entry.bank ?? ''} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { bank: event.target.value })} aria-label="Bank Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-bank h-10 w-full min-w-0 cursor-pointer appearance-none px-2 text-center text-xs text-slate-100 outline-none transition">
                                       <option value="">Nama bank</option>
                                       {OPERATIONAL_BANKS.map((bankOption) => <option key={bankOption} value={bankOption}>{bankOption}</option>)}
                                     </select>
@@ -3819,7 +3819,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     <div title={bank || '-'} className="mp-ops-field mp-payment-detail mp-ops-bank flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100">{bank || '-'}</div>
                                   )}
                                   {custom && !isMappedSalary && !isArutala ? (
-                                    <input type="text" inputMode="numeric" value={entry.accountNumber} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-account h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500" />
+                                    <input type="text" inputMode="numeric" value={entry.accountNumber} disabled={!historyEnabled}  onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { accountNumber: event.target.value.replace(/\D/g, '') })} placeholder="Nomor rekening" aria-label="Nomor rekening Ops Harian" className="mp-ops-field mp-payment-detail mp-ops-account h-10 w-full min-w-0 px-2.5 text-center text-xs text-slate-100 placeholder:text-slate-500 outline-none transition" />
                                   ) : (
                                     <div title={accountNumber || '-'} className="mp-ops-field mp-payment-detail mp-ops-account flex h-10 min-w-0 items-center justify-center px-2 text-center text-xs font-semibold text-slate-100"><span className="truncate">{accountNumber || '-'}</span></div>
                                   )}
@@ -3832,7 +3832,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
                                     placeholder={(isMappedOps || isArutala) ? 'Ops Harian' : 'Catatan'}
                                     aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
-                                    className={`mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${isMappedOps || isArutala ? 'mp-static-field mp-salary-field mp-ops-note--mapped' : 'mp-ops-field'} ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
+                                    className={`mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${isMappedOps || isArutala ? 'mp-static-field mp-salary-field mp-ops-note--mapped' : 'mp-ops-field'} ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition `}
                                   />
                                   <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('operasional:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('operasional:' + entry.id)}
@@ -3845,7 +3845,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     aria-label="Nominal Ops Harian"
                                     
                                     placeholder="Nominal"
-                                    className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`mp-ops-field mp-nominal-input h-10 w-full min-w-0 px-2.5 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition  disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('OPS HARIAN : ', accountNumber, entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryAdditionalButton('operasional:' + entry.id, () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: '' }), () => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { amount: historyPreviousAmount('operasional:' + entry.id) }))}</div>
                                 </div>
                               </div>
@@ -3857,7 +3857,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                     })()}
                   </section>
 
-                  <section className="mp-card mp-tags-no-hover w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
+                  <section className="mp-card  w-full min-w-0 rounded-xl border border-teal-600/50 bg-slate-950/35 p-3">
                     <h2 className="text-base font-semibold text-white">Pencairan Insentif dan Gaji</h2>
                     <div className="mt-3 space-y-1.5">
                       
@@ -3901,7 +3901,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     }
                                     placeholder="Nominal"
                                     aria-label="Nominal Insentif Fasilitas SPPG"
-                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition  disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryAdditionalButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                               </div>
                             )
@@ -3973,7 +3973,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     }
                                     placeholder="Nominal"
                                     aria-label={'Nominal ' + label}
-                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-teal-500 disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
+                                    className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition  disabled:cursor-not-allowed disabled:opacity-50 ${hasOutputAmount(entry.kinds.join(', ').toLocaleUpperCase('id-ID') + ' : ', mapping?.accountNumber ?? entry.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryAdditionalButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                                 </div>
                               </div>

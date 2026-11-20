@@ -132,7 +132,7 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
             <form onSubmit={(event) => { event.preventDefault(); void submit() }} className="mp-auth-form space-y-4">
               {role === 'accountant' && (
                 <label className="block text-sm font-medium text-slate-300">Pilih dapur
-                  <select value={kitchenId} onChange={(event) => { setKitchenId(event.target.value); setError('') }} disabled={loadingKitchens || kitchens.length === 0} className="mp-auth-kitchen-select mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none focus:border-emerald-500">
+                  <select value={kitchenId} onChange={(event) => { setKitchenId(event.target.value); setError('') }} disabled={loadingKitchens || kitchens.length === 0} className="mp-auth-kitchen-select mt-1.5 h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-white outline-none">
                     {loadingKitchens && <option value="">Memuat dapur...</option>}
                     {!loadingKitchens && !kitchens.length && <option value="">Tidak ada akun dapur aktif</option>}
                     {kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
@@ -145,7 +145,7 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
                     onChange={(event) => { setPassword(event.target.value.slice(0, 16)); setError('') }}
                     onAnimationEnd={() => setShake(false)}
                     placeholder="Masukkan password"
-                    className={`mp-auth-password-input h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${error ? 'border-rose-500' : 'border-slate-700 focus:border-emerald-500'} ${shake ? 'maker-pin-shake' : ''}`} />
+                    className={`mp-auth-password-input h-11 w-full rounded-lg border bg-slate-950 py-2 pl-3 pr-20 text-sm text-white outline-none transition-colors ${error ? 'border-rose-500' : 'border-slate-700 '} ${shake ? 'maker-pin-shake' : ''}`} />
                   <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
                 </div>
               </label>
@@ -195,13 +195,13 @@ function ChangePasswordScreen({ onSave }: { onSave: (password: string, confirmPa
         <form onSubmit={(event) => void submit(event)} className="mp-auth-form mt-6 space-y-4">
           <label className="block text-sm font-medium text-slate-300">Password baru
             <div className="relative mt-1.5">
-              <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={password} onChange={(event) => setPassword(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
+              <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={password} onChange={(event) => setPassword(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none" />
               <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
             </div>
           </label>
           <label className="block text-sm font-medium text-slate-300">Ulangi password baru
             <div className="relative mt-1.5">
-              <input type={showConfirm ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={confirm} onChange={(event) => setConfirm(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
+              <input type={showConfirm ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={confirm} onChange={(event) => setConfirm(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none" />
               <button type="button" onClick={() => setShowConfirm((value) => !value)} aria-label={showConfirm ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showConfirm} /></button>
             </div>
           </label>

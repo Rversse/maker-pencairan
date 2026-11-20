@@ -20,16 +20,21 @@
   --color-surface-subtle: rgb(48 48 54 / 78%);
   --color-surface-inset: rgb(5 4 1 / 42%);
   --color-field: var(--palette-graphite);
-  --color-field-disabled: rgb(48 48 54 / 72%);
+  --color-field-border: var(--color-border-strong);
+  --color-text-focus: #ffffff;
+  --color-button-hover-bg: var(--color-accent-soft);
+  --color-button-hover-border: var(--color-accent-border);
+  --color-button-selected-bg: var(--color-accent-soft);
+  --color-field-disabled: var(--color-field);
 
   /* Muted category tags: separate from editable field surfaces. */
-  --color-tag-surface: rgb(48 48 54 / 76%);
-  --color-tag-surface-hover: rgb(48 188 237 / 10%);
-  --color-tag-border: rgb(255 250 255 / 18%);
-  --color-tag-accent-border: rgb(48 188 237 / 34%);
-  --color-tag-border-hover: rgb(48 188 237 / 52%);
-  --color-tag-text: rgb(255 250 255 / 78%);
-  --color-tag-text-hover: var(--color-accent);
+  --color-tag-surface: rgb(255 250 255 / 4%);
+  --color-tag-surface-hover: var(--color-tag-surface);
+  --color-tag-border: rgb(255 250 255 / 11%);
+  --color-tag-accent-border: var(--color-tag-border);
+  --color-tag-border-hover: var(--color-tag-border);
+  --color-tag-text: rgb(255 250 255 / 58%);
+  --color-tag-text-hover: var(--color-tag-text);
 
   --color-text: var(--palette-ghost-white);
   --color-text-muted: rgb(255 250 255 / 68%);
@@ -53,7 +58,7 @@
   --color-info: var(--palette-bright-sky);
 
   --color-focus: var(--palette-bright-sky);
-  --color-focus-ring: rgb(48 188 237 / 25%);
+  --color-focus-ring: rgb(48 188 237 / 32%);
   --color-overlay: rgb(5 4 1 / 82%);
   --color-shadow: rgb(5 4 1 / 42%);
 
@@ -130,7 +135,7 @@
   --mp-action-text: var(--color-text);
   --mp-action-border: var(--color-border-strong);
   --mp-action-hover-bg: var(--color-accent-soft);
-  --mp-action-hover-text: var(--color-accent);
+  --mp-action-hover-text: var(--color-text);
   --mp-action-hover-border: var(--color-accent-border);
 
   --mp-card-top: var(--color-surface);
@@ -150,10 +155,10 @@
   --mp-pre-border: var(--color-border);
 
   --mp-field-surface: var(--color-surface-raised);
-  --mp-field-disabled: var(--color-field-disabled);
-  --mp-field-border: var(--color-border-strong);
-  --mp-field-border-hover: var(--color-accent-border);
-  --mp-field-focus: var(--color-focus);
+  --mp-field-disabled: var(--color-field);
+  --mp-field-border: var(--color-field-border);
+  --mp-field-border-hover: var(--color-field-border);
+  --mp-field-focus: var(--color-field-border);
   --mp-field-placeholder: var(--color-text-subtle);
 
   --mp-tag-surface: var(--color-tag-surface);
