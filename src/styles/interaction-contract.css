@@ -32,6 +32,10 @@
   background: var(--color-surface) !important;
 }
 
+:root .mp-app-shell main .mp-form-stack .mp-rab-choice:hover:not(:disabled) {
+  background: var(--color-accent-soft) !important;
+}
+
 :root .mp-app-shell main .mp-form-stack .mp-rab-choice[data-selected='true'] {
   background: var(--color-accent-soft) !important;
 }
@@ -67,4 +71,17 @@
 :root .mp-app-shell main .mp-form-stack .mp-history-additional-toggle.is-active {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+
+
+/* Keep VA keyboard focus visible on its checkbox without tinting the label. */
+:root .mp-app-shell main .mp-form-stack .mp-ops-row label.mp-va-toggle:focus-within,
+:root .mp-app-shell main .mp-form-stack .mp-ops-row label.mp-va-toggle:focus-within span {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root .mp-app-shell main .mp-form-stack .mp-ops-row label.mp-va-toggle:focus-within input[type='checkbox'] {
+  outline: 2px solid var(--color-accent-border) !important;
+  outline-offset: 2px !important;
 }

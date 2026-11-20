@@ -436,7 +436,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
               onClick={onClose}
               title="Tutup riwayat"
               aria-label="Tutup riwayat"
-              className="mp-history-icon-button grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 "
+              className="mp-history-icon-button grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
                 <path d="m18 6-12 12M6 6l12 12" />
@@ -508,7 +508,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                         <span className="mt-0.5 block truncate text-right text-xs font-bold tabular-nums text-teal-200">Rp {money(row.payload?.totalOverall)}</span>
                       </span>
                     </span>
-                    <svg viewBox="0 0 24 24" className="hidden h-4 w-4 shrink-0 text-slate-500 transition  group- sm:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" className="hidden h-4 w-4 shrink-0 text-slate-500 transition sm:block" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="m9 18 6-6-6-6" />
                     </svg>
                   </button>
@@ -543,7 +543,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                     onClick={() => { setDetail(null); void load() }}
                     title="Kembali ke daftar riwayat"
                     aria-label="Kembali ke daftar riwayat"
-                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 "
+                    className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60"
                   >
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="m15 18-6-6 6-6M9 12h11" />
@@ -584,7 +584,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                       onClick={() => void refreshDetail()}
                       title="Refresh output terbaru"
                       aria-label="Refresh output terbaru"
-                      className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60  disabled:opacity-40"
+                      className="mp-history-icon-button grid h-9 w-9 place-items-center rounded-lg border border-slate-700/80 bg-slate-900/70 text-slate-300 transition hover:border-teal-500/60 disabled:opacity-40"
                     >
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M20 7v5h-5M4 17v-5h5" />
