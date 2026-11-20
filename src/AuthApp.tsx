@@ -202,7 +202,7 @@ function ChangePasswordScreen({ onSave }: { onSave: (password: string, confirmPa
           <label className="block text-sm font-medium text-slate-300">Ulangi password baru
             <div className="relative mt-1.5">
               <input type={showConfirm ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={confirm} onChange={(event) => setConfirm(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
-              <button type="button" onClick={() => setShowConfirm((value) => !value)} aria-label={showConfirm ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showConfirm} /></button>
+              <button type="button" onClick={() => setShowConfirm((value) => !value)} aria-label={showConfirm ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showConfirm} /></button>
             </div>
           </label>
           <PasswordGuidance value={password} />
