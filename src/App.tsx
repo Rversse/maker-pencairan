@@ -1259,11 +1259,16 @@ function parseMakerOutputGroup(
     pencairan_harian: dailyPayments,
     lain_lain: [emptyOtherEntry(1)],
     arutala_lain_lain: [],
-    arutala_by_date: {
-      [transactionDate]: { gas, lain_lain: operasional.filter(entry => entry.useArutalaAccount) }
-    },
+    arutala_by_date: {},
     legacy_gaji: []
   }, transactionDate)
+  transaction.arutala_by_date = {
+    ...(transaction.arutala_by_date ?? {}),
+    [transactionDate]: {
+      gas: transaction.gas,
+      lain_lain: transaction.operasional.filter(entry => entry.useArutalaAccount)
+    }
+  }
 
   return {
     kitchenId: kitchen.id,
@@ -4013,7 +4018,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       </div>
       {importOpen && role === 'admin' && (
         <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/75 p-3 sm:p-5">
-          <section role="dialog" aria-modal="true" aria-labelledby="mp-import-title" className="mp-import-dialog max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-2xl border p-4 shadow-2xl sm:p-5">
+          <section role="dialog" aria-modal="true" aria-labelledby="mp-import-title" className="mp-import-dialog max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl border p-4 shadow-2xl sm:p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 id="mp-import-title" className="text-base font-bold">Import Output Maker-Pencairan</h2>

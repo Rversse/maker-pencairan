@@ -259,8 +259,25 @@ Deno.serve(async (request: Request) => {
         }
         const outputLines = payload.output.split(/\r?\n/).map((line: string) => line.trim()).filter(Boolean);
         const header = outputLines[0] ?? "";
-        if (!header || /^(REVISI|TAMBAHAN|KEKURANGAN)\s*-/i.test(header) || outputLines.length < 2) {
-          return json(request, { error: "Import hanya menerima output lengkap/final, bukan output revisi parsial" }, 400);
+        const headerMatch = /^(?:(REVISI|TAMBAHAN|KEKURANGAN)\s*-\s*)?(.+),\s*(\d{1,2})-([A-Za-z]{3})-(\d{4})(?:\s+\(\d+\))?$/.exec(header);
+        const months: Record<string, number> = {
+          jan: 1, feb: 2, mar: 3, apr: 4, mei: 5, jun: 6,
+          jul: 7, agu: 8, sep: 9, okt: 10, nov: 11, des: 12,
+        };
+        const headerMonth = headerMatch ? months[headerMatch[4].toLowerCase()] : undefined;
+        const headerDay = headerMatch ? Number(headerMatch[3]) : 0;
+        const headerYear = headerMatch ? Number(headerMatch[5]) : 0;
+        const headerParsed = headerMonth ? new Date(Date.UTC(headerYear, headerMonth - 1, headerDay)) : null;
+        const headerDate = headerParsed &&
+          headerParsed.getUTCFullYear() === headerYear &&
+          headerParsed.getUTCMonth() === headerMonth - 1 &&
+          headerParsed.getUTCDate() === headerDay
+          ? headerYear + "-" + String(headerMonth).padStart(2, "0") + "-" + String(headerDay).padStart(2, "0")
+          : "";
+        if (!headerMatch || headerMatch[1] || outputLines.length < 2 ||
+            headerMatch[2].trim().toLocaleLowerCase("id-ID") !== String(payload.kitchenName ?? "").trim().toLocaleLowerCase("id-ID") ||
+            headerDate !== transactionDate) {
+          return json(request, { error: "Header output tidak cocok dengan nama dapur/tanggal snapshot atau bukan output final" }, 400);
         }
         if (payload.output.length > 100000) {
           return json(request, { error: "Output satu kelompok terlalu besar untuk diimpor" }, 413);

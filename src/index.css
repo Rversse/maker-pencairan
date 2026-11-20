@@ -5499,3 +5499,23 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root:not([data-theme='light']) main .mp-import-dialog label {
   -webkit-text-fill-color: currentColor;
 }
+
+
+/* The focused amount itself and its previous-value text remain part of the
+   same highlighted row for every transaction section. */
+:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within .mp-rab-amount,
+:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-nominal-input,
+:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-nominal-input,
+:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within .mp-rab-amount,
+:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-nominal-input,
+:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-nominal-input {
+  color: #dbe7d5 !important;
+  -webkit-text-fill-color: #dbe7d5 !important;
+}
+:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-history-previous-amount,
+:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-history-previous-amount,
+:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-history-previous-amount,
+:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-history-previous-amount {
+  color: #a8c0a5 !important;
+  -webkit-text-fill-color: #a8c0a5 !important;
+}
