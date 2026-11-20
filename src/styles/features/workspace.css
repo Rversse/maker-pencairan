@@ -1080,7 +1080,7 @@ aside.mp-card .text-lg{
 
 
 .mp-form-stack .mp-ops-flex-row.is-va{
-  grid-template-columns: max-content 54px max-content max-content minmax(140px, 1.15fr) minmax(170px, .9fr) 36px !important;
+  grid-template-columns: max-content 54px max-content max-content max-content minmax(140px, 1.15fr) minmax(170px, .9fr) 36px !important;
 }
 
 
@@ -1563,7 +1563,7 @@ aside.mp-card .text-lg{
 
 
 .mp-form-stack .mp-ops-flex-row.is-va{
-  grid-template-columns: max-content 54px max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
+  grid-template-columns: max-content 54px max-content max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
 }
 
 
