@@ -4868,7 +4868,7 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
     grid-template-columns: minmax(0, 1fr) max-content !important;
   }
   main .mp-form-stack .mp-salary-flex-row {
-    grid-template-columns: max-content max-content max-content !important;
+    grid-template-columns: max-content minmax(0, 1fr) 160px !important;
     grid-template-areas: "tag account amount" !important;
     column-gap: 8px !important;
     row-gap: 8px !important;
@@ -4879,9 +4879,23 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
     flex-flow: row nowrap !important;
     align-items: center !important;
     gap: 8px !important;
-    width: max-content !important;
+    width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) {
+    flex: 0 0 160px !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    justify-self: end !important;
+  }
+  main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) > input {
+    flex: 0 0 160px !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    text-align: right !important;
   }
   main .mp-form-stack .mp-salary-account-details > .mp-salary-field {
     flex: 0 1 auto !important;
@@ -5057,7 +5071,7 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   max-width: 158px !important;
 }
 main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
-  grid-template-columns: max-content max-content 158px !important;
+  grid-template-columns: max-content minmax(0, 1fr) 158px !important;
 }
 @media (max-width: 1023px) {
   main .mp-form-stack .mp-revision-nominal {
@@ -5165,6 +5179,23 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   max-width: min(420px, 45vw) !important;
   padding-inline: 8px !important;
   field-sizing: content;
+}
+
+/* Mapped Ops Harian / Arutala note is a real editable value in the same
+   filled field treatment as mapped salary account details. */
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped {
+  border: 1px solid #566457 !important;
+  border-radius: 6px !important;
+  background: #354137 !important;
+  color: #d8e1d7 !important;
+  -webkit-text-fill-color: #d8e1d7 !important;
+  box-shadow: none !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped:focus {
+  border-color: #91aa95 !important;
+  background: #354137 !important;
+  box-shadow: 0 0 0 2px rgb(145 170 149 / 14%) !important;
+  outline: none !important;
 }
 
 /* Salary nominal follows the same right-edge alignment as the RAB ledger. */

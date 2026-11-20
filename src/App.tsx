@@ -3328,12 +3328,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                     type="text"
                                     
                                     disabled={!historyEnabled}
-                                    value={entry.need ?? ((isMappedOps || isArutala) ? 'Ops Harian' : '')}
+                                    value={entry.need || ((isMappedOps || isArutala) ? 'Ops Harian' : '')}
                                     maxLength={109}
                                     onChange={(event) => updateSimpleEntry(activeTransaction.id, 'operasional', entry.id, { need: event.target.value.slice(0, 109) })}
                                     placeholder={(isMappedOps || isArutala) ? 'Ops Harian' : 'Catatan'}
                                     aria-label="Catatan Operasional Harian (maksimal 109 karakter)"
-                                    className={`mp-ops-field mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
+                                    className={`mp-payment-detail mp-ops-note h-10 w-full min-w-0 text-center ${isMappedOps || isArutala ? 'mp-static-field mp-salary-field mp-ops-note--mapped' : 'mp-ops-field'} ${custom ? 'text-slate-100' : 'text-slate-300'} px-2.5 text-xs placeholder:text-slate-500 outline-none transition focus:border-teal-500`}
                                   />
                                   <div className={`mp-payment-nominal ${historyChangeActive ? 'mp-revision-nominal' : ''} flex min-w-0 items-center justify-end gap-1.5 ${hasHistoryPreviousAmount('operasional:' + entry.id) ? 'mp-has-history-previous' : ''}`}>
                                     {renderHistoryPreviousAmount('operasional:' + entry.id)}
