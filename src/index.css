@@ -3544,43 +3544,28 @@ aside.mp-card .rounded-lg { background-image: none !important; }
    Paper & Ink · operational alignment and application polish
    ========================================================================== */
 
-/* Active transaction is highlighted as one coherent row, not as one input.
-   Input backgrounds remain transparent; the category tag marks the active row. */
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within,
-:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within {
+/* An active transaction row must highlight its text, not only its tag.
+   The row receives a restrained surface and every sibling value uses Sage text. */
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
   border-radius: 9px !important;
   background: #2c362e !important;
   box-shadow: inset 0 0 0 1px #596e5b !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
-:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within .mp-tag,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-tag {
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
+  color: #b8d2b3 !important;
+  -webkit-text-fill-color: #b8d2b3 !important;
+}
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
   border-color: #8ba28a !important;
   border-left-color: #8ba28a !important;
   background: #405343 !important;
-  color: #f0f4ed !important;
-  -webkit-text-fill-color: #f0f4ed !important;
+  color: #e2eee0 !important;
+  -webkit-text-fill-color: #e2eee0 !important;
 }
-:root[data-theme='dark'] main .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
-:root[data-theme='dark'] main .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
-:root[data-theme='dark'] main .mp-form-stack textarea:focus:not(:disabled):not([readonly]),
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-field:focus,
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-field:focus-visible,
-:root[data-theme='dark'] main .mp-form-stack .mp-nominal-input:focus,
-:root[data-theme='dark'] main .mp-form-stack .mp-rab-amount:focus {
-  border-top: 0 !important;
-  border-right: 0 !important;
-  border-left: 0 !important;
-  border-bottom: 2px solid #b0c5ac !important;
-  background: transparent !important;
-  background-image: none !important;
-  color: #f0f4ed !important;
-  -webkit-text-fill-color: #f0f4ed !important;
-  caret-color: #c2d4bd !important;
-  font-weight: 650 !important;
-  box-shadow: none !important;
-  outline: none !important;
+:root[data-theme='dark'] .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
+  color: #eef5eb !important;
+  -webkit-text-fill-color: #eef5eb !important;
+  caret-color: #b8d2b3 !important;
 }
 :root[data-theme='dark'] main .mp-form-stack input:focus::placeholder,
 :root[data-theme='dark'] main .mp-form-stack textarea:focus::placeholder {
@@ -5320,21 +5305,24 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 /* Maker theme refinement: date selector, totals and active-row text feedback. */
 :root[data-theme='dark'] main .mp-date-control,
 :root:not([data-theme='light']) main .mp-date-control {
-  border: 1px solid #566457 !important;
+  border: 1px solid #465347 !important;
   border-radius: 8px !important;
-  background: #303a32 !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
   color: #e2e9e1 !important;
   box-shadow: none !important;
 }
 :root[data-theme='dark'] main .mp-date-control:hover,
 :root:not([data-theme='light']) main .mp-date-control:hover {
-  border-color: #758875 !important;
-  background: #354137 !important;
+  border-color: #718272 !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
 }
 :root[data-theme='dark'] main .mp-date-control:focus-within,
 :root:not([data-theme='light']) main .mp-date-control:focus-within {
   border-color: #a0b49c !important;
-  background: #303a32 !important;
+  background: #252c27 !important;
+  background-color: #252c27 !important;
   box-shadow: 0 0 0 2px rgb(160 180 156 / 14%) !important;
 }
 :root[data-theme='dark'] main .mp-date-control .mp-date-label,
@@ -5500,22 +5488,26 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: currentColor;
 }
 
-
-/* The focused amount itself and its previous-value text remain part of the
-   same highlighted row for every transaction section. */
-:root[data-theme='dark'] main .mp-form-stack .mp-rab-row:focus-within .mp-rab-amount,
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-nominal-input,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-nominal-input,
-:root:not([data-theme='light']) main .mp-form-stack .mp-rab-row:focus-within .mp-rab-amount,
-:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-nominal-input,
-:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-nominal-input {
-  color: #dbe7d5 !important;
-  -webkit-text-fill-color: #dbe7d5 !important;
+/* An active transaction row must highlight its text, not only its tag.
+   The row receives a restrained surface and every sibling value uses Sage text. */
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within {
+  border-radius: 9px !important;
+  background: #2c362e !important;
+  box-shadow: inset 0 0 0 1px #596e5b !important;
 }
-:root[data-theme='dark'] main .mp-form-stack .mp-ops-row:focus-within .mp-history-previous-amount,
-:root[data-theme='dark'] main .mp-form-stack .mp-payment-row:focus-within .mp-history-previous-amount,
-:root:not([data-theme='light']) main .mp-form-stack .mp-ops-row:focus-within .mp-history-previous-amount,
-:root:not([data-theme='light']) main .mp-form-stack .mp-payment-row:focus-within .mp-history-previous-amount {
-  color: #a8c0a5 !important;
-  -webkit-text-fill-color: #a8c0a5 !important;
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
+  color: #b8d2b3 !important;
+  -webkit-text-fill-color: #b8d2b3 !important;
+}
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
+  border-color: #8ba28a !important;
+  border-left-color: #8ba28a !important;
+  background: #405343 !important;
+  color: #e2eee0 !important;
+  -webkit-text-fill-color: #e2eee0 !important;
+}
+:root:not([data-theme='light']) .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
+  color: #eef5eb !important;
+  -webkit-text-fill-color: #eef5eb !important;
+  caret-color: #b8d2b3 !important;
 }
