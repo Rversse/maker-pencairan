@@ -118,7 +118,7 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
 
   return (
     <main className="mp-auth-screen mp-auth-login-screen flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10 text-white">
-      <div className="mp-auth-card mp-auth-card--change w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/85 p-6 shadow-xl sm:p-8">
+      <div className="mp-auth-card mp-auth-card--login w-full max-w-md rounded-2xl border border-slate-700/70 bg-slate-900/85 p-6 shadow-xl sm:p-8">
         <div className="mb-7 text-center">
           <p className="mp-auth-title text-lg font-bold tracking-tight text-white">Maker Pencairan</p>
           <h1 className="mp-auth-subtitle mt-1 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-400">LOGIN</h1>
@@ -149,7 +149,7 @@ function LoginScreen({ onLogin }: { onLogin: (role: 'admin' | 'accountant', kitc
                   <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
                 </div>
               </label>
-              <p className="text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p>
+              <p className="mp-auth-hint text-[11px] text-slate-500">8–16 karakter, minimal huruf dan angka. Simbol opsional, tanpa spasi.</p>
               {error && <p role="alert" className="mp-auth-error rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
               {busy && <p className="mp-auth-loading text-center text-xs text-emerald-400">Memverifikasi...</p>}
               <button type="submit" data-button-kind="primary" disabled={busy || (role === 'accountant' && (!kitchenId || loadingKitchens)) || (!PASSWORD_PATTERN.test(password) && !(role === 'admin' && /^\d{8}$/.test(password)))} className="mp-auth-submit h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Memverifikasi...' : 'Masuk'}</button>
@@ -196,18 +196,18 @@ function ChangePasswordScreen({ onSave }: { onSave: (password: string, confirmPa
           <label className="block text-sm font-medium text-slate-300">Password baru
             <div className="relative mt-1.5">
               <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={password} onChange={(event) => setPassword(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
-              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
+              <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} className="mp-auth-eye-button absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showPassword} /></button>
             </div>
           </label>
           <label className="block text-sm font-medium text-slate-300">Ulangi password baru
             <div className="relative mt-1.5">
-              <input type={showConfirm ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={confirm} onChange={(event) => setConfirm(event.target.value.slice(0, 16))} className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
+              <input type={showConfirm ? 'text' : 'password'} autoComplete="new-password" minLength={8} maxLength={16} required value={confirm} onChange={(event) => setConfirm(event.target.value.slice(0, 16))} className="mp-auth-password-input h-11 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 pr-20 text-sm text-white outline-none focus:border-emerald-500" />
               <button type="button" onClick={() => setShowConfirm((value) => !value)} aria-label={showConfirm ? 'Sembunyikan password' : 'Tampilkan password'} className="absolute inset-y-1 right-1 grid w-10 place-items-center rounded-md border-0 text-slate-300 shadow-none"><EyeIcon visible={showConfirm} /></button>
             </div>
           </label>
           <PasswordGuidance value={password} />
-          {error && <p role="alert" className="rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
-          <button type="submit" data-button-kind="primary" disabled={busy || !PASSWORD_PATTERN.test(password) || confirm !== password} className="h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Menyimpan...' : 'Simpan Password'}</button>
+          {error && <p role="alert" className="mp-auth-error rounded-lg border border-rose-800/60 bg-rose-950/40 p-3 text-sm text-rose-200">{error}</p>}
+          <button type="submit" data-button-kind="primary" disabled={busy || !PASSWORD_PATTERN.test(password) || confirm !== password} className="mp-auth-submit h-11 w-full rounded-lg text-sm font-semibold disabled:opacity-40">{busy ? 'Menyimpan...' : 'Simpan Password'}</button>
         </form>
 
       </div>
