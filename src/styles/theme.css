@@ -1,0 +1,502 @@
+/*
+ * Maker Pencairan — Bright Sky / Graphite
+ * One permanent palette. The RGB tokens are intentionally exposed for
+ * alpha-based borders, fills, focus rings and ambient surfaces.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Source palette */
+  --palette-bright-sky: #30bced;
+  --palette-graphite: #303036;
+  --palette-ghost-white: #fffaff;
+  --palette-tomato: #fc5130;
+  --palette-black: #050401;
+
+  /* Semantic colors */
+  --color-page: var(--palette-black);
+  --color-surface: var(--palette-graphite);
+  --color-surface-raised: rgb(48 48 54 / 92%);
+  --color-surface-subtle: rgb(48 48 54 / 78%);
+  --color-surface-inset: rgb(5 4 1 / 42%);
+  --color-field: var(--palette-graphite);
+  --color-field-disabled: rgb(48 48 54 / 72%);
+
+  --color-text: var(--palette-ghost-white);
+  --color-text-muted: rgb(255 250 255 / 68%);
+  --color-text-subtle: rgb(255 250 255 / 48%);
+
+  --color-border: rgb(255 250 255 / 16%);
+  --color-border-strong: rgb(255 250 255 / 28%);
+  --color-divider: rgb(255 250 255 / 11%);
+
+  --color-accent: var(--palette-bright-sky);
+  --color-accent-hover: var(--palette-bright-sky);
+  --color-accent-soft: rgb(48 188 237 / 13%);
+  --color-accent-border: rgb(48 188 237 / 54%);
+  --color-on-accent: var(--palette-black);
+
+  --color-danger: var(--palette-tomato);
+  --color-danger-soft: rgb(252 81 48 / 13%);
+  --color-danger-border: rgb(252 81 48 / 48%);
+  --color-warning: var(--palette-tomato);
+  --color-success: var(--palette-bright-sky);
+  --color-info: var(--palette-bright-sky);
+
+  --color-focus: var(--palette-bright-sky);
+  --color-focus-ring: rgb(48 188 237 / 25%);
+  --color-overlay: rgb(5 4 1 / 82%);
+  --color-shadow: rgb(5 4 1 / 42%);
+
+  --color-accent-rgb: 48 188 237;
+  --color-danger-rgb: 252 81 48;
+  --color-text-rgb: 255 250 255;
+  --color-surface-rgb: 48 48 54;
+  --color-page-rgb: 5 4 1;
+
+  /* Typography */
+  --font-family-sans: 'IBM Plex Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-family-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-size-xs: 0.6875rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.875rem;
+  --font-size-lg: 1rem;
+  --line-height-base: 1.5;
+  --letter-spacing-tight: -0.018em;
+
+  /* Geometry and spacing */
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-dialog: 16px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Shadows and motion */
+  --shadow-card: 0 12px 28px var(--color-shadow), inset 0 1px 0 rgb(255 250 255 / 2%);
+  --shadow-card-hover: 0 16px 34px var(--color-shadow), inset 0 1px 0 rgb(255 250 255 / 3%);
+  --shadow-dialog: 0 20px 56px var(--color-shadow);
+  --transition-fast: 130ms ease;
+  --transition-normal: 180ms ease;
+  --transition-slow: 240ms ease;
+
+  /* Ambient treatment */
+  --color-ambient-a: rgb(48 188 237 / 9%);
+  --color-ambient-b: rgb(48 188 237 / 4%);
+  --color-grid: rgb(255 250 255 / 2%);
+
+  /*
+   * Compatibility bridge for existing component CSS.
+   * New styling should consume the semantic tokens above.
+   */
+  --mp-font-sans: var(--font-family-sans);
+  --mp-font-mono: var(--font-family-mono);
+
+  --mp-page-bg: var(--color-page);
+  --mp-surface: var(--color-surface);
+  --mp-surface-muted: var(--color-surface-subtle);
+  --mp-border: var(--color-border);
+  --mp-border-strong: var(--color-border-strong);
+  --mp-ink: var(--color-text);
+  --mp-muted: var(--color-text-muted);
+  --mp-accent: var(--color-accent);
+  --mp-accent-strong: var(--color-accent);
+  --mp-accent-soft: var(--color-accent-soft);
+  --mp-danger: var(--color-danger);
+
+  --mp-radius-control: var(--radius-control);
+  --mp-radius-card: var(--radius-card);
+  --mp-radius-dialog: var(--radius-dialog);
+
+  --mp-control-surface: var(--color-field);
+  --mp-control-border: var(--color-border-strong);
+  --mp-control-focus: var(--color-focus);
+  --mp-control-focus-glow: var(--color-focus-ring);
+
+  --mp-action-bg: var(--color-surface);
+  --mp-action-text: var(--color-text);
+  --mp-action-border: var(--color-border-strong);
+  --mp-action-hover-bg: var(--color-accent-soft);
+  --mp-action-hover-text: var(--color-text);
+  --mp-action-hover-border: var(--color-accent-border);
+
+  --mp-card-top: var(--color-surface);
+  --mp-card-bottom: var(--color-surface);
+  --mp-card-rim-a: var(--color-border-strong);
+  --mp-card-rim-b: var(--color-accent-border);
+  --mp-card-glow: var(--color-accent-soft);
+  --mp-card-shadow: var(--shadow-card);
+  --mp-card-shadow-hover: var(--shadow-card-hover);
+
+  --mp-inset-shadow: var(--color-shadow);
+  --mp-title-from: var(--color-text);
+  --mp-title-to: var(--color-accent);
+  --mp-amount-from: var(--color-text);
+  --mp-amount-to: var(--color-accent);
+  --mp-pre-bg: var(--color-surface);
+  --mp-pre-border: var(--color-border);
+
+  --mp-field-surface: var(--color-surface-raised);
+  --mp-field-disabled: var(--color-field-disabled);
+  --mp-field-border: var(--color-border-strong);
+  --mp-field-border-hover: var(--color-accent-border);
+  --mp-field-focus: var(--color-focus);
+  --mp-field-placeholder: var(--color-text-subtle);
+
+  --mp-tag-surface: var(--color-surface-raised);
+  --mp-tag-border: var(--color-border-strong);
+  --mp-tag-text: var(--color-text);
+
+  --mp-ambient-a: var(--color-ambient-a);
+  --mp-ambient-b: var(--color-ambient-b);
+  --mp-ambient-c: transparent;
+  --mp-grid: var(--color-grid);
+}
+
+/* Global document defaults. Layout and component geometry stay in their
+   existing feature stylesheets during the staged migration. */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  color: var(--color-text);
+  background-color: var(--color-page);
+}
+
+::selection {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+* {
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+/* Application shells and major surfaces */
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel) {
+  color: var(--color-text) !important;
+  background: var(--color-page) !important;
+}
+
+:root .mp-app-header {
+  color: var(--color-text) !important;
+  background: rgb(48 48 54 / 94%) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: 0 1px 3px var(--color-shadow) !important;
+}
+
+:root .mp-card {
+  color: var(--color-text);
+  border-color: var(--color-border-strong) !important;
+  background:
+    linear-gradient(145deg, var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(135deg, var(--color-border-strong), var(--color-accent-border)) border-box !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+:root .mp-card:hover {
+  border-color: var(--color-accent-border) !important;
+  box-shadow: var(--shadow-card-hover) !important;
+}
+
+:root .mp-card::before {
+  background: radial-gradient(ellipse at 0% 0%, var(--color-accent-soft), transparent 62%) !important;
+}
+
+:root .mp-card::after {
+  background: linear-gradient(90deg, transparent, var(--color-accent), transparent) !important;
+}
+
+:root .mp-card h2::before {
+  background: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px var(--color-focus-ring), 0 0 9px var(--color-accent-border) !important;
+}
+
+:root .mp-card[class*='border-amber-500'] {
+  --mp-accent: var(--color-danger-rgb) !important;
+  --mp-card-rim-b: var(--color-danger-border) !important;
+  background:
+    linear-gradient(145deg, var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(135deg, var(--color-border-strong), var(--color-danger-border)) border-box !important;
+}
+
+:root .mp-card[class*='border-amber-500']::before {
+  background: radial-gradient(ellipse at 0% 0%, var(--color-danger-soft), transparent 62%) !important;
+}
+
+:root .mp-card[class*='border-amber-500']::after,
+:root .mp-card[class*='border-amber-500'] h2::before {
+  background: var(--color-danger) !important;
+}
+
+/* Buttons: one neutral action treatment, one primary accent treatment. */
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button:not([data-option-button='true']):not([data-calendar-day='true']) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button[data-button-kind='primary'],
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button.mp-auth-submit,
+:root .mp-import-primary,
+:root .mp-history-primary-button {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+  box-shadow: none !important;
+}
+
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button[data-button-kind='primary']:hover:not(:disabled),
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button.mp-auth-submit:hover:not(:disabled),
+:root .mp-import-primary:hover:not(:disabled),
+:root .mp-history-primary-button:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
+}
+
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button[data-option-button='true'] {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text-muted) !important;
+  box-shadow: none !important;
+}
+
+:root :is(.mp-app-shell, .mp-auth-screen, .mp-admin-panel, .mp-history-dialog) button[data-option-button='true'][data-selected='true'] {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+}
+
+:root button:focus-visible,
+:root input:focus-visible,
+:root select:focus-visible,
+:root textarea:focus-visible {
+  outline: 2px solid var(--color-focus) !important;
+  outline-offset: 2px;
+}
+
+/* Fields retain their established geometry: workspace text fields remain
+   underline-only; boxed controls keep their existing dimensions. */
+:root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']),
+:root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom),
+:root .mp-app-shell .mp-form-stack textarea,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:not(:is(div, span)) {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
+  border-bottom-color: var(--color-border-strong) !important;
+}
+
+:root .mp-app-shell .mp-form-stack :is(input, select, textarea):hover:not(:disabled):not([readonly]) {
+  border-bottom-color: var(--color-accent-border) !important;
+}
+
+:root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus:not(:disabled):not([readonly]) {
+  border-bottom-color: var(--color-focus) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
+  box-shadow: none !important;
+}
+
+:root .mp-app-shell .mp-form-stack :is(input, textarea)::placeholder,
+:root .mp-app-shell .mp-form-stack .mp-payment-detail::placeholder {
+  color: var(--color-text-subtle) !important;
+  -webkit-text-fill-color: var(--color-text-subtle) !important;
+}
+
+:root .mp-app-shell .mp-form-stack input[type='checkbox'],
+:root .mp-app-shell .mp-form-stack input[type='radio'],
+:root .mp-auth-screen input[type='checkbox'],
+:root .mp-admin-panel input[type='checkbox'] {
+  accent-color: var(--color-accent) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-static-field,
+:root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea),
+:root .mp-app-shell .mp-form-stack .mp-salary-field {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root .mp-app-shell .mp-form-stack :is(input, select, textarea):disabled,
+:root .mp-app-shell .mp-form-stack :is(input, textarea)[readonly] {
+  border-bottom-color: var(--color-border) !important;
+  background: var(--color-field-disabled) !important;
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+
+/* Date, kitchen selector and date-range popover share the same control tokens. */
+:root :is(.mp-date-range-trigger, .mp-date-control, .mp-history-date, .mp-kitchen-select, select.mp-auth-kitchen-select) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-field) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  color-scheme: dark;
+}
+
+:root :is(.mp-date-range-trigger, .mp-date-control, .mp-history-date, .mp-kitchen-select, select.mp-auth-kitchen-select):hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-surface) !important;
+}
+
+:root :is(.mp-date-range-trigger, .mp-date-control, .mp-history-date, .mp-kitchen-select, select.mp-auth-kitchen-select):focus,
+:root :is(.mp-date-range-trigger, .mp-date-control, .mp-history-date, .mp-kitchen-select, select.mp-auth-kitchen-select):focus-visible {
+  border-color: var(--color-focus) !important;
+  outline-color: var(--color-focus-ring) !important;
+}
+
+:root :is(.mp-date-range-popover, .mp-history-dialog, .mp-import-dialog, .mp-auth-card, .mp-admin-card, .mp-admin-panel [role='dialog'], [role='dialog'][aria-label*='rentang']) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-dialog) !important;
+}
+
+:root :is(.mp-history-list-item, .mp-history-summary, .mp-history-output, .mp-history-loading, .mp-import-preview, .mp-import-confirm, .mp-import-preview-group) {
+  border-color: var(--color-border) !important;
+  background-color: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-tag,
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom {
+  border-color: var(--color-border-strong) !important;
+  border-left-color: var(--color-accent) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root .mp-app-shell .mp-form-stack .mp-tag--custom:focus,
+:root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+}
+
+:root :is(.mp-summary-panel, .mp-summary-total-card) {
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text) !important;
+}
+
+:root .mp-summary-total-label,
+:root .mp-summary-breakdown,
+:root .mp-summary-breakdown-label {
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+
+:root .mp-summary-total-value,
+:root .mp-summary-breakdown-amount {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root .mp-history-event-tag {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-text-muted) !important;
+}
+
+:root .mp-history-event-tag.is-normal,
+:root .mp-history-event-tag.is-revision,
+:root .mp-history-event-tag.is-addition {
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-accent) !important;
+}
+
+:root .mp-history-event-tag.is-shortage,
+:root .mp-import-errors,
+:root .mp-auth-error,
+:root .mp-admin-panel [role='alert'] {
+  border-color: var(--color-danger-border) !important;
+  background: var(--color-danger-soft) !important;
+  color: var(--color-danger) !important;
+}
+
+:root .mp-admin-credential-notice,
+:root .mp-admin-toast,
+:root .mp-history-loading .mp-history-spinner {
+  border-color: var(--color-accent-border) !important;
+}
+
+:root .mp-history-loading .mp-history-spinner {
+  border-top-color: var(--color-accent) !important;
+}
+
+/* Tailwind utility colors are redirected to the same palette during the
+   staged feature-by-feature migration. Semantic danger utilities stay Tomato. */
+:root :is([class*='text-emerald-'], [class*='text-teal-'], [class*='text-cyan-'], [class*='text-sky-'], [class*='text-blue-']) {
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+}
+
+:root :is([class*='border-emerald-'], [class*='border-teal-'], [class*='border-cyan-'], [class*='border-sky-'], [class*='border-blue-']) {
+  border-color: var(--color-accent-border) !important;
+}
+
+:root :is([class*='bg-emerald-'], [class*='bg-teal-'], [class*='bg-cyan-'], [class*='bg-sky-'], [class*='bg-blue-']) {
+  background-color: var(--color-accent-soft) !important;
+}
+
+:root :is([class*='text-rose-'], [class*='text-red-'], [class*='text-orange-'], [class*='text-amber-']) {
+  color: var(--color-danger) !important;
+  -webkit-text-fill-color: var(--color-danger) !important;
+}
+
+:root :is([class*='border-rose-'], [class*='border-red-'], [class*='border-orange-'], [class*='border-amber-']) {
+  border-color: var(--color-danger-border) !important;
+}
+
+:root :is([class*='bg-rose-'], [class*='bg-red-'], [class*='bg-orange-'], [class*='bg-amber-']) {
+  background-color: var(--color-danger-soft) !important;
+}
+
+:root :is([class*='text-slate-50'], [class*='text-slate-100'], [class*='text-slate-200'], [class*='text-white']) {
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+}
+
+:root :is([class*='text-slate-300'], [class*='text-slate-400'], [class*='text-slate-500'], [class*='text-slate-600']) {
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
+}
+
+:root :is([class*='border-slate-600'], [class*='border-slate-700'], [class*='border-slate-800'], [class*='border-gray-']) {
+  border-color: var(--color-border) !important;
+}
+
+:root :is([class*='bg-slate-950'], [class*='bg-gray-950']) {
+  background-color: var(--color-page) !important;
+}
+
+:root :is([class*='bg-slate-900'], [class*='bg-slate-800'], [class*='bg-slate-700'], [class*='bg-gray-900'], [class*='bg-gray-800']) {
+  background-color: var(--color-surface) !important;
+}
