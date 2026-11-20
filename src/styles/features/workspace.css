@@ -13,6 +13,8 @@ main header > div > span:first-child {
 
 
 
+
+
 @keyframes mp-rise {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: none; }
@@ -20,10 +22,14 @@ main header > div > span:first-child {
 
 
 
+
+
 @keyframes mp-row-enter {
   from { opacity: 0.65; transform: translateY(3px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
 
 
 
@@ -45,6 +51,8 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card::before {
   content: '';
   position: absolute;
@@ -54,6 +62,8 @@ main header > div > span:first-child {
   background: radial-gradient(ellipse at 0% 0%, var(--mp-card-glow), transparent 62%);
   pointer-events: none;
 }
+
+
 
 
 
@@ -69,6 +79,8 @@ main header > div > span:first-child {
 
 
 
+
+
 /* Compact corner radius for cards, controls, and bordered fields inside the workspace. */
 .mp-card [class*='rounded-lg'][class*='border'],
 .mp-card [class*='rounded-md'][class*='border']:not([class*='rounded-full']) {
@@ -79,11 +91,15 @@ main header > div > span:first-child {
 
 
 
+
+
  .mp-card input,
 .mp-card select,
 .mp-card textarea {
   border-radius: var(--mp-radius-control) !important;
 }
+
+
 
 
 
@@ -105,6 +121,8 @@ main header > div > span:first-child {
 
 
 
+
+
 /* One shared spacing rhythm for every form card. */
 .mp-form-stack {
   gap: 8px;
@@ -114,9 +132,13 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-form-stack > .mp-card {
   margin-block: 0 !important;
 }
+
+
 
 
 
@@ -133,7 +155,11 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card[class*='border-amber-500'] { --mp-accent: var(--color-danger-rgb); }
+
+
 
 
 
@@ -143,7 +169,11 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card[class*='border-teal-600'] { --mp-accent: var(--color-accent-rgb); }
+
+
 
 
 
@@ -153,12 +183,18 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card[class*='border-orange-600'] { --mp-accent: var(--color-danger-rgb); }
 
 
 
 
+
+
 .mp-card[class*='border-violet-600'] { --mp-accent: var(--color-accent-rgb); }
+
+
 
 
 
@@ -172,9 +208,13 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card::before {
   background: radial-gradient(ellipse at 0% 0%, rgb(var(--mp-accent) / 10%), transparent 60%);
 }
+
+
 
 
 
@@ -197,12 +237,16 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card h2 {
   display: flex;
   align-items: center;
   gap: 8px;
   letter-spacing: -0.01em;
 }
+
+
 
 
 
@@ -222,7 +266,11 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-form-stack > .mp-card:nth-child(1) { animation-delay: 40ms; }
+
+
 
 
 
@@ -232,7 +280,11 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-form-stack > .mp-card:nth-child(3) { animation-delay: 140ms; }
+
+
 
 
 
@@ -242,12 +294,18 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-form-stack > .mp-card:nth-child(5) { animation-delay: 240ms; }
 
 
 
 
+
+
 .mp-form-stack > .mp-card:nth-child(n + 6) { animation-delay: 290ms; }
+
+
 
 
 
@@ -262,9 +320,13 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card div[class*='rounded-lg'][class*='border-slate-800']:hover {
   border-color: rgb(var(--mp-accent) / 32%);
 }
+
+
 
 
 
@@ -274,6 +336,8 @@ main header > div > span:first-child {
 .mp-card input[class*='bg-gradient-to-b'] {
   background-image: linear-gradient(180deg, var(--color-page), var(--color-page));
 }
+
+
 
 
 
@@ -289,11 +353,15 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card input:not([type='checkbox']):not([type='radio']):focus,
 .mp-card select:focus {
   border-color: rgb(var(--mp-accent) / 85%);
   box-shadow: inset 0 1px 2px var(--mp-inset-shadow), 0 0 0 3px rgb(var(--mp-accent) / 20%);
 }
+
+
 
 
 
@@ -309,12 +377,16 @@ main header > div > span:first-child {
 
 
 
+
+
 .mp-card button[data-option-button='true'][data-selected='true'] {
   box-shadow:
     0 0 0 1px rgb(var(--color-accent-rgb) / 0.35),
     0 8px 18px -6px rgb(var(--color-accent-rgb) / 0.55),
     inset 0 1px 0 rgb(var(--color-text-rgb) / 0.22);
 }
+
+
 
 
 
@@ -335,10 +407,14 @@ main header > div > span:first-child {
 
 
 
+
+
 /* Totals sidebar ---------------------------------------------------------- */
 aside.mp-card .rounded-lg {
   background-image: linear-gradient(160deg, rgb(var(--mp-accent) / 9%), transparent 60%);
 }
+
+
 
 
 
@@ -355,6 +431,8 @@ aside.mp-card .rounded-lg > div:first-child {
 
 
 
+
+
 aside.mp-card .text-lg {
   font-size: 1.4rem;
   line-height: 1.2;
@@ -365,6 +443,8 @@ aside.mp-card .text-lg {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+
 
 
 
@@ -387,6 +467,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 @media (min-width: 1024px) {
 
 
@@ -397,6 +479,8 @@ aside.mp-card .text-lg {
 
 
 }
+
+
 
 
 
@@ -419,6 +503,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* Operational transaction rows: clean ledger treatment, no nested boxes. */
 .mp-ops-row {
   min-width: 0;
@@ -430,7 +516,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-ops-row:last-child { border-bottom-color: transparent; }
+
+
 
 
 
@@ -447,6 +537,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-ops-field:focus,
 .mp-ops-field:focus-visible {
   border-bottom-color: var(--color-accent-border) !important;
@@ -457,7 +549,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-ops-field:disabled { opacity: .72; }
+
+
 
 
 
@@ -470,6 +566,8 @@ aside.mp-card .text-lg {
 
 
 }
+
+
 
 
 
@@ -488,6 +586,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* Transaction and history rows read as ledgers, not nested cards. */
 .mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/60']:not([role='alert']):not([role='note']),
 .mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/40']:not([role='alert']):not([role='note']) {
@@ -501,10 +601,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/60']:not([role='alert']):not([role='note']):last-child,
 .mp-card div[class*='rounded-lg'][class*='border-slate-800'][class*='bg-slate-950/40']:not([role='alert']):not([role='note']):last-child {
   border-bottom-color: transparent !important;
 }
+
+
 
 
 
@@ -524,6 +628,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-payment-row {
   padding: 8px 2px;
   border-bottom: 1px solid var(--color-border);
@@ -532,7 +638,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-payment-row:last-child { border-bottom-color: transparent; }
+
+
 
 
 
@@ -549,9 +659,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-card .mp-ops-row .mp-ops-kind {
   border-bottom: 0 !important;
 }
+
+
 
 
 
@@ -570,6 +684,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* RAB ledger: flatten supplier cards and give choices/amounts a consistent rhythm. */
 .mp-rab-row {
   border: 0 !important;
@@ -582,7 +698,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-rab-row:last-child { border-bottom-color: transparent !important; }
+
+
 
 
 
@@ -597,11 +717,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-rab-choice[data-selected='true'] {
   border-color: var(--color-accent-border) !important;
   background: linear-gradient(145deg, var(--color-accent), var(--color-accent)) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -615,6 +739,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-rab-add {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.09) !important;
@@ -624,11 +750,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-rab-add:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.2) !important;
   color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -644,10 +774,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-rab-amount:focus {
   border-bottom-color: var(--color-accent-border) !important;
   box-shadow: 0 1px 0 rgb(var(--color-accent-rgb) / 0.7) !important;
 }
+
+
 
 
 
@@ -660,10 +794,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-static-field {
   background: rgb(var(--color-page-rgb) / 0.38) !important;
   border-radius: 5px !important;
 }
+
+
 
 
 
@@ -676,6 +814,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 @media (max-width: 639px) {
 
 
@@ -684,6 +824,8 @@ aside.mp-card .text-lg {
 
 
 }
+
+
 
 
 
@@ -706,6 +848,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-card[class*='border-amber-500'] {
   --mp-accent: var(--color-danger-rgb) !important;
   --mp-card-rim-b: var(--color-danger) !important;
@@ -713,6 +857,8 @@ aside.mp-card .text-lg {
     linear-gradient(145deg, var(--color-surface), var(--color-page)) padding-box,
     linear-gradient(135deg, rgb(var(--color-surface-rgb) / 0.7), rgb(var(--color-danger-rgb) / 0.32)) border-box !important;
 }
+
+
 
 
 
@@ -726,9 +872,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-card::before {
   background: radial-gradient(ellipse at 0% 0%, rgb(var(--color-accent-rgb) / 0.08), transparent 62%) !important;
 }
+
+
 
 
 
@@ -740,9 +890,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-card::after {
   background: linear-gradient(90deg, transparent, rgb(var(--color-accent-rgb) / 0.32), transparent) !important;
 }
+
+
 
 
 
@@ -754,10 +908,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-card h2::before {
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   box-shadow: 0 0 0 3px rgb(var(--color-accent-rgb) / 0.12), 0 0 9px rgb(var(--color-accent-rgb) / 0.36) !important;
 }
+
+
 
 
 
@@ -771,12 +929,16 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* Read-only account values are subtly recessed, not mistaken for inputs. */
 .mp-static-field,
 .mp-card .mp-ops-row .mp-ops-field:not(input):not(select):not(textarea) {
   background: rgb(var(--color-page-rgb) / 0.34) !important;
   border-radius: 5px !important;
 }
+
+
 
 
 
@@ -802,11 +964,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack > .mp-card:hover {
   --mp-card-rim-a: var(--color-border-strong) !important;
   --mp-card-rim-b: var(--color-accent-border) !important;
   box-shadow: 0 12px 28px var(--color-shadow) !important;
 }
+
+
 
 
 
@@ -819,12 +985,18 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack > .mp-card::before { opacity: .34 !important; }
 
 
 
 
+
+
 .mp-form-stack > .mp-card::after { opacity: .18 !important; }
+
+
 
 
 
@@ -837,10 +1009,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack > .mp-card[class*="border-amber"] h2::before {
   background: rgb(var(--color-danger-rgb) / 0.14) !important;
   box-shadow: none !important;
 }
+
+
 
 
 
@@ -864,11 +1040,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack input::placeholder,
 .mp-form-stack textarea::placeholder {
   color: var(--color-text-muted) !important;
   text-align: center;
 }
+
+
 
 
 
@@ -882,6 +1062,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack input:focus,
 .mp-form-stack select:focus,
 .mp-form-stack textarea:focus {
@@ -889,6 +1071,8 @@ aside.mp-card .text-lg {
   box-shadow: 0 1px 0 rgb(var(--color-accent-rgb) / 0.66) !important;
   outline: none;
 }
+
+
 
 
 
@@ -910,12 +1094,18 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack input[type="checkbox"] { accent-color: var(--color-accent); }
 
 
 
 
+
+
 .mp-form-stack option { color: var(--color-text); background: var(--color-page); }
+
+
 
 
 
@@ -936,6 +1126,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-payment-detail {
   color: var(--color-accent) !important;
   text-align: center !important;
@@ -945,11 +1137,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-payment-detail::placeholder {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
   text-align: center !important;
 }
+
+
 
 
 
@@ -984,7 +1180,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-tag--gas { border-left-color: var(--color-tag-accent-border) !important; background: var(--color-tag-surface) !important; }
+
+
 
 
 
@@ -994,7 +1194,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-tag--arutala { border-color: var(--color-accent-border) !important; border-left-color: var(--color-tag-accent-border) !important; background: var(--color-tag-surface) !important; color: var(--color-tag-text) !important; }
+
+
 
 
 
@@ -1011,6 +1215,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-tag--salary {
   border-color: var(--color-accent-border) !important;
   border-left-color: var(--color-tag-accent-border) !important;
@@ -1022,9 +1228,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-tag--custom:focus {
   border-bottom-color: var(--color-accent-border) !important;
 }
+
+
 
 
 
@@ -1050,12 +1260,18 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-rab-row:last-child { border-bottom-color: transparent !important; }
 
 
 
 
+
+
 .mp-rab-details { min-width: 0; text-align: left !important; }
+
+
 
 
 
@@ -1067,6 +1283,8 @@ aside.mp-card .text-lg {
   text-align: left !important;
   white-space: nowrap;
 }
+
+
 
 
 
@@ -1084,6 +1302,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-rab-choice,
 .mp-form-stack .mp-rab-add {
   flex: 0 0 auto;
@@ -1091,6 +1311,8 @@ aside.mp-card .text-lg {
   white-space: nowrap;
   transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
+
+
 
 
 
@@ -1105,11 +1327,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-rab-choice[data-selected="true"] {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -1123,11 +1349,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-rab-add {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.42) !important;
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -1138,6 +1368,8 @@ aside.mp-card .text-lg {
   justify-self: stretch;
   justify-content: center !important;
 }
+
+
 
 
 
@@ -1153,7 +1385,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-rab-row > .col-span-2 { grid-column: 1 / -1; min-width: 0; }
+
+
 
 
 
@@ -1167,6 +1403,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-rab-b3-nominal > input {
   width: 100% !important;
   min-width: 0 !important;
@@ -1174,6 +1412,8 @@ aside.mp-card .text-lg {
   flex: 1 1 0 !important;
   text-align: center !important;
 }
+
+
 
 
 
@@ -1193,7 +1433,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-ops-row:last-child { border-bottom-color: transparent; }
+
+
 
 
 
@@ -1208,6 +1452,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-gas-owner, .mp-gas-bank, .mp-gas-account {
   width: max-content;
   max-width: 220px;
@@ -1217,12 +1463,18 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-gas-quantity { width: 100%; min-width: 64px; max-width: 110px; }
 
 
 
 
+
+
 .mp-gas-size { width: 100%; min-width: 90px; max-width: 120px; }
+
+
 
 
 :root .mp-app-shell main .mp-form-stack select.mp-gas-size {
@@ -1244,12 +1496,16 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-ops-flex-row {
   display: grid !important;
   grid-template-columns: max-content max-content max-content max-content minmax(150px, 1.2fr) minmax(170px, .9fr) 36px !important;
   align-items: center !important;
   gap: 9px !important;
 }
+
+
 
 
 
@@ -1261,9 +1517,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-ops-flex-row.is-va {
   grid-template-columns: max-content 54px max-content max-content minmax(140px, 1.15fr) minmax(170px, .9fr) 36px !important;
 }
+
+
 
 
 
@@ -1281,11 +1541,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-ops-flex-row .mp-ops-type-select {
   min-width: 82px;
   max-width: 170px;
   justify-self: start;
 }
+
+
 
 
 
@@ -1301,10 +1565,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-ops-flex-row input.mp-ops-owner,
 .mp-ops-flex-row input.mp-ops-account {
   field-sizing: content;
 }
+
+
 
 
 
@@ -1314,6 +1582,8 @@ aside.mp-card .text-lg {
   min-width: 0;
   max-width: none;
 }
+
+
 
 
 
@@ -1331,6 +1601,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-ops-flex-row .mp-payment-nominal > input,
 .mp-gas-flex-row .mp-payment-nominal > input {
   width: 100%;
@@ -1339,6 +1611,8 @@ aside.mp-card .text-lg {
   flex: 1 1 0;
   text-align: center !important;
 }
+
+
 
 
 
@@ -1352,6 +1626,8 @@ aside.mp-card .text-lg {
   flex: 0 0 36px !important;
   padding: 0 !important;
 }
+
+
 
 
 
@@ -1371,7 +1647,11 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-payment-row:last-child { border-bottom-color: transparent !important; }
+
+
 
 
 
@@ -1386,11 +1666,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-salary-flex-row .mp-salary-field {
   width: max-content;
   max-width: 240px;
   padding-inline: 12px;
 }
+
+
 
 
 
@@ -1404,6 +1688,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-salary-flex-row .mp-payment-nominal > input {
   width: 100%;
   min-width: 0;
@@ -1411,6 +1697,8 @@ aside.mp-card .text-lg {
   flex: 1 1 0;
   text-align: center !important;
 }
+
+
 
 
 
@@ -1429,10 +1717,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* Subtle entrance feedback; disable motion for accessibility preferences. */
 .mp-rab-row, .mp-ops-row, .mp-payment-row {
   animation: mp-row-enter 180ms ease both;
 }
+
+
 
 
 
@@ -1445,6 +1737,8 @@ aside.mp-card .text-lg {
 
 
 }
+
+
 
 
 
@@ -1578,6 +1872,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 @media (max-width: 639px) {
 
 
@@ -1703,10 +1999,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* ── Nominal sizing refinement · 203px fields ─────────────────────────── */
 .mp-form-stack .mp-rab-row {
   grid-template-columns: minmax(0, 1fr) max-content !important;
 }
+
+
 
 
 
@@ -1717,6 +2017,8 @@ aside.mp-card .text-lg {
   justify-self: end;
   justify-content: flex-end !important;
 }
+
+
 
 
 
@@ -1732,11 +2034,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* Left-side operational fields size to their content. The nominal track
    uses remaining room as a spacer, with the amount input aligned at right. */
 .mp-form-stack .mp-gas-flex-row {
   grid-template-columns: max-content max-content max-content max-content max-content max-content minmax(0, 1fr) 36px !important;
 }
+
+
 
 
 
@@ -1748,9 +2054,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-ops-flex-row.has-va {
   grid-template-columns: max-content 54px max-content max-content max-content minmax(120px, max-content) minmax(0, 1fr) 36px !important;
 }
+
+
 
 
 
@@ -1762,12 +2072,16 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-ops-flex-row .mp-ops-note {
   width: max-content;
   min-width: 120px;
   max-width: 280px;
   field-sizing: content;
 }
+
+
 
 
 
@@ -1783,9 +2097,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-salary-flex-row {
   grid-template-columns: max-content max-content max-content max-content minmax(0, 1fr) !important;
 }
+
+
 
 
 
@@ -1808,13 +2126,19 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-rab-nominal,
 .mp-form-stack .mp-rab-b3-nominal { gap: 7px; }
 
 
 
 
+
+
 .mp-form-stack .mp-payment-nominal > button { flex: 0 0 auto; }
+
+
 
 
 
@@ -1863,12 +2187,16 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* ── Output copy + three-zone salary rows ──────────────────────────────── */
 .mp-output-copy {
   cursor: copy;
   user-select: text;
   transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
 }
+
+
 
 
 
@@ -1883,9 +2211,13 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-output-copy:active {
   background: rgb(var(--color-accent-rgb) / 0.1) !important;
 }
+
+
 
 
 
@@ -1903,10 +2235,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-salary-flex-row > .mp-tag--salary {
   grid-area: tag;
   justify-self: start;
 }
+
+
 
 
 
@@ -1924,6 +2260,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-salary-account-details > .mp-salary-field {
   width: 100%;
   min-width: 0;
@@ -1934,10 +2272,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-salary-account-details > .mp-salary-field:first-child,
 .mp-salary-account-details > .mp-salary-field:last-child {
   overflow: hidden;
 }
+
+
 
 
 
@@ -1954,6 +2296,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-salary-flex-row > .mp-payment-nominal > input {
   width: 203px !important;
   min-width: 203px !important;
@@ -1962,6 +2306,8 @@ aside.mp-card .text-lg {
   margin-left: 0 !important;
   text-align: center !important;
 }
+
+
 
 
 
@@ -2009,6 +2355,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 @media (max-width: 639px) {
 
 
@@ -2044,6 +2392,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* ── History editing controls and compact history list ─────────────────── */
 .mp-form-stack .mp-history-additional-toggle {
   display: inline-flex;
@@ -2062,6 +2412,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-history-additional-toggle:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.1) !important;
@@ -2071,11 +2423,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-history-additional-toggle.is-active {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.18) !important;
   color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -2097,6 +2453,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-history-additional-switch > span {
   display: block;
   width: 8px;
@@ -2110,6 +2468,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-history-additional-toggle.is-active .mp-history-additional-switch {
   border-color: var(--color-accent-border);
   background: var(--color-accent);
@@ -2118,10 +2478,14 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-history-additional-toggle.is-active .mp-history-additional-switch > span {
   background: var(--color-surface-raised);
   transform: translateX(9px);
 }
+
+
 
 
 
@@ -2138,6 +2502,8 @@ aside.mp-card .text-lg {
   row-gap: 2px;
   padding-top: 14px;
 }
+
+
 
 
 
@@ -2161,6 +2527,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-gas-quantity-stack {
   display: flex;
   width: 68px !important;
@@ -2175,12 +2543,16 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-gas-quantity-input {
   width: 68px !important;
   min-width: 68px !important;
   max-width: 68px !important;
   text-align: center !important;
 }
+
+
 
 
 
@@ -2192,11 +2564,15 @@ aside.mp-card .text-lg {
 
 
 
+
+
 .mp-form-stack .mp-gas-flex-row > .mp-gas-size {
   width: max-content;
   min-width: 90px;
   max-width: 112px;
 }
+
+
 
 
 
@@ -2218,6 +2594,8 @@ aside.mp-card .text-lg {
 
 
 }
+
+
 
 
 
@@ -2245,6 +2623,8 @@ aside.mp-card .text-lg {
 
 
 
+
+
 /* ── Shared control geometry and interaction tokens ───────────────────── */
 /* Use this primitive for selects and other boxed form controls. */
 .mp-control-surface,
@@ -2261,11 +2641,15 @@ main select.mp-control-surface {
 
 
 
+
+
 .mp-control-surface:hover:not(:disabled),
 main select.mp-control-surface:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   box-shadow: 0 0 0 2px var(--mp-control-focus-glow), 0 0 12px rgb(var(--color-accent-rgb) / 0.09);
 }
+
+
 
 
 
@@ -2281,6 +2665,8 @@ main select.mp-control-surface:focus-visible {
 
 
 
+
+
 .mp-control-surface:disabled,
 main select.mp-control-surface:disabled {
   border-color: var(--color-border) !important;
@@ -2288,6 +2674,8 @@ main select.mp-control-surface:disabled {
   color: var(--color-text-muted) !important;
   cursor: not-allowed;
 }
+
+
 
 
 
@@ -2300,13 +2688,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* Badge-style dropdown: keep the same tag surface and accent as GAS/Ops/Arutala. */
 .mp-form-stack select.mp-tag--custom {
   border: 1px solid var(--color-tag-border) !important;
   border-left: 2px solid var(--color-accent-border) !important;
   border-radius: var(--mp-radius-control) !important;
   background-color: var(--color-tag-surface) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2399f6e4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
   background-repeat: no-repeat !important;
   background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
   background-size: 4px 4px !important;
@@ -2321,6 +2711,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
   border-color: var(--color-tag-border-hover) !important;
   background-color: var(--color-tag-surface-hover) !important;
@@ -2330,11 +2722,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 .mp-form-stack select.mp-tag--custom:focus-visible {
   border-color: var(--color-tag-border-hover) !important;
   outline: 2px solid var(--color-accent-border);
   outline-offset: 2px;
 }
+
+
 
 
 
@@ -2356,11 +2752,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* Final cleanup: only remove the ledger separators called out in the review. */
 .mp-form-stack .mp-rab-row,
 .mp-form-stack .mp-ops-row {
   border-bottom: 0 !important;
 }
+
+
 
 
 
@@ -2378,10 +2778,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 .mp-form-stack select:focus:not(:disabled) {
   color: var(--color-accent) !important;
   caret-color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -2391,6 +2795,8 @@ main select.mp-control-surface:disabled {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -2413,6 +2819,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* Supplier identity is a static block beside the editable RAB nominal.
    Highlight it when that supplier row contains the active control. */
 .mp-form-stack .mp-rab-row:focus-within .mp-rab-details {
@@ -2422,9 +2830,13 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 .mp-form-stack .mp-rab-row:focus-within .mp-rab-details > * {
   color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -2475,8 +2887,12 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-card
 { background: var(--mp-surface) !important; border-color: var(--mp-border) !important; }
+
+
 
 
 
@@ -2486,9 +2902,13 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-control-surface,
 :root main select.mp-control-surface
 { background: var(--color-surface) !important; color: var(--mp-ink) !important; border-color: var(--mp-control-border) !important; }
+
+
 
 
 
@@ -2511,6 +2931,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-operational-add-menu > button {
   min-height: 38px;
   border: 1px solid var(--color-border) !important;
@@ -2524,6 +2946,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-operational-add-menu > button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
@@ -2533,10 +2957,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-operational-add-menu > button:disabled {
   background: var(--color-surface) !important;
   color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -2553,6 +2981,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell aside.mp-card [title='Belum diisi'] {
   border: 1px solid var(--color-danger-border) !important;
   background: rgb(var(--color-danger-rgb) / 0.14) !important;
@@ -2563,10 +2993,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell aside.mp-card [title='Sudah diisi']::before,
 :root .mp-app-shell aside.mp-card [title='Belum diisi']::before {
   box-shadow: none !important;
 }
+
+
 
 
 
@@ -2591,6 +3025,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-nominal-input:focus,
 :root .mp-app-shell .mp-form-stack .mp-nominal-input:focus-visible,
 :root .mp-app-shell .mp-form-stack .mp-payment-nominal > input:focus,
@@ -2611,6 +3047,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-ops-field:focus,
 :root .mp-app-shell .mp-form-stack .mp-ops-field:focus-visible {
   border-top: 0 !important;
@@ -2625,12 +3063,16 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
 :root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
 :root .mp-app-shell .mp-form-stack .mp-payment-row:focus-within {
   border-radius: 8px;
   background: rgb(var(--color-accent-rgb) / 0.08) !important;
 }
+
+
 
 
 
@@ -2644,6 +3086,8 @@ main select.mp-control-surface:disabled {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -2669,6 +3113,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-tag--gas,
 :root .mp-app-shell .mp-form-stack .mp-tag--ops,
 :root .mp-app-shell .mp-form-stack .mp-tag--arutala,
@@ -2682,14 +3128,27 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
+  appearance: none !important;
+  -webkit-appearance: none !important;
   border: 1px solid var(--mp-tag-border) !important;
-  border-left: 2px solid var(--color-accent-border) !important;
-  background-color: var(--mp-tag-surface) !important;
+  border-left: 2px solid var(--color-tag-accent-border) !important;
+  border-radius: var(--radius-control) !important;
+  background-color: var(--color-tag-surface) !important;
   background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
-  color: var(--mp-tag-text) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
   box-shadow: none !important;
+  padding-right: 18px !important;
+  cursor: pointer;
 }
+
+
 
 
 
@@ -2706,10 +3165,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom option {
   background: var(--color-surface) !important;
   color: var(--color-tag-text) !important;
 }
+
+
 
 
 
@@ -2727,6 +3190,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-va-toggle:hover {
   border-color: var(--color-accent-border) !important;
   background: transparent !important;
@@ -2735,10 +3200,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-va-toggle input[type='checkbox'] {
   accent-color: var(--color-accent) !important;
   background: transparent !important;
 }
+
+
 
 
 
@@ -2757,6 +3226,8 @@ main select.mp-control-surface:disabled {
   -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: none !important;
 }
+
+
 
 
 
@@ -2780,11 +3251,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack input:disabled::placeholder,
 :root .mp-app-shell .mp-form-stack textarea:disabled::placeholder {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -2801,12 +3276,14 @@ main select.mp-control-surface:disabled {
   border-radius: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  color: var(--color-tag-text) !important;
-  -webkit-text-fill-color: var(--color-tag-text) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
   box-shadow: none !important;
   outline: none !important;
   transition: border-color 140ms ease, color 140ms ease !important;
 }
+
+
 
 
 
@@ -2826,6 +3303,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* Focus changes text/caret and the underline only—never the field or row fill. */
 :root .mp-app-shell .mp-form-stack input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='hidden']):focus:not(:disabled):not([readonly]),
 :root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):focus:not(:disabled),
@@ -2837,12 +3316,14 @@ main select.mp-control-surface:disabled {
   border-radius: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  color: var(--color-tag-text-hover) !important;
-  -webkit-text-fill-color: var(--color-tag-text-hover) !important;
-  caret-color: var(--color-tag-text-hover) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
   box-shadow: none !important;
   outline: none !important;
 }
+
+
 
 
 
@@ -2861,6 +3342,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* Do not tint the whole row or neighboring static values while editing. */
 :root .mp-app-shell .mp-form-stack .mp-rab-row:focus-within,
 :root .mp-app-shell .mp-form-stack .mp-ops-row:focus-within,
@@ -2868,6 +3351,8 @@ main select.mp-control-surface:disabled {
   background: transparent !important;
   box-shadow: none !important;
 }
+
+
 
 
 
@@ -2881,6 +3366,8 @@ main select.mp-control-surface:disabled {
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -2904,6 +3391,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack select:not(.mp-tag--custom):has(option:checked[value='']) {
   color: var(--mp-field-placeholder) !important;
   -webkit-text-fill-color: var(--mp-field-placeholder) !important;
@@ -2911,6 +3400,8 @@ main select.mp-control-surface:disabled {
   font-size: 12px !important;
   font-weight: 500 !important;
 }
+
+
 
 
 
@@ -2924,11 +3415,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* Keep selected values in editable fields visually consistent with static data. */
 :root .mp-app-shell .mp-form-stack .mp-ops-row .mp-payment-detail:focus-within,
 :root .mp-app-shell .mp-form-stack .mp-payment-row .mp-payment-detail:focus-within {
   background: transparent !important;
 }
+
+
 
 
 
@@ -2957,7 +3452,7 @@ main select.mp-control-surface:disabled {
   border-radius: 7px !important;
   background: var(--color-tag-surface) !important;
   background-color: var(--color-tag-surface) !important;
-  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-image: none !important;
   color: var(--color-tag-text) !important;
   -webkit-text-fill-color: var(--color-tag-text) !important;
   text-align: center !important;
@@ -2972,6 +3467,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-tag > span {
   display: block;
   width: 100%;
@@ -2981,10 +3478,27 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
   appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 1px solid var(--mp-tag-border) !important;
+  border-left: 2px solid var(--color-tag-accent-border) !important;
+  border-radius: var(--radius-control) !important;
+  background-color: var(--color-tag-surface) !important;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
+  box-shadow: none !important;
+  padding-right: 18px !important;
   cursor: pointer;
 }
+
+
 
 
 
@@ -3001,6 +3515,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-tag:hover,
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
   border-color: var(--color-tag-border-hover) !important;
@@ -3008,6 +3524,8 @@ main select.mp-control-surface:disabled {
   background: var(--color-tag-surface-hover) !important;
   color: var(--color-tag-text-hover) !important;
 }
+
+
 
 
 
@@ -3029,12 +3547,16 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root .mp-app-shell .mp-form-stack .mp-static-field:hover,
 :root .mp-app-shell .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea):hover,
 :root .mp-app-shell .mp-form-stack .mp-salary-field:hover {
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   border-color: var(--color-accent-border) !important;
 }
+
+
 
 
 
@@ -3056,13 +3578,15 @@ main select.mp-control-surface:disabled {
   border-radius: 0 !important;
   background: transparent !important;
   background-image: none !important;
-  color: var(--color-tag-text-hover) !important;
-  -webkit-text-fill-color: var(--color-tag-text-hover) !important;
-  caret-color: var(--color-tag-text-hover) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
+  caret-color: var(--color-accent) !important;
   font-weight: 650 !important;
   box-shadow: none !important;
   outline: none !important;
 }
+
+
 
 
 
@@ -3072,6 +3596,8 @@ main select.mp-control-surface:disabled {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -3086,11 +3612,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-form-stack input:focus::placeholder,
 :root main .mp-form-stack textarea:focus::placeholder {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -3107,12 +3637,16 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-form-stack .mp-static-field,
 :root main .mp-form-stack .mp-salary-field,
 :root main .mp-form-stack .mp-ops-field:not(input):not(select):not(textarea) {
   height: 40px !important;
   min-height: 40px !important;
 }
+
+
 
 
 
@@ -3130,12 +3664,16 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-form-stack .mp-gas-flex-row .mp-gas-note {
   width: 100% !important;
   min-width: 0 !important;
   max-width: none !important;
   text-align: center !important;
 }
+
+
 
 
 
@@ -3164,6 +3702,8 @@ main select.mp-control-surface:disabled {
 
 
 }
+
+
 
 
 
@@ -3224,6 +3764,8 @@ main select.mp-control-surface:disabled {
 
 
 }
+
+
 
 
 
@@ -3289,6 +3831,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* VA remains a label + checkbox only; no enclosing button-like border. */
 :root main .mp-form-stack .mp-va-toggle,
 :root main .mp-form-stack .mp-va-toggle:hover {
@@ -3307,11 +3851,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
   width: 15px;
   height: 15px;
   accent-color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -3332,11 +3880,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-kitchen-select:hover
 {
   border-color: var(--color-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
 }
+
+
 
 
 
@@ -3351,6 +3903,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-kitchen-select option
 {
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
@@ -3360,11 +3914,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-kitchen-select option:checked
 {
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -3381,10 +3939,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-output-header > div {
   min-height: 24px;
   align-items: center !important;
 }
+
+
 
 
 
@@ -3396,6 +3958,8 @@ main select.mp-control-surface:disabled {
   margin: 0 !important;
   line-height: 1.35 !important;
 }
+
+
 
 
 
@@ -3415,11 +3979,15 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 /* Facility, salary and incentive summary are plain status text, not pills. */
 :root main .mp-summary-checks {
   border: 0 !important;
   padding-top: 10px !important;
 }
+
+
 
 
 
@@ -3438,10 +4006,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-summary-checks .mp-summary-check::before {
   content: none !important;
   display: none !important;
 }
+
+
 
 
 
@@ -3454,6 +4026,8 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-summary-checks .mp-summary-check.is-incomplete {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
@@ -3462,10 +4036,14 @@ main select.mp-control-surface:disabled {
 
 
 
+
+
 :root main .mp-output-copy {
   font-family: var(--mp-font-mono) !important;
   font-variant-numeric: tabular-nums;
 }
+
+
 
 
 
@@ -3491,6 +4069,8 @@ main .mp-summary-checks .mp-summary-check:hover {
 
 
 
+
+
 main .mp-summary-checks .mp-summary-check.is-complete {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
@@ -3499,10 +4079,14 @@ main .mp-summary-checks .mp-summary-check.is-complete {
 
 
 
+
+
 main .mp-summary-checks .mp-summary-check.is-incomplete {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
 
 
 
@@ -3529,6 +4113,8 @@ main .mp-form-stack .mp-va-toggle:focus-within {
 
 
 
+
+
 main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
   width: 15px !important;
   height: 15px !important;
@@ -3540,9 +4126,13 @@ main .mp-form-stack .mp-va-toggle input[type='checkbox'] {
 
 
 
+
+
 main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
   outline-color: var(--color-accent-border);
 }
+
+
 
 
 
@@ -3697,6 +4287,8 @@ main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
 
 
 
+
+
 /* Responsive layouts keep the remove/tag order and wrap only below desktop. */
 @media (max-width: 1023px) {
 
@@ -3751,6 +4343,8 @@ main .mp-form-stack .mp-va-toggle:hover input[type='checkbox'] {
 
 
 
+
+
 /* Summary indicators: plain text only. The inline JSX color is the sole status cue.
    This also neutralizes the former [title='Sudah diisi'] pill selector. */
 main .mp-summary-checks,
@@ -3771,11 +4365,15 @@ main .mp-summary-checks > span {
 
 
 
+
+
 main .mp-summary-checks > span::before,
 main .mp-summary-checks > span::after {
   content: none !important;
   display: none !important;
 }
+
+
 
 
 
@@ -3794,6 +4392,8 @@ main .mp-form-stack .mp-rab-row {
 
 
 
+
+
 main .mp-form-stack .mp-rab-nominal,
 main .mp-form-stack .mp-rab-b3-nominal,
 main .mp-form-stack .mp-payment-nominal {
@@ -3804,6 +4404,8 @@ main .mp-form-stack .mp-payment-nominal {
   justify-self: end !important;
   margin-left: auto !important;
 }
+
+
 
 
 
@@ -3820,9 +4422,13 @@ main .mp-form-stack .mp-payment-nominal > input {
 
 
 
+
+
 main .mp-form-stack .mp-salary-flex-row {
   grid-template-columns: max-content minmax(0, 1fr) 160px !important;
 }
+
+
 
 
 
@@ -3838,12 +4444,16 @@ main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal {
 
 
 
+
+
 main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input {
   flex: 1 1 0% !important;
   width: 0 !important;
   min-width: 0 !important;
   max-width: none !important;
 }
+
+
 
 
 
@@ -3858,6 +4468,8 @@ main .mp-summary-breakdown {
   min-width: 0;
   max-width: 100%;
 }
+
+
 
 
 
@@ -3877,6 +4489,8 @@ main .mp-summary-breakdown-row {
 
 
 
+
+
 main .mp-summary-breakdown-label {
   flex: 0 1 auto;
   min-width: 0;
@@ -3890,12 +4504,16 @@ main .mp-summary-breakdown-label {
 
 
 
+
+
 main .mp-summary-breakdown-amount {
   flex: 0 0 auto;
   min-width: 0;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
+
+
 
 
 
@@ -3948,6 +4566,8 @@ main .mp-summary-breakdown-amount {
 
 
 
+
+
 /* ==========================================================================
    Revision amount controls: 160px nominal + separate shortage action
    ========================================================================== */
@@ -3959,6 +4579,8 @@ main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal) > input {
   min-width: 160px !important;
   max-width: 160px !important;
 }
+
+
 
 
 
@@ -3983,9 +4605,13 @@ main .mp-form-stack .mp-revision-nominal {
 
 
 
+
+
 main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) {
   grid-template-rows: 36px !important;
 }
+
+
 
 
 
@@ -3997,6 +4623,8 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
   min-width: 0 !important;
   text-align: right !important;
 }
+
+
 
 
 
@@ -4015,9 +4643,13 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
 
 
 
+
+
 main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
   grid-template-columns: minmax(0, 1fr) 252px !important;
 }
+
+
 
 
 
@@ -4033,9 +4665,13 @@ main .mp-form-stack .mp-rab-row .mp-rab-b3-nominal.mp-revision-nominal {
 
 
 
+
+
 main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   grid-template-columns: max-content minmax(0, 1fr) 252px !important;
 }
+
+
 
 
 
@@ -4048,6 +4684,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   min-width: 252px !important;
   max-width: 252px !important;
 }
+
+
 
 
 
@@ -4084,6 +4722,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 
 
+
+
 /* Secondary action for discarding an in-progress revision. */
 .mp-revision-cancel-button {
   border: 1px solid var(--color-accent-border) !important;
@@ -4095,11 +4735,15 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 
 
+
+
 .mp-revision-cancel-button:hover:not(:disabled) {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -4125,6 +4769,8 @@ main .mp-form-stack .mp-revision-nominal {
 
 
 
+
+
 main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
   grid-column: 1 !important;
   grid-row: 1 !important;
@@ -4133,6 +4779,8 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
   flex: none !important;
   text-align: center !important;
 }
+
+
 
 
 
@@ -4146,6 +4794,8 @@ main .mp-form-stack .mp-revision-nominal > input {
   max-width: 160px !important;
   margin: 0 !important;
 }
+
+
 
 
 
@@ -4165,6 +4815,8 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
 
 
 
+
+
 /* The older salary-specific selector forced width:0 on this input. This
    equally-specific rule intentionally wins for every revision salary row. */
 main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
@@ -4178,10 +4830,14 @@ main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input {
 
 
 
+
+
 /* Keep enough room for the 160px field, 40px Tambahan control and their gap. */
 main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
   grid-template-columns: minmax(0, 1fr) 260px !important;
 }
+
+
 
 
 
@@ -4200,9 +4856,13 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 
 
+
+
 main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   grid-template-columns: max-content minmax(0, 1fr) 260px !important;
 }
+
+
 
 
 
@@ -4227,6 +4887,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 }
+
+
 
 
 
@@ -4273,6 +4935,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 }
+
+
 
 
 
@@ -4568,6 +5232,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 
+
+
 /* Narrow viewports: preserve the same field baselines while allowing the
    metadata fields to wrap below the tag, instead of shrinking into overlap. */
 @media (max-width: 1023px) {
@@ -4694,6 +5360,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 
+
+
 /* In revision mode the 120px nominal and compact 30px icon remain separate.
    The previous-value label sits only above the nominal input, never above
    the icon; close buttons and account metadata are not modified. */
@@ -4717,9 +5385,13 @@ main .mp-form-stack .mp-revision-nominal {
 
 
 
+
+
 main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) {
   grid-template-rows: 40px !important;
 }
+
+
 
 
 
@@ -4732,6 +5404,8 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-previous-amount {
   flex: none !important;
   text-align: center !important;
 }
+
+
 
 
 
@@ -4750,9 +5424,13 @@ main .mp-form-stack .mp-revision-nominal > input {
 
 
 
+
+
 main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > input {
   grid-row: 1 !important;
 }
+
+
 
 
 
@@ -4781,9 +5459,13 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle {
 
 
 
+
+
 main .mp-form-stack .mp-revision-nominal:not(.mp-has-history-previous) > .mp-history-additional-toggle {
   grid-row: 1 !important;
 }
+
+
 
 
 
@@ -4798,11 +5480,15 @@ main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle:hover:n
 
 
 
+
+
 main .mp-form-stack .mp-revision-nominal > .mp-history-additional-toggle.is-active {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 
@@ -4816,6 +5502,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   min-width: 158px !important;
   max-width: 158px !important;
 }
+
+
 
 
 
@@ -4851,6 +5539,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 }
 
+
+
 /* VA is text + checkbox only. No wrapper border, fill, hover border, or pill.
    The checkbox alone receives a restrained accent glow on hover. */
 :root .mp-app-shell main .mp-form-stack label.mp-va-toggle,
@@ -4881,6 +5571,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 }
 
 
+
+
 :root .mp-app-shell main .mp-form-stack label.mp-va-toggle input[type='checkbox']
 {
   width: 15px !important;
@@ -4897,6 +5589,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 }
 
 
+
+
 :root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover input[type='checkbox']
 {
   box-shadow: 0 0 0 3px rgb(var(--color-accent-rgb) / 0.13), 0 0 7px rgb(var(--color-accent-rgb) / 0.24) !important;
@@ -4905,11 +5599,15 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 
 
+
+
 :root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
 :root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover span {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 :root .mp-app-shell main .mp-form-stack label.mp-va-toggle span
 {
@@ -4921,6 +5619,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
+
+
 
 /* Final cascade locks for the legacy selectors that used to override fit sizing. */
 :root .mp-app-shell main .mp-form-stack select.mp-tag--custom
@@ -4935,6 +5635,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 }
 
 
+
+
 :root .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note
 {
   flex: 0 1 auto !important;
@@ -4946,6 +5648,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 }
 
 
+
+
 :root .mp-app-shell main .mp-form-stack .mp-ops-flex-row > .mp-ops-note
 {
   flex: 0 1 auto !important;
@@ -4955,6 +5659,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   padding-inline: 8px !important;
   field-sizing: content;
 }
+
+
 
 
 
@@ -4974,12 +5680,16 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 
 
+
+
 :root .mp-app-shell main .mp-form-stack input.mp-ops-note--mapped:focus {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
   box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.14) !important;
   outline: none !important;
 }
+
+
 
 
 
@@ -4993,9 +5703,13 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 
 
+
+
 .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input {
   text-align: right !important;
 }
+
+
 
 
 :root .mp-app-shell main .mp-form-stack .mp-rab-row > .mp-rab-nominal.mp-revision-nominal,
@@ -5008,6 +5722,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 }
 
 
+
+
 :root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-revision-nominal > input
 {
   flex: 0 0 120px !important;
@@ -5016,6 +5732,8 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   max-width: 120px !important;
   field-sizing: content;
 }
+
+
 
 
 :root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal.mp-revision-nominal
@@ -5031,11 +5749,15 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 
 
 
+
+
 /* Final nominal sizing: 120px accommodates formatted amounts through hundreds
    of millions. Revision controls keep a 120px input plus the 30px history action. */
 main .mp-form-stack .mp-rab-row {
   grid-template-columns: minmax(0, 1fr) 120px !important;
 }
+
+
 
 
 
@@ -5054,6 +5776,8 @@ main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) {
 
 
 
+
+
 main .mp-form-stack .mp-rab-nominal:not(.mp-revision-nominal) > input,
 main .mp-form-stack .mp-rab-b3-nominal:not(.mp-revision-nominal) > input,
 main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) > input {
@@ -5066,9 +5790,13 @@ main .mp-form-stack .mp-payment-nominal:not(.mp-revision-nominal) > input {
 
 
 
+
+
 main .mp-form-stack .mp-salary-flex-row {
   grid-template-columns: max-content minmax(0, 1fr) 120px !important;
 }
+
+
 
 
 
@@ -5084,12 +5812,16 @@ main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-n
 
 
 
+
+
 main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-nominal) > input {
   flex: 0 0 120px !important;
   width: 120px !important;
   min-width: 120px !important;
   max-width: 120px !important;
 }
+
+
 
 
 
@@ -5108,6 +5840,8 @@ main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-n
 
 
 }
+
+
 
 
 
@@ -5145,6 +5879,8 @@ main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal:not(.mp-revision-n
 
 
 
+
+
 /* Revision nominal: 120px editable amount + 8px gap + 30px history action. */
 main .mp-form-stack .mp-revision-nominal {
   grid-template-columns: 120px 30px !important;
@@ -5153,6 +5889,8 @@ main .mp-form-stack .mp-revision-nominal {
   min-width: 158px !important;
   max-width: 158px !important;
 }
+
+
 
 
 
@@ -5167,9 +5905,13 @@ main .mp-form-stack .mp-revision-nominal > input {
 
 
 
+
+
 main .mp-form-stack .mp-rab-row:has(.mp-revision-nominal) {
   grid-template-columns: minmax(0, 1fr) 158px !important;
 }
+
+
 
 
 
@@ -5178,12 +5920,16 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   grid-template-columns: max-content minmax(0, 1fr) 158px !important;
 }
 
+
+
 /* Date and kitchen share one control style; summary theme rules follow. */
 :root main .mp-summary-panel
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-surface) !important;
 }
+
+
 
 
 :root main .mp-summary-total-card
@@ -5195,6 +5941,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-summary-total-label
 {
   color: var(--color-accent) !important;
@@ -5204,11 +5952,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-summary-total-value
 {
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
 }
+
+
 
 
 :root main .mp-summary-breakdown
@@ -5218,11 +5970,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-summary-breakdown-label
 {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 :root main .mp-summary-breakdown-amount
@@ -5232,6 +5988,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-form-stack .mp-rab-row:focus-within,
 :root main .mp-form-stack .mp-ops-row:focus-within,
 :root main .mp-form-stack .mp-payment-row:focus-within
@@ -5239,6 +5997,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   background: rgb(var(--color-accent-rgb) / 0.08) !important;
   border-radius: 8px !important;
 }
+
+
 
 
 :root main .mp-form-stack .mp-rab-row:focus-within .mp-rab-details,
@@ -5254,6 +6014,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
 :root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary
 {
@@ -5262,12 +6024,16 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-import-dialog
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
 }
+
+
 
 
 :root main .mp-import-mode,
@@ -5279,6 +6045,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-import-mode.is-active
 {
   border-color: var(--color-accent-border) !important;
@@ -5286,6 +6054,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   color: var(--color-text) !important;
   box-shadow: inset 0 0 0 1px rgb(var(--color-accent-rgb) / 0.18) !important;
 }
+
+
 
 
 :root main .mp-import-textarea
@@ -5297,6 +6067,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-import-textarea:focus
 {
   border-color: var(--color-accent-border) !important;
@@ -5304,11 +6076,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-import-textarea::placeholder
 {
   color: var(--color-text-muted) !important;
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
+
+
 
 
 :root main .mp-import-preview,
@@ -5320,11 +6096,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-import-preview-group
 {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
 }
+
+
 
 
 :root main .mp-import-errors
@@ -5335,6 +6115,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-import-primary
 {
   border: 1px solid var(--color-accent-border) !important;
@@ -5343,11 +6125,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root main .mp-import-primary:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
   background: rgb(var(--color-accent-rgb) / 0.14) !important;
 }
+
+
 
 /* Import dialog text is explicitly legible across the Sage surface. */
 :root main .mp-import-dialog h2,
@@ -5357,6 +6143,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 {
   -webkit-text-fill-color: currentColor;
 }
+
+
 
 /* ==========================================================================
    Paper & Ink · operational alignment and application polish
@@ -5378,10 +6166,14 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 
+
+
 :root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within * {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 
@@ -5397,11 +6189,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 
+
+
 :root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within :is(.mp-nominal-input, .mp-rab-amount):focus {
   color: var(--color-text) !important;
   -webkit-text-fill-color: var(--color-text) !important;
   caret-color: var(--color-accent) !important;
 }
+
+
 
 
 :root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input
@@ -5410,10 +6206,14 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root .mp-app-shell main .mp-form-stack .mp-salary-flex-row > .mp-payment-nominal > input.mp-nominal-input::placeholder
 {
   text-align: center !important;
 }
+
+
 
 /* Date and Dapur are the same control: one token, one surface, one interaction. */
 :root .mp-app-shell main .mp-date-control.mp-control-surface,
@@ -5432,6 +6232,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root .mp-app-shell main .mp-date-control.mp-control-surface:hover,
 :root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled)
 {
@@ -5443,6 +6245,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 :root .mp-app-shell main .mp-date-control.mp-control-surface:focus-within,
@@ -5460,11 +6264,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 }
 
 
+
+
 :root .mp-app-shell main .mp-date-control .mp-date-label
 {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 
 :root .mp-app-shell main .mp-date-control .mp-date-value
@@ -5475,11 +6283,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 
+
+
 :root .mp-app-shell main .mp-date-control:hover .mp-date-value,
 :root .mp-app-shell main .mp-date-control:focus-within .mp-date-value {
   color: var(--color-accent) !important;
   -webkit-text-fill-color: var(--color-accent) !important;
 }
+
+
 
 :root .mp-app-shell main .mp-date-control > input[type='date']
 {
