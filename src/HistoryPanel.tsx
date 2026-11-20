@@ -50,7 +50,7 @@ const dateTime = (value: string) => {
   return `${formatDate(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`)} · ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`
 }
 
-type AuditRowKind = 'revision' | 'shortage' | 'addition' | 'removal'
+type AuditRowKind = 'revision' | 'additional' | 'shortage' | 'addition' | 'removal'
 type StoredAuditRow = {
   key?: string
   kind: AuditRowKind
@@ -87,9 +87,11 @@ function legacyAuditRows(event: HistoryEvent, previous?: HistoryEvent | null): S
     previousByIdentity.set(identity, queue)
   })
 
-  const shortageKeys = Array.isArray(event.snapshot.delta?.shortage_keys)
-    ? event.snapshot.delta.shortage_keys as unknown[]
-    : []
+  const additionalKeys = Array.isArray(event.snapshot.delta?.additional_keys)
+    ? event.snapshot.delta.additional_keys as unknown[]
+    : Array.isArray(event.snapshot.delta?.shortage_keys)
+      ? event.snapshot.delta.shortage_keys as unknown[]
+      : []
   const changed: StoredAuditRow[] = []
   currentLines.forEach(after => {
     const parts = splitOutputLine(after)
@@ -102,7 +104,7 @@ function legacyAuditRows(event: HistoryEvent, previous?: HistoryEvent | null): S
       changed.push({ kind: 'addition', before: null, after })
     } else if (before !== after) {
       changed.push({
-        kind: shortageKeys.length ? 'shortage' : 'revision',
+        kind: additionalKeys.length ? 'additional' : 'revision',
         before,
         after,
         beforeAmount: Number(splitOutputLine(before).amount.replace(/\D/g, '')) || 0,
@@ -124,13 +126,11 @@ function historyEventTags(event: HistoryEvent, previous?: HistoryEvent | null): 
   if (event.event_type === 'NORMAL') return ['Pencairan Awal']
   const rows = auditRowsForEvent(event, previous)
   const hasRevision = rows.some(row => row.kind === 'revision' || row.kind === 'removal')
-  const hasShortage = rows.some(row => row.kind === 'shortage')
-  const hasAddition = rows.some(row => row.kind === 'addition')
+  const hasAdditional = rows.some(row => row.kind === 'additional' || row.kind === 'shortage' || row.kind === 'addition')
   const tags: string[] = []
   if (hasRevision) tags.push('Revisi')
-  if (hasShortage) tags.push('Kekurangan')
-  if (hasAddition) tags.push('Tambahan')
-  return tags.length ? tags : [event.event_type === 'KEKURANGAN' ? 'Kekurangan' : event.event_type === 'TAMBAHAN' ? 'Tambahan' : 'Revisi']
+  if (hasAdditional) tags.push('Tambahan')
+  return tags.length ? tags : [event.event_type === 'KEKURANGAN' || event.event_type === 'TAMBAHAN' ? 'Tambahan' : 'Revisi']
 }
 
 function auditSuffix(row: StoredAuditRow): string {
@@ -141,7 +141,7 @@ function auditSuffix(row: StoredAuditRow): string {
   const afterAmount = row.afterAmount ?? (Number(after.amount.replace(/\D/g, '')) || 0)
   const deltaAmount = row.deltaAmount ?? (afterAmount - beforeAmount)
 
-  if (row.kind === 'shortage' && deltaAmount > 0) {
+  if ((row.kind === 'additional' || row.kind === 'shortage') && deltaAmount > 0) {
     return `(${money(beforeAmount)} + ${money(deltaAmount)})`
   }
   if (beforeAmount !== afterAmount) {
@@ -601,7 +601,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   ) : (
                     <div className="whitespace-pre-wrap font-sans">
                       {outputDisplayLines.map((line, index) => {
-                        const highlightClass = line.kind === 'shortage'
+                        const highlightClass = (line.kind === 'additional' || line.kind === 'shortage')
                           ? 'text-amber-200 underline decoration-amber-400/80 decoration-2 underline-offset-4'
                           : line.kind === 'addition'
                             ? 'text-emerald-200 underline decoration-emerald-400/80 decoration-2 underline-offset-4'
@@ -611,7 +611,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                         return (
                           <div key={index} className={line.kind ? 'py-0.5' : ''}>
                             <span className={line.kind ? highlightClass : ''}>{line.text}</span>
-                            {line.suffix && <span className={line.kind === 'shortage' ? 'ml-1 text-amber-300' : 'ml-1 text-teal-300'}>{line.suffix}</span>}
+                            {line.suffix && <span className={(line.kind === 'additional' || line.kind === 'shortage') ? 'ml-1 text-amber-300' : 'ml-1 text-teal-300'}>{line.suffix}</span>}
                           </div>
                         )
                       })}
@@ -639,7 +639,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                               {tags.map(tag => (
-                                <span key={tag} className={`mp-history-event-tag ${tag === 'Pencairan Awal' ? 'is-normal' : tag === 'Revisi' ? 'is-revision' : tag === 'Kekurangan' ? 'is-shortage' : 'is-addition'}`}>{tag}</span>
+                                <span key={tag} className={`mp-history-event-tag ${tag === 'Pencairan Awal' ? 'is-normal' : tag === 'Revisi' ? 'is-revision' : tag === 'Tambahan' ? 'is-addition' : 'is-addition'}`}>{tag}</span>
                               ))}
                               <span className="text-[10px] tabular-nums text-slate-500">{dateTime(event.created_at)}</span>
                             </div>
