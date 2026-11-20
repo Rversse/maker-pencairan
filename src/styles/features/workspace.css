@@ -966,11 +966,11 @@ aside.mp-card .text-lg {
   align-items: center;
   justify-content: center;
   padding: 0 12px;
-  border: 1px solid var(--color-accent-border) !important;
+  border: 1px solid var(--color-tag-border) !important;
   border-left: 2px solid var(--color-accent-border) !important;
   border-radius: 7px !important;
-  background: rgb(var(--color-accent-rgb) / 0.12) !important;
-  color: var(--color-accent) !important;
+  background: var(--color-tag-surface) !important;
+  color: var(--color-tag-text) !important;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: .045em;
@@ -984,17 +984,17 @@ aside.mp-card .text-lg {
 
 
 
-.mp-form-stack .mp-tag--gas { border-left-color: var(--color-accent-border) !important; background: rgb(var(--color-accent-rgb) / 0.15) !important; }
+.mp-form-stack .mp-tag--gas { border-left-color: var(--color-tag-accent-border) !important; background: var(--color-tag-surface) !important; }
 
 
 
 
-.mp-form-stack .mp-tag--ops { border-left-color: var(--color-accent-border) !important; background: rgb(var(--color-accent-rgb) / 0.11) !important; }
+.mp-form-stack .mp-tag--ops { border-left-color: var(--color-tag-accent-border) !important; background: var(--color-tag-surface) !important; }
 
 
 
 
-.mp-form-stack .mp-tag--arutala { border-color: var(--color-accent-border) !important; border-left-color: var(--color-accent-border) !important; background: rgb(var(--color-accent-rgb) / 0.12) !important; color: var(--color-accent) !important; }
+.mp-form-stack .mp-tag--arutala { border-color: var(--color-accent-border) !important; border-left-color: var(--color-tag-accent-border) !important; background: var(--color-tag-surface) !important; color: var(--color-tag-text) !important; }
 
 
 
@@ -1003,7 +1003,7 @@ aside.mp-card .text-lg {
   border-color: var(--color-border) !important;
   border-left-color: var(--color-border) !important;
   background: rgb(var(--color-page-rgb) / 0.54) !important;
-  color: var(--color-accent) !important;
+  color: var(--color-tag-text) !important;
   appearance: auto !important;
   cursor: pointer;
 }
@@ -1013,9 +1013,9 @@ aside.mp-card .text-lg {
 
 .mp-form-stack .mp-tag--salary {
   border-color: var(--color-accent-border) !important;
-  border-left-color: var(--color-accent-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.12) !important;
-  color: var(--color-accent) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
+  background: var(--color-tag-surface) !important;
+  color: var(--color-tag-text) !important;
   letter-spacing: .045em;
 }
 
@@ -1223,6 +1223,23 @@ aside.mp-card .text-lg {
 
 
 .mp-gas-size { width: 100%; min-width: 90px; max-width: 120px; }
+
+
+:root .mp-app-shell main .mp-form-stack select.mp-gas-size {
+  flex: 0 1 auto !important;
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 84px !important;
+  padding-left: 6px !important;
+  padding-right: 18px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;
+}
+
 
 
 
@@ -2285,18 +2302,18 @@ main select.mp-control-surface:disabled {
 
 /* Badge-style dropdown: keep the same tag surface and accent as GAS/Ops/Arutala. */
 .mp-form-stack select.mp-tag--custom {
-  border: 1px solid var(--color-accent-border) !important;
+  border: 1px solid var(--color-tag-border) !important;
   border-left: 2px solid var(--color-accent-border) !important;
   border-radius: var(--mp-radius-control) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.12) !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2399f6e4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-color: var(--color-tag-surface) !important;
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
   background-repeat: no-repeat !important;
-  background-position: right 8px center !important;
-  background-size: 12px 12px !important;
-  color: var(--color-accent) !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;
+  color: var(--color-tag-text) !important;
   appearance: none !important;
   -webkit-appearance: none !important;
-  padding-right: 26px !important;
+  padding-right: 18px !important;
   text-align-last: center;
   cursor: pointer;
 }
@@ -2305,8 +2322,8 @@ main select.mp-control-surface:disabled {
 
 
 .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
-  border-color: var(--color-accent-border) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.18) !important;
+  border-color: var(--color-tag-border-hover) !important;
+  background-color: var(--color-tag-surface-hover) !important;
   box-shadow: 0 0 0 2px rgb(var(--color-accent-rgb) / 0.1) !important;
 }
 
@@ -2314,7 +2331,7 @@ main select.mp-control-surface:disabled {
 
 
 .mp-form-stack select.mp-tag--custom:focus-visible {
-  border-color: var(--color-accent-border) !important;
+  border-color: var(--color-tag-border-hover) !important;
   outline: 2px solid var(--color-accent-border);
   outline-offset: 2px;
 }
@@ -2657,7 +2674,7 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-form-stack .mp-tag--arutala,
 :root .mp-app-shell .mp-form-stack .mp-tag--salary {
   border-color: var(--mp-tag-border) !important;
-  border-left-color: var(--color-accent-border) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
   background: var(--mp-tag-surface) !important;
   color: var(--mp-tag-text) !important;
 }
@@ -2672,16 +2689,20 @@ main select.mp-control-surface:disabled {
   background-image: none !important;
   color: var(--mp-tag-text) !important;
   box-shadow: none !important;
-}
+
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;
+  padding-right: 18px !important;}
 
 
 
 
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled),
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom:focus-visible {
-  border-color: var(--color-accent-border) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-text) !important;
+  border-color: var(--color-tag-border-hover) !important;
+  background-color: var(--color-tag-surface-hover) !important;
+  color: var(--color-tag-text-hover) !important;
   outline: none !important;
   box-shadow: none !important;
 }
@@ -2691,7 +2712,7 @@ main select.mp-control-surface:disabled {
 
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom option {
   background: var(--color-surface) !important;
-  color: var(--color-text) !important;
+  color: var(--color-tag-text) !important;
 }
 
 
@@ -2800,6 +2821,9 @@ main select.mp-control-surface:disabled {
   border-bottom-color: var(--mp-field-border-hover) !important;
   background: transparent !important;
   box-shadow: none !important;
+
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
 }
 
 
@@ -2932,14 +2956,14 @@ main select.mp-control-surface:disabled {
   min-height: 36px;
   justify-content: center !important;
   padding-inline: 12px !important;
-  border: 1px solid var(--color-accent-border) !important;
-  border-left: 1px solid var(--color-accent-border) !important;
+  border: 1px solid var(--color-tag-border) !important;
+  border-left: 1px solid var(--color-tag-accent-border) !important;
   border-radius: 7px !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
+  background: var(--color-tag-surface) !important;
+  background-color: var(--color-tag-surface) !important;
   background-image: none !important;
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
   text-align: center !important;
   text-indent: 0 !important;
   box-shadow: none !important;
@@ -2962,9 +2986,14 @@ main select.mp-control-surface:disabled {
 
 
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom {
-  appearance: auto !important;
+  appearance: none !important;
   cursor: pointer;
-}
+
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;
+  padding-right: 18px !important;}
 
 
 
@@ -2974,8 +3003,8 @@ main select.mp-control-surface:disabled {
 :root .mp-app-shell .mp-form-stack .mp-tag--arutala,
 :root .mp-app-shell .mp-form-stack .mp-tag--salary {
   border-left-width: 1px !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-text) !important;
+  background: var(--color-tag-surface) !important;
+  color: var(--color-tag-text) !important;
 }
 
 
@@ -2983,10 +3012,10 @@ main select.mp-control-surface:disabled {
 
 :root .mp-app-shell .mp-form-stack .mp-tag:hover,
 :root .mp-app-shell .mp-form-stack select.mp-tag--custom:hover:not(:disabled) {
-  border-color: var(--color-border) !important;
-  border-left-color: var(--color-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-text) !important;
+  border-color: var(--color-tag-border-hover) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
+  background: var(--color-tag-surface-hover) !important;
+  color: var(--color-tag-text-hover) !important;
 }
 
 
@@ -3435,8 +3464,8 @@ main select.mp-control-surface:disabled {
 
 
 :root main .mp-summary-checks .mp-summary-check.is-incomplete {
-  color: var(--color-danger) !important;
-  -webkit-text-fill-color: var(--color-danger) !important;
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
 }
 
 
@@ -3480,8 +3509,8 @@ main .mp-summary-checks .mp-summary-check.is-complete {
 
 
 main .mp-summary-checks .mp-summary-check.is-incomplete {
-  color: var(--color-danger) !important;
-  -webkit-text-fill-color: var(--color-danger) !important;
+  color: var(--color-text-muted) !important;
+  -webkit-text-fill-color: var(--color-text-muted) !important;
 }
 
 
@@ -4412,13 +4441,17 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   /* Lain-Lain selector: compact 90px baseline, including the native arrow. */
   main .mp-form-stack select.mp-tag--custom {
     flex: 0 0 auto !important;
-    width: 90px !important;
-    min-width: 90px !important;
-    max-width: 120px !important;
+    width: 82px !important;
+    min-width: 82px !important;
+    max-width: 104px !important;
     padding-left: 7px !important;
     padding-right: 18px !important;
     field-sizing: content;
-  }
+  
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;}
 
 
 
@@ -4603,12 +4636,16 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
   main .mp-form-stack select.mp-tag--custom {
-    width: 90px !important;
-    min-width: 90px !important;
-    max-width: 120px !important;
+    width: 82px !important;
+    min-width: 82px !important;
+    max-width: 104px !important;
     padding-left: 7px !important;
     padding-right: 18px !important;
-  }
+  
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;}
 
 
 
@@ -4884,6 +4921,13 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
 }
 
 
+
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover,
+:root .mp-app-shell main .mp-form-stack label.mp-va-toggle:hover span {
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+}
+
 :root .mp-app-shell main .mp-form-stack label.mp-va-toggle span
 {
   padding: 0 !important;
@@ -4891,21 +4935,25 @@ main .mp-form-stack .mp-gas-flex-row > .mp-payment-nominal.mp-revision-nominal {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  color: var(--color-accent) !important;
-  -webkit-text-fill-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  -webkit-text-fill-color: var(--color-text) !important;
 }
 
 /* Final cascade locks for the legacy selectors that used to override fit sizing. */
 :root .mp-app-shell main .mp-form-stack select.mp-tag--custom
 {
   flex: 0 0 auto !important;
-  width: 90px !important;
-  min-width: 90px !important;
-  max-width: 120px !important;
+  width: 82px !important;
+  min-width: 82px !important;
+  max-width: 104px !important;
   padding-left: 7px !important;
   padding-right: 18px !important;
   field-sizing: content;
-}
+
+  background-image: linear-gradient(45deg, transparent 50%, var(--color-accent) 50%), linear-gradient(135deg, var(--color-accent) 50%, transparent 50%) !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) 50%, calc(100% - 6px) 50% !important;
+  background-size: 4px 4px !important;}
 
 
 :root .mp-app-shell main .mp-form-stack .mp-gas-flex-row > .mp-gas-note
@@ -5230,8 +5278,8 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root main .mp-form-stack .mp-ops-row:focus-within .mp-tag,
 :root main .mp-form-stack .mp-payment-row:focus-within .mp-tag--salary
 {
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
 }
 
 
@@ -5360,11 +5408,11 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 
 
 :root .mp-app-shell main .mp-form-stack :is(.mp-ops-row, .mp-rab-row, .mp-payment-row):focus-within .mp-tag {
-  border-color: var(--color-accent-border) !important;
-  border-left-color: var(--color-accent-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  color: var(--color-text) !important;
-  -webkit-text-fill-color: var(--color-text) !important;
+  border-color: var(--color-tag-border) !important;
+  border-left-color: var(--color-tag-accent-border) !important;
+  background: var(--color-tag-surface) !important;
+  color: var(--color-tag-text) !important;
+  -webkit-text-fill-color: var(--color-tag-text) !important;
 }
 
 
@@ -5408,10 +5456,13 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root .mp-app-shell main .mp-date-control.mp-control-surface:hover,
 :root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:hover:not(:disabled)
 {
-  border-color: var(--color-border) !important;
-  background: rgb(var(--color-accent-rgb) / 0.14) !important;
-  background-color: rgb(var(--color-accent-rgb) / 0.14) !important;
+  border-color: var(--color-accent-border) !important;
+  background: var(--color-accent-soft) !important;
+  background-color: var(--color-accent-soft) !important;
   box-shadow: none !important;
+
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
 }
 
 
@@ -5419,12 +5470,15 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
 :root .mp-app-shell main select.mp-kitchen-select.mp-control-surface:focus
 {
   border-color: var(--color-accent-border) !important;
-  background: var(--color-surface) !important;
-  background-color: var(--color-surface) !important;
+  background: var(--color-accent-soft) !important;
+  background-color: var(--color-accent-soft) !important;
   outline: 2px solid var(--color-accent-border) !important;
   outline-offset: 1px;
   box-shadow: none !important;
-}
+
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+  }
 
 
 :root .mp-app-shell main .mp-date-control .mp-date-label
@@ -5440,6 +5494,13 @@ main .mp-form-stack .mp-salary-flex-row:has(.mp-revision-nominal) {
   -webkit-text-fill-color: var(--color-text) !important;
 }
 
+
+
+:root .mp-app-shell main .mp-date-control:hover .mp-date-value,
+:root .mp-app-shell main .mp-date-control:focus-within .mp-date-value {
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
+}
 
 :root .mp-app-shell main .mp-date-control > input[type='date']
 {

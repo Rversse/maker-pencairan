@@ -22,6 +22,15 @@
   --color-field: var(--palette-graphite);
   --color-field-disabled: rgb(48 48 54 / 72%);
 
+  /* Muted category tags: separate from editable field surfaces. */
+  --color-tag-surface: rgb(48 48 54 / 76%);
+  --color-tag-surface-hover: rgb(48 188 237 / 10%);
+  --color-tag-border: rgb(255 250 255 / 18%);
+  --color-tag-accent-border: rgb(48 188 237 / 34%);
+  --color-tag-border-hover: rgb(48 188 237 / 52%);
+  --color-tag-text: rgb(255 250 255 / 78%);
+  --color-tag-text-hover: var(--color-accent);
+
   --color-text: var(--palette-ghost-white);
   --color-text-muted: rgb(255 250 255 / 68%);
   --color-text-subtle: rgb(255 250 255 / 48%);
@@ -121,7 +130,7 @@
   --mp-action-text: var(--color-text);
   --mp-action-border: var(--color-border-strong);
   --mp-action-hover-bg: var(--color-accent-soft);
-  --mp-action-hover-text: var(--color-text);
+  --mp-action-hover-text: var(--color-accent);
   --mp-action-hover-border: var(--color-accent-border);
 
   --mp-card-top: var(--color-surface);
@@ -147,9 +156,9 @@
   --mp-field-focus: var(--color-focus);
   --mp-field-placeholder: var(--color-text-subtle);
 
-  --mp-tag-surface: var(--color-surface-raised);
-  --mp-tag-border: var(--color-border-strong);
-  --mp-tag-text: var(--color-text);
+  --mp-tag-surface: var(--color-tag-surface);
+  --mp-tag-border: var(--color-tag-border);
+  --mp-tag-text: var(--color-tag-text);
 
   --mp-ambient-a: var(--color-ambient-a);
   --mp-ambient-b: var(--color-ambient-b);

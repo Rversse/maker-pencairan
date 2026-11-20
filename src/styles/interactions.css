@@ -39,6 +39,9 @@
 
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):hover:not(:disabled):not([readonly]) {
   border-bottom-color: var(--color-accent-border) !important;
+
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
 }
 
 
@@ -121,12 +124,14 @@
 
 
 
-:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
+:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):not([data-button-kind='primary']):not(.mp-import-primary):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
+  color: var(--color-accent) !important;
   box-shadow: none !important;
+
+  -webkit-text-fill-color: var(--color-accent) !important;
 }
 
 
@@ -149,7 +154,9 @@
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
+  color: var(--color-accent) !important;
+
+  -webkit-text-fill-color: var(--color-accent) !important;
 }
 
 
@@ -171,6 +178,9 @@
 :root .mp-app-shell :is(input, select, textarea):hover:not(:disabled):not([readonly])
 {
   border-color: var(--color-accent-border) !important;
+
+  color: var(--color-accent) !important;
+  -webkit-text-fill-color: var(--color-accent) !important;
 }
 
 
