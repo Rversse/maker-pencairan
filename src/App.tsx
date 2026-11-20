@@ -3416,21 +3416,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                         {outputDisplayChecks.map(({ label, complete }) => (
                           <span
                             key={label}
-                            className="text-center text-[10px] font-semibold leading-4"
-                            style={{
-                              display: 'inline',
-                              padding: 0,
-                              margin: 0,
-                              border: 0,
-                              outline: 0,
-                              borderRadius: 0,
-                              background: 'transparent',
-                              backgroundColor: 'transparent',
-                              boxShadow: 'none',
-                              textDecoration: 'none',
-                              color: complete ? '#bac9b6' : '#778477',
-                              WebkitTextFillColor: complete ? '#bac9b6' : '#778477'
-                            }}
+                            className={`mp-summary-check text-center text-[10px] font-semibold leading-4 ${complete ? 'is-complete' : 'is-incomplete'}`}
                           >
                             {label}
                           </span>
