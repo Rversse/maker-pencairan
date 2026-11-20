@@ -5,7 +5,7 @@
 }
 /* Buttons: one neutral action treatment, one primary accent treatment. */
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']),
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true'])
+:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true'])
 {
   border-color: var(--color-border-strong) !important;
   background: var(--color-surface) !important;
@@ -15,7 +15,7 @@
 }
 
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
+:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
@@ -24,9 +24,9 @@
 }
 
 :root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
+:root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
 :root .mp-import-primary:hover:not(:disabled),
-:root .mp-history-primary-button:hover:not(:disabled)
+:root .mp-import-primary:hover:not(:disabled)
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
@@ -34,12 +34,13 @@
 }
 
 :root .mp-app-shell button[data-option-button='true'][data-selected='true'],
-:root .mp-history-dialog button[data-option-button='true'][data-selected='true']
+:root .mp-app-shell button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent-soft) !important;
   color: var(--color-text) !important;
 }
+
 
 
 :root button:focus-visible,
@@ -51,9 +52,11 @@
 }
 
 
+
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):hover:not(:disabled):not([readonly]) {
   border-bottom-color: var(--color-accent-border) !important;
 }
+
 
 
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus:not(:disabled):not([readonly]) {
@@ -65,11 +68,13 @@
 }
 
 
+
 :root .mp-app-shell .mp-form-stack :is(input, textarea)::placeholder,
 :root .mp-app-shell .mp-form-stack .mp-payment-detail::placeholder {
   color: var(--color-text-subtle) !important;
   -webkit-text-fill-color: var(--color-text-subtle) !important;
 }
+
 
 
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):disabled,
@@ -80,27 +85,28 @@
   -webkit-text-fill-color: var(--color-text-muted) !important;
 }
 
-:root .mp-date-range-trigger:hover:not(:disabled),
 :root .mp-date-control:hover:not(:disabled),
-:root .mp-history-date:hover:not(:disabled),
+:root .mp-date-control:hover:not(:disabled),
+:root .mp-kitchen-select:hover:not(:disabled),
 :root .mp-kitchen-select:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-surface) !important;
 }
 
-:root .mp-date-range-trigger:focus,
 :root .mp-date-control:focus,
-:root .mp-history-date:focus,
+:root .mp-date-control:focus,
 :root .mp-kitchen-select:focus,
-:root .mp-date-range-trigger:focus-visible,
+:root .mp-kitchen-select:focus,
 :root .mp-date-control:focus-visible,
-:root .mp-history-date:focus-visible,
+:root .mp-date-control:focus-visible,
+:root .mp-kitchen-select:focus-visible,
 :root .mp-kitchen-select:focus-visible
 {
   border-color: var(--color-focus) !important;
   outline-color: var(--color-focus-ring) !important;
 }
+
 
 
 :root .mp-app-shell .mp-form-stack .mp-tag--custom:focus,
@@ -110,8 +116,7 @@
 }
 
 :root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
-:root .mp-history-dialog button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled),
-:root .mp-date-range-popover button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
+:root .mp-app-shell button:not([data-option-button='true']):not([data-calendar-day='true']):hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
@@ -120,9 +125,9 @@
 }
 
 :root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
-:root .mp-history-dialog button[data-button-kind='primary']:hover:not(:disabled),
+:root .mp-app-shell button[data-button-kind='primary']:hover:not(:disabled),
 :root .mp-import-primary:hover:not(:disabled),
-:root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled)
+:root .mp-import-primary:hover:not(:disabled)
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent) !important;
@@ -130,7 +135,7 @@
 }
 
 :root .mp-app-shell button[data-option-button='true']:hover:not(:disabled),
-:root .mp-history-dialog button[data-option-button='true']:hover:not(:disabled)
+:root .mp-app-shell button[data-option-button='true']:hover:not(:disabled)
 {
   border-color: var(--color-accent-border) !important;
   background: var(--color-accent-soft) !important;
@@ -138,17 +143,19 @@
 }
 
 :root .mp-app-shell button[data-option-button='true'][data-selected='true'],
-:root .mp-history-dialog button[data-option-button='true'][data-selected='true']
+:root .mp-app-shell button[data-option-button='true'][data-selected='true']
 {
   border-color: var(--color-accent) !important;
   background: var(--color-accent-soft) !important;
   color: var(--color-text) !important;
 }
 
+
 :root .mp-app-shell :is(input, select, textarea):hover:not(:disabled):not([readonly])
 {
   border-color: var(--color-accent-border) !important;
 }
+
 
 :root .mp-app-shell :is(input, select, textarea):focus:not(:disabled):not([readonly])
 {
@@ -159,27 +166,15 @@
 }
 
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible,
-:root .mp-history-dialog :is(input, select, textarea, button):focus-visible,
-:root .mp-date-range-popover :is(input, select, textarea, button):focus-visible
+:root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible
 {
   outline: 2px solid var(--color-focus) !important;
   outline-offset: 2px;
 }
 
-:root .mp-date-range-popover button[data-calendar-day='true'][aria-pressed='true'] {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
-}
-
-:root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled)
-{
-  border-color: var(--color-danger) !important;
-  background: var(--color-danger-soft) !important;
-  color: var(--color-danger) !important;
-}
 
 @media (prefers-reduced-motion: reduce) {
+
 
 :root button,
 :root input,
@@ -191,46 +186,19 @@
   }
 
 
+
+
 }
-
-
-:root .mp-history-dialog .mp-history-icon-button:hover:not(:disabled),
-:root .mp-history-dialog .mp-history-secondary-button:hover:not(:disabled),
-:root .mp-history-dialog .mp-history-timeline-copy:hover:not(:disabled),
-:root .mp-history-dialog .mp-history-timeline-open:hover:not(:disabled) {
-  border-color: var(--color-accent-border) !important;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-}
-
-
-:root .mp-history-dialog .mp-history-primary-button {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
-}
-
-
-:root .mp-history-dialog .mp-history-primary-button:hover:not(:disabled) {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
-  color: var(--color-on-accent) !important;
-}
-
-
-:root .mp-history-dialog .mp-history-danger-button:hover:not(:disabled) {
-  border-color: var(--color-danger) !important;
-  background: var(--color-danger-soft) !important;
-  color: var(--color-danger) !important;
-}
-
 
 :root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped:focus-visible,
+:root .mp-app-shell .mp-form-stack input.mp-ops-note--mapped:focus-visible,
+:root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible,
 :root .mp-app-shell .mp-form-stack :is(input, select, textarea):focus-visible,
 :root .mp-app-shell .mp-form-stack button:focus-visible,
-:root .mp-date-range-popover :is(button, select):focus-visible,
-:root .mp-history-dialog :is(button, input, select, textarea):focus-visible {
+:root .mp-app-shell .mp-form-stack button:focus-visible
+{
   outline: 2px solid var(--color-focus) !important;
   outline-offset: 2px;
 }
+
 
