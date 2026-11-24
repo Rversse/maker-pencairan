@@ -58,12 +58,12 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
       <section role="dialog" aria-modal="true" aria-labelledby="mp-ops-real-title" className="w-full max-w-sm rounded-2xl border border-slate-700 bg-[#111b2a] p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">OPS REAL</h2>
+            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">Catatan Belanja Operasional Real</h2>
             <p className="mt-1 text-xs text-slate-400">{kitchenName} · {dateLabel(transactionDate)}</p>
           </div>
-          <button type="button" onClick={onClose} disabled={busy} aria-label="Tutup" className="rounded-lg px-2 py-1 text-lg text-slate-400 hover:text-white">×</button>
+          <button type="button" onClick={onClose} disabled={busy} aria-label="Tutup" className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-base text-slate-300 transition hover:border-slate-500 hover:text-white disabled:opacity-50">×</button>
         </div>
-        <label htmlFor="mp-ops-real-amount" className="mt-5 mb-1.5 block text-xs font-semibold text-slate-300">Nominal OPS REAL</label>
+        <label htmlFor="mp-ops-real-amount" className="mt-5 mb-1.5 block text-xs font-semibold text-slate-300">Nominal</label>
         <div className="flex h-11 items-center rounded-lg border border-slate-700 bg-slate-950 px-3 focus-within:border-cyan-500">
           <span className="mr-2 text-sm font-semibold text-slate-400">Rp</span>
           <input
@@ -79,8 +79,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
         </div>
         {error && <p role="alert" className="mt-2 text-xs text-rose-300">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
-          <button type="button" disabled={busy} onClick={onClose} className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300">Batal</button>
-          <button type="button" disabled={busy} onClick={() => void save()} className="rounded-lg border border-cyan-600 bg-cyan-700/80 px-3 py-2 text-xs font-bold text-white disabled:opacity-50">{busy ? 'Menyimpan...' : 'Simpan'}</button>
+          <button type="button" data-button-kind="primary" disabled={busy} onClick={() => void save()} className="h-9 rounded-lg px-3 text-xs font-semibold disabled:opacity-40">{busy ? 'Menyimpan...' : 'Simpan'}</button>
         </div>
       </section>
     </div>
@@ -114,7 +113,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
   async function copy() {
     if (!amount) return
     try {
-      await navigator.clipboard.writeText('OPS REAL : ' + money(amount))
+      await navigator.clipboard.writeText(dateLabel(props.transactionDate) + ', OPS REAL : ' + money(amount))
       setError('')
     } catch {
       setError('Clipboard tidak tersedia di browser ini.')
