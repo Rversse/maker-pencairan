@@ -134,7 +134,7 @@ Deno.serve(async (request: Request) => {
       return Boolean(kitchen);
     };
 
-    if (action === "ops_real_get" || action === "ops_real_save") {
+    if (action === "ops_real_get" || action === "ops_real_save" || action === "ops_real_delete") {
       const kitchenId = body?.kitchen_id;
       const transactionDate = body?.transaction_date;
       if (!isUuid(kitchenId) || !validDate(transactionDate)) {
@@ -152,8 +152,18 @@ Deno.serve(async (request: Request) => {
         if (error) return json(request, { error: "Data OPS REAL gagal dimuat" }, 503);
         return json(request, { ok: true, record });
       }
+      if (action === "ops_real_delete") {
+        const { data: deleted, error } = await db.from("maker_ops_real")
+          .delete()
+          .eq("kitchen_id", kitchenId)
+          .eq("transaction_date", transactionDate)
+          .select("id")
+          .maybeSingle();
+        if (error) return json(request, { error: "OPS REAL gagal dihapus" }, 503);
+        return json(request, { ok: true, deleted: Boolean(deleted) });
+      }
       const amount = String(body?.amount ?? "");
-      if (!/^\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
+      if (!/^\\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
         return json(request, { error: "Nominal OPS REAL harus berupa angka positif yang valid" }, 400);
       }
       const { data: record, error } = await db.from("maker_ops_real").upsert({
