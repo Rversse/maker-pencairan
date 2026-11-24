@@ -153,7 +153,7 @@ Deno.serve(async (request: Request) => {
         return json(request, { ok: true, record });
       }
       const amount = String(body?.amount ?? "");
-      if (!/^\\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
+      if (!/^\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
         return json(request, { error: "Nominal Pencairan Real harus berupa angka positif yang valid" }, 400);
       }
       const { data: record, error } = await db.from("maker_ops_real").upsert({
