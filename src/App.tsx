@@ -8,6 +8,7 @@ import {
 } from './services/master-data'
 import { supabase } from './lib/supabase'
 import HistoryPanel from './HistoryPanel'
+import { OpsRealModal } from './OpsReal'
 
 type RabEntry = {
   accountId: string
@@ -1441,6 +1442,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const [copyMessage, setCopyMessage] = useState('')
   const [historyMessage, setHistoryMessage] = useState('')
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [opsRealOpen, setOpsRealOpen] = useState(false)
   const [historySaveOpen, setHistorySaveOpen] = useState(false)
   const historySavePreviousFocusRef = useRef<HTMLElement | null>(null)
   useEffect(() => {
@@ -3370,6 +3372,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               )}
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
+                  <button type="button" onClick={() => setOpsRealOpen(true)} className="h-9 rounded-lg border border-cyan-700/70 bg-cyan-950/40 px-3 text-[10px] font-semibold text-cyan-100 shadow-sm transition">Pencairan Real</button>
                   <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
                   {role === 'admin' && (
                     <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import Data</button>
@@ -4242,6 +4245,16 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
             </div>
           </section>
         </div>
+      )}
+      {opsRealOpen && selectedKitchen && (
+        <OpsRealModal
+          token={token}
+          kitchenId={kitchenId}
+          kitchenName={selectedKitchen.name}
+          transactionDate={activeDate}
+          onClose={() => setOpsRealOpen(false)}
+          onSaved={() => setOpsRealOpen(false)}
+        />
       )}
       {historyOpen && selectedKitchen && activeTransaction && (
         <HistoryPanel

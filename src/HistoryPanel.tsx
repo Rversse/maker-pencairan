@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from './lib/supabase'
+import { OpsRealHistoryItem } from './OpsReal'
 
 type HistoryRow = {
   id: string
@@ -514,6 +515,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   </button>
                 ))}
               </div>
+              <OpsRealHistoryItem token={token} kitchenId={kitchenId} kitchenName={kitchenName} transactionDate={selectedDate} />
             </div>
           ) : (
             <div className="space-y-4 sm:space-y-5">
