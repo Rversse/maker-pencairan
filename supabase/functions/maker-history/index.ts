@@ -138,7 +138,7 @@ Deno.serve(async (request: Request) => {
       const kitchenId = body?.kitchen_id;
       const transactionDate = body?.transaction_date;
       if (!isUuid(kitchenId) || !validDate(transactionDate)) {
-        return json(request, { error: "Dapur atau tanggal Pencairan Real tidak valid" }, 400);
+        return json(request, { error: "Dapur atau tanggal OPS REAL tidak valid" }, 400);
       }
       if (!(await canAccessKitchen(kitchenId))) {
         return json(request, { error: "Akses dapur ditolak" }, 403);
@@ -149,12 +149,12 @@ Deno.serve(async (request: Request) => {
           .eq("kitchen_id", kitchenId)
           .eq("transaction_date", transactionDate)
           .maybeSingle();
-        if (error) return json(request, { error: "Data Pencairan Real gagal dimuat" }, 503);
+        if (error) return json(request, { error: "Data OPS REAL gagal dimuat" }, 503);
         return json(request, { ok: true, record });
       }
       const amount = String(body?.amount ?? "");
       if (!/^\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
-        return json(request, { error: "Nominal Pencairan Real harus berupa angka positif yang valid" }, 400);
+        return json(request, { error: "Nominal OPS REAL harus berupa angka positif yang valid" }, 400);
       }
       const { data: record, error } = await db.from("maker_ops_real").upsert({
         kitchen_id: kitchenId,
@@ -165,7 +165,7 @@ Deno.serve(async (request: Request) => {
       }, { onConflict: "kitchen_id,transaction_date" })
         .select("id,kitchen_id,transaction_date,amount,updated_at")
         .single();
-      if (error) return json(request, { error: "Pencairan Real gagal disimpan" }, 503);
+      if (error) return json(request, { error: "OPS REAL gagal disimpan" }, 503);
       return json(request, { ok: true, record });
     }
 
