@@ -19,7 +19,7 @@ async function request(token: string, body: Record<string, unknown>) {
     body,
     headers: { Authorization: 'Bearer ' + token }
   })
-  if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'Pencairan Real gagal diproses.')
+  if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'OPS REAL gagal diproses.')
   return data
 }
 
@@ -49,7 +49,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
       })
       onSaved()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Pencairan Real gagal disimpan.')
+      setError(err instanceof Error ? err.message : 'OPS REAL gagal disimpan.')
     } finally {
       setBusy(false)
     }
@@ -59,12 +59,12 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
       <section role="dialog" aria-modal="true" aria-labelledby="mp-ops-real-title" className="w-full max-w-sm rounded-2xl border border-slate-700 bg-[#111b2a] p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">Pencairan Real</h2>
+            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">OPS REAL</h2>
             <p className="mt-1 text-xs text-slate-400">{kitchenName} · {dateLabel(transactionDate)}</p>
           </div>
           <button type="button" onClick={onClose} disabled={busy} aria-label="Tutup" className="rounded-lg px-2 py-1 text-lg text-slate-400 hover:text-white">×</button>
         </div>
-        <label htmlFor="mp-ops-real-amount" className="mt-5 mb-1.5 block text-xs font-semibold text-slate-300">Nominal Pencairan Real</label>
+        <label htmlFor="mp-ops-real-amount" className="mt-5 mb-1.5 block text-xs font-semibold text-slate-300">Nominal OPS REAL</label>
         <div className="flex h-11 items-center rounded-lg border border-slate-700 bg-slate-950 px-3 focus-within:border-cyan-500">
           <span className="mr-2 text-sm font-semibold text-slate-400">Rp</span>
           <input
@@ -103,7 +103,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
       })
       setAmount(data.record?.amount == null ? null : String(data.record.amount))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Data Pencairan Real gagal dimuat.')
+      setError(err instanceof Error ? err.message : 'Data OPS REAL gagal dimuat.')
     } finally {
       setBusy(false)
     }
@@ -112,7 +112,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
   async function copy() {
     if (!amount) return
     try {
-      await navigator.clipboard.writeText('Pencairan Real : ' + money(amount))
+      await navigator.clipboard.writeText('OPS REAL : ' + money(amount))
       setError('')
     } catch {
       setError('Clipboard tidak tersedia di browser ini.')
@@ -122,7 +122,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
     <>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
         <div className="min-w-0">
-          <p className="text-xs font-semibold text-cyan-200">Pencairan Real : {busy ? 'Memuat...' : amount ? money(amount) : 'Belum diisi'}</p>
+          <p className="text-xs font-semibold text-cyan-200">OPS REAL : {busy ? 'Memuat...' : amount ? money(amount) : 'Belum diisi'}</p>
           {error && <p role="alert" className="mt-1 text-[10px] text-rose-300">{error}</p>}
         </div>
         <div className="flex shrink-0 gap-1.5">
