@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 
 type BaseProps = {
@@ -19,14 +20,21 @@ async function request(token: string, body: Record<string, unknown>) {
     body,
     headers: { Authorization: 'Bearer ' + token }
   })
+  if (error instanceof FunctionsHttpError) {
+    const payload = await error.context.json().catch(() => null) as { error?: string } | null
+    throw new Error(payload?.error ?? error.message ?? 'OPS REAL gagal diproses.')
+  }
   if (error || data?.error) throw new Error(data?.error ?? error?.message ?? 'OPS REAL gagal diproses.')
   return data
 }
 
-export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '' }: BaseProps & {
+type OpsRealModalMode = 'create' | 'edit'
+
+export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '', mode = 'create' }: BaseProps & {
   onClose: () => void
   onSaved: () => void
   initialAmount?: string
+  mode?: OpsRealModalMode
 }) {
   const [amount, setAmount] = useState(initialAmount)
   const [busy, setBusy] = useState(false)
@@ -41,7 +49,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
     setError('')
     try {
       await request(token, {
-        action: 'ops_real_save',
+        action: mode === 'create' ? 'ops_real_create' : 'ops_real_update',
         kitchen_id: kitchenId,
         transaction_date: transactionDate,
         amount: value
@@ -135,12 +143,15 @@ export function OpsRealHistoryItem(props: BaseProps) {
         transaction_date: props.transactionDate
       })
       setAmount(null)
+      setError('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'OPS REAL gagal dihapus.')
     } finally {
       setBusy(false)
     }
   }
+  if (!busy && amount === null && !error) return null
+
   return (
     <>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
@@ -148,15 +159,18 @@ export function OpsRealHistoryItem(props: BaseProps) {
           <p className="text-xs font-semibold text-cyan-200">OPS REAL : {busy ? 'Memuat...' : amount ? money(amount) : 'Belum diisi'}</p>
           {error && <p role="alert" className="mt-1 text-[10px] text-rose-300">{error}</p>}
         </div>
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-          <button type="button" disabled={!amount || busy} onClick={() => void copy()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Copy</button>
-          <button type="button" disabled={busy} onClick={() => setEditing(true)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Edit</button>
-          <button type="button" disabled={!amount || busy} onClick={() => void remove()} className="rounded-md border border-rose-800/70 bg-rose-950/20 px-2.5 py-1.5 text-[10px] font-semibold text-rose-200 transition hover:bg-rose-950/40 disabled:opacity-40">Hapus</button>
-        </div>
+        {amount && (
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+            <button type="button" disabled={busy} onClick={() => void copy()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Copy</button>
+            <button type="button" disabled={busy} onClick={() => setEditing(true)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Edit</button>
+            <button type="button" disabled={busy} onClick={() => void remove()} className="rounded-md border border-rose-800/70 bg-rose-950/20 px-2.5 py-1.5 text-[10px] font-semibold text-rose-200 transition hover:bg-rose-950/40 disabled:opacity-40">Hapus</button>
+          </div>
+        )}
       </div>
       {editing && (
         <OpsRealModal
           {...props}
+          mode="edit"
           initialAmount={amount ?? ''}
           onClose={() => setEditing(false)}
           onSaved={() => { setEditing(false); void load() }}
