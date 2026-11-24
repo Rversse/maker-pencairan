@@ -107,7 +107,10 @@ export function OpsRealHistoryItem(props: BaseProps) {
       setBusy(false)
     }
   }, [props.token, props.kitchenId, props.transactionDate])
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void load() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [load])
   async function copy() {
     if (!amount) return
     try {
