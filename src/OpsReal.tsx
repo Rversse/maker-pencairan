@@ -119,6 +119,28 @@ export function OpsRealHistoryItem(props: BaseProps) {
       setError('Clipboard tidak tersedia di browser ini.')
     }
   }
+  async function remove() {
+    if (!amount || busy) return
+    const confirmed = window.confirm(
+      'Hapus catatan OPS REAL ' + props.kitchenName + ' tanggal ' + dateLabel(props.transactionDate) + '?'
+    )
+    if (!confirmed) return
+
+    setBusy(true)
+    setError('')
+    try {
+      await request(props.token, {
+        action: 'ops_real_delete',
+        kitchen_id: props.kitchenId,
+        transaction_date: props.transactionDate
+      })
+      setAmount(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'OPS REAL gagal dihapus.')
+    } finally {
+      setBusy(false)
+    }
+  }
   return (
     <>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
@@ -126,9 +148,10 @@ export function OpsRealHistoryItem(props: BaseProps) {
           <p className="text-xs font-semibold text-cyan-200">OPS REAL : {busy ? 'Memuat...' : amount ? money(amount) : 'Belum diisi'}</p>
           {error && <p role="alert" className="mt-1 text-[10px] text-rose-300">{error}</p>}
         </div>
-        <div className="flex shrink-0 gap-1.5">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
           <button type="button" disabled={!amount || busy} onClick={() => void copy()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Copy</button>
-          <button type="button" disabled={busy} onClick={() => setEditing(true)} className="rounded-md border border-cyan-800 px-2.5 py-1.5 text-[10px] font-semibold text-cyan-200 disabled:opacity-40">Edit</button>
+          <button type="button" disabled={busy} onClick={() => setEditing(true)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Edit</button>
+          <button type="button" disabled={!amount || busy} onClick={() => void remove()} className="rounded-md border border-rose-800/70 bg-rose-950/20 px-2.5 py-1.5 text-[10px] font-semibold text-rose-200 transition hover:bg-rose-950/40 disabled:opacity-40">Hapus</button>
         </div>
       </div>
       {editing && (
