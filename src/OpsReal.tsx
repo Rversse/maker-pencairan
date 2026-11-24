@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 
 type BaseProps = {
@@ -31,7 +31,6 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
   const [amount, setAmount] = useState(initialAmount)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  useEffect(() => { setAmount(initialAmount) }, [initialAmount])
   async function save() {
     const value = digits(amount)
     if (!value || Number(value) <= 0) {
@@ -93,7 +92,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(false)
-  async function load() {
+  const load = useCallback(async () => {
     setBusy(true)
     try {
       const data = await request(props.token, {
@@ -107,8 +106,8 @@ export function OpsRealHistoryItem(props: BaseProps) {
     } finally {
       setBusy(false)
     }
-  }
-  useEffect(() => { void load() }, [props.token, props.kitchenId, props.transactionDate])
+  }, [props.token, props.kitchenId, props.transactionDate])
+  useEffect(() => { void load() }, [load])
   async function copy() {
     if (!amount) return
     try {
