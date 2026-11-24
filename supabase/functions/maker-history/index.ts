@@ -134,7 +134,12 @@ Deno.serve(async (request: Request) => {
       return Boolean(kitchen);
     };
 
-    if (action === "ops_real_get" || action === "ops_real_save" || action === "ops_real_delete") {
+    if (
+      action === "ops_real_get" ||
+      action === "ops_real_create" ||
+      action === "ops_real_update" ||
+      action === "ops_real_delete"
+    ) {
       const kitchenId = body?.kitchen_id;
       const transactionDate = body?.transaction_date;
       if (!isUuid(kitchenId) || !validDate(transactionDate)) {
@@ -143,6 +148,7 @@ Deno.serve(async (request: Request) => {
       if (!(await canAccessKitchen(kitchenId))) {
         return json(request, { error: "Akses dapur ditolak" }, 403);
       }
+
       if (action === "ops_real_get") {
         const { data: record, error } = await db.from("maker_ops_real")
           .select("id,kitchen_id,transaction_date,amount,updated_at")
@@ -152,6 +158,7 @@ Deno.serve(async (request: Request) => {
         if (error) return json(request, { error: "Data OPS REAL gagal dimuat" }, 503);
         return json(request, { ok: true, record });
       }
+
       if (action === "ops_real_delete") {
         const { data: deleted, error } = await db.from("maker_ops_real")
           .delete()
@@ -160,22 +167,47 @@ Deno.serve(async (request: Request) => {
           .select("id")
           .maybeSingle();
         if (error) return json(request, { error: "OPS REAL gagal dihapus" }, 503);
-        return json(request, { ok: true, deleted: Boolean(deleted) });
+        if (!deleted) return json(request, { error: "Catatan OPS REAL sudah tidak ditemukan. Muat ulang Riwayat." }, 404);
+        return json(request, { ok: true, deleted: true });
       }
+
       const amount = String(body?.amount ?? "");
-      if (!/^\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
+      if (!/^\\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
         return json(request, { error: "Nominal OPS REAL harus berupa angka positif yang valid" }, 400);
       }
-      const { data: record, error } = await db.from("maker_ops_real").upsert({
-        kitchen_id: kitchenId,
-        transaction_date: transactionDate,
+
+      if (action === "ops_real_create") {
+        const duplicateMessage = "OPS REAL untuk dapur dan tanggal ini sudah ada. Cek datanya di Riwayat Pencairan. Jika ingin mengubah nominal, gunakan tombol Edit di Riwayat.";
+        const { data: existing, error: lookupError } = await db.from("maker_ops_real")
+          .select("id")
+          .eq("kitchen_id", kitchenId)
+          .eq("transaction_date", transactionDate)
+          .maybeSingle();
+        if (lookupError) return json(request, { error: "Pengecekan data OPS REAL gagal. Coba lagi." }, 503);
+        if (existing) return json(request, { error: duplicateMessage }, 409);
+
+        const { data: record, error } = await db.from("maker_ops_real").insert({
+          kitchen_id: kitchenId,
+          transaction_date: transactionDate,
+          amount,
+          updated_by: profile.user_id,
+          updated_at: new Date().toISOString(),
+        }).select("id,kitchen_id,transaction_date,amount,updated_at").single();
+        if (error?.code === "23505") return json(request, { error: duplicateMessage }, 409);
+        if (error) return json(request, { error: "OPS REAL gagal disimpan" }, 503);
+        return json(request, { ok: true, record });
+      }
+
+      const { data: record, error } = await db.from("maker_ops_real").update({
         amount,
         updated_by: profile.user_id,
         updated_at: new Date().toISOString(),
-      }, { onConflict: "kitchen_id,transaction_date" })
+      }).eq("kitchen_id", kitchenId)
+        .eq("transaction_date", transactionDate)
         .select("id,kitchen_id,transaction_date,amount,updated_at")
-        .single();
-      if (error) return json(request, { error: "OPS REAL gagal disimpan" }, 503);
+        .maybeSingle();
+      if (error) return json(request, { error: "OPS REAL gagal diperbarui" }, 503);
+      if (!record) return json(request, { error: "Catatan OPS REAL tidak ditemukan. Input baru melalui tombol Ops Real di form utama." }, 404);
       return json(request, { ok: true, record });
     }
 
