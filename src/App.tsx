@@ -3376,13 +3376,13 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               )}
               {kitchenId && activeTransaction && (
                 <div className="min-w-[360px] flex-1">
-                  <div className="grid h-[34px] w-full grid-cols-[repeat(3,minmax(0,1fr))_32px] items-stretch gap-1.5">
-                    <button type="button" onClick={() => setOpsRealOpen(true)} className="min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-[9px] font-semibold text-slate-200 shadow-sm transition">OPS Real</button>
-                    <button type="button" onClick={() => setHistoryOpen(true)} className="min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-[9px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
+                  <div className="flex h-[34px] w-full items-stretch gap-1.5">
+                    <button type="button" onClick={() => setOpsRealOpen(true)} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">OPS Real</button>
+                    <button type="button" onClick={() => setHistoryOpen(true)} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
                     {role === 'admin' && (
-                      <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="min-w-0 rounded-lg border border-slate-700 bg-slate-900 px-1.5 text-[9px] font-semibold text-slate-200 shadow-sm transition">Import</button>
+                      <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import</button>
                     )}
-                    <button type="button" onClick={resetWorkspace} title="Reset workspace" aria-label="Reset workspace" className="grid h-[34px] w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition">
+                    <button type="button" onClick={resetWorkspace} title="Reset workspace" aria-label="Reset workspace" className="ml-auto grid h-[34px] w-8 shrink-0 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition">
                       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                         <path d="M20 7v5h-5M4 17v-5h5" />
                         <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
