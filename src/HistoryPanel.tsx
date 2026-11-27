@@ -516,7 +516,6 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
                   </button>
                 ))}
               </div>
-              <OpsRealHistoryItem token={token} kitchenId={kitchenId} kitchenName={kitchenName} transactionDate={selectedDate} />
             </div>
           ) : (
             <div className="space-y-4 sm:space-y-5">
@@ -672,6 +671,10 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
               )}
             </div>
           )}
+          <section className="mt-4 border-t border-slate-800/80 pt-4">
+            <h3 className="mb-2 text-sm font-semibold text-slate-100">OPS Real · {formatDate(selectedDate)}</h3>
+            <OpsRealHistoryItem token={token} kitchenId={kitchenId} kitchenName={kitchenName} transactionDate={selectedDate} />
+          </section>
         </div>
       </section>
     </div>,
