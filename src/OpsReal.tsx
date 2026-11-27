@@ -31,11 +31,12 @@ async function request(token: string, body: Record<string, unknown>) {
 
 type OpsRealModalMode = 'create' | 'edit'
 
-export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '', initialNote = '', mode = 'create' }: BaseProps & {
+export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '', initialNote = '', initialVersion = 0, mode = 'create' }: BaseProps & {
   onClose: () => void
   onSaved: () => void
   initialAmount?: string
   initialNote?: string
+  initialVersion?: number
   mode?: OpsRealModalMode
 }) {
   const [amount, setAmount] = useState(initialAmount)
@@ -68,7 +69,8 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
         kitchen_id: kitchenId,
         transaction_date: transactionDate,
         amount: value,
-        note
+        note,
+        expected_version: initialVersion
       })
       onSaved()
     } catch (err) {
@@ -126,6 +128,9 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
 export function OpsRealHistoryItem(props: BaseProps) {
   const [amount, setAmount] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
+  const [version, setVersion] = useState(0)
+  const [dataCreatorRole, setDataCreatorRole] = useState<string | null>(null)
+  const [dataEditorRole, setDataEditorRole] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(false)
@@ -139,6 +144,9 @@ export function OpsRealHistoryItem(props: BaseProps) {
       })
       setAmount(data.record?.amount == null ? null : String(data.record.amount))
       setNote(data.record?.note == null ? '' : String(data.record.note))
+      setVersion(Number(data.record?.version ?? 0))
+      setDataCreatorRole(data.record?.source_created_role ?? null)
+      setDataEditorRole(data.record?.edited_role ?? null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Data OPS REAL gagal dimuat.')
     } finally {
@@ -176,7 +184,8 @@ export function OpsRealHistoryItem(props: BaseProps) {
       await request(props.token, {
         action: 'ops_real_delete',
         kitchen_id: props.kitchenId,
-        transaction_date: props.transactionDate
+        transaction_date: props.transactionDate,
+        expected_version: version
       })
       setAmount(null)
       setNote(null)
@@ -200,6 +209,12 @@ export function OpsRealHistoryItem(props: BaseProps) {
               {note?.trim() ? note : 'Belum diisi (data lama)'}
             </p>
           )}
+          {amount && (
+            <p className="mt-1 text-[10px] text-slate-400">
+              Dibuat: {dataCreatorRole ?? 'Tidak tercatat'}
+              {dataEditorRole ? ' · Terakhir diubah: ' + dataEditorRole : ''}
+            </p>
+          )}
           {error && <p role="alert" className="mt-1 text-[10px] text-rose-300">{error}</p>}
         </div>
         {amount && (
@@ -216,6 +231,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
           mode="edit"
           initialAmount={amount ?? ''}
           initialNote={note ?? ''}
+          initialVersion={version}
           onClose={() => setEditing(false)}
           onSaved={() => { setEditing(false); void load() }}
         />
