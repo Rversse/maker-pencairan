@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 
@@ -30,19 +30,33 @@ async function request(token: string, body: Record<string, unknown>) {
 
 type OpsRealModalMode = 'create' | 'edit'
 
-export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '', mode = 'create' }: BaseProps & {
+export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '', initialNote = '', mode = 'create' }: BaseProps & {
   onClose: () => void
   onSaved: () => void
   initialAmount?: string
+  initialNote?: string
   mode?: OpsRealModalMode
 }) {
   const [amount, setAmount] = useState(initialAmount)
+  const [note, setNote] = useState(initialNote)
+  const noteRef = useRef<HTMLTextAreaElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const field = noteRef.current
+    if (!field) return
+    field.style.height = 'auto'
+    field.style.height = `${Math.max(field.scrollHeight, 88)}px`
+  }, [note])
   async function save() {
     const value = digits(amount)
     if (!value || Number(value) <= 0) {
       setError('Masukkan nominal lebih dari Rp 0.')
+      return
+    }
+    if (!note.trim()) {
+      setError('Catatan wajib diisi.')
       return
     }
     setBusy(true)
@@ -52,7 +66,8 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
         action: mode === 'create' ? 'ops_real_create' : 'ops_real_update',
         kitchen_id: kitchenId,
         transaction_date: transactionDate,
-        amount: value
+        amount: value,
+        note
       })
       onSaved()
     } catch (err) {
@@ -63,7 +78,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
   }
   return (
     <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/75 p-3 sm:p-5">
-      <section role="dialog" aria-modal="true" aria-labelledby="mp-ops-real-title" className="w-full max-w-sm rounded-2xl border border-slate-700 bg-[#111b2a] p-4 shadow-2xl">
+      <section role="dialog" aria-modal="true" aria-labelledby="mp-ops-real-title" className="max-h-[calc(100dvh-1.5rem)] w-full max-w-sm overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-[#111b2a] p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">Catatan Belanja Operasional Real</h2>
@@ -85,6 +100,18 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
             className="w-full bg-transparent text-sm font-semibold text-white outline-none"
           />
         </div>
+        <label htmlFor="mp-ops-real-note" className="mt-4 mb-1.5 block text-xs font-semibold text-slate-300">
+          Catatan <span className="text-rose-400">*</span>
+        </label>
+        <textarea
+          ref={noteRef}
+          id="mp-ops-real-note"
+          rows={3}
+          value={note}
+          onChange={event => setNote(event.target.value)}
+          placeholder="Tulis catatan belanja operasional real..."
+          className="block min-h-[88px] w-full max-w-full box-border resize-none overflow-hidden rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm leading-relaxed text-white outline-none placeholder:text-slate-500 focus:border-cyan-500 [overflow-wrap:anywhere]"
+        />
         {error && <p role="alert" className="mt-2 text-xs text-rose-300">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
           <button type="button" data-button-kind="primary" disabled={busy} onClick={() => void save()} className="h-9 rounded-lg px-3 text-xs font-semibold disabled:opacity-40">{busy ? 'Menyimpan...' : 'Simpan'}</button>
@@ -96,6 +123,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
 
 export function OpsRealHistoryItem(props: BaseProps) {
   const [amount, setAmount] = useState<string | null>(null)
+  const [note, setNote] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(false)
@@ -108,6 +136,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
         transaction_date: props.transactionDate
       })
       setAmount(data.record?.amount == null ? null : String(data.record.amount))
+      setNote(data.record?.note == null ? '' : String(data.record.note))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Data OPS REAL gagal dimuat.')
     } finally {
@@ -121,7 +150,12 @@ export function OpsRealHistoryItem(props: BaseProps) {
   async function copy() {
     if (!amount) return
     try {
-      await navigator.clipboard.writeText(dateLabel(props.transactionDate) + ', OPS REAL : ' + money(amount))
+      const content = [
+        '*Operasional Real*',
+        dateLabel(props.transactionDate) + ' : Rp ' + money(amount),
+        'Catatan : ' + (note ?? '')
+      ].join('\n')
+      await navigator.clipboard.writeText(content)
       setError('')
     } catch {
       setError('Clipboard tidak tersedia di browser ini.')
@@ -143,6 +177,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
         transaction_date: props.transactionDate
       })
       setAmount(null)
+      setNote(null)
       setError('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'OPS REAL gagal dihapus.')
@@ -157,6 +192,12 @@ export function OpsRealHistoryItem(props: BaseProps) {
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
         <div className="min-w-0">
           <p className="text-xs font-semibold text-cyan-200">OPS REAL : {busy ? 'Memuat...' : amount ? money(amount) : 'Belum diisi'}</p>
+          {amount && (
+            <p className="mt-1 whitespace-pre-wrap break-words text-[11px] leading-relaxed text-slate-300 [overflow-wrap:anywhere]">
+              <span className="font-semibold text-slate-400">Catatan:</span>{' '}
+              {note?.trim() ? note : 'Belum diisi (data lama)'}
+            </p>
+          )}
           {error && <p role="alert" className="mt-1 text-[10px] text-rose-300">{error}</p>}
         </div>
         {amount && (
@@ -172,6 +213,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
           {...props}
           mode="edit"
           initialAmount={amount ?? ''}
+          initialNote={note ?? ''}
           onClose={() => setEditing(false)}
           onSaved={() => { setEditing(false); void load() }}
         />

@@ -151,7 +151,7 @@ Deno.serve(async (request: Request) => {
 
       if (action === "ops_real_get") {
         const { data: record, error } = await db.from("maker_ops_real")
-          .select("id,kitchen_id,transaction_date,amount,updated_at")
+          .select("id,kitchen_id,transaction_date,amount,note,updated_at")
           .eq("kitchen_id", kitchenId)
           .eq("transaction_date", transactionDate)
           .maybeSingle();
@@ -175,6 +175,10 @@ Deno.serve(async (request: Request) => {
       if (!/^\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
         return json(request, { error: "Nominal OPS REAL harus berupa angka positif yang valid" }, 400);
       }
+      const note = typeof body?.note === "string" ? body.note : "";
+      if (!note.trim()) {
+        return json(request, { error: "Catatan OPS REAL wajib diisi" }, 400);
+      }
 
       if (action === "ops_real_create") {
         const duplicateMessage = "OPS REAL untuk dapur dan tanggal ini sudah ada. Cek datanya di Riwayat Pencairan. Jika ingin mengubah nominal, gunakan tombol Edit di Riwayat.";
@@ -190,9 +194,10 @@ Deno.serve(async (request: Request) => {
           kitchen_id: kitchenId,
           transaction_date: transactionDate,
           amount,
+          note,
           updated_by: profile.user_id,
           updated_at: new Date().toISOString(),
-        }).select("id,kitchen_id,transaction_date,amount,updated_at").single();
+        }).select("id,kitchen_id,transaction_date,amount,note,updated_at").single();
         if (error?.code === "23505") return json(request, { error: duplicateMessage }, 409);
         if (error) return json(request, { error: "OPS REAL gagal disimpan" }, 503);
         return json(request, { ok: true, record });
@@ -200,11 +205,12 @@ Deno.serve(async (request: Request) => {
 
       const { data: record, error } = await db.from("maker_ops_real").update({
         amount,
+        note,
         updated_by: profile.user_id,
         updated_at: new Date().toISOString(),
       }).eq("kitchen_id", kitchenId)
         .eq("transaction_date", transactionDate)
-        .select("id,kitchen_id,transaction_date,amount,updated_at")
+        .select("id,kitchen_id,transaction_date,amount,note,updated_at")
         .maybeSingle();
       if (error) return json(request, { error: "OPS REAL gagal diperbarui" }, 503);
       if (!record) return json(request, { error: "Catatan OPS REAL tidak ditemukan. Input baru melalui tombol Ops Real di form utama." }, 404);
