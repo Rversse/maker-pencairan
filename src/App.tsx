@@ -1162,9 +1162,9 @@ function parseMakerOutputGroup(
       const identity = parseMakerAccountIdentity(segments[0] ?? '')
       const rental = getSppgRental(kitchen.name, masterData)
       if (!rental || !makerIdentityMatches(identity, rental)) {
-        throw new Error('rekening Insentif Fasilitas SPPG tidak cocok dengan mapping dapur')
+        throw new Error('rekening Insentif SPPG tidak cocok dengan mapping dapur')
       }
-      if (!sewaEntry) throw new Error('baris Insentif Fasilitas SPPG tidak tersedia')
+      if (!sewaEntry) throw new Error('baris Insentif SPPG tidak tersedia')
       sewaEntry.amount = amount
       sewaEntry.ownerName = identity.ownerName
       sewaEntry.bank = identity.bank
@@ -2776,7 +2776,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
   const outputDisplayChecks = Array.from(
     outputChecks.reduce((checks, { label, complete }) => {
       let displayLabels: string[] = []
-      if (label === 'Insentif Fasilitas SPPG') displayLabels = ['Fasilitas SPPG']
+      if (label === 'Insentif SPPG') displayLabels = ['Insentif SPPG']
       else if (label === 'Gaji Relawan + Insentif PIC') {
         displayLabels = ['Gaji Relawan + PIC Kader + PIC Sekolah']
       } else if (label === 'Insentif PIC Sekolah + Insentif PIC Posyandu') {
@@ -3997,7 +3997,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                 className={`mp-payment-row mp-salary-flex-row grid min-w-0 items-center gap-2 ${!historyEnabled ? "opacity-45" : ""}`}
                               >
                                   <div className="mp-tag mp-tag--salary mp-payment-detail flex h-9 min-w-0 items-center justify-center text-center text-[10px] font-extrabold uppercase">
-                                    Insentif Fasilitas SPPG
+                                    Insentif SPPG
                                   </div>
                                   <div className="mp-salary-account-details">
                                     <div title={rental?.ownerName ?? 'Mapping belum tersedia'} className="mp-static-field mp-payment-detail mp-salary-field flex h-10 min-w-0 items-center justify-center px-3 text-center text-sm font-semibold text-slate-100">
@@ -4025,7 +4025,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                                       )
                                     }
                                     placeholder="Nominal"
-                                    aria-label="Nominal Insentif Fasilitas SPPG"
+                                    aria-label="Nominal Insentif SPPG"
                                     className={`mp-nominal-input h-10 w-full min-w-0 px-3 text-center text-sm font-semibold text-slate-100 placeholder:text-slate-500 outline-none transition   disabled:opacity-50 ${hasOutputAmount('INSENTIF FASILITAS SPPG : ', rental?.accountNumber ?? '', entry.amount) ? 'mp-field--has-output' : ''}`}
                                   />{renderHistoryAdditionalButton('pencairan_harian:' + entry.id, () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: '' }), () => updateDailyPaymentEntry(activeTransaction.id, entry.id, { amount: historyPreviousAmount('pencairan_harian:' + entry.id) }))}</div>
                               </div>
