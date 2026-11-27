@@ -8,7 +8,7 @@ import {
 } from './services/master-data'
 import { supabase } from './lib/supabase'
 import HistoryPanel from './HistoryPanel'
-import { OpsRealModal } from './OpsReal'
+import { OpsRealHistoryItem, OpsRealModal } from './OpsReal'
 
 type RabEntry = {
   accountId: string
@@ -3373,6 +3373,12 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
               {kitchenId && activeTransaction && (
                 <div className="flex items-end gap-1.5">
                   <button type="button" onClick={() => setOpsRealOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Ops Real</button>
+                  <OpsRealHistoryItem
+                    token={token}
+                    kitchenId={kitchenId}
+                    kitchenName={selectedKitchen?.name ?? ''}
+                    transactionDate={activeDate}
+                  />
                   <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
                   {role === 'admin' && (
                     <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import Data</button>
