@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 
@@ -76,8 +77,8 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
       setBusy(false)
     }
   }
-  return (
-    <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/75 p-3 sm:p-5">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-black/75 p-3 sm:p-5">
       <section role="dialog" aria-modal="true" aria-labelledby="mp-ops-real-title" className="max-h-[calc(100dvh-1.5rem)] w-full max-w-sm overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-[#111b2a] p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -109,15 +110,16 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
           rows={3}
           value={note}
           onChange={event => setNote(event.target.value)}
-          placeholder="Tulis catatan belanja operasional real..."
-          className="block min-h-[88px] w-full max-w-full box-border resize-none overflow-hidden rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm leading-relaxed text-white outline-none placeholder:text-slate-500 focus:border-cyan-500 [overflow-wrap:anywhere]"
+          placeholder="Catatan wajib diisi..."
+          className="block min-h-[88px] w-full max-w-full box-border resize-none overflow-hidden rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm font-normal leading-relaxed text-white outline-none placeholder:text-slate-500 focus:border-cyan-500 [overflow-wrap:anywhere]"
         />
         {error && <p role="alert" className="mt-2 text-xs text-rose-300">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
           <button type="button" data-button-kind="primary" disabled={busy} onClick={() => void save()} className="h-9 rounded-lg px-3 text-xs font-semibold disabled:opacity-40">{busy ? 'Menyimpan...' : 'Simpan'}</button>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body
   )
 }
 
