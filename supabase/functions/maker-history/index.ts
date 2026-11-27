@@ -171,7 +171,7 @@ Deno.serve(async (request: Request) => {
         }
       }
 
-      let record: any;
+      let record: Awaited<ReturnType<typeof findSharedRecord>>;
       try {
         record = await findSharedRecord();
       } catch (error) {
