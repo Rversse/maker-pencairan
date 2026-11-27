@@ -185,6 +185,14 @@ Deno.serve(async (request: Request) => {
         edited_source: "maker",
       };
 
+      const expectedVersion = Number(body?.expected_version);
+      if (action !== "ops_real_create" && (!Number.isInteger(expectedVersion) || expectedVersion < 1)) {
+        return json(request, { error: "Versi data tidak valid. Muat ulang Riwayat." }, 400);
+      }
+      if (action !== "ops_real_create" && record && record.version !== expectedVersion) {
+        return json(request, { error: "OPS REAL sudah berubah di aplikasi lain. Muat ulang sebelum melanjutkan." }, 409);
+      }
+
       if (action === "ops_real_delete") {
         if (!record) return json(request, { error: "Catatan OPS REAL sudah tidak ditemukan. Muat ulang Riwayat." }, 404);
         const { data: marked, error: markError } = await db.from("transactions")
