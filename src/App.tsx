@@ -2686,7 +2686,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         (entry) => entry.category === 'sewa' && entry.kinds.includes('Sewa SPPG')
       )
       outputChecks.push({
-        label: 'Insentif Fasilitas SPPG',
+        label: 'Insentif SPPG',
         complete: Boolean(sewaEntry && isCompleteAmount(sewaEntry.amount))
       })
     }
