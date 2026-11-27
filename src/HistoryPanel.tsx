@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from './lib/supabase'
 import { OpsRealHistoryItem } from './OpsReal'
 
@@ -374,7 +375,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
 
   const isSelectedEvent = (event: HistoryEvent) => activeEventId === event.id
 
-  return (
+  return createPortal(
     <div className="mp-history-overlay fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-2 backdrop-blur-sm sm:p-5">
       <section
         ref={dialogRef}
@@ -673,6 +674,7 @@ export default function HistoryPanel({ token, role, kitchenId, kitchenName, tran
           )}
         </div>
       </section>
-    </div>
+    </div>,
+    document.body
   )
 }
