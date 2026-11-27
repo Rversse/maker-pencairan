@@ -8,7 +8,7 @@ import {
 } from './services/master-data'
 import { supabase } from './lib/supabase'
 import HistoryPanel from './HistoryPanel'
-import { OpsRealModal } from './OpsReal'
+import { OpsRealHistoryItem, OpsRealModal } from './OpsReal'
 
 type RabEntry = {
   accountId: string
@@ -3371,13 +3371,21 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 </div>
               )}
               {kitchenId && activeTransaction && (
+                <div className="w-full">
                 <div className="flex items-end gap-1.5">
-                  <button type="button" onClick={() => setOpsRealOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Ops Real</button>
+                  <button type="button" onClick={() => setOpsRealOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">OPS - Pencairan Real</button>
                   <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
                   {role === 'admin' && (
                     <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import Data</button>
                   )}
                   <button type="button" onClick={resetWorkspace} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-medium text-slate-200 shadow-sm transition">Reset</button>
+                </div>
+                <OpsRealHistoryItem
+                  token={token}
+                  kitchenId={kitchenId}
+                  kitchenName={selectedKitchen?.name ?? ''}
+                  transactionDate={activeDate}
+                />
                 </div>
               )}
               {historyMessage && <span className="pb-2 text-[10px] text-emerald-300">{historyMessage}</span>}
