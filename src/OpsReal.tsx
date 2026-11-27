@@ -31,12 +31,13 @@ async function request(token: string, body: Record<string, unknown>) {
 
 type OpsRealModalMode = 'create' | 'edit'
 
-export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '', initialNote = '', initialVersion = 0, mode = 'create' }: BaseProps & {
+export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, onClose, onSaved, initialAmount = '', initialNote = '', initialVersion = 0, transactionId, mode = 'create' }: BaseProps & {
   onClose: () => void
   onSaved: () => void
   initialAmount?: string
   initialNote?: string
   initialVersion?: number
+  transactionId?: string
   mode?: OpsRealModalMode
 }) {
   const [amount, setAmount] = useState(initialAmount)
@@ -68,6 +69,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
         action: mode === 'create' ? 'ops_real_create' : 'ops_real_update',
         kitchen_id: kitchenId,
         transaction_date: transactionDate,
+        ...(mode === 'edit' ? { transaction_id: transactionId } : {}),
         amount: value,
         note,
         expected_version: initialVersion
@@ -125,15 +127,21 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
   )
 }
 
+type OpsRealRecord = {
+  id: string
+  amount: number
+  note: string | null
+  version: number
+  source_created_role: string | null
+  edited_role: string | null
+}
+
 export function OpsRealHistoryItem(props: BaseProps) {
-  const [amount, setAmount] = useState<string | null>(null)
-  const [note, setNote] = useState<string | null>(null)
-  const [version, setVersion] = useState(0)
-  const [dataCreatorRole, setDataCreatorRole] = useState<string | null>(null)
-  const [dataEditorRole, setDataEditorRole] = useState<string | null>(null)
+  const [records, setRecords] = useState<OpsRealRecord[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [editing, setEditing] = useState(false)
+  const [editingRecord, setEditingRecord] = useState<OpsRealRecord | null>(null)
+
   const load = useCallback(async () => {
     setBusy(true)
     try {
@@ -142,71 +150,58 @@ export function OpsRealHistoryItem(props: BaseProps) {
         kitchen_id: props.kitchenId,
         transaction_date: props.transactionDate
       })
-      setAmount(data.record?.amount == null ? null : String(data.record.amount))
-      setNote(data.record?.note == null ? '' : String(data.record.note))
-      setVersion(Number(data.record?.version ?? 0))
-      setDataCreatorRole(data.record?.source_created_role ?? null)
-      setDataEditorRole(data.record?.edited_role ?? null)
+      setRecords(Array.isArray(data.records) ? data.records : data.record ? [data.record] : [])
+      setError('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Data OPS REAL gagal dimuat.')
+      setError(err instanceof Error ? err.message : 'Data OPS Real gagal dimuat.')
     } finally {
       setBusy(false)
     }
   }, [props.token, props.kitchenId, props.transactionDate])
+
   useEffect(() => {
     const timer = window.setTimeout(() => { void load() }, 0)
     return () => window.clearTimeout(timer)
   }, [load])
+
   useEffect(() => {
     const channel = supabase
       .channel('maker-ops-real-history-' + props.kitchenId)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'transactions',
-          filter: 'kitchen_id=eq.' + props.kitchenId
-        },
-        () => {
-          void load()
-        }
-      )
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'transactions',
+        filter: 'kitchen_id=eq.' + props.kitchenId
+      }, () => { void load() })
       .subscribe()
-
     const refreshWhenVisible = () => {
       if (document.visibilityState === 'visible') void load()
     }
     window.addEventListener('focus', refreshWhenVisible)
     document.addEventListener('visibilitychange', refreshWhenVisible)
-
     return () => {
       window.removeEventListener('focus', refreshWhenVisible)
       document.removeEventListener('visibilitychange', refreshWhenVisible)
       void supabase.removeChannel(channel)
     }
   }, [load, props.kitchenId])
-  async function copy() {
-    if (!amount) return
+
+  async function copy(record: OpsRealRecord) {
     try {
-      const content = [
+      await navigator.clipboard.writeText([
         '*Operasional Real*',
-        dateLabel(props.transactionDate) + ' : Rp ' + money(amount),
-        'Catatan : ' + (note ?? '')
-      ].join('\n')
-      await navigator.clipboard.writeText(content)
+        dateLabel(props.transactionDate) + ' : Rp ' + money(record.amount),
+        'Catatan : ' + (record.note ?? '')
+      ].join('\n'))
       setError('')
     } catch {
       setError('Clipboard tidak tersedia di browser ini.')
     }
   }
-  async function remove() {
-    if (!amount || busy) return
-    const confirmed = window.confirm(
-      'Hapus catatan OPS REAL ' + props.kitchenName + ' tanggal ' + dateLabel(props.transactionDate) + '?'
-    )
-    if (!confirmed) return
 
+  async function remove(record: OpsRealRecord) {
+    if (busy) return
+    if (!window.confirm('Hapus transaksi OPS - Pencairan Real sebesar Rp ' + money(record.amount) + ' untuk ' + props.kitchenName + ' tanggal ' + dateLabel(props.transactionDate) + '?')) return
     setBusy(true)
     setError('')
     try {
@@ -214,57 +209,52 @@ export function OpsRealHistoryItem(props: BaseProps) {
         action: 'ops_real_delete',
         kitchen_id: props.kitchenId,
         transaction_date: props.transactionDate,
-        expected_version: version
+        transaction_id: record.id,
+        expected_version: record.version
       })
-      setAmount(null)
-      setNote(null)
-      setError('')
+      await load()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'OPS REAL gagal dihapus.')
-    } finally {
+      setError(err instanceof Error ? err.message : 'OPS - Pencairan Real gagal dihapus.')
       setBusy(false)
     }
   }
-  if (!busy && amount === null && !error) return null
 
   return (
-    <>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold text-cyan-200">OPS REAL : {busy ? 'Memuat...' : amount ? money(amount) : 'Belum diisi'}</p>
-          {amount && (
+    <div className="mt-2 space-y-2">
+      {busy && records.length === 0 ? <p className="text-xs text-slate-400">Memuat OPS - Pencairan Real...</p> : null}
+      {records.map((record) => (
+        <div key={record.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-cyan-200">OPS - Pencairan Real: {money(record.amount)}</p>
             <p className="mt-1 whitespace-pre-wrap break-words text-[11px] leading-relaxed text-slate-300 [overflow-wrap:anywhere]">
-              <span className="font-semibold text-slate-400">Catatan:</span>{' '}
-              {note?.trim() ? note : 'Belum diisi (data lama)'}
+              <span className="font-semibold text-slate-400">Catatan:</span> {record.note?.trim() || '-'}
             </p>
-          )}
-          {amount && (
             <p className="mt-1 text-[10px] text-slate-400">
-              Dibuat: {dataCreatorRole ?? 'Tidak tercatat'}
-              {dataEditorRole ? ' · Terakhir diubah: ' + dataEditorRole : ''}
+              Dibuat: {record.source_created_role ?? 'Tidak tercatat'}
+              {record.edited_role ? ' · Terakhir diubah: ' + record.edited_role : ''}
             </p>
-          )}
-          {error && <p role="alert" className="mt-1 text-[10px] text-rose-300">{error}</p>}
-        </div>
-        {amount && (
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-            <button type="button" disabled={busy} onClick={() => void copy()} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Copy</button>
-            <button type="button" disabled={busy} onClick={() => setEditing(true)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Edit</button>
-            <button type="button" disabled={busy} onClick={() => void remove()} className="rounded-md border border-rose-800/70 bg-rose-950/20 px-2.5 py-1.5 text-[10px] font-semibold text-rose-200 transition hover:bg-rose-950/40 disabled:opacity-40">Hapus</button>
           </div>
-        )}
-      </div>
-      {editing && (
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+            <button type="button" disabled={busy} onClick={() => void copy(record)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Copy</button>
+            <button type="button" disabled={busy} onClick={() => setEditingRecord(record)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Edit</button>
+            <button type="button" disabled={busy} onClick={() => void remove(record)} className="rounded-md border border-rose-800/70 bg-rose-950/20 px-2.5 py-1.5 text-[10px] font-semibold text-rose-200 disabled:opacity-40">Hapus</button>
+          </div>
+        </div>
+      ))}
+      {!busy && records.length === 0 && !error ? <p className="text-xs text-slate-400">Belum ada OPS - Pencairan Real pada tanggal ini.</p> : null}
+      {error ? <p role="alert" className="text-[10px] text-rose-300">{error}</p> : null}
+      {editingRecord ? (
         <OpsRealModal
           {...props}
           mode="edit"
-          initialAmount={amount ?? ''}
-          initialNote={note ?? ''}
-          initialVersion={version}
-          onClose={() => setEditing(false)}
-          onSaved={() => { setEditing(false); void load() }}
+          transactionId={editingRecord.id}
+          initialAmount={String(editingRecord.amount)}
+          initialNote={editingRecord.note ?? ''}
+          initialVersion={editingRecord.version}
+          onClose={() => setEditingRecord(null)}
+          onSaved={() => { setEditingRecord(null); void load() }}
         />
-      )}
-    </>
+      ) : null}
+    </div>
   )
 }
