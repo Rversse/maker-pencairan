@@ -8,7 +8,7 @@ import {
 } from './services/master-data'
 import { supabase } from './lib/supabase'
 import HistoryPanel from './HistoryPanel'
-import { OpsRealHistoryItem, OpsRealModal } from './OpsReal'
+import { OpsRealModal } from './OpsReal'
 
 type RabEntry = {
   accountId: string
@@ -3393,14 +3393,6 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                   </div>
                 )}
               </div>
-              {kitchenId && activeTransaction && (
-                <OpsRealHistoryItem
-                  token={token}
-                  kitchenId={kitchenId}
-                  kitchenName={selectedKitchen?.name ?? ''}
-                  transactionDate={activeDate}
-                />
-              )}
               {historyMessage && <span className="mt-1 block text-[10px] text-emerald-300">{historyMessage}</span>}
             </div>
           )}
