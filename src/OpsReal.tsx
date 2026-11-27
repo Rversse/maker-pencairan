@@ -164,18 +164,25 @@ export function OpsRealHistoryItem(props: BaseProps) {
     return () => window.clearTimeout(timer)
   }, [load])
 
+  const loadRef = useRef(load)
   useEffect(() => {
+    loadRef.current = load
+  }, [load])
+
+  useEffect(() => {
+    // Each mounted OPS Real list needs its own channel. Workspace and History
+    // render this component together, so a shared topic would collide.
     const channel = supabase
-      .channel('maker-ops-real-history-' + props.kitchenId)
+      .channel('maker-ops-real-history-' + props.kitchenId + '-' + crypto.randomUUID())
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'transactions',
         filter: 'kitchen_id=eq.' + props.kitchenId
-      }, () => { void load() })
+      }, () => { void loadRef.current() })
       .subscribe()
     const refreshWhenVisible = () => {
-      if (document.visibilityState === 'visible') void load()
+      if (document.visibilityState === 'visible') void loadRef.current()
     }
     window.addEventListener('focus', refreshWhenVisible)
     document.addEventListener('visibilitychange', refreshWhenVisible)
@@ -184,7 +191,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
       document.removeEventListener('visibilitychange', refreshWhenVisible)
       void supabase.removeChannel(channel)
     }
-  }, [load, props.kitchenId])
+  }, [props.kitchenId])
 
   async function copy(record: OpsRealRecord) {
     try {
