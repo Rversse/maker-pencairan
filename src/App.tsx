@@ -3371,6 +3371,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                 </div>
               )}
               {kitchenId && activeTransaction && (
+                <div className="w-full">
                 <div className="flex items-end gap-1.5">
                   <button type="button" onClick={() => setOpsRealOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Ops Real</button>
                   <button type="button" onClick={() => setHistoryOpen(true)} className="h-9 rounded-lg border border-slate-700 bg-slate-900 px-3 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
@@ -3385,6 +3386,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                   kitchenName={selectedKitchen?.name ?? ''}
                   transactionDate={activeDate}
                 />
+                </div>
               )}
               {historyMessage && <span className="pb-2 text-[10px] text-emerald-300">{historyMessage}</span>}
             </div>
