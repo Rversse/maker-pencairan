@@ -157,6 +157,35 @@ export function OpsRealHistoryItem(props: BaseProps) {
     const timer = window.setTimeout(() => { void load() }, 0)
     return () => window.clearTimeout(timer)
   }, [load])
+  useEffect(() => {
+    const channel = supabase
+      .channel('maker-ops-real-history-' + props.kitchenId)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'transactions',
+          filter: 'kitchen_id=eq.' + props.kitchenId
+        },
+        () => {
+          void load()
+        }
+      )
+      .subscribe()
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void load()
+    }
+    window.addEventListener('focus', refreshWhenVisible)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+
+    return () => {
+      window.removeEventListener('focus', refreshWhenVisible)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+      void supabase.removeChannel(channel)
+    }
+  }, [load, props.kitchenId])
   async function copy() {
     if (!amount) return
     try {
