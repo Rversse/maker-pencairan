@@ -3356,48 +3356,52 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
       <div className="mx-auto w-full max-w-[1040px]">
         <>
           {masterData && !masterLoading && !masterError && (
-            <div className="mt-3 mb-2 flex w-full min-w-0 flex-nowrap items-end gap-2 overflow-x-auto pb-1">
-              <div className="w-[180px] shrink-0">
-                <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
-                <div className="mp-date-control mp-control-surface relative flex h-9 items-center px-2.5 transition">
-                  <span className="mp-date-label whitespace-nowrap text-[10px] font-semibold tracking-wide">TANGGAL</span>
-                  <span className="mp-date-value ml-2 whitespace-nowrap text-xs font-semibold tabular-nums">{formatDate(activeDate)}</span>
-                  <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full opacity-0" />
-                </div>
-              </div>
-              {!fixedKitchen && (
-                <div className="w-[122px] shrink-0">
-                  <label htmlFor="workspace-kitchen" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Dapur</label>
-                  <select id="workspace-kitchen" value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} className="mp-kitchen-select mp-control-surface h-9 w-full px-2.5 text-xs font-semibold text-white">
-                    <option value="">Pilih dapur</option>
-                    {masterData?.kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
-                  </select>
-                </div>
-              )}
-              {kitchenId && activeTransaction && (
-                <div className="min-w-[360px] flex-1">
-                  <div className="flex h-[34px] w-full items-stretch gap-1.5">
-                    <button type="button" onClick={() => setOpsRealOpen(true)} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">OPS Real</button>
-                    <button type="button" onClick={() => setHistoryOpen(true)} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
-                    {role === 'admin' && (
-                      <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import</button>
-                    )}
-                    <button type="button" onClick={resetWorkspace} title="Reset workspace" aria-label="Reset workspace" className="ml-auto grid h-[34px] w-8 shrink-0 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition">
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M20 7v5h-5M4 17v-5h5" />
-                        <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
-                      </svg>
-                    </button>
+            <div className="mt-3 mb-2 w-full min-w-0">
+              <div className="flex w-full min-w-0 flex-nowrap items-end gap-2 overflow-x-auto pb-1">
+                <div className="w-[180px] shrink-0">
+                  <label htmlFor="date" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Tanggal</label>
+                  <div className="mp-date-control mp-control-surface relative flex h-9 items-center px-2.5 transition">
+                    <span className="mp-date-label whitespace-nowrap text-[10px] font-semibold tracking-wide">TANGGAL</span>
+                    <span className="mp-date-value ml-2 whitespace-nowrap text-xs font-semibold tabular-nums">{formatDate(activeDate)}</span>
+                    <input ref={dateInputRef} id="date" type="date" value={activeDate} onChange={(event) => changeActiveDate(event.target.value)} onClick={(event) => { event.stopPropagation(); openDatePicker() }} aria-label="Pilih tanggal transaksi" className="absolute inset-0 h-full w-full opacity-0" />
                   </div>
-                  <OpsRealHistoryItem
-                    token={token}
-                    kitchenId={kitchenId}
-                    kitchenName={selectedKitchen?.name ?? ''}
-                    transactionDate={activeDate}
-                  />
                 </div>
+                {!fixedKitchen && (
+                  <div className="w-[122px] shrink-0">
+                    <label htmlFor="workspace-kitchen" className="mb-1 block text-xs font-medium leading-4 text-slate-300">Dapur</label>
+                    <select id="workspace-kitchen" value={kitchenId} onChange={(event) => handleKitchenChange(event.target.value)} className="mp-kitchen-select mp-control-surface h-9 w-full px-2.5 text-xs font-semibold text-white">
+                      <option value="">Pilih dapur</option>
+                      {masterData?.kitchens.map((kitchen) => <option key={kitchen.id} value={kitchen.id}>{kitchen.name}</option>)}
+                    </select>
+                  </div>
+                )}
+                {kitchenId && activeTransaction && (
+                  <div className="flex min-w-[360px] flex-1 items-end">
+                    <div className="flex h-[34px] w-full items-stretch gap-1.5">
+                      <button type="button" onClick={() => setOpsRealOpen(true)} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">OPS Real</button>
+                      <button type="button" onClick={() => setHistoryOpen(true)} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">Riwayat</button>
+                      {role === 'admin' && (
+                        <button type="button" onClick={() => { setImportOpen(true); setImportMessage(''); setImportConfirmOpen(false) }} className="shrink-0 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-900 px-2.5 text-[10px] font-semibold text-slate-200 shadow-sm transition">Import</button>
+                      )}
+                      <button type="button" onClick={resetWorkspace} title="Reset workspace" aria-label="Reset workspace" className="ml-auto grid h-[34px] w-8 shrink-0 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-slate-300 shadow-sm transition">
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M20 7v5h-5M4 17v-5h5" />
+                          <path d="M5.6 9a7 7 0 0 1 11.7-2L20 12M4 12l2.7 5a7 7 0 0 0 11.7-2" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {kitchenId && activeTransaction && (
+                <OpsRealHistoryItem
+                  token={token}
+                  kitchenId={kitchenId}
+                  kitchenName={selectedKitchen?.name ?? ''}
+                  transactionDate={activeDate}
+                />
               )}
-              {historyMessage && <span className="shrink-0 pb-2 text-[10px] text-emerald-300">{historyMessage}</span>}
+              {historyMessage && <span className="mt-1 block text-[10px] text-emerald-300">{historyMessage}</span>}
             </div>
           )}
 
