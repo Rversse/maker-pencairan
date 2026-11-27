@@ -129,6 +129,8 @@ export function OpsRealHistoryItem(props: BaseProps) {
   const [amount, setAmount] = useState<string | null>(null)
   const [note, setNote] = useState<string | null>(null)
   const [version, setVersion] = useState(0)
+  const [dataCreatorRole, setDataCreatorRole] = useState<string | null>(null)
+  const [dataEditorRole, setDataEditorRole] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(false)
@@ -143,6 +145,8 @@ export function OpsRealHistoryItem(props: BaseProps) {
       setAmount(data.record?.amount == null ? null : String(data.record.amount))
       setNote(data.record?.note == null ? '' : String(data.record.note))
       setVersion(Number(data.record?.version ?? 0))
+      setDataCreatorRole(data.record?.source_created_role ?? null)
+      setDataEditorRole(data.record?.edited_role ?? null)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Data OPS REAL gagal dimuat.')
     } finally {
@@ -203,6 +207,12 @@ export function OpsRealHistoryItem(props: BaseProps) {
             <p className="mt-1 whitespace-pre-wrap break-words text-[11px] leading-relaxed text-slate-300 [overflow-wrap:anywhere]">
               <span className="font-semibold text-slate-400">Catatan:</span>{' '}
               {note?.trim() ? note : 'Belum diisi (data lama)'}
+            </p>
+          )}
+          {amount && (
+            <p className="mt-1 text-[10px] text-slate-400">
+              Dibuat: {dataCreatorRole ?? 'Tidak tercatat'}
+              {dataEditorRole ? ' · Terakhir diubah: ' + dataEditorRole : ''}
             </p>
           )}
           {error && <p role="alert" className="mt-1 text-[10px] text-rose-300">{error}</p>}
