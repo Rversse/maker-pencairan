@@ -138,6 +138,7 @@ type OpsRealRecord = {
 export function OpsRealHistoryItem(props: BaseProps) {
   const [records, setRecords] = useState<OpsRealRecord[]>([])
   const [busy, setBusy] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
   const [editingRecord, setEditingRecord] = useState<OpsRealRecord | null>(null)
 
@@ -206,9 +207,9 @@ export function OpsRealHistoryItem(props: BaseProps) {
   }
 
   async function remove(record: OpsRealRecord) {
-    if (busy) return
+    if (deleting) return
     if (!window.confirm('Hapus transaksi OPS Real sebesar Rp ' + money(record.amount) + ' untuk ' + props.kitchenName + ' tanggal ' + dateLabel(props.transactionDate) + '?')) return
-    setBusy(true)
+    setDeleting(true)
     setError('')
     try {
       await request(props.token, {
@@ -221,7 +222,8 @@ export function OpsRealHistoryItem(props: BaseProps) {
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'OPS - Pencairan Real gagal dihapus.')
-      setBusy(false)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -229,21 +231,21 @@ export function OpsRealHistoryItem(props: BaseProps) {
     <div className="mt-2 space-y-2">
       {busy && records.length === 0 ? <p className="text-xs text-slate-400">Memuat OPS - Pencairan Real...</p> : null}
       {records.map((record) => (
-        <div key={record.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-cyan-200">OPS Real: {money(record.amount)}</p>
-            <p className="mt-1 whitespace-pre-wrap break-words text-[11px] leading-relaxed text-slate-300 [overflow-wrap:anywhere]">
+        <div key={record.id} className="mp-history-list-item flex w-full min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800/90 bg-slate-900/55 px-3.5 py-3 text-left sm:px-4">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-slate-100">OPS Real · Rp {money(record.amount)}</p>
+            <p className="mt-1 whitespace-pre-wrap break-words text-xs leading-relaxed text-slate-300 [overflow-wrap:anywhere]">
               <span className="font-semibold text-slate-400">Catatan:</span> {record.note?.trim() || '-'}
             </p>
-            <p className="mt-1 text-[10px] text-slate-400">
+            <p className="mt-1 text-[10px] text-slate-500">
               Dibuat: {record.source_created_role ?? 'Tidak tercatat'}
               {record.edited_role ? ' · Terakhir diubah: ' + record.edited_role : ''}
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-            <button type="button" disabled={busy} onClick={() => void copy(record)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Copy</button>
-            <button type="button" disabled={busy} onClick={() => setEditingRecord(record)} className="rounded-md border border-slate-700 px-2.5 py-1.5 text-[10px] font-semibold text-slate-200 disabled:opacity-40">Edit</button>
-            <button type="button" disabled={busy} onClick={() => void remove(record)} className="rounded-md border border-rose-800/70 bg-rose-950/20 px-2.5 py-1.5 text-[10px] font-semibold text-rose-200 disabled:opacity-40">Hapus</button>
+            <button type="button" disabled={deleting} onClick={() => void copy(record)} className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">Salin</button>
+            <button type="button" disabled={deleting} onClick={() => setEditingRecord(record)} className="mp-history-secondary-button rounded-lg border border-slate-700/80 px-3 py-2 text-xs font-semibold text-slate-200 disabled:opacity-40">Edit</button>
+            <button type="button" disabled={deleting} onClick={() => void remove(record)} className="mp-history-danger-button rounded-lg border border-rose-800/70 px-3 py-2 text-xs font-semibold text-rose-200 disabled:opacity-40">Hapus</button>
           </div>
         </div>
       ))}
