@@ -86,7 +86,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
       <section role="dialog" aria-modal="true" aria-labelledby="mp-ops-real-title" className="max-h-[calc(100dvh-1.5rem)] w-full max-w-sm overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-[#111b2a] p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">Catatan Belanja Operasional Real</h2>
+            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">OPS - Pencairan Real</h2>
             <p className="mt-1 text-xs text-slate-400">{kitchenName} · {dateLabel(transactionDate)}</p>
           </div>
           <button type="button" onClick={onClose} disabled={busy} aria-label="Tutup" className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-base text-slate-300 transition hover:border-slate-500 hover:text-white disabled:opacity-50">×</button>
