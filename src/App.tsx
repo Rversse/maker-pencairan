@@ -46,6 +46,10 @@ type DailyPaymentKind =
   | 'Insentif PIC Sekolah'
   | 'Insentif PIC Posyandu'
 
+function dailyPaymentKindDisplayLabel(kind: DailyPaymentKind): string {
+  return kind === 'Sewa SPPG' ? 'Insentif SPPG' : kind
+}
+
 type DailyPaymentCategory = 'sewa' | 'gaji'
 
 type DailyPaymentEntry = {
@@ -2446,7 +2450,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
         kind: 'pencairan_harian',
         bank: outputBank,
         line:
-          kinds.join(', ').toLocaleUpperCase('id-ID') +
+          kinds.map(dailyPaymentKindDisplayLabel).join(', ').toLocaleUpperCase('id-ID') +
           ' : ' +
           outputOwnerName +
           ' - ' +
@@ -4034,7 +4038,7 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                           Ada nominal dari data lama yang masih digabung. Nominal ini belum masuk ke output—cek pembagiannya, lalu pindahkan ke kolom yang sesuai.
                           {activeTransaction.legacy_gaji.map((legacy, index) => (
                             <div key={index} className="mt-1 font-semibold">
-                              {legacy.kinds.join(' + ')} · {formatNumber(legacy.amount)}
+                              {legacy.kinds.map(dailyPaymentKindDisplayLabel).join(' + ')} · {formatNumber(legacy.amount)}
                             </div>
                           ))}
                         </div>
