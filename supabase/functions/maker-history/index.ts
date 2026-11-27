@@ -197,7 +197,7 @@ Deno.serve(async (request: Request) => {
           note,
           updated_by: profile.user_id,
           updated_at: new Date().toISOString(),
-        }).select("id,kitchen_id,transaction_date,amount,updated_at").single();
+        }).select("id,kitchen_id,transaction_date,amount,note,updated_at").single();
         if (error?.code === "23505") return json(request, { error: duplicateMessage }, 409);
         if (error) return json(request, { error: "OPS REAL gagal disimpan" }, 503);
         return json(request, { ok: true, record });
@@ -210,7 +210,7 @@ Deno.serve(async (request: Request) => {
         updated_at: new Date().toISOString(),
       }).eq("kitchen_id", kitchenId)
         .eq("transaction_date", transactionDate)
-        .select("id,kitchen_id,transaction_date,amount,updated_at")
+        .select("id,kitchen_id,transaction_date,amount,note,updated_at")
         .maybeSingle();
       if (error) return json(request, { error: "OPS REAL gagal diperbarui" }, 503);
       if (!record) return json(request, { error: "Catatan OPS REAL tidak ditemukan. Input baru melalui tombol Ops Real di form utama." }, 404);
