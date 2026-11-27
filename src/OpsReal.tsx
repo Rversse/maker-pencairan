@@ -86,7 +86,7 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
       <section role="dialog" aria-modal="true" aria-labelledby="mp-ops-real-title" className="max-h-[calc(100dvh-1.5rem)] w-full max-w-sm overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-[#111b2a] p-4 shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">OPS - Pencairan Real</h2>
+            <h2 id="mp-ops-real-title" className="text-base font-bold text-slate-100">OPS Real</h2>
             <p className="mt-1 text-xs text-slate-400">{kitchenName} · {dateLabel(transactionDate)}</p>
           </div>
           <button type="button" onClick={onClose} disabled={busy} aria-label="Tutup" className="grid h-8 w-8 place-items-center rounded-lg border border-slate-700 bg-slate-900 text-base text-slate-300 transition hover:border-slate-500 hover:text-white disabled:opacity-50">×</button>
@@ -201,7 +201,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
 
   async function remove(record: OpsRealRecord) {
     if (busy) return
-    if (!window.confirm('Hapus transaksi OPS - Pencairan Real sebesar Rp ' + money(record.amount) + ' untuk ' + props.kitchenName + ' tanggal ' + dateLabel(props.transactionDate) + '?')) return
+    if (!window.confirm('Hapus transaksi OPS Real sebesar Rp ' + money(record.amount) + ' untuk ' + props.kitchenName + ' tanggal ' + dateLabel(props.transactionDate) + '?')) return
     setBusy(true)
     setError('')
     try {
@@ -225,7 +225,7 @@ export function OpsRealHistoryItem(props: BaseProps) {
       {records.map((record) => (
         <div key={record.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-cyan-900/70 bg-cyan-950/20 px-3 py-2.5">
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-cyan-200">OPS - Pencairan Real: {money(record.amount)}</p>
+            <p className="text-xs font-semibold text-cyan-200">OPS Real: {money(record.amount)}</p>
             <p className="mt-1 whitespace-pre-wrap break-words text-[11px] leading-relaxed text-slate-300 [overflow-wrap:anywhere]">
               <span className="font-semibold text-slate-400">Catatan:</span> {record.note?.trim() || '-'}
             </p>
@@ -241,7 +241,6 @@ export function OpsRealHistoryItem(props: BaseProps) {
           </div>
         </div>
       ))}
-      {!busy && records.length === 0 && !error ? <p className="text-xs text-slate-400">Belum ada OPS - Pencairan Real pada tanggal ini.</p> : null}
       {error ? <p role="alert" className="text-[10px] text-rose-300">{error}</p> : null}
       {editingRecord ? (
         <OpsRealModal
