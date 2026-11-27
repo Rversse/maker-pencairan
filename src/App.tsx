@@ -4056,8 +4056,8 @@ function MakerWorkspace({ fixedKitchen = false, token, role = 'admin' }: { fixed
                             )
                             const combined = entry.kinds.length > 1
                             const label = combined
-                              ? entry.kinds.join(' + ')
-                              : entry.kinds[0] ?? 'Jenis belum dimapping'
+                              ? entry.kinds.map(dailyPaymentKindDisplayLabel).join(' + ')
+                              : entry.kinds[0] ? dailyPaymentKindDisplayLabel(entry.kinds[0]) : 'Jenis belum dimapping'
 
                             return (
                               <div key={entry.id} className={!historyEnabled ? 'opacity-45' : ''}>
