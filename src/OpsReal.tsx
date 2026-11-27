@@ -93,12 +93,11 @@ export function OpsRealModal({ token, kitchenId, kitchenName, transactionDate, o
         </div>
         <label htmlFor="mp-ops-real-amount" className="mt-5 mb-1.5 block text-xs font-semibold text-slate-300">Nominal</label>
         <div className="flex h-11 items-center rounded-lg border border-slate-700 bg-slate-950 px-3 focus-within:border-cyan-500">
-          <span className="mr-2 text-sm font-semibold text-slate-400">Rp</span>
           <input
             id="mp-ops-real-amount"
             autoFocus
             inputMode="numeric"
-            value={money(digits(amount))}
+            value={amount ? money(digits(amount)) : ''}
             onChange={event => setAmount(digits(event.target.value))}
             onKeyDown={event => { if (event.key === 'Enter') void save() }}
             placeholder="0"
