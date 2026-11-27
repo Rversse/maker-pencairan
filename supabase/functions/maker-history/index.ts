@@ -149,33 +149,26 @@ Deno.serve(async (request: Request) => {
         return json(request, { error: "Akses dapur ditolak" }, 403);
       }
 
-      const findSharedRecord = async () => {
+      const selectColumns = "id,source_system,source_record_id,transaction_date,kitchen_id,amount,note,version,created_at,created_by,source_created_by,source_created_role,edited_by,edited_role,edited_source,edited_at";
+      const findSharedRecords = async () => {
         const { data, error } = await db.from("transactions")
-          .select("id,source_system,source_record_id,transaction_date,kitchen_id,amount,note,version,created_at,created_by,source_created_by,source_created_role,edited_by,edited_role,edited_source,edited_at")
+          .select(selectColumns)
           .eq("flow_type", "ops_disbursement_real")
           .eq("category", "OPS")
           .eq("kitchen_id", kitchenId)
           .eq("transaction_date", transactionDate)
-          .limit(2);
-        if (error) throw new Error("Data OPS REAL gagal diperiksa");
-        if ((data ?? []).length > 1) throw new Error("Ditemukan lebih dari satu OPS REAL untuk dapur dan tanggal ini. Perlu pemeriksaan Admin sebelum diedit.");
-        return data?.[0] ?? null;
+          .order("created_at", { ascending: true });
+        if (error) throw new Error("Data OPS Real gagal diperiksa");
+        return data ?? [];
       };
 
       if (action === "ops_real_get") {
         try {
-          const record = await findSharedRecord();
-          return json(request, { ok: true, record });
+          const records = await findSharedRecords();
+          return json(request, { ok: true, records, record: records[0] ?? null });
         } catch (error) {
-          return json(request, { error: error instanceof Error ? error.message : "Data OPS REAL gagal dimuat" }, 503);
+          return json(request, { error: error instanceof Error ? error.message : "Data OPS Real gagal dimuat" }, 503);
         }
-      }
-
-      let record: Awaited<ReturnType<typeof findSharedRecord>>;
-      try {
-        record = await findSharedRecord();
-      } catch (error) {
-        return json(request, { error: error instanceof Error ? error.message : "Data OPS REAL gagal diperiksa" }, 503);
       }
 
       const actorRole = profile.role === "accountant" ? "Akuntan" : "Admin";
@@ -185,48 +178,14 @@ Deno.serve(async (request: Request) => {
         edited_source: "maker",
       };
 
-      const expectedVersion = Number(body?.expected_version);
-      if (action !== "ops_real_create" && (!Number.isInteger(expectedVersion) || expectedVersion < 1)) {
-        return json(request, { error: "Versi data tidak valid. Muat ulang Riwayat." }, 400);
-      }
-      if (action !== "ops_real_create" && record && record.version !== expectedVersion) {
-        return json(request, { error: "OPS REAL sudah berubah di aplikasi lain. Muat ulang sebelum melanjutkan." }, 409);
-      }
-
-      if (action === "ops_real_delete") {
-        if (!record) return json(request, { error: "Catatan OPS REAL sudah tidak ditemukan. Muat ulang Riwayat." }, 404);
-        const { data: marked, error: markError } = await db.from("transactions")
-          .update(actor)
-          .eq("id", record.id)
-          .eq("version", record.version)
-          .select("id,version")
-          .maybeSingle();
-        if (markError) return json(request, { error: "Aktor penghapus OPS REAL gagal dicatat" }, 503);
-        if (!marked) return json(request, { error: "OPS REAL berubah saat proses hapus. Muat ulang sebelum mencoba lagi." }, 409);
-        const { data: deleted, error: deleteError } = await db.from("transactions")
-          .delete()
-          .eq("id", record.id)
-          .eq("version", marked.version)
-          .select("id")
-          .maybeSingle();
-        if (deleteError) return json(request, { error: "OPS REAL gagal dihapus" }, 503);
-        if (!deleted) return json(request, { error: "OPS REAL berubah saat proses hapus. Muat ulang sebelum mencoba lagi." }, 409);
-        return json(request, { ok: true, deleted: true });
-      }
-
-      const amount = String(body?.amount ?? "");
-      if (!/^\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
-        return json(request, { error: "Nominal OPS REAL harus berupa angka positif yang valid" }, 400);
-      }
-      const note = typeof body?.note === "string" ? body.note : "";
-      if (!note.trim()) {
-        return json(request, { error: "Catatan OPS REAL wajib diisi" }, 400);
-      }
-
       if (action === "ops_real_create") {
-        if (record) return json(request, {
-          error: "OPS REAL untuk dapur dan tanggal ini sudah ada. Data Maker dan SIM menggunakan catatan yang sama; gunakan Edit untuk memperbarui."
-        }, 409);
+        const amount = String(body?.amount ?? "");
+        if (!/^\\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
+          return json(request, { error: "Nominal OPS Real harus berupa angka positif yang valid" }, 400);
+        }
+        const note = typeof body?.note === "string" ? body.note : "";
+        if (!note.trim()) return json(request, { error: "Catatan OPS Real wajib diisi" }, 400);
+
         const sourceRecordId = crypto.randomUUID();
         const { data: created, error } = await db.from("transactions").insert({
           transaction_date: transactionDate,
@@ -244,23 +203,63 @@ Deno.serve(async (request: Request) => {
           source_created_by: profile.user_id,
           source_created_role: actorRole,
           ...actor,
-        }).select("id,source_system,source_record_id,transaction_date,kitchen_id,amount,note,version,created_at,created_by,source_created_by,source_created_role,edited_by,edited_role,edited_source,edited_at").single();
-        if (error?.code === "23505") return json(request, { error: "OPS REAL sudah dibuat dari aplikasi lain. Muat ulang Riwayat." }, 409);
-        if (error) return json(request, { error: "OPS REAL gagal disimpan" }, 503);
+        }).select(selectColumns).single();
+        if (error?.code === "23505") return json(request, { error: "Transaksi OPS - Pencairan Real dengan nominal dan catatan yang sama sudah ada untuk dapur dan tanggal ini." }, 409);
+        if (error) return json(request, { error: "OPS - Pencairan Real gagal disimpan" }, 503);
         return json(request, { ok: true, record: created });
       }
 
-      if (!record) return json(request, { error: "Catatan OPS REAL tidak ditemukan. Input baru melalui tombol Ops Real di form utama." }, 404);
-      const { data: updated, error } = await db.from("transactions").update({
-        amount: Number(amount),
-        note: note.trim(),
-        ...actor,
-      }).eq("id", record.id)
-        .eq("version", record.version)
-        .select("id,source_system,source_record_id,transaction_date,kitchen_id,amount,note,version,created_at,created_by,source_created_by,source_created_role,edited_by,edited_role,edited_source,edited_at")
+      const transactionId = body?.transaction_id;
+      if (!isUuid(transactionId)) {
+        return json(request, { error: "ID transaksi OPS Real tidak valid" }, 400);
+      }
+      const { data: record, error: recordError } = await db.from("transactions")
+        .select(selectColumns)
+        .eq("id", transactionId)
+        .eq("flow_type", "ops_disbursement_real")
+        .eq("category", "OPS")
+        .eq("kitchen_id", kitchenId)
+        .eq("transaction_date", transactionDate)
         .maybeSingle();
-      if (error) return json(request, { error: "OPS REAL gagal diperbarui" }, 503);
-      if (!updated) return json(request, { error: "OPS REAL berubah di aplikasi lain. Muat ulang sebelum menyimpan lagi." }, 409);
+      if (recordError) return json(request, { error: "Data OPS Real gagal diperiksa" }, 503);
+      if (!record) return json(request, { error: "Transaksi OPS Real tidak ditemukan. Muat ulang riwayat." }, 404);
+
+      const expectedVersion = Number(body?.expected_version);
+      if (!Number.isInteger(expectedVersion) || expectedVersion < 1) {
+        return json(request, { error: "Versi data tidak valid. Muat ulang Riwayat." }, 400);
+      }
+      if (record.version !== expectedVersion) {
+        return json(request, { error: "Transaksi OPS Real sudah berubah di aplikasi lain. Muat ulang sebelum melanjutkan." }, 409);
+      }
+
+      if (action === "ops_real_delete") {
+        const { data: marked, error: markError } = await db.from("transactions")
+          .update(actor).eq("id", record.id).eq("version", record.version)
+          .select("id,version").maybeSingle();
+        if (markError) return json(request, { error: "Aktor penghapus OPS Real gagal dicatat" }, 503);
+        if (!marked) return json(request, { error: "Transaksi OPS Real berubah saat proses hapus. Muat ulang sebelum mencoba lagi." }, 409);
+        const { data: deleted, error: deleteError } = await db.from("transactions")
+          .delete().eq("id", record.id).eq("version", marked.version)
+          .select("id").maybeSingle();
+        if (deleteError) return json(request, { error: "OPS - Pencairan Real gagal dihapus" }, 503);
+        if (!deleted) return json(request, { error: "Transaksi OPS Real berubah saat proses hapus. Muat ulang sebelum mencoba lagi." }, 409);
+        return json(request, { ok: true, deleted: true, transaction_id: record.id });
+      }
+
+      if (action !== "ops_real_update") return json(request, { error: "Aksi OPS Real tidak dikenal" }, 400);
+      const amount = String(body?.amount ?? "");
+      if (!/^\\d{1,15}$/.test(amount) || Number(amount) <= 0 || !Number.isSafeInteger(Number(amount))) {
+        return json(request, { error: "Nominal OPS Real harus berupa angka positif yang valid" }, 400);
+      }
+      const note = typeof body?.note === "string" ? body.note : "";
+      if (!note.trim()) return json(request, { error: "Catatan OPS Real wajib diisi" }, 400);
+      const { data: updated, error: updateError } = await db.from("transactions")
+        .update({ amount: Number(amount), note: note.trim(), ...actor })
+        .eq("id", record.id).eq("version", record.version)
+        .select(selectColumns).maybeSingle();
+      if (updateError?.code === "23505") return json(request, { error: "Transaksi OPS - Pencairan Real dengan nominal dan catatan yang sama sudah ada untuk dapur dan tanggal ini." }, 409);
+      if (updateError) return json(request, { error: "OPS - Pencairan Real gagal diperbarui" }, 503);
+      if (!updated) return json(request, { error: "Transaksi OPS Real berubah di aplikasi lain. Muat ulang sebelum menyimpan lagi." }, 409);
       return json(request, { ok: true, record: updated });
     }
 
